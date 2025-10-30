@@ -7,8 +7,25 @@
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 
 stages:
+  - build
   - test
   - secret-detection
+
+build:
+  stage: build
+  script:
+    - cd hrlp-frontend
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - hrlp-frontend/build
+
+test:
+  stage: test
+  script:
+    - cd hrlp-frontend
+    - npm test
 
 include:
   - template: Security/SAST.gitlab-ci.yml
@@ -16,9 +33,3 @@ include:
 
 variables:
   SECRET_DETECTION_ENABLED: "true"
-
-sast:
-  stage: test
-
-secret_detection:
-  stage: secret-detection
