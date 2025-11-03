@@ -13,18 +13,18 @@ stages:
 
 build:
   stage: build
+  image: node:18
   script:
     - cd hrlp-frontend
     - npm install
     - npm run build
-  artifacts:
-    paths:
-      - hrlp-frontend/build
 
 test:
   stage: test
+  image: node:18
   script:
     - cd hrlp-frontend
+    - npm install
     - npm test
 
 include:
