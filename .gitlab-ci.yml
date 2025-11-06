@@ -15,7 +15,7 @@ build:
   stage: build
   image: node:20.19.1
   script:
-    - cd hrlp-frontend
+    - cd license-application-service
     - npm install
     - npm run build
 
@@ -23,7 +23,7 @@ test:
   stage: test
   image: node:20.19.1
   script:
-    - cd hrlp-frontend
+    - cd license-application-service
     - npm install
     - npm test
 
