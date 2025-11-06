@@ -1,6 +1,6 @@
-## ISSUE DESCRIPTION HERE
+### ISSUE DESCRIPTION HERE
 
-## Acceptance Criteria:
-- [ ] **A**
-- [ ] **B**
-- [ ] **C**
+**Acceptance Criteria:**
+- [ ] A
+- [ ] B
+- [ ] C
