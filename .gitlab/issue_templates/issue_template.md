@@ -1,7 +1,6 @@
-# Issue Template
+# ISSUE TITLE HERE
 
-## Summary
-ISSUE DESCRIPTION HERE
+## ISSUE DESCRIPTION HERE
 
 ## Acceptance Criteria:
 - [ ] **A**
