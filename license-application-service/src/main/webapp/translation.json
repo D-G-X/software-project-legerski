@@ -1,0 +1,180 @@
+{
+  "app": {
+    "title": "License Application Service"
+  },
+  "navigation": {
+    "toggle": "Toggle navigation",
+    "home": "Home",
+    "entities": "Entities"
+  },
+  "home": {
+    "index": {
+      "headline": "Welcome to your new app!",
+      "text": "Your app was created with <a href=\"https://bootify.io\" target=\"_blank\" className=\"underline\">Bootify.io</a> and can now be customized. If you are happy with the result, <strong>please recommend us to other developers</strong> - so Bootify.io can grow further.",
+      "exploreEntities": "Explore your entities"
+    }
+  },
+  "error": {
+    "page": {
+      "headline": "Error",
+      "message": "The page you are looking for is not available right now."
+    }
+  },
+  "appUser": {
+    "list": {
+      "headline": "App Users",
+      "createNew": "Create new App User",
+      "empty": "No App Users could be found.",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "add": {
+      "headline": "Add App User",
+      "back": "Back to list"
+    },
+    "id": {
+      "label": "Id"
+    },
+    "edit": {
+      "headline": "Edit App User",
+      "back": "Back to list"
+    },
+    "application": {
+      "user": {
+        "referenced": "This entity is still referenced by Application {{id}} via field User."
+      }
+    },
+    "license": {
+      "user": {
+        "referenced": "This entity is still referenced by License {{id}} via field User."
+      }
+    },
+    "create": {
+      "success": "App User was created successfully."
+    },
+    "update": {
+      "success": "App User was updated successfully."
+    },
+    "delete": {
+      "success": "App User was removed successfully."
+    }
+  },
+  "application": {
+    "list": {
+      "headline": "Applications",
+      "createNew": "Create new Application",
+      "empty": "No Applications could be found.",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "add": {
+      "headline": "Add Application",
+      "back": "Back to list"
+    },
+    "id": {
+      "label": "Id"
+    },
+    "licenseType": {
+      "label": "License Type"
+    },
+    "cadastralReference": {
+      "label": "Cadastral Reference"
+    },
+    "appliedAt": {
+      "label": "Applied At"
+    },
+    "changedAt": {
+      "label": "Changed At"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "paymentStatus": {
+      "label": "Payment Status"
+    },
+    "user": {
+      "label": "User"
+    },
+    "edit": {
+      "headline": "Edit Application",
+      "back": "Back to list"
+    },
+    "license": {
+      "application": {
+        "referenced": "This entity is still referenced by License {{id}} via field Application."
+      }
+    },
+    "create": {
+      "success": "Application was created successfully."
+    },
+    "update": {
+      "success": "Application was updated successfully."
+    },
+    "delete": {
+      "success": "Application was removed successfully."
+    }
+  },
+  "license": {
+    "list": {
+      "headline": "Licenses",
+      "createNew": "Create new License",
+      "empty": "No Licenses could be found.",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "add": {
+      "headline": "Add License",
+      "back": "Back to list"
+    },
+    "id": {
+      "label": "Id"
+    },
+    "licenseType": {
+      "label": "License Type"
+    },
+    "licenseStatus": {
+      "label": "License Status"
+    },
+    "issuedAt": {
+      "label": "Issued At"
+    },
+    "expiresAt": {
+      "label": "Expires At"
+    },
+    "user": {
+      "label": "User"
+    },
+    "application": {
+      "label": "Application"
+    },
+    "edit": {
+      "headline": "Edit License",
+      "back": "Back to list"
+    },
+    "create": {
+      "success": "License was created successfully."
+    },
+    "update": {
+      "success": "License was updated successfully."
+    },
+    "delete": {
+      "success": "License was removed successfully."
+    }
+  },
+  "select": {
+    "empty": {
+      "label": "Please select"
+    }
+  },
+  "delete": {
+    "confirm": "Do you really want to delete this element? This cannot be undone."
+  },
+  "operation": {
+    "success": "Your operation was successful."
+  },
+  "required": "Please provide a value.",
+  "maxlength": "Your value must have a length of less then ${max} characters.",
+  "valid": {
+    "offsetDateTime": "Please provide a valid date with offset, for example \"2026-01-23T14:55:00+01:00\"."
+  }
+}
