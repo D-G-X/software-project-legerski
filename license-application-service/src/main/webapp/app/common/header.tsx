@@ -1,10 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
+import { ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 
 export default function Header() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [open, setOpen] = useState(false);
+
+  const toggleDropdown = () => setOpen((prev) => !prev);
+  const changeLanguage = (lng: string) => {
+      i18n.changeLanguage(lng);
+      setOpen(false);
+  };
+
   const headerRef = useRef<HTMLElement|null>(null);
 
   const handleClick = (event: Event) => {
@@ -46,23 +55,44 @@ export default function Header() {
             </div>
           </button>
           <div className="hidden md:block flex grow md:grow-0 justify-end basis-full md:basis-auto pt-3 md:pt-1 pb-1" id="navbarToggle">
-            <ul className="flex">
-              <li>
-                <Link to="/" className="block text-gray-500 p-2">{t('navigation.home')}</Link>
-              </li>
-              <li className="relative">
-                <button type="button" className="js-dropdown block text-gray-500 p-2 cursor-pointer" id="navbarEntitiesLink"
-                    aria-expanded="false">
-                  <span>{t('navigation.entities')}</span>
-                  <span className="text-[9px] align-[3px] pl-0.5">&#9660;</span>
-                </button>
-                <ul className="hidden block absolute right-0 bg-white border border-gray-300 rounded min-w-[10rem] py-2" aria-labelledby="navbarEntitiesLink">
-                  <li><Link to="/appUsers" className="inline-block w-full hover:bg-gray-200 px-4 py-1">{t('appUser.list.headline')}</Link></li>
-                  <li><Link to="/applications" className="inline-block w-full hover:bg-gray-200 px-4 py-1">{t('application.list.headline')}</Link></li>
-                  <li><Link to="/licenses" className="inline-block w-full hover:bg-gray-200 px-4 py-1">{t('license.list.headline')}</Link></li>
-                </ul>
-              </li>
-            </ul>
+              <ul className="flex">
+
+                  {/* Language Dropdown */}
+                  <li className="relative group">
+                      <button
+                          type="button"
+                          onClick={toggleDropdown}
+                          className="block text-gray-500 p-2 cursor-pointer flex items-center"
+                      >
+                          <span className="mr-1">{i18n.language.toUpperCase()}</span>
+                          <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-200 ${
+                                  open ? 'rotate-90' : 'rotate-0'
+                              }`}
+                            />
+                      </button>
+                      {open && (
+                          <ul className="hidden group-hover:block absolute right-0 bg-white border border-gray-300 rounded min-w-[6rem] py-2 z-50">
+                              <li>
+                                  <button
+                                      onClick={() => open && changeLanguage('en')}
+                                      className="block w-full text-left px-4 py-1 hover:bg-gray-200"
+                                  >
+                                      <img src="/images/languages/english.png" alt={t('app.title')} width="50" className="inline-block" />
+                                  </button>
+                              </li>
+                              <li>
+                                  <button
+                                      onClick={() => open && changeLanguage('es')}
+                                      className="block w-full text-left px-4 py-1 hover:bg-gray-200"
+                                  >
+                                      <img src="/images/languages/spanish.png" alt={t('app.title')} width="50" className="inline-block" />
+                                  </button>
+                              </li>
+                          </ul>
+                        )}
+                  </li>
+              </ul>
           </div>
         </nav>
       </div>

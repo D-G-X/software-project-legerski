@@ -1,0 +1,180 @@
+{
+  "app": {
+    "title": "Licencias de Vacaciones en Mallorca"
+  },
+  "navigation": {
+    "toggle": "Alternar navegación",
+    "home": "Inicio",
+    "entities": "Entidades"
+  },
+  "home": {
+    "index": {
+      "headline": "¡Bienvenido a tu nueva aplicación!",
+      "text": "Tu aplicación fue creada con <a href=\"https://bootify.io\" target=\"_blank\" className=\"underline\">Bootify.io</a> y ahora puede personalizarse. Si estás satisfecho con el resultado, <strong>por favor recomiéndanos a otros desarrolladores</strong> para que Bootify.io pueda seguir creciendo.",
+      "exploreEntities": "Explorar tus entidades"
+    }
+  },
+  "error": {
+    "page": {
+      "headline": "Error",
+      "message": "La página que estás buscando no está disponible en este momento."
+    }
+  },
+  "appUser": {
+    "list": {
+      "headline": "Usuarios de la Aplicación",
+      "createNew": "Crear nuevo Usuario de la Aplicación",
+      "empty": "No se encontraron Usuarios de la Aplicación.",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "add": {
+      "headline": "Añadir Usuario de la Aplicación",
+      "back": "Volver a la lista"
+    },
+    "id": {
+      "label": "Id"
+    },
+    "edit": {
+      "headline": "Editar Usuario de la Aplicación",
+      "back": "Volver a la lista"
+    },
+    "application": {
+      "user": {
+        "referenced": "Esta entidad aún está referenciada por la Solicitud {{id}} a través del campo Usuario."
+      }
+    },
+    "license": {
+      "user": {
+        "referenced": "Esta entidad aún está referenciada por la Licencia {{id}} a través del campo Usuario."
+      }
+    },
+    "create": {
+      "success": "El Usuario de la Aplicación se creó correctamente."
+    },
+    "update": {
+      "success": "El Usuario de la Aplicación se actualizó correctamente."
+    },
+    "delete": {
+      "success": "El Usuario de la Aplicación se eliminó correctamente."
+    }
+  },
+  "application": {
+    "list": {
+      "headline": "Solicitudes",
+      "createNew": "Crear nueva Solicitud",
+      "empty": "No se encontraron Solicitudes.",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "add": {
+      "headline": "Añadir Solicitud",
+      "back": "Volver a la lista"
+    },
+    "id": {
+      "label": "Id"
+    },
+    "licenseType": {
+      "label": "Tipo de Licencia"
+    },
+    "cadastralReference": {
+      "label": "Referencia Catastral"
+    },
+    "appliedAt": {
+      "label": "Fecha de Solicitud"
+    },
+    "changedAt": {
+      "label": "Fecha de Modificación"
+    },
+    "status": {
+      "label": "Estado"
+    },
+    "paymentStatus": {
+      "label": "Estado del Pago"
+    },
+    "user": {
+      "label": "Usuario"
+    },
+    "edit": {
+      "headline": "Editar Solicitud",
+      "back": "Volver a la lista"
+    },
+    "license": {
+      "application": {
+        "referenced": "Esta entidad aún está referenciada por la Licencia {{id}} a través del campo Solicitud."
+      }
+    },
+    "create": {
+      "success": "La Solicitud se creó correctamente."
+    },
+    "update": {
+      "success": "La Solicitud se actualizó correctamente."
+    },
+    "delete": {
+      "success": "La Solicitud se eliminó correctamente."
+    }
+  },
+  "license": {
+    "list": {
+      "headline": "Licencias",
+      "createNew": "Crear nueva Licencia",
+      "empty": "No se encontraron Licencias.",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "add": {
+      "headline": "Añadir Licencia",
+      "back": "Volver a la lista"
+    },
+    "id": {
+      "label": "Id"
+    },
+    "licenseType": {
+      "label": "Tipo de Licencia"
+    },
+    "licenseStatus": {
+      "label": "Estado de la Licencia"
+    },
+    "issuedAt": {
+      "label": "Fecha de Emisión"
+    },
+    "expiresAt": {
+      "label": "Fecha de Expiración"
+    },
+    "user": {
+      "label": "Usuario"
+    },
+    "application": {
+      "label": "Solicitud"
+    },
+    "edit": {
+      "headline": "Editar Licencia",
+      "back": "Volver a la lista"
+    },
+    "create": {
+      "success": "La Licencia se creó correctamente."
+    },
+    "update": {
+      "success": "La Licencia se actualizó correctamente."
+    },
+    "delete": {
+      "success": "La Licencia se eliminó correctamente."
+    }
+  },
+  "select": {
+    "empty": {
+      "label": "Por favor selecciona"
+    }
+  },
+  "delete": {
+    "confirm": "¿Realmente deseas eliminar este elemento? Esta acción no se puede deshacer."
+  },
+  "operation": {
+    "success": "Tu operación se realizó con éxito."
+  },
+  "required": "Por favor proporciona un valor.",
+  "maxlength": "Tu valor debe tener menos de ${max} caracteres.",
+  "valid": {
+    "offsetDateTime": "Por favor proporciona una fecha válida con zona horaria, por ejemplo \"2026-01-23T14:55:00+01:00\"."
+  }
+}
