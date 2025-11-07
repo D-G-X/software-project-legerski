@@ -9,9 +9,7 @@
   },
   "home": {
     "index": {
-      "headline": "¡Bienvenido a tu nueva aplicación!",
-      "text": "Tu aplicación fue creada con <a href=\"https://bootify.io\" target=\"_blank\" className=\"underline\">Bootify.io</a> y ahora puede personalizarse. Si estás satisfecho con el resultado, <strong>por favor recomiéndanos a otros desarrolladores</strong> para que Bootify.io pueda seguir creciendo.",
-      "exploreEntities": "Explorar tus entidades"
+      "headline": "Mallorca"
     }
   },
   "error": {

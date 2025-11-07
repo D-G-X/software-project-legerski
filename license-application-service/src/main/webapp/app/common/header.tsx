@@ -39,7 +39,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header ref={headerRef} className="bg-gray-50">
+    <header ref={headerRef} className="bg-gray-50 h-16">
       <div className="container mx-auto px-4 md:px-6">
         <nav className="flex flex-wrap items-center justify-between py-2">
           <Link to="/" className="flex py-1.5 mr-4">
