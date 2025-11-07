@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="LicenseApplicationService" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="license-application-service" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.bootify.license_application_service.LicenseApplicationServiceApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
