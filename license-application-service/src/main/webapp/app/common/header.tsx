@@ -34,7 +34,7 @@ export default function Header() {
       <div className="container mx-auto px-4 md:px-6">
         <nav className="flex flex-wrap items-center justify-between py-2">
           <Link to="/" className="flex py-1.5 mr-4">
-            <img src="/images/logo.png" alt={t('app.title')} width="30" height="30" className="inline-block" />
+            <img src="/images/logo.svg" alt={t('app.title')} width="100" height="100" className="inline-block" />
             <span className="text-xl pl-3">{t('app.title')}</span>
           </Link>
           <button type="button" className="js-dropdown md:hidden border rounded cursor-pointer" data-dropdown-keepopen="true"
