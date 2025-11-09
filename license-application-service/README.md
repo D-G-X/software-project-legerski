@@ -22,7 +22,7 @@ mvnw clean package
 
 #### - Development
 
-Start your application with the IntelliJ run configuration `Dev LicenseApplicationServiceApplication` or with the following command:
+Start your application with the IntelliJ run configuration `Dev LicenseApplicationServiceApplication` **or** with the following command:
 
 ```
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
@@ -30,7 +30,7 @@ Start your application with the IntelliJ run configuration `Dev LicenseApplicati
 
 #### - Production
 
-Start your application with the IntelliJ run configuration `Prod LicenseApplicationServiceApplication` or with the following command:
+Start your application with the IntelliJ run configuration `Prod LicenseApplicationServiceApplication` **or** with the following command:
 
 ```
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=production
@@ -48,13 +48,11 @@ The project uses npm as package manager. To download the required dependencies, 
 npm install
 ```
 
+> The IntelliJ run configurations automatically run `npm install` before building or testing the frontend.
+
 #### - Development
 
-Start your application with the IntelliJ run configuration `npm run dev` or with the following commands:
-
-```
-npm install
-```
+Start your application with the IntelliJ run configuration `npm run dev` **or** with the following command:
 
 ```
 npm run devserver
@@ -62,11 +60,7 @@ npm run devserver
 
 #### - Production
 
-Start your application with the IntelliJ run configuration `npm run prod` or with the following commands:
-
-```
-npm install
-```
+Start your application with the IntelliJ run configuration `npm run prod` **or** with the following command:
 
 ```
 npm run build
@@ -74,21 +68,15 @@ npm run build
 
 #### - Testing
 
-Run the frontend unit tests with the IntelliJ run configuration `npm run test` or with the following commands:
+Run the frontend unit tests with the IntelliJ run configuration `npm run test` **or** with the following command:
 
 Frontend unit tests can be executed with `npm run test`.
-
-```
-npm install
-```
 
 ```
 npm run test
 ```
 
 ---
-
-> The IntelliJ run configurations automatically run `npm install` before building or testing the frontend.
 
 The whole application is now accessible under [localhost:3000](localhost:3000). All changes are immediately visible in the browser.
 
