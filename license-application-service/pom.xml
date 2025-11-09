@@ -15,6 +15,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <jooq.version>3.20.8</jooq.version>
     </properties>
 
     <dependencies>
@@ -74,6 +75,17 @@
             <artifactId>preliquibase-spring-boot-starter</artifactId>
             <version>1.6.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta-extensions-liquibase</artifactId>
+            <version>3.20.8</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -86,6 +98,52 @@
                     <propertyFile>db/liquibase.properties</propertyFile>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>${jooq.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generator>
+                        <database>
+                            <name>org.jooq.meta.extensions.liquibase.LiquibaseDatabase</name>
+                            <properties>
+                                <property>
+                                    <key>rootPath</key>
+                                    <value>${project.basedir}/src/main/resources/db</value>
+                                </property>
+                                <property>
+                                    <key>scripts</key>
+                                    <value>master-changelog.xml</value>
+                                </property>
+                                <property>
+                                    <key>database.liquibaseSchemaName</key>
+                                    <value>licensing</value>
+                                </property>
+                            </properties>
+                            <inputSchema>PUBLIC</inputSchema>
+                            <outputSchema>licensing</outputSchema>
+                        </database>
+                        <generate>
+                            <javaTimeTypes>true</javaTimeTypes>
+                            <defaultCatalog>false</defaultCatalog>
+                            <defaultSchema>false</defaultSchema>
+                        </generate>
+                        <target>
+                            <packageName>de.hft.licensing.db</packageName>
+                            <directory>target/generated-sources/jooq/src/main/java</directory>
+                        </target>
+                    </generator>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
