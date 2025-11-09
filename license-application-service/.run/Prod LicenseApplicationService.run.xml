@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Prod LicenseApplicationService" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="license-application-service" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="de.hft.licensing.LicensingApplication" />
+    <option name="VM_PARAMETERS" value="-Dspring.profiles.active=production" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
