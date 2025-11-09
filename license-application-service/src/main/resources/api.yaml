@@ -73,7 +73,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/User"
+                  $ref: "#/components/schemas/UserRecord"
         "400":
           description: Invalid query parameter
         "401":
@@ -126,7 +126,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/UserRecord"
 
     patch:
       summary: Update user attributes or password
@@ -233,7 +233,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Application"
+                  $ref: "#/components/schemas/ApplicationRecord"
     post:
       tags: [Applications]
       summary: Create a new application
@@ -253,7 +253,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Application"
+                $ref: "#/components/schemas/ApplicationRecord"
 
   /applications/{applicationId}:
     get:
@@ -275,7 +275,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Application"
+                $ref: "#/components/schemas/ApplicationRecord"
     patch:
       tags: [Applications]
       summary: Update application status or remarks
@@ -300,7 +300,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Application"
+                $ref: "#/components/schemas/ApplicationRecord"
 
     delete:
       tags: [Applications]
@@ -359,7 +359,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationDocument"
+                $ref: "#/components/schemas/ApplicationDocumentRecord"
 
     get:
       tags: [Document Verification]
@@ -382,7 +382,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ApplicationDocument"
+                  $ref: "#/components/schemas/ApplicationDocumentRecord"
 
   /applications/{applicationId}/documents/{documentId}/verification:
     post:
@@ -421,7 +421,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationDocument"
+                $ref: "#/components/schemas/ApplicationDocumentRecord"
 
   /applications/{applicationId}/payments:
     get:
@@ -445,7 +445,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ApplicationPayment"
+                  $ref: "#/components/schemas/ApplicationPaymentRecord"
     post:
       tags: [Payments]
       summary: Record a payment for an application
@@ -471,7 +471,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationPayment"
+                $ref: "#/components/schemas/ApplicationPaymentRecord"
 
   /applications/{applicationId}/payments/{paymentId}:
     patch:
@@ -509,7 +509,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationPayment"
+                $ref: "#/components/schemas/ApplicationPaymentRecord"
 
   /applications/lottery:
     post:
@@ -545,11 +545,11 @@ paths:
                   selected_applications:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Application"
+                      $ref: "#/components/schemas/ApplicationRecord"
                   not_selected_applications:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Application"
+                      $ref: "#/components/schemas/ApplicationRecord"
 
   /licenses:
     get:
@@ -575,7 +575,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/License"
+                  $ref: "#/components/schemas/LicenseRecord"
 
   /licenses/{licenseId}:
     get:
@@ -597,7 +597,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/License"
+                $ref: "#/components/schemas/LicenseRecord"
     patch:
       tags: [Licenses]
       summary: Update the status of a license
@@ -628,7 +628,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/License"
+                $ref: "#/components/schemas/LicenseRecord"
 
     delete:
       tags: [Licenses]
@@ -780,7 +780,7 @@ components:
             email: Email access
 
   schemas:
-    User:
+    UserRecord:
       type: object
       description: Represents a user of the holiday rental licensing portal, typically sourced from a Keycloak identity provider.
       properties:
@@ -872,7 +872,7 @@ components:
         - username
         - enabled
 
-    License:
+    LicenseRecord:
       type: object
       description: Represents a holiday rental license issued to a user for a property.
       properties:
@@ -910,7 +910,7 @@ components:
         - license_type
         - license_status
 
-    Application:
+    ApplicationRecord:
       type: object
       description: Represents a user's request for a holiday rental license.
       properties:
@@ -991,7 +991,7 @@ components:
           description: Additional notes or comments.
           example: Missing one document
 
-    ApplicationPayment:
+    ApplicationPaymentRecord:
       type: object
       description: Represents a payment made for an application.
       properties:
@@ -1135,7 +1135,7 @@ components:
         - etvpl
         - etv60
 
-    ApplicationDocument:
+    ApplicationDocumentRecord:
       type: object
       description: Supporting documents attached to an application.
       properties:
