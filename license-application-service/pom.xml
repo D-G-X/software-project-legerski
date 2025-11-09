@@ -81,11 +81,6 @@
             <artifactId>jooq</artifactId>
             <version>${jooq.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq-meta-extensions-liquibase</artifactId>
-            <version>3.20.8</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -111,25 +106,21 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <jdbc>
+                        <driver>org.postgresql.Driver</driver>
+                        <url>jdbc:postgresql://localhost:5433/government</url>
+                        <user>postgres</user>
+                        <password>P4ssword!</password>
+                    </jdbc>
                     <generator>
                         <database>
-                            <name>org.jooq.meta.extensions.liquibase.LiquibaseDatabase</name>
-                            <properties>
-                                <property>
-                                    <key>rootPath</key>
-                                    <value>${project.basedir}/src/main/resources/db</value>
-                                </property>
-                                <property>
-                                    <key>scripts</key>
-                                    <value>master-changelog.xml</value>
-                                </property>
-                                <property>
-                                    <key>database.liquibaseSchemaName</key>
-                                    <value>licensing</value>
-                                </property>
-                            </properties>
-                            <inputSchema>PUBLIC</inputSchema>
-                            <outputSchema>licensing</outputSchema>
+                            <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                            <inputSchema>licensing</inputSchema>
+                            <includes>.*</includes>
+                            <excludes>
+                                DATABASECHANGELOG
+                                | DATABASECHANGELOGLOCK
+                            </excludes>
                         </database>
                         <generate>
                             <javaTimeTypes>true</javaTimeTypes>

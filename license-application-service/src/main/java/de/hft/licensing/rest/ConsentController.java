@@ -1,0 +1,48 @@
+package de.hft.licensing.rest;
+
+import de.hft.licensing.api.ConsentsApi;
+import de.hft.licensing.model.CheckConsentForUser200Response;
+import de.hft.licensing.model.CheckConsentForUserRequest;
+import de.hft.licensing.model.ConsentCreate;
+import de.hft.licensing.model.ConsentRecord;
+import org.jooq.DSLContext;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+public class ConsentController implements ConsentsApi {
+
+    private final DSLContext dsl;
+
+    public ConsentController(DSLContext dsl) {
+        this.dsl = dsl;
+    }
+
+    @Override
+    public ResponseEntity<CheckConsentForUser200Response> checkConsentForUser(CheckConsentForUserRequest checkConsentForUserRequest) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<ConsentRecord> createConsentForUser(ConsentCreate consentCreate) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteConsentForUser(String consentId) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<List<ConsentRecord>> listConsentsForUser() {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Void> requestGdprDeletion(UUID userId) {
+        return null;
+    }
+}
