@@ -1,4 +1,4 @@
-package io.bootify.license_application_service.controller;
+package de.hft.licensing.rest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package io.bootify.license_application_service.config;
+package de.hft.licensing.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

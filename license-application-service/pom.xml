@@ -15,6 +15,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <jooq.version>3.20.8</jooq.version>
     </properties>
 
     <dependencies>
@@ -25,10 +26,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -67,10 +64,77 @@
             <artifactId>jakarta.annotation-api</artifactId>
             <version>3.0.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>5.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.lbruun.springboot</groupId>
+            <artifactId>preliquibase-spring-boot-starter</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>5.0.1</version>
+                <configuration>
+                    <propertyFile>db/liquibase.properties</propertyFile>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>${jooq.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jdbc>
+                        <driver>org.postgresql.Driver</driver>
+                        <url>jdbc:postgresql://localhost:5433/government</url>
+                        <user>postgres</user>
+                        <password>P4ssword!</password>
+                    </jdbc>
+                    <generator>
+                        <database>
+                            <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                            <inputSchema>licensing</inputSchema>
+                            <includes>.*</includes>
+                            <excludes>
+                                DATABASECHANGELOG
+                                | DATABASECHANGELOGLOCK
+                            </excludes>
+                        </database>
+                        <generate>
+                            <javaTimeTypes>true</javaTimeTypes>
+                            <defaultCatalog>false</defaultCatalog>
+                            <defaultSchema>false</defaultSchema>
+                        </generate>
+                        <target>
+                            <packageName>de.hft.licensing.db</packageName>
+                            <directory>target/generated-sources/jooq/src/main/java</directory>
+                        </target>
+                    </generator>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -83,8 +147,8 @@
                         <configuration>
                             <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
                             <generatorName>spring</generatorName>
-                            <apiPackage>io.bootify.license_application_service.api</apiPackage>
-                            <modelPackage>io.bootify.license_application_service.model</modelPackage>
+                            <apiPackage>de.hft.licensing.api</apiPackage>
+                            <modelPackage>de.hft.licensing.model</modelPackage>
                             <configOptions>
                                 <sourceFolder>src/main/java</sourceFolder>
                                 <useJakartaEe>true</useJakartaEe>
