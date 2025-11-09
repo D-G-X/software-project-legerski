@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ReactForwardController {
 
-    @GetMapping("{path:^(?!api|public|css|js|images)[^\\.]*}/**")
+    @GetMapping("{path:^(?!api|public|css|js|images|swagger)[^.]*}/**")
     public String handleForward() {
         return "forward:/";
     }
