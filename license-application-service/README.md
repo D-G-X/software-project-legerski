@@ -90,7 +90,7 @@ npm run test
 
 > The IntelliJ run configurations automatically run `npm install` before building or testing the frontend.
 
-The whole application is now accessible under `localhost:3000`. All changes are immediately visible in the browser.
+The whole application is now accessible under [localhost:3000](localhost:3000). All changes are immediately visible in the browser.
 
 ## Further readings
 
