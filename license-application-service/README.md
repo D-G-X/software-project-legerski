@@ -70,8 +70,6 @@ npm run build
 
 Run the frontend unit tests with the IntelliJ run configuration `npm run test` **or** with the following command:
 
-Frontend unit tests can be executed with `npm run test`.
-
 ```
 npm run test
 ```
