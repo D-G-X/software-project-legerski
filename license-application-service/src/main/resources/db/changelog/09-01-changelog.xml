@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="Alexander">
+        <sql>
+            CREATE TYPE application_status AS ENUM (
+              'draft',
+              'documents_submitted',
+              'verification_pending',
+              'awaiting_payment',
+              'payment_received',
+              'submitted',
+              'in_ballot',
+              'selected',
+              'not_selected',
+              'under_review',
+              'approved',
+              'rejected',
+              'expired',
+              'cancelled'
+            );
+
+            CREATE TYPE payment_status AS ENUM (
+              'unpaid',
+              'paid'
+            );
+
+            CREATE TYPE license_status AS ENUM (
+              'active',
+              'suspended',
+              'expired'
+            );
+
+            CREATE TYPE license_type AS ENUM (
+              'etv',
+              'etvpl',
+              'etv60'
+            );
+        </sql>
+    </changeSet>
+    <changeSet id="1762651869406-1" author="Alexander">
+        <createSequence incrementBy="1" sequenceName="application_id_seq" startValue="1"/>
+    </changeSet>
+    <changeSet id="1762651869406-2" author="Alexander">
+        <createSequence incrementBy="1" sequenceName="application_payment_id_seq" startValue="1"/>
+    </changeSet>
+    <changeSet id="1762651869406-3" author="Alexander">
+        <createSequence incrementBy="1" sequenceName="license_id_seq" startValue="1"/>
+    </changeSet>
+    <changeSet id="1762651869406-4" author="Alexander">
+        <createTable tableName="application">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="application_pkey"/>
+            </column>
+            <column name="user_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="license_type" type="LICENSE_TYPE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cadastral_reference" type="VARCHAR(20)"/>
+            <column name="applied_at" type="timestamp"/>
+            <column name="changed_at" type="timestamp"/>
+            <column name="application_status" type="APPLICATION_STATUS">
+                <constraints nullable="false"/>
+            </column>
+            <column name="remarks" type="CLOB"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1762651869406-5" author="Alexander">
+        <createTable tableName="application_payment">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="application_payment_pkey"/>
+            </column>
+            <column name="application_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="NUMBER"/>
+            <column name="payment_date" type="timestamp"/>
+            <column name="payment_status" type="PAYMENT_STATUS">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1762651869406-6" author="Alexander">
+        <createTable tableName="license">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="license_pkey"/>
+            </column>
+            <column name="user_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="license_type" type="LICENSE_TYPE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="license_status" type="LICENSE_STATUS">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_at" type="timestamp"/>
+            <column name="expires_at" type="timestamp"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1762651869406-7" author="Alexander">
+        <createTable tableName="user">
+            <column name="id" type="char(36)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="user_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1762651869406-8" author="Alexander">
+        <addForeignKeyConstraint baseColumnNames="application_id" baseTableName="application_payment"
+                                 constraintName="application_payment_application_id_fkey" onDelete="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="application"/>
+    </changeSet>
+    <changeSet id="1762651869406-9" author="Alexander">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="application"
+                                 constraintName="application_user_id_fkey" onDelete="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="1762651869406-10" author="Alexander">
+        <addForeignKeyConstraint baseColumnNames="application_id" baseTableName="license"
+                                 constraintName="license_application_id_fkey" onDelete="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="application"/>
+    </changeSet>
+    <changeSet id="1762651869406-11" author="Alexander">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="license" constraintName="license_user_id_fkey"
+                                 onDelete="NO ACTION" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+
+</databaseChangeLog>
