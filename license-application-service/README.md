@@ -17,7 +17,7 @@ This app was created with Bootify.io - tips on working with the code [can be fou
 The project uses Maven as build tool. To download the required dependencies, run the following command in the project root directory:
 
 ```
-mvnw clean package
+./mvnw clean package
 ```
 
 #### - Development
