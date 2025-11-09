@@ -2,47 +2,95 @@
 
 This app was created with Bootify.io - tips on working with the code [can be found here](https://bootify.io/next-steps/).
 
-## Development
+## Project Setup
 
-When starting the application `docker compose up` is called and the app will connect to the contained services. [Docker](https://www.docker.com/get-started/) must be available on the current system.
+### Prerequisites
 
-During development it is recommended to use the profile `local`. In IntelliJ `-Dspring.profiles.active=local` can be added in the VM options of the Run Configuration after enabling this property in "Modify options". Create your own `application-local.yml` file to override settings for development.
+[Docker](https://www.docker.com/get-started/) must be installed and running.
 
-In addition to the Spring Boot application, the DevServer must also be started - for this [Node.js](https://nodejs.org/) version 22 is required. On first usage and after updates the dependencies have to be installed:
+[Java JDK](https://www.oracle.com/de/java/) version 21 or higher is required.
 
-```
-npm install
-```
+[Node.js](https://nodejs.org/) version 22 or higher is required.
 
-The DevServer can be started as follows:
+### 1. Backend
 
-```
-npm run devserver
-```
-
-Using a proxy the whole application is now accessible under `localhost:3000`. All changes to the templates and JS/CSS files are immediately visible in the browser. Frontend unit tests can be executed with `npm run test`.
-
-## Build
-
-The application can be built using the following command:
+The project uses Maven as build tool. To download the required dependencies, run the following command in the project root directory:
 
 ```
 mvnw clean package
 ```
 
-Node.js is automatically downloaded using the `frontend-maven-plugin` and the final JS/CSS files are integrated into the jar.
+#### - Development
 
-Start your application with the following command - here with the profile `production`:
-
-```
-java -Dspring.profiles.active=production -jar ./target/license-application-service-0.0.1-SNAPSHOT.jar
-```
-
-If required, a Docker image can be created with the Spring Boot plugin. Add `SPRING_PROFILES_ACTIVE=production` as environment variable when running the container.
+Start your application with the IntelliJ run configuration `Dev LicenseApplicationServiceApplication` or with the following command:
 
 ```
-mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=io.bootify/license-application-service
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
 ```
+
+#### - Production
+
+Start your application with the IntelliJ run configuration `Prod LicenseApplicationServiceApplication` or with the following command:
+
+```
+./mvnw spring-boot:run -Dspring-boot.run.profiles=production
+```
+
+#### - Testing
+
+TODO: Add JUnit test instructions here
+
+### 2. Frontend
+
+The project uses npm as package manager. To download the required dependencies, run the following command in the project root directory:
+
+```
+npm install
+```
+
+#### - Development
+
+Start your application with the IntelliJ run configuration `npm run dev` or with the following commands:
+
+```
+npm install
+```
+
+```
+npm run devserver
+```
+
+#### - Production
+
+Start your application with the IntelliJ run configuration `npm run prod` or with the following commands:
+
+```
+npm install
+```
+
+```
+npm run build
+```
+
+#### - Testing
+
+Run the frontend unit tests with the IntelliJ run configuration `npm run test` or with the following commands:
+
+Frontend unit tests can be executed with `npm run test`.
+
+```
+npm install
+```
+
+```
+npm run test
+```
+
+---
+
+> The IntelliJ run configurations automatically run `npm install` before building or testing the frontend.
+
+The whole application is now accessible under `localhost:3000`. All changes are immediately visible in the browser.
 
 ## Further readings
 
