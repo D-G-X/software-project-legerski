@@ -1,4 +1,4 @@
-package io.bootify.license_application_service.config;
+package de.hft.licensing.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;

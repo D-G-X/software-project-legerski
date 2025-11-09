@@ -1,4 +1,4 @@
-package io.bootify.license_application_service.config;
+package de.hft.licensing.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

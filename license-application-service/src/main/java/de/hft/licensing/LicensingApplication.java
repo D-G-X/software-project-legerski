@@ -1,14 +1,14 @@
-package io.bootify.license_application_service;
+package de.hft.licensing;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication
-public class LicenseApplicationServiceApplication {
+public class LicensingApplication {
 
     public static void main(final String[] args) {
-        SpringApplication.run(LicenseApplicationServiceApplication.class, args);
+        SpringApplication.run(LicensingApplication.class, args);
     }
 
 }
