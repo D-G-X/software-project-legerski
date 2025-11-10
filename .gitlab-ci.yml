@@ -30,13 +30,22 @@ build-backend:
   script:
     - cd license-application-service
     - chmod +x mvnw
-    # Wait for postgres to be ready
+    # Install PostgreSQL client to test connection
+    - apt-get update -qq && apt-get install -y -qq postgresql-client
+    # Wait for PostgreSQL to be ready (increased timeout)
     - |
-      apt-get update && apt-get install -y postgresql-client
-      until PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q'; do
-        echo "Waiting for PostgreSQL..."
+      echo "Waiting for PostgreSQL to be ready..."
+      for i in {1..30}; do
+        if PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q' 2>/dev/null; then
+          echo "PostgreSQL is ready!"
+          break
+        fi
+        echo "Attempt $i/30: PostgreSQL not ready yet, waiting..."
         sleep 2
       done
+    # Extra wait to ensure database is stable
+    - sleep 3
+    # Build with Maven
     - ./mvnw clean package -DskipTests
   artifacts:
     paths:
