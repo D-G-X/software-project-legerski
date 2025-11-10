@@ -1,35 +1,89 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/user/application_security/secret_detection/pipeline/configure
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
-
 stages:
   - build
   - test
-  - secret-detection
+  - security
 
-build:
+# ==================== BUILD STAGE ====================
+
+build-frontend:
   stage: build
   image: node:20.19.1
   script:
     - cd license-application-service
     - npm install
     - npm run build
+  artifacts:
+    paths:
+      - license-application-service/src/main/webapp/
+    expire_in: 1 hour
 
-test:
+build-backend:
+  stage: build
+  image: maven:3.9-eclipse-temurin-21
+  services:
+    - postgres:15
+  variables:
+    POSTGRES_DB: licensing_db
+    POSTGRES_USER: licensing_user
+    POSTGRES_PASSWORD: licensing_pass
+    POSTGRES_HOST_AUTH_METHOD: trust
+  script:
+    - cd license-application-service
+    - chmod +x mvnw
+    # Wait for postgres to be ready
+    - |
+      apt-get update && apt-get install -y postgresql-client
+      until PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q'; do
+        echo "Waiting for PostgreSQL..."
+        sleep 2
+      done
+    - ./mvnw clean package -DskipTests
+  artifacts:
+    paths:
+      - license-application-service/target/*.jar
+    expire_in: 1 hour
+  dependencies:
+    - build-frontend
+
+# ==================== TEST STAGE ====================
+
+test-frontend:
   stage: test
   image: node:20.19.1
   script:
     - cd license-application-service
     - npm install
     - npm test
+  dependencies:
+    - build-frontend
+
+test-backend:
+  stage: test
+  image: maven:3.9-eclipse-temurin-21
+  services:
+    - postgres:15
+  variables:
+    POSTGRES_DB: test_licensing_db
+    POSTGRES_USER: test_user
+    POSTGRES_PASSWORD: test_pass
+    POSTGRES_HOST_AUTH_METHOD: trust
+    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/test_licensing_db
+    SPRING_DATASOURCE_USERNAME: test_user
+    SPRING_DATASOURCE_PASSWORD: test_pass
+  script:
+    - cd license-application-service
+    - chmod +x mvnw
+    - ./mvnw test
+  dependencies:
+    - build-backend
+
+# ==================== SECURITY STAGE ====================
 
 include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
 
 variables:
   SECRET_DETECTION_ENABLED: "true"
+  SAST_EXCLUDED_PATHS: "node_modules/,target/,__mocks__/,.mvn/"
