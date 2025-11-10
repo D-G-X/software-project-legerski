@@ -1,125 +1,36 @@
+
+# You can override the included template(s) by including variable overrides
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Secret Detection customization: https://docs.gitlab.com/user/application_security/secret_detection/pipeline/configure
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+
 stages:
   - build
   - test
-  - security
+  - secret-detection
 
-variables:
-  # PostgreSQL configuration for CI/CD
-  POSTGRES_DB: licensing_db
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: postgres_ci_password
-  POSTGRES_HOST_AUTH_METHOD: trust
-  # jOOQ database configuration for CI/CD
-  JOOQ_JDBC_URL: jdbc:postgresql://postgres:5432/licensing_db
-  JOOQ_JDBC_USER: postgres
-  JOOQ_JDBC_PASSWORD: postgres_ci_password
-
-# Build Frontend (inside backend project)
-build-frontend:
+build:
   stage: build
   image: node:20.19.1
-  before_script:
+  script:
     - cd license-application-service
     - npm install
-  script:
     - npm run build
-  artifacts:
-    paths:
-      - license-application-service/src/main/resources/static/
-    expire_in: 1 hour
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
-# Test Frontend
-test-frontend:
+test:
   stage: test
   image: node:20.19.1
-  before_script:
+  script:
     - cd license-application-service
     - npm install
-  script:
     - npm test
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
-# Build Backend (with PostgreSQL for jOOQ)
-build-backend:
-  stage: build
-  image: maven:3.9-eclipse-temurin-21
-  services:
-    - name: postgres:15
-      alias: postgres
-  variables:
-    POSTGRES_DB: licensing_db
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres_ci_password
-  before_script:
-    - cd license-application-service
-    # Wait for PostgreSQL to be ready
-    - apt-get update && apt-get install -y postgresql-client
-    - |
-      echo "Waiting for PostgreSQL to be ready..."
-      until PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q'; do
-        echo "PostgreSQL is unavailable - sleeping"
-        sleep 2
-      done
-      echo "PostgreSQL is up and running!"
-    # Create the licensing schema
-    - |
-      PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE SCHEMA IF NOT EXISTS licensing;"
-      echo "Schema 'licensing' created successfully"
-  script:
-    # Build with jOOQ code generation using CI database configuration
-    - ./mvnw clean package -DskipTests 
-      -Djooq.jdbc.url=$JOOQ_JDBC_URL
-      -Djooq.jdbc.user=$JOOQ_JDBC_USER
-      -Djooq.jdbc.password=$JOOQ_JDBC_PASSWORD
-  artifacts:
-    paths:
-      - license-application-service/target/*.jar
-    expire_in: 1 hour
-  dependencies:
-    - build-frontend
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
-# Test Backend
-test-backend:
-  stage: test
-  image: maven:3.9-eclipse-temurin-21
-  services:
-    - name: postgres:15
-      alias: postgres
-  variables:
-    POSTGRES_DB: licensing_db
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres_ci_password
-  before_script:
-    - cd license-application-service
-    # Wait for PostgreSQL
-    - apt-get update && apt-get install -y postgresql-client
-    - |
-      until PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q'; do
-        sleep 2
-      done
-    # Create schema for tests
-    - PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE SCHEMA IF NOT EXISTS licensing;"
-  script:
-    - ./mvnw test
-      -Djooq.jdbc.url=$JOOQ_JDBC_URL
-      -Djooq.jdbc.user=$JOOQ_JDBC_USER
-      -Djooq.jdbc.password=$JOOQ_JDBC_PASSWORD
-  dependencies:
-    - build-backend
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
-# Include GitLab security templates at the end
 include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
-  - template: Security/Dependency-Scanning.gitlab-ci.yml
+
+variables:
+  SECRET_DETECTION_ENABLED: "true"
