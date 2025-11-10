@@ -41,7 +41,13 @@ public class ApplicationController implements ApplicationsApi {
 
     @Override
     public ResponseEntity<Void> deleteApplication(Integer applicationId) {
-        return null;
+        int deleted = dsl.deleteFrom(Application.APPLICATION)
+            .where(Application.APPLICATION.ID.eq(applicationId))
+            .execute();
+
+        return deleted > 0
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 
     @Override
