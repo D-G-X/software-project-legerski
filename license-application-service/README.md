@@ -21,6 +21,10 @@
 
 Tip: Perform a `mvn clean` to remove generated leftovers.
 
+APIs:
+- http://localhost:8080/swagger-ui/index.html
+- http://localhost:8080/v3/api-docs
+
 ### 1. Backend
 
 The project uses Maven as build tool. To download the required dependencies, run the following command in the project root directory:
