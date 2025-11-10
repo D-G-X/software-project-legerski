@@ -15,6 +15,9 @@
 
     <properties>
         <java.version>21</java.version>
+        <jooq.jdbc.url>jdbc:postgresql://localhost:5433/government</jooq.jdbc.url>
+        <jooq.jdbc.user>postgres</jooq.jdbc.user>
+        <jooq.jdbc.password>P4ssword!</jooq.jdbc.password>
     </properties>
 
     <dependencies>
@@ -109,9 +112,9 @@
                 <configuration>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
-                        <url>jdbc:postgresql://localhost:5433/government</url>
-                        <user>postgres</user>
-                        <password>P4ssword!</password>
+                        <url>${jooq.jdbc.url}</url>
+                        <user>${jooq.jdbc.user}</user>
+                        <password>${jooq.jdbc.password}</password>
                     </jdbc>
                     <generator>
                         <database>

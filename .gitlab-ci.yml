@@ -3,96 +3,143 @@ stages:
   - test
   - security
 
-# ==================== BUILD STAGE ====================
+variables:
+  # PostgreSQL configuration for CI/CD
+  POSTGRES_DB: licensing_db
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres_ci_password
+  POSTGRES_HOST_AUTH_METHOD: trust
 
+# Build Frontend (inside backend project)
 build-frontend:
   stage: build
   image: node:20.19.1
-  script:
+  before_script:
     - cd license-application-service
     - npm install
+  script:
     - npm run build
   artifacts:
     paths:
-      - license-application-service/src/main/webapp/
+      - license-application-service/src/main/resources/static/
     expire_in: 1 hour
+  only:
+    - main
+    - merge_requests
 
+# Test Frontend
+test-frontend:
+  stage: test
+  image: node:20.19.1
+  before_script:
+    - cd license-application-service
+    - npm install
+  script:
+    - npm test
+  only:
+    - main
+    - merge_requests
+
+# Build Backend (with PostgreSQL for jOOQ)
 build-backend:
   stage: build
   image: maven:3.9-eclipse-temurin-21
   services:
-    - postgres:15
+    - name: postgres:15
+      alias: postgres
   variables:
     POSTGRES_DB: licensing_db
-    POSTGRES_USER: licensing_user
-    POSTGRES_PASSWORD: licensing_pass
-    POSTGRES_HOST_AUTH_METHOD: trust
-  script:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres_ci_password
+  before_script:
     - cd license-application-service
-    - chmod +x mvnw
-    # Install PostgreSQL client to test connection
-    - apt-get update -qq && apt-get install -y -qq postgresql-client
-    # Wait for PostgreSQL to be ready (increased timeout)
+    # Wait for PostgreSQL to be ready
+    - apt-get update && apt-get install -y postgresql-client
     - |
       echo "Waiting for PostgreSQL to be ready..."
-      for i in {1..30}; do
-        if PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q' 2>/dev/null; then
-          echo "PostgreSQL is ready!"
-          break
-        fi
-        echo "Attempt $i/30: PostgreSQL not ready yet, waiting..."
+      until PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q'; do
+        echo "PostgreSQL is unavailable - sleeping"
         sleep 2
       done
-    # Extra wait to ensure database is stable
-    - sleep 3
-    # Build with Maven
-    - ./mvnw clean package -DskipTests
+      echo "PostgreSQL is up and running!"
+    # Create the licensing schema
+    - |
+      PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE SCHEMA IF NOT EXISTS licensing;"
+      echo "Schema 'licensing' created successfully"
+  script:
+    # Build with jOOQ code generation using CI database configuration
+    - ./mvnw clean package -DskipTests 
+      -Djooq.jdbc.url=jdbc:postgresql://postgres:5432/licensing_db
+      -Djooq.jdbc.user=postgres
+      -Djooq.jdbc.password=postgres_ci_password
   artifacts:
     paths:
       - license-application-service/target/*.jar
     expire_in: 1 hour
   dependencies:
     - build-frontend
+  only:
+    - main
+    - merge_requests
 
-# ==================== TEST STAGE ====================
-
-test-frontend:
-  stage: test
-  image: node:20.19.1
-  script:
-    - cd license-application-service
-    - npm install
-    - npm test
-  dependencies:
-    - build-frontend
-
+# Test Backend
 test-backend:
   stage: test
   image: maven:3.9-eclipse-temurin-21
   services:
-    - postgres:15
+    - name: postgres:15
+      alias: postgres
   variables:
-    POSTGRES_DB: test_licensing_db
-    POSTGRES_USER: test_user
-    POSTGRES_PASSWORD: test_pass
-    POSTGRES_HOST_AUTH_METHOD: trust
-    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/test_licensing_db
-    SPRING_DATASOURCE_USERNAME: test_user
-    SPRING_DATASOURCE_PASSWORD: test_pass
-  script:
+    POSTGRES_DB: licensing_db
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres_ci_password
+  before_script:
     - cd license-application-service
-    - chmod +x mvnw
+    # Wait for PostgreSQL
+    - apt-get update && apt-get install -y postgresql-client
+    - |
+      until PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q'; do
+        sleep 2
+      done
+    # Create schema for tests
+    - PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE SCHEMA IF NOT EXISTS licensing;"
+  script:
     - ./mvnw test
+      -Djooq.jdbc.url=jdbc:postgresql://postgres:5432/licensing_db
+      -Djooq.jdbc.user=postgres
+      -Djooq.jdbc.password=postgres_ci_password
   dependencies:
     - build-backend
+  only:
+    - main
+    - merge_requests
 
-# ==================== SECURITY STAGE ====================
+# Security: SAST (Static Application Security Testing)
+sast:
+  stage: security
+  allow_failure: true
+  only:
+    - main
+    - merge_requests
 
+# Security: Secret Detection
+secret_detection:
+  stage: security
+  allow_failure: true
+  only:
+    - main
+    - merge_requests
+
+# Security: Dependency Scanning
+dependency_scanning:
+  stage: security
+  allow_failure: true
+  only:
+    - main
+    - merge_requests
+
+# Include GitLab security templates
 include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
   - template: Security/Dependency-Scanning.gitlab-ci.yml
-
-variables:
-  SECRET_DETECTION_ENABLED: "true"
-  SAST_EXCLUDED_PATHS: "node_modules/,target/,__mocks__/,.mvn/"
