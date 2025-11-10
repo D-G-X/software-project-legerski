@@ -9,6 +9,10 @@ variables:
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres_ci_password
   POSTGRES_HOST_AUTH_METHOD: trust
+  # jOOQ database configuration for CI/CD
+  JOOQ_JDBC_URL: jdbc:postgresql://postgres:5432/licensing_db
+  JOOQ_JDBC_USER: postgres
+  JOOQ_JDBC_PASSWORD: postgres_ci_password
 
 # Build Frontend (inside backend project)
 build-frontend:
@@ -23,9 +27,9 @@ build-frontend:
     paths:
       - license-application-service/src/main/resources/static/
     expire_in: 1 hour
-  only:
-    - main
-    - merge_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # Test Frontend
 test-frontend:
@@ -36,9 +40,9 @@ test-frontend:
     - npm install
   script:
     - npm test
-  only:
-    - main
-    - merge_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # Build Backend (with PostgreSQL for jOOQ)
 build-backend:
@@ -69,18 +73,18 @@ build-backend:
   script:
     # Build with jOOQ code generation using CI database configuration
     - ./mvnw clean package -DskipTests 
-      -Djooq.jdbc.url=jdbc:postgresql://postgres:5432/licensing_db
-      -Djooq.jdbc.user=postgres
-      -Djooq.jdbc.password=postgres_ci_password
+      -Djooq.jdbc.url=$JOOQ_JDBC_URL
+      -Djooq.jdbc.user=$JOOQ_JDBC_USER
+      -Djooq.jdbc.password=$JOOQ_JDBC_PASSWORD
   artifacts:
     paths:
       - license-application-service/target/*.jar
     expire_in: 1 hour
   dependencies:
     - build-frontend
-  only:
-    - main
-    - merge_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # Test Backend
 test-backend:
@@ -105,40 +109,16 @@ test-backend:
     - PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE SCHEMA IF NOT EXISTS licensing;"
   script:
     - ./mvnw test
-      -Djooq.jdbc.url=jdbc:postgresql://postgres:5432/licensing_db
-      -Djooq.jdbc.user=postgres
-      -Djooq.jdbc.password=postgres_ci_password
+      -Djooq.jdbc.url=$JOOQ_JDBC_URL
+      -Djooq.jdbc.user=$JOOQ_JDBC_USER
+      -Djooq.jdbc.password=$JOOQ_JDBC_PASSWORD
   dependencies:
     - build-backend
-  only:
-    - main
-    - merge_requests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
-# Security: SAST (Static Application Security Testing)
-sast:
-  stage: security
-  allow_failure: true
-  only:
-    - main
-    - merge_requests
-
-# Security: Secret Detection
-secret_detection:
-  stage: security
-  allow_failure: true
-  only:
-    - main
-    - merge_requests
-
-# Security: Dependency Scanning
-dependency_scanning:
-  stage: security
-  allow_failure: true
-  only:
-    - main
-    - merge_requests
-
-# Include GitLab security templates
+# Include GitLab security templates at the end
 include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
