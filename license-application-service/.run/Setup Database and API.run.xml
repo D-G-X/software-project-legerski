@@ -12,6 +12,7 @@
           <option name="goals">
             <list>
               <option value="compile" />
+              <option value="clean" />
             </list>
           </option>
           <option name="multimoduleDir" />
