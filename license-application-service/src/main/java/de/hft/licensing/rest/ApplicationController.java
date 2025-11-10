@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +32,51 @@ public class ApplicationController implements ApplicationsApi {
 
     @Override
     public ResponseEntity<ApplicationRecord> createApplication(ApplicationCreate applicationCreate) {
-        return null;
+        if (applicationCreate == null || applicationCreate.getUserId() == null || applicationCreate.getLicenseType() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean userExists = dsl.fetchExists(
+                dsl.selectOne()
+                        .from(de.hft.licensing.db.tables.User.USER)
+                        .where(de.hft.licensing.db.tables.User.USER.ID.eq(applicationCreate.getUserId().toString()))
+        );
+        if (!userExists) {
+            // client provided a user_id that does not exist
+            return ResponseEntity.status(422).build();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        de.hft.licensing.db.enums.LicenseType dbLicenseType = null;
+        try {
+            dbLicenseType = de.hft.licensing.db.enums.LicenseType.valueOf(applicationCreate.getLicenseType().name().toUpperCase());
+        } catch (IllegalArgumentException ignored) {
+            // fallback: try direct name or literal lookup (some generated enums use different naming)
+            try {
+                dbLicenseType = de.hft.licensing.db.enums.LicenseType.valueOf(applicationCreate.getLicenseType().name());
+            } catch (IllegalArgumentException ignored2) {
+                dbLicenseType = de.hft.licensing.db.enums.LicenseType.lookupLiteral(applicationCreate.getLicenseType().toString());
+            }
+        }
+        if (dbLicenseType == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        var created = dsl.insertInto(Application.APPLICATION)
+                .set(Application.APPLICATION.USER_ID, applicationCreate.getUserId().toString())
+                .set(Application.APPLICATION.APPLICATION_STATUS, de.hft.licensing.db.enums.ApplicationStatus.draft)
+                .set(Application.APPLICATION.APPLIED_AT, now)
+                .set(Application.APPLICATION.CHANGED_AT, now)
+                .set(Application.APPLICATION.CADASTRAL_REFERENCE, applicationCreate.getCadastralReference())
+                .set(Application.APPLICATION.LICENSE_TYPE, dbLicenseType)
+                .set(Application.APPLICATION.REMARKS, applicationCreate.getRemarks())
+                .returning()
+                .fetchOneInto(ApplicationRecord.class);
+
+        return created != null
+                ? ResponseEntity.ok(created)
+                : ResponseEntity.status(500).build();
     }
 
     @Override
