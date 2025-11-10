@@ -1,7 +1,5 @@
 # License Application Service
 
-This app was created with Bootify.io - tips on working with the code [can be found here](https://bootify.io/next-steps/).
-
 ## Project Setup
 
 ### Prerequisites
@@ -11,6 +9,17 @@ This app was created with Bootify.io - tips on working with the code [can be fou
 [Java JDK](https://www.oracle.com/de/java/) version 21 or higher is required.
 
 [Node.js](https://nodejs.org/) version 22 or higher is required.
+
+### Quick Start
+
+1. Have Docker running
+2. Launch the run config `Setup Database and API` which runs:
+    - `docker compose`,
+    - `liquibase:update` to apply database changelogs,
+    - `compile` to generate OpenAPI and jOOQ classes
+3. Run the Spring Boot `Dev LicenseApplicationService`
+
+Tip: Perform a `mvn clean` to remove generated leftovers.
 
 ### 1. Backend
 
@@ -22,7 +31,7 @@ The project uses Maven as build tool. To download the required dependencies, run
 
 #### - Development
 
-Start your application with the IntelliJ run configuration `Dev LicenseApplicationServiceApplication` **or** with the following command:
+Start your application with the IntelliJ run configuration `Dev LicenseApplicationService` **or** with the following command:
 
 ```
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
@@ -30,7 +39,7 @@ Start your application with the IntelliJ run configuration `Dev LicenseApplicati
 
 #### - Production
 
-Start your application with the IntelliJ run configuration `Prod LicenseApplicationServiceApplication` **or** with the following command:
+Start your application with the IntelliJ run configuration `Prod LicenseApplicationService` **or** with the following command:
 
 ```
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=production
@@ -82,7 +91,6 @@ The whole application is now accessible under [localhost:3000](localhost:3000). 
 
 * [Maven docs](https://maven.apache.org/guides/index.html)  
 * [Spring Boot reference](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)  
-* [Spring Data JPA reference](https://docs.spring.io/spring-data/jpa/reference/jpa.html)
 * [Learn React](https://react.dev/learn)
 * [Webpack concepts](https://webpack.js.org/concepts/)  
 * [npm docs](https://docs.npmjs.com/)  

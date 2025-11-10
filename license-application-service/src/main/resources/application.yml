@@ -1,13 +1,11 @@
 spring:
-  datasource:
-    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/government}
-    username: ${JDBC_DATABASE_USERNAME:postgres}
-    password: ${JDBC_DATABASE_PASSWORD:<<YOUR_PASSWORD>>}
   application:
     name: licensing
   liquibase:
     change-log: db/master-changelog.xml
     default-schema: licensing
+    liquibase-schema: public
+    enabled: true
 
   docker:
     compose:
@@ -15,6 +13,7 @@ spring:
       file: license-application-service/docker-compose.yml
   jooq:
     sql-dialect: postgres
+logging.level.org.jooq.Constants: off
 
 springdoc:
   swagger-ui:
