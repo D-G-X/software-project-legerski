@@ -48,7 +48,7 @@ public class ApplicationController implements ApplicationsApi {
 
         LocalDateTime now = LocalDateTime.now();
 
-        de.hft.licensing.db.enums.LicenseType dbLicenseType = null;
+        de.hft.licensing.db.enums.LicenseType dbLicenseType;
         try {
             dbLicenseType = de.hft.licensing.db.enums.LicenseType.valueOf(applicationCreate.getLicenseType().name().toUpperCase());
         } catch (IllegalArgumentException ignored) {
