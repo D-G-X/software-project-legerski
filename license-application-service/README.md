@@ -11,18 +11,27 @@
 ### Quick Start
 
 1. Have Docker running
-2. Launch the Maven config: `Setup Database and API` which performs the following steps:
+2. When prompted: "Maven build script found `license-application-service`", accept by clicking "Load".
+3. Launch the Maven setup config: `Setup Database and API` which performs the following steps:
     - `docker compose up` to start the database,
     - `mvn liquibase:update` to apply database changelogs,
     - `mvn compile` to generate OpenAPI and jOOQ classes,
     - `mvn clean` to clean up leftovers.
+   
+   if this step fails, run `docker compose up` manually in the `license-application-service` directory and re-run the Maven setup config.
+4. Open the two freshly auto-generated modules:
+    - `license-application-service/target/generated-sources/jooq`
+    - `license-application-service/target/generated-sources/openapi`
+   
+   and set their `src` folders as "Generated Sources Root"
+   > ℹ️ Right-click on the folder in the Project view -> "Mark Directory as" -> "Generated Sources Root".
 
 ### Development
 
 1. Launch the Spring Boot configuration: `Dev LicenseApplicationService`
 2. Launch the npm configuration: `npm dev`
 
-    > All npm configurations automatically perform `npm install` before building or testing the frontend.
+    > ℹ️ All npm configurations automatically perform `npm install` before building or testing the frontend.
 
 ### Manual Production Build (optional)
 
@@ -36,7 +45,7 @@
 
 ---
 
-The application is now running on [localhost:3000](localhost:3000). All changes are immediately visible in the browser.
+The application is now running on [localhost:3000](http://localhost:3000). All changes are immediately visible in the browser.
 
 ## API Documentation
 
