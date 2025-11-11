@@ -1,6 +1,7 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.ApplicationsApi;
+import de.hft.licensing.db.tables.ApplicationPayment;
 import de.hft.licensing.model.ApplicationCreate;
 import de.hft.licensing.model.ApplicationDocumentRecord;
 import de.hft.licensing.model.ApplicationPaymentCreate;
@@ -11,6 +12,12 @@ import de.hft.licensing.model.RunLottery200Response;
 import de.hft.licensing.model.RunLotteryRequest;
 import de.hft.licensing.model.UpdatePaymentRequest;
 import de.hft.licensing.model.VerifyDocumentRequest;
+import de.hft.licensing.model.PaymentStatusEnum;
+import de.hft.licensing.model.ApplicationStatusEnum;
+import de.hft.licensing.model.LicenseTypeEnum;
+import de.hft.licensing.db.enums.LicenseType;
+import de.hft.licensing.db.enums.ApplicationStatus;
+import de.hft.licensing.db.tables.User;
 import org.jooq.DSLContext;
 import de.hft.licensing.db.tables.Application;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +28,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -40,8 +48,8 @@ public class ApplicationController implements ApplicationsApi {
 
         boolean userExists = dsl.fetchExists(
                 dsl.selectOne()
-                        .from(de.hft.licensing.db.tables.User.USER)
-                        .where(de.hft.licensing.db.tables.User.USER.ID.eq(applicationCreate.getUserId().toString()))
+                        .from(User.USER)
+                        .where(User.USER.ID.eq(applicationCreate.getUserId().toString()))
         );
         if (!userExists) {
             // client provided a user_id that does not exist
@@ -50,14 +58,14 @@ public class ApplicationController implements ApplicationsApi {
 
         LocalDateTime now = LocalDateTime.now();
 
-        de.hft.licensing.db.enums.LicenseType dbLicenseType;
+        LicenseType dbLicenseType;
         try {
-            dbLicenseType = de.hft.licensing.db.enums.LicenseType.valueOf(applicationCreate.getLicenseType().name().toLowerCase());
+            dbLicenseType = LicenseType.valueOf(applicationCreate.getLicenseType().name().toLowerCase());
         } catch (IllegalArgumentException ignored) {
             try {
-                dbLicenseType = de.hft.licensing.db.enums.LicenseType.valueOf(applicationCreate.getLicenseType().name());
+                dbLicenseType = LicenseType.valueOf(applicationCreate.getLicenseType().name());
             } catch (IllegalArgumentException ignored2) {
-                dbLicenseType = de.hft.licensing.db.enums.LicenseType.lookupLiteral(applicationCreate.getLicenseType().toString());
+                dbLicenseType = LicenseType.lookupLiteral(applicationCreate.getLicenseType().toString());
             }
         }
         if (dbLicenseType == null) {
@@ -67,7 +75,7 @@ public class ApplicationController implements ApplicationsApi {
         // insert and return DB record (jooq DB record, not API model record)
         var dbRecord = dsl.insertInto(Application.APPLICATION)
                 .set(Application.APPLICATION.USER_ID, applicationCreate.getUserId().toString())
-                .set(Application.APPLICATION.APPLICATION_STATUS, de.hft.licensing.db.enums.ApplicationStatus.draft)
+                .set(Application.APPLICATION.APPLICATION_STATUS, ApplicationStatus.draft)
                 .set(Application.APPLICATION.APPLIED_AT, now)
                 .set(Application.APPLICATION.CHANGED_AT, now)
                 .set(Application.APPLICATION.CADASTRAL_REFERENCE, applicationCreate.getCadastralReference())
@@ -81,7 +89,7 @@ public class ApplicationController implements ApplicationsApi {
         }
 
         // map DB record -> API model and convert enums explicitly
-        de.hft.licensing.model.ApplicationRecord api = new de.hft.licensing.model.ApplicationRecord();
+        ApplicationRecord api = new ApplicationRecord();
         api.setId(dbRecord.getId());
         api.setUserId(UUID.fromString(dbRecord.getUserId()));
         api.setCadastralReference(dbRecord.getCadastralReference());
@@ -91,7 +99,7 @@ public class ApplicationController implements ApplicationsApi {
 
         if (dbRecord.getLicenseType() != null) {
             String dbName = dbRecord.getLicenseType().name();
-            for (de.hft.licensing.model.LicenseType lt : de.hft.licensing.model.LicenseType.values()) {
+            for (LicenseTypeEnum lt : LicenseTypeEnum.values()) {
                 if (lt.name().equalsIgnoreCase(dbName)) {
                     api.setLicenseType(lt);
                     break;
@@ -100,7 +108,7 @@ public class ApplicationController implements ApplicationsApi {
         }
         if (dbRecord.getApplicationStatus() != null) {
             String dbName = dbRecord.getApplicationStatus().name();
-            for (de.hft.licensing.model.ApplicationStatus st : de.hft.licensing.model.ApplicationStatus.values()) {
+            for (ApplicationStatusEnum st : ApplicationStatusEnum.values()) {
                 if (st.name().equalsIgnoreCase(dbName)) {
                     api.setApplicationStatus(st);
                     break;
@@ -114,7 +122,31 @@ public class ApplicationController implements ApplicationsApi {
 
     @Override
     public ResponseEntity<ApplicationPaymentRecord> createPayment(Integer applicationId, ApplicationPaymentCreate applicationPaymentCreate) {
-        return null;
+        if (applicationId == null || applicationPaymentCreate.getApplicationId() == null || !Objects.equals(applicationPaymentCreate.getApplicationId(), applicationId)) {
+            return ResponseEntity.badRequest().build();
+        }
+        LocalDateTime now = LocalDateTime.now();
+        var dbPayment = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
+                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
+                .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, applicationPaymentCreate.getAmount())
+                .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationPaymentCreate.getApplicationId())
+              //  .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, applicationPaymentCreate.getPaymentStatus())
+                .returning()
+                .fetchOne();
+        if(dbPayment == null) {
+            return ResponseEntity.status(500).build();
+        }
+
+        ApplicationPaymentRecord apiPayment = new ApplicationPaymentRecord(
+                dbPayment.getId(),
+                applicationId,
+                dbPayment.getAmount(),
+                PaymentStatusEnum.PAID
+        );
+        apiPayment.setPaymentDate(dbPayment.getPaymentDate().atOffset(ZoneOffset.UTC));
+
+
+        return ResponseEntity.created(URI.create("/applications/" + applicationId + "/payments/" + apiPayment.getId())).body(apiPayment);
     }
 
     @Override
@@ -140,7 +172,7 @@ public class ApplicationController implements ApplicationsApi {
     }
 
     @Override
-    public ResponseEntity<List<ApplicationRecord>> listApplications(UUID userId, de.hft.licensing.model.ApplicationStatus applicationStatus) {
+    public ResponseEntity<List<ApplicationRecord>> listApplications(UUID userId, ApplicationStatusEnum applicationStatus) {
         return null;
     }
 

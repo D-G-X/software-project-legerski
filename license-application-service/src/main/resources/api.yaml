@@ -224,7 +224,7 @@ paths:
           description: Filter applications by status
           required: false
           schema:
-            $ref: "#/components/schemas/ApplicationStatus"
+            $ref: "#/components/schemas/ApplicationStatusEnum"
       responses:
         "200":
           description: List of applications (optionally filtered by status)
@@ -500,7 +500,7 @@ paths:
               type: object
               properties:
                 payment_status:
-                  $ref: "#/components/schemas/PaymentStatus"
+                  $ref: "#/components/schemas/PaymentStatusEnum"
               required:
                 - payment_status
       responses:
@@ -530,7 +530,7 @@ paths:
               type: object
               properties:
                 license_type:
-                  $ref: "#/components/schemas/LicenseType"
+                  $ref: "#/components/schemas/LicenseTypeEnum"
       responses:
         "200":
           description: Lottery results with updated application statuses
@@ -619,7 +619,7 @@ paths:
               type: object
               properties:
                 license_status:
-                  $ref: "#/components/schemas/LicenseStatus"
+                  $ref: "#/components/schemas/LicenseStatusEnum"
               required:
                 - license_status
       responses:
@@ -890,9 +890,9 @@ components:
           description: ID of the related application.
           example: 201
         license_type:
-          $ref: "#/components/schemas/LicenseType"
+          $ref: "#/components/schemas/LicenseTypeEnum"
         license_status:
-          $ref: "#/components/schemas/LicenseStatus"
+          $ref: "#/components/schemas/LicenseStatusEnum"
         issued_at:
           type: string
           format: date-time
@@ -924,7 +924,7 @@ components:
           description: ID of the applicant user.
           example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
         license_type:
-          $ref: "#/components/schemas/LicenseType"
+          $ref: "#/components/schemas/LicenseTypeEnum"
         cadastral_reference:
           type: string
           minLength: 20
@@ -942,7 +942,7 @@ components:
           description: When the application was last updated.
           example: 2025-06-01T10:00:00Z
         application_status:
-          $ref: "#/components/schemas/ApplicationStatus"
+          $ref: "#/components/schemas/ApplicationStatusEnum"
         remarks:
           type: string
           description: Additional information or comments.
@@ -964,7 +964,7 @@ components:
           description: User who submits the application.
           example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
         license_type:
-          $ref: "#/components/schemas/LicenseType"
+          $ref: "#/components/schemas/LicenseTypeEnum"
         cadastral_reference:
           type: string
           minLength: 20
@@ -985,7 +985,7 @@ components:
       description: Used to update the application status or add remarks.
       properties:
         application_status:
-          $ref: "#/components/schemas/ApplicationStatus"
+          $ref: "#/components/schemas/ApplicationStatusEnum"
         remarks:
           type: string
           description: Additional notes or comments.
@@ -1014,7 +1014,7 @@ components:
           description: When payment was made.
           example: 2025-05-22T15:10:00Z
         payment_status:
-          $ref: "#/components/schemas/PaymentStatus"
+          $ref: "#/components/schemas/PaymentStatusEnum"
       required:
         - id
         - application_id
@@ -1035,7 +1035,7 @@ components:
           description: Amount to be paid in EUR.
           example: 99.99
         payment_status:
-          $ref: "#/components/schemas/PaymentStatus"
+          $ref: "#/components/schemas/PaymentStatusEnum"
       required:
         - application_id
         - amount
@@ -1093,7 +1093,7 @@ components:
       required:
         - purpose
 
-    ApplicationStatus:
+    ApplicationStatusEnum:
       type: string
       description: Status values for an application.
       enum:
@@ -1112,14 +1112,14 @@ components:
         - expired # Application expired (not continued)
         - cancelled # Withdrawn/cancelled by user
 
-    PaymentStatus:
+    PaymentStatusEnum:
       type: string
       description: Status for any payment attempt.
       enum:
         - unpaid # Payment is pending
         - paid # Payment completed
 
-    LicenseStatus:
+    LicenseStatusEnum:
       type: string
       description: Current license status.
       enum:
@@ -1127,7 +1127,7 @@ components:
         - suspended # Temporarily revoked
         - expired # No longer valid
 
-    LicenseType:
+    LicenseTypeEnum:
       type: string
       description: License categories for holiday rentals.
       enum:
