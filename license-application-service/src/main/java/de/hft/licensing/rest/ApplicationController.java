@@ -17,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,9 +52,8 @@ public class ApplicationController implements ApplicationsApi {
 
         de.hft.licensing.db.enums.LicenseType dbLicenseType;
         try {
-            dbLicenseType = de.hft.licensing.db.enums.LicenseType.valueOf(applicationCreate.getLicenseType().name().toUpperCase());
+            dbLicenseType = de.hft.licensing.db.enums.LicenseType.valueOf(applicationCreate.getLicenseType().name().toLowerCase());
         } catch (IllegalArgumentException ignored) {
-            // fallback: try direct name or literal lookup (some generated enums use different naming)
             try {
                 dbLicenseType = de.hft.licensing.db.enums.LicenseType.valueOf(applicationCreate.getLicenseType().name());
             } catch (IllegalArgumentException ignored2) {
@@ -63,7 +64,8 @@ public class ApplicationController implements ApplicationsApi {
             return ResponseEntity.badRequest().build();
         }
 
-        var created = dsl.insertInto(Application.APPLICATION)
+        // insert and return DB record (jooq DB record, not API model record)
+        var dbRecord = dsl.insertInto(Application.APPLICATION)
                 .set(Application.APPLICATION.USER_ID, applicationCreate.getUserId().toString())
                 .set(Application.APPLICATION.APPLICATION_STATUS, de.hft.licensing.db.enums.ApplicationStatus.draft)
                 .set(Application.APPLICATION.APPLIED_AT, now)
@@ -72,12 +74,43 @@ public class ApplicationController implements ApplicationsApi {
                 .set(Application.APPLICATION.LICENSE_TYPE, dbLicenseType)
                 .set(Application.APPLICATION.REMARKS, applicationCreate.getRemarks())
                 .returning()
-                .fetchOneInto(ApplicationRecord.class);
+                .fetchOne();
 
-        return created != null
-                ? ResponseEntity.ok(created)
-                : ResponseEntity.status(500).build();
+        if (dbRecord == null) {
+            return ResponseEntity.status(500).build();
+        }
+
+        // map DB record -> API model and convert enums explicitly
+        de.hft.licensing.model.ApplicationRecord api = new de.hft.licensing.model.ApplicationRecord();
+        api.setId(dbRecord.getId());
+        api.setUserId(UUID.fromString(dbRecord.getUserId()));
+        api.setCadastralReference(dbRecord.getCadastralReference());
+        api.setAppliedAt(dbRecord.getAppliedAt().atOffset(ZoneOffset.UTC));
+        api.setChangedAt(dbRecord.getChangedAt().atOffset(ZoneOffset.UTC));
+        api.setRemarks(dbRecord.getRemarks());
+
+        if (dbRecord.getLicenseType() != null) {
+            String dbName = dbRecord.getLicenseType().name();
+            for (de.hft.licensing.model.LicenseType lt : de.hft.licensing.model.LicenseType.values()) {
+                if (lt.name().equalsIgnoreCase(dbName)) {
+                    api.setLicenseType(lt);
+                    break;
+                }
+            }
+        }
+        if (dbRecord.getApplicationStatus() != null) {
+            String dbName = dbRecord.getApplicationStatus().name();
+            for (de.hft.licensing.model.ApplicationStatus st : de.hft.licensing.model.ApplicationStatus.values()) {
+                if (st.name().equalsIgnoreCase(dbName)) {
+                    api.setApplicationStatus(st);
+                    break;
+                }
+            }
+        }
+
+        return ResponseEntity.created(URI.create("/applications/" + api.getId())).body(api);
     }
+
 
     @Override
     public ResponseEntity<ApplicationPaymentRecord> createPayment(Integer applicationId, ApplicationPaymentCreate applicationPaymentCreate) {
