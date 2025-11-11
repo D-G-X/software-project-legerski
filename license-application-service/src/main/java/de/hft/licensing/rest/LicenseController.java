@@ -2,7 +2,7 @@ package de.hft.licensing.rest;
 
 import de.hft.licensing.api.LicensesApi;
 
-import de.hft.licensing.model.LicenseRecord;
+import de.hft.licensing.model.LicenseResource;
 import de.hft.licensing.model.UpdateLicenseStatusRequest;
 import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
@@ -26,17 +26,17 @@ public class LicenseController implements LicensesApi {
     }
 
     @Override
-    public ResponseEntity<LicenseRecord> getLicense(Integer licenseId) {
+    public ResponseEntity<LicenseResource> getLicense(Integer licenseId) {
         return null;
     }
 
     @Override
-    public ResponseEntity<List<LicenseRecord>> listLicenses(UUID userId) {
+    public ResponseEntity<List<LicenseResource>> listLicenses(UUID userId) {
         return null;
     }
 
     @Override
-    public ResponseEntity<LicenseRecord> updateLicenseStatus(Integer licenseId, UpdateLicenseStatusRequest updateLicenseStatusRequest) {
+    public ResponseEntity<LicenseResource> updateLicenseStatus(Integer licenseId, UpdateLicenseStatusRequest updateLicenseStatusRequest) {
         return null;
     }
 }

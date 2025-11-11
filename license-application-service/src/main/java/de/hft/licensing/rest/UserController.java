@@ -5,7 +5,7 @@ import de.hft.licensing.api.UsersApi;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.model.CreateUserRequest;
 import de.hft.licensing.model.UpdateUserRequest;
-import de.hft.licensing.model.UserRecord;
+import de.hft.licensing.model.UserResource;
 import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -63,7 +63,7 @@ public class UserController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<UserRecord> getUser(UUID userId) {
+    public ResponseEntity<UserResource> getUser(UUID userId) {
         if (userId == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -77,24 +77,24 @@ public class UserController implements UsersApi {
         }
 
         // only id column, other attributes are managed by Keycloak??
-        UserRecord user = new UserRecord();
+        UserResource user = new UserResource();
         user.setId(userId);
         return ResponseEntity.ok(user);
     }
 
     @Override
-    public ResponseEntity<List<UserRecord>> listUsers(String username, String email, Integer first, Integer max) {
+    public ResponseEntity<List<UserResource>> listUsers(String username, String email, Integer first, Integer max) {
         // only column is id, so ignore filters for now
         int offset = (first == null || first < 0) ? 0 : first;
         int limit = (max == null || max <= 0) ? 100 : Math.min(max, 100);
 
         var ids = dsl.select(User.USER.ID).from(User.USER).offset(offset).limit(limit).fetch(User.USER.ID);
 
-        List<UserRecord> result = new ArrayList<>(ids.size());
+        List<UserResource> result = new ArrayList<>(ids.size());
         for (String idStr : ids) {
             try {
                 UUID id = UUID.fromString(idStr);
-                UserRecord ur = new UserRecord();
+                UserResource ur = new UserResource();
                 ur.setId(id);
                 result.add(ur);
             } catch (IllegalArgumentException ignored) {

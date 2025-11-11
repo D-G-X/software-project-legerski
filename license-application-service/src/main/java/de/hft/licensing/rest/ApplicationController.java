@@ -3,10 +3,10 @@ package de.hft.licensing.rest;
 import de.hft.licensing.api.ApplicationsApi;
 import de.hft.licensing.db.tables.ApplicationPayment;
 import de.hft.licensing.model.ApplicationCreate;
-import de.hft.licensing.model.ApplicationDocumentRecord;
+import de.hft.licensing.model.ApplicationDocumentResource;
 import de.hft.licensing.model.ApplicationPaymentCreate;
-import de.hft.licensing.model.ApplicationPaymentRecord;
-import de.hft.licensing.model.ApplicationRecord;
+import de.hft.licensing.model.ApplicationPaymentResource;
+import de.hft.licensing.model.ApplicationResource;
 import de.hft.licensing.model.ApplicationUpdate;
 import de.hft.licensing.model.RunLottery200Response;
 import de.hft.licensing.model.RunLotteryRequest;
@@ -41,7 +41,7 @@ public class ApplicationController implements ApplicationsApi {
     }
 
     @Override
-    public ResponseEntity<ApplicationRecord> createApplication(ApplicationCreate applicationCreate) {
+    public ResponseEntity<ApplicationResource> createApplication(ApplicationCreate applicationCreate) {
         if (applicationCreate == null || applicationCreate.getUserId() == null || applicationCreate.getLicenseType() == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -89,7 +89,7 @@ public class ApplicationController implements ApplicationsApi {
         }
 
         // map DB record -> API model and convert enums explicitly
-        ApplicationRecord api = new ApplicationRecord();
+        ApplicationResource api = new ApplicationResource();
         api.setId(dbRecord.getId());
         api.setUserId(UUID.fromString(dbRecord.getUserId()));
         api.setCadastralReference(dbRecord.getCadastralReference());
@@ -121,7 +121,7 @@ public class ApplicationController implements ApplicationsApi {
 
 
     @Override
-    public ResponseEntity<ApplicationPaymentRecord> createPayment(Integer applicationId, ApplicationPaymentCreate applicationPaymentCreate) {
+    public ResponseEntity<ApplicationPaymentResource> createPayment(Integer applicationId, ApplicationPaymentCreate applicationPaymentCreate) {
         if (applicationId == null || applicationPaymentCreate.getApplicationId() == null || !Objects.equals(applicationPaymentCreate.getApplicationId(), applicationId)) {
             return ResponseEntity.badRequest().build();
         }
@@ -137,7 +137,7 @@ public class ApplicationController implements ApplicationsApi {
             return ResponseEntity.status(500).build();
         }
 
-        ApplicationPaymentRecord apiPayment = new ApplicationPaymentRecord(
+        ApplicationPaymentResource apiPayment = new ApplicationPaymentResource(
                 dbPayment.getId(),
                 applicationId,
                 dbPayment.getAmount(),
@@ -161,10 +161,10 @@ public class ApplicationController implements ApplicationsApi {
     }
 
     @Override
-    public ResponseEntity<ApplicationRecord> getApplication(Integer applicationId) {
+    public ResponseEntity<ApplicationResource> getApplication(Integer applicationId) {
         var result = dsl.select()
             .from(Application.APPLICATION)
-            .where(Application.APPLICATION.ID.eq(applicationId)).fetchOneInto(ApplicationRecord.class);
+            .where(Application.APPLICATION.ID.eq(applicationId)).fetchOneInto(ApplicationResource.class);
 
         return result != null
                 ? ResponseEntity.ok(result)
@@ -172,17 +172,17 @@ public class ApplicationController implements ApplicationsApi {
     }
 
     @Override
-    public ResponseEntity<List<ApplicationRecord>> listApplications(UUID userId, ApplicationStatusEnum applicationStatus) {
+    public ResponseEntity<List<ApplicationResource>> listApplications(UUID userId, ApplicationStatusEnum applicationStatus) {
         return null;
     }
 
     @Override
-    public ResponseEntity<List<ApplicationDocumentRecord>> listDocuments(Integer applicationId) {
+    public ResponseEntity<List<ApplicationDocumentResource>> listDocuments(Integer applicationId) {
         return null;
     }
 
     @Override
-    public ResponseEntity<List<ApplicationPaymentRecord>> listPayments(Integer applicationId) {
+    public ResponseEntity<List<ApplicationPaymentResource>> listPayments(Integer applicationId) {
         return null;
     }
 
@@ -192,22 +192,22 @@ public class ApplicationController implements ApplicationsApi {
     }
 
     @Override
-    public ResponseEntity<ApplicationRecord> updateApplication(Integer applicationId, ApplicationUpdate applicationUpdate) {
+    public ResponseEntity<ApplicationResource> updateApplication(Integer applicationId, ApplicationUpdate applicationUpdate) {
         return null;
     }
 
     @Override
-    public ResponseEntity<ApplicationPaymentRecord> updatePayment(Integer applicationId, Integer paymentId, UpdatePaymentRequest updatePaymentRequest) {
+    public ResponseEntity<ApplicationPaymentResource> updatePayment(Integer applicationId, Integer paymentId, UpdatePaymentRequest updatePaymentRequest) {
         return null;
     }
 
     @Override
-    public ResponseEntity<ApplicationDocumentRecord> uploadDocument(Integer applicationId, MultipartFile file, String documentType) {
+    public ResponseEntity<ApplicationDocumentResource> uploadDocument(Integer applicationId, MultipartFile file, String documentType) {
         return null;
     }
 
     @Override
-    public ResponseEntity<ApplicationDocumentRecord> verifyDocument(Integer applicationId, Integer documentId, VerifyDocumentRequest verifyDocumentRequest) {
+    public ResponseEntity<ApplicationDocumentResource> verifyDocument(Integer applicationId, Integer documentId, VerifyDocumentRequest verifyDocumentRequest) {
         return null;
     }
 }
