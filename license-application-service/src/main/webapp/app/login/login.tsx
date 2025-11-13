@@ -165,13 +165,14 @@ export default function Login() {
           </div>
           <div className="flex justify-between my-6 px-1">
             <div className="text-mallorca-purple">
-              <span className="mr-3">
+              <label className="flex items-center cursor-pointer">
                 <input
+                  id="keepMeLoggedIn"
                   type="checkbox"
-                  className="accent-mallorca-purple w-5 h-5 rounded-sm border-2 border-mallorca-purple checked:bg-mallorca-purple"
-                ></input>
-              </span>
-              <span>{t("login.index.keepMeLoggedIn")}</span>
+                  className="accent-mallorca-purple w-5 h-5 rounded-sm border-2 border-mallorca-purple checked:bg-mallorca-purple mr-3"
+                />
+                <span>{t("login.index.keepMeLoggedIn")}</span>
+              </label>
             </div>
             <div>
               <a href="/login" className="text-mallorca-purple/50">
