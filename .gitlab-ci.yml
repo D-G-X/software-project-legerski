@@ -94,7 +94,6 @@ test-backend:
   before_script:
     - cd license-application-service
   script:
-    - cd license-application-service
     - ./mvnw test -Djooq.codegen.skip=true
   cache:
     key: "${CI_COMMIT_REF_SLUG}-backend"
