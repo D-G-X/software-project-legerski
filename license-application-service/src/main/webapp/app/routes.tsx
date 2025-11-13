@@ -13,6 +13,7 @@ import LicenseAdd from "./license/license-add";
 import LicenseEdit from "./license/license-edit";
 import Error from "./error/error";
 import Login from "./login/login";
+import Register from "./register/register";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -21,6 +22,7 @@ export default function AppRoutes() {
       children: [
         { path: "", element: <Home /> },
         { path: "login", element: <Login /> },
+        { path: "register", element: <Register /> },
         { path: "appUsers", element: <AppUserList /> },
         { path: "appUsers/add", element: <AppUserAdd /> },
         { path: "appUsers/edit/:id", element: <AppUserEdit /> },

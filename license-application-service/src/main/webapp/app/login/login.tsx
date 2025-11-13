@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import "./login.css";
 import { validateResults } from "app/common/utils";
 import { validateEmail, validatePassword } from "../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
+import { FormHeader } from "app/common/headingTitle";
+import { OrDivider } from "app/common/orDivider";
+import "./login.css";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -19,6 +21,7 @@ export default function Login() {
     password: "",
     login: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,6 +29,10 @@ export default function Login() {
     setForm((prev) => ({
       ...prev,
       [id]: value,
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      [id]: "",
     }));
   };
 
@@ -38,7 +45,8 @@ export default function Login() {
 
     if (!emailValidateResult.isValid) {
       newErrors.email = emailValidateResult.message;
-    } else if (!passwordValidateResult.isValid) {
+    }
+    if (!passwordValidateResult.isValid) {
       newErrors.password = passwordValidateResult.message;
     }
 
@@ -57,13 +65,10 @@ export default function Login() {
     <div className="container mx-auto px-4 md:px-6">
       <div className="relative min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center">
         <div className="font-inter min-w-96">
-          <div className="text-4xl font-bold text-mallorca-purple">
-            {t("login.index.headline")}
-          </div>
-          <div className="text-md my-2 text-mallorca-purple/50">
-            {t("login.index.subheadline")}
-          </div>
-
+          <FormHeader
+            heading={t("login.index.headline")}
+            subHeading={t("login.index.subheadline")}
+          />
           {/* Login Form */}
           <div>
             {/* Email Field */}
@@ -192,22 +197,16 @@ export default function Login() {
               {t("login.index.signInButton")}
             </button>
           </div>
+          <OrDivider />
 
           {/* Register Redirect */}
-          <div className="flex items-center">
-            <hr className="w-[50%] border border-mallorca-purple rounded-full"></hr>
-            <span className="w-[10%] text-xl text-center text-mallorca-purple/50">
-              {t("login.index.orDivider")}
-            </span>
-            <hr className="w-[50%] border border-mallorca-purple rounded-full"></hr>
-          </div>
           <div className="text-center mt-5">
             <span className="text-mallorca-purple/50 pr-2">
               {t("login.index.createAccountText")}
             </span>
             <a
               className="text-mallorca-purple font-medium underline underline-offset-3"
-              href="/signup"
+              href="/register"
             >
               {t("login.index.createAccountLinkLabel")}
             </a>

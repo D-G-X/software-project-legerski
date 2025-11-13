@@ -12,6 +12,9 @@
       "headline": "Mallorca"
     }
   },
+  "common": {
+    "orDivider": "or"
+  },
   "login": {
     "title": "Sign in",
     "index": {
@@ -22,24 +25,48 @@
       "keepMeLoggedIn": "Keep me logged in",
       "forgotPassword": "Forgot your password?",
       "signInButton": "Sign in",
-      "orDivider": "or",
       "createAccountText": "Need an account?",
       "createAccountLinkLabel": "Create one"
+    }
+  },
+  "register": {
+    "title": "Register",
+    "index": {
+      "headline": "Register",
+      "subheadline": "Online request for administrative services of the Mallorca Office",
+      "nameLabel": "Name",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm your password",
+      "registerButton": "Register",
+      "alreadyHaveAccountText": "Already have an account?",
+      "signInLinkLabel": "Sign in"
     }
   },
   "validation": {
     "email": {
       "required": "Email is required",
-      "valid": "Valid email address!",
-      "invalid": "Invalid email address!"
+      "invalid": "Invalid email format",
+      "valid": "Email format is valid"
     },
     "password": {
       "required": "Password is required",
       "minLength": "Password must be at least 6 characters long",
-      "uppercase": "Password must include at least one uppercase letter",
-      "number": "Password must include at least one number",
-      "specialChar": "Password must include at least one special character (!@#$%^&*)",
-      "valid": "Password is valid!"
+      "uppercase": "Password must contain at least one uppercase letter",
+      "number": "Password must contain at least one number",
+      "specialChar": "Password must contain at least one special character (!@#$%^&*)",
+      "valid": "Password is valid"
+    },
+    "confirmPassword": {
+      "required": "Please confirm your password",
+      "mismatch": "Passwords do not match",
+      "valid": "Passwords match"
+    },
+    "name": {
+      "required": "Name is required",
+      "invalid": "Name can only contain letters and spaces",
+      "minLength": "Name must be at least 2 characters long",
+      "valid": "Name is valid"
     }
   },
   "error": {
