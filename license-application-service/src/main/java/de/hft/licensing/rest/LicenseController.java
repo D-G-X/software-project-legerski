@@ -28,7 +28,19 @@ public class LicenseController implements LicensesApi {
 
     @Override
     public ResponseEntity<Void> deleteLicense(Integer licenseId) {
-        return null;
+        if(licenseId == null || licenseId <= 0){
+            return ResponseEntity.badRequest().build();
+        }
+
+        int deletedRows = dsl.deleteFrom(License.LICENSE)
+                .where(License.LICENSE.ID.eq(licenseId))
+                .execute();
+
+        if(deletedRows > 0){
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @Override
