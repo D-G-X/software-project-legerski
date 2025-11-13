@@ -224,7 +224,7 @@ paths:
           description: Filter applications by status
           required: false
           schema:
-            $ref: "#/components/schemas/ApplicationStatusEnum"
+            $ref: "#/components/schemas/ApplicationStatusApiEnum"
       responses:
         "200":
           description: List of applications (optionally filtered by status)
@@ -500,7 +500,7 @@ paths:
               type: object
               properties:
                 payment_status:
-                  $ref: "#/components/schemas/PaymentStatusEnum"
+                  $ref: "#/components/schemas/PaymentStatusApiEnum"
               required:
                 - payment_status
       responses:
@@ -530,7 +530,7 @@ paths:
               type: object
               properties:
                 license_type:
-                  $ref: "#/components/schemas/LicenseTypeEnum"
+                  $ref: "#/components/schemas/LicenseTypeApiEnum"
       responses:
         "200":
           description: Lottery results with updated application statuses
@@ -619,7 +619,7 @@ paths:
               type: object
               properties:
                 license_status:
-                  $ref: "#/components/schemas/LicenseStatusEnum"
+                  $ref: "#/components/schemas/LicenseStatusApiEnum"
               required:
                 - license_status
       responses:
@@ -890,9 +890,9 @@ components:
           description: ID of the related application.
           example: 201
         license_type:
-          $ref: "#/components/schemas/LicenseTypeEnum"
+          $ref: "#/components/schemas/LicenseTypeApiEnum"
         license_status:
-          $ref: "#/components/schemas/LicenseStatusEnum"
+          $ref: "#/components/schemas/LicenseStatusApiEnum"
         issued_at:
           type: string
           format: date-time
@@ -924,7 +924,7 @@ components:
           description: ID of the applicant user.
           example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
         license_type:
-          $ref: "#/components/schemas/LicenseTypeEnum"
+          $ref: "#/components/schemas/LicenseTypeApiEnum"
         cadastral_reference:
           type: string
           minLength: 20
@@ -942,7 +942,7 @@ components:
           description: When the application was last updated.
           example: 2025-06-01T10:00:00Z
         application_status:
-          $ref: "#/components/schemas/ApplicationStatusEnum"
+          $ref: "#/components/schemas/ApplicationStatusApiEnum"
         remarks:
           type: string
           description: Additional information or comments.
@@ -964,7 +964,7 @@ components:
           description: User who submits the application.
           example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
         license_type:
-          $ref: "#/components/schemas/LicenseTypeEnum"
+          $ref: "#/components/schemas/LicenseTypeApiEnum"
         cadastral_reference:
           type: string
           minLength: 20
@@ -985,7 +985,7 @@ components:
       description: Used to update the application status or add remarks.
       properties:
         application_status:
-          $ref: "#/components/schemas/ApplicationStatusEnum"
+          $ref: "#/components/schemas/ApplicationStatusApiEnum"
         remarks:
           type: string
           description: Additional notes or comments.
@@ -1014,7 +1014,7 @@ components:
           description: When payment was made.
           example: 2025-05-22T15:10:00Z
         payment_status:
-          $ref: "#/components/schemas/PaymentStatusEnum"
+          $ref: "#/components/schemas/PaymentStatusApiEnum"
       required:
         - id
         - application_id
@@ -1035,7 +1035,7 @@ components:
           description: Amount to be paid in EUR.
           example: 99.99
         payment_status:
-          $ref: "#/components/schemas/PaymentStatusEnum"
+          $ref: "#/components/schemas/PaymentStatusApiEnum"
       required:
         - application_id
         - amount
@@ -1093,47 +1093,47 @@ components:
       required:
         - purpose
 
-    ApplicationStatusEnum:
+    ApplicationStatusApiEnum:
       type: string
       description: Status values for an application.
       enum:
-        - draft # Saved but not submitted
-        - documents_submitted # Documents uploaded
-        - verification_pending # Awaiting verification
-        - awaiting_payment # Waiting for user payment
-        - payment_received # Payment completed
-        - submitted # Application formally submitted
-        - in_ballot # Entered into selection/ballot
-        - selected # Chosen/approved via ballot
-        - not_selected # Not chosen in ballot
-        - under_review # In manual review process
-        - approved # License approved
-        - rejected # Application rejected
-        - expired # Application expired (not continued)
-        - cancelled # Withdrawn/cancelled by user
+        - DRAFT # Saved but not submitted
+        - DOCUMENTS_SUBMITTED # Documents uploaded
+        - VERIFICATION_PENDING # Awaiting verification
+        - AWAITING_PAYMENT # Waiting for user payment
+        - PAYMENT_RECEIVED # Payment completed
+        - SUBMITTED # Application formally submitted
+        - IN_BALLOT # Entered into selection/ballot
+        - SELECTED # Chosen/approved via ballot
+        - NOT_SELECTED # Not chosen in ballot
+        - UNDER_REVIEW # In manual review process
+        - APPROVED # License approved
+        - REJECTED # Application rejected
+        - EXPIRED # Application expired (not continued)
+        - CANCELLED # Withdrawn/cancelled by user
 
-    PaymentStatusEnum:
+    PaymentStatusApiEnum:
       type: string
       description: Status for any payment attempt.
       enum:
-        - unpaid # Payment is pending
-        - paid # Payment completed
+        - UNPAID # Payment is pending
+        - PAID # Payment completed
 
-    LicenseStatusEnum:
+    LicenseStatusApiEnum:
       type: string
       description: Current license status.
       enum:
-        - active # Valid and usable
-        - suspended # Temporarily revoked
-        - expired # No longer valid
+        - ACTIVE # Valid and usable
+        - SUSPENDED # Temporarily revoked
+        - EXPIRED # No longer valid
 
-    LicenseTypeEnum:
+    LicenseTypeApiEnum:
       type: string
       description: License categories for holiday rentals.
       enum:
-        - etv
-        - etvpl
-        - etv60
+        - ETV
+        - ETVPL
+        - ETV60
 
     ApplicationDocumentResource:
       type: object
