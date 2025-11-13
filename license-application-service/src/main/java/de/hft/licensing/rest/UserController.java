@@ -1,18 +1,18 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.UsersApi;
-
 import de.hft.licensing.db.tables.User;
+import de.hft.licensing.db.tables.records.UserRecord;
 import de.hft.licensing.model.CreateUserRequest;
 import de.hft.licensing.model.UpdateUserRequest;
 import de.hft.licensing.model.UserResource;
+import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +24,10 @@ public class UserController implements UsersApi {
     public UserController(DSLContext dsl) {
         this.dsl = dsl;
     }
+
+    /*
+    TODO: Integrate with Keycloak for user management
+     */
 
     @Override
     public ResponseEntity<Void> createUser(CreateUserRequest createUserRequest) {
@@ -88,19 +92,17 @@ public class UserController implements UsersApi {
         int offset = (first == null || first < 0) ? 0 : first;
         int limit = (max == null || max <= 0) ? 100 : Math.min(max, 100);
 
-        var ids = dsl.select(User.USER.ID).from(User.USER).offset(offset).limit(limit).fetch(User.USER.ID);
+        var idsList = dsl.select()
+                .from(User.USER)
+                .offset(offset)
+                .limit(limit)
+                .fetchInto(UserRecord.class);
 
-        List<UserResource> result = new ArrayList<>(ids.size());
-        for (String idStr : ids) {
-            try {
-                UUID id = UUID.fromString(idStr);
-                UserResource ur = new UserResource();
-                ur.setId(id);
-                result.add(ur);
-            } catch (IllegalArgumentException ignored) {
-                // skip bdaly formed ids
-            }
-        }
+        List<UserResource> result = idsList.stream().map(record -> {
+            UserResource user = new UserResource();
+            RecordToResourceMapperUtil.mapUserRecordToResource(record, user);
+            return user;
+        }).toList();
 
         return ResponseEntity.ok(result);
     }
@@ -127,7 +129,7 @@ public class UserController implements UsersApi {
         }
 
         // No local columns to update in this schema; user attributes are managed by Keycloak.
-        // If you want to integrate with Keycloak, perform that call here. Return 204 to indicate success.
+        // integrate with Keycloak, perform that call here
         return ResponseEntity.noContent().build();
     }
 }
