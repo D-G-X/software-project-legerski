@@ -12,6 +12,36 @@
       "headline": "Mallorca"
     }
   },
+  "login": {
+    "title": "Sign in",
+    "index": {
+      "headline": "Sign in",
+      "subheadline": "Please log in to continue to your account.",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "keepMeLoggedIn": "Keep me logged in",
+      "forgotPassword": "Forgot your password?",
+      "signInButton": "Sign in",
+      "orDivider": "or",
+      "createAccountText": "Need an account?",
+      "createAccountLinkLabel": "Create one"
+    }
+  },
+  "validation": {
+    "email": {
+      "required": "Email is required",
+      "valid": "Valid email address!",
+      "invalid": "Invalid email address!"
+    },
+    "password": {
+      "required": "Password is required",
+      "minLength": "Password must be at least 6 characters long",
+      "uppercase": "Password must include at least one uppercase letter",
+      "number": "Password must include at least one number",
+      "specialChar": "Password must include at least one special character (!@#$%^&*)",
+      "valid": "Password is valid!"
+    }
+  },
   "error": {
     "page": {
       "headline": "Error",

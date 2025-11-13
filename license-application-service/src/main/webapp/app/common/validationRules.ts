@@ -1,35 +1,45 @@
+import { t } from "i18next";
+
 // Email validation
 export const validateEmail = (value: string) => {
-  if (!value) return { isValid: true, message: "Email is required" };
+  if (!value)
+    return { isValid: false, message: t("validation.email.required") };
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   return emailRegex.test(value)
-    ? { isValid: true, message: "Valid email address!" }
-    : { isValid: false, message: "Invalid email address!" };
+    ? { isValid: true, message: t("validation.email.valid") }
+    : { isValid: false, message: t("validation.email.invalid") };
 };
 
 // Password validation
 export const validatePassword = (value: string) => {
-  if (!value) return { isValid: false, message: "Password is required" };
+  if (!value)
+    return { isValid: false, message: t("validation.password.required") };
+
   if (value.length < 6)
     return {
       isValid: false,
-      message: "Password must be at least 6 characters long",
+      message: t("validation.password.minLength"),
     };
+
   if (!/[A-Z]/.test(value))
     return {
       isValid: false,
-      message: "Password must include at least one uppercase letter",
+      message: t("validation.password.uppercase"),
     };
+
   if (!/[0-9]/.test(value))
     return {
       isValid: false,
-      message: "Password must include at least one number",
+      message: t("validation.password.number"),
     };
+
   if (!/[!@#$%^&*]/.test(value))
     return {
       isValid: false,
-      message:
-        "Password must include at least one special character (!@#$%^&*)",
+      message: t("validation.password.specialChar"),
     };
-  return { isValid: true, message: "Password is valid!" };
+
+  return { isValid: true, message: t("validation.password.valid") };
 };

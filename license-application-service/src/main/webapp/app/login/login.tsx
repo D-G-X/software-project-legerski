@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import "./login.css";
 import { validateResults } from "app/common/utils";
 import { validateEmail, validatePassword } from "../common/validationRules";
-// import { useTranslation } from "react-i18next";
-// import useDocumentTitle from "app/common/use-document-title";
+import { useTranslation } from "react-i18next";
+import useDocumentTitle from "app/common/use-document-title";
 
 export default function Login() {
-  //   const { t } = useTranslation();
-  //   useDocumentTitle(t("login.index.headline"));
+  const { t } = useTranslation();
+  useDocumentTitle(t("login.title"));
 
   const [form, setForm] = useState({
     email: "",
@@ -57,9 +57,11 @@ export default function Login() {
     <div className="container mx-auto px-4 md:px-6">
       <div className="relative min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center">
         <div className="font-inter min-w-96">
-          <div className="text-4xl font-bold text-mallorca-purple">Sign in</div>
+          <div className="text-4xl font-bold text-mallorca-purple">
+            {t("login.index.headline")}
+          </div>
           <div className="text-md my-2 text-mallorca-purple/50">
-            Please log in to continue to your account.
+            {t("login.index.subheadline")}
           </div>
 
           {/* Login Form */}
@@ -70,7 +72,7 @@ export default function Login() {
                 type="email"
                 id="email"
                 value={form.email}
-                placeholder=" "
+                placeholder=""
                 onChange={handleChange}
                 className="peer border border-mallorca-purple rounded-xl h-12 w-full px-3 pt-5 pb-2 text-mallorca-purple placeholder-transparent focus:outline-none focus:ring-1 focus:ring-mallorca-purple"
               />
@@ -82,7 +84,7 @@ export default function Login() {
                     : "top-3.5 text-base text-mallorca-purple/50"
                 } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
               >
-                Email
+                {t("login.index.emailLabel")}
               </label>
               {errors.email && (
                 <div className="text-red-500 mt-2 pl-4">{errors.email}</div>
@@ -107,7 +109,7 @@ export default function Login() {
                     : "top-3.5 text-base text-mallorca-purple/50"
                 } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
               >
-                Password
+                {t("login.index.passwordLabel")}
               </label>
 
               {/* Eye Icon */}
@@ -169,11 +171,11 @@ export default function Login() {
                   className="accent-mallorca-purple w-5 h-5 rounded-sm border-2 border-mallorca-purple checked:bg-mallorca-purple"
                 ></input>
               </span>
-              <span>Keep me logged in</span>
+              <span>{t("login.index.keepMeLoggedIn")}</span>
             </div>
             <div>
               <a href="/login" className="text-mallorca-purple/50">
-                Forgot your password?
+                {t("login.index.forgotPassword")}
               </a>
             </div>
           </div>
@@ -186,7 +188,7 @@ export default function Login() {
               onClick={handleSubmit}
               className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg"
             >
-              Sign in
+              {t("login.index.signInButton")}
             </button>
           </div>
 
@@ -194,19 +196,19 @@ export default function Login() {
           <div className="flex items-center">
             <hr className="w-[50%] border border-mallorca-purple rounded-full"></hr>
             <span className="w-[10%] text-xl text-center text-mallorca-purple/50">
-              or
+              {t("login.index.orDivider")}
             </span>
             <hr className="w-[50%] border border-mallorca-purple rounded-full"></hr>
           </div>
           <div className="text-center mt-5">
             <span className="text-mallorca-purple/50 pr-2">
-              Need an account?
+              {t("login.index.createAccountText")}
             </span>
             <a
               className="text-mallorca-purple font-medium underline underline-offset-3"
               href="/signup"
             >
-              Create one
+              {t("login.index.createAccountLinkLabel")}
             </a>
           </div>
         </div>
