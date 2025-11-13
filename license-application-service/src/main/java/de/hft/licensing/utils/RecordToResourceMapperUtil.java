@@ -36,6 +36,7 @@ public class RecordToResourceMapperUtil {
         applicationResource.setChangedAt(applicationRecord.getChangedAt().atOffset(ZoneOffset.UTC));
         applicationResource.setRemarks(applicationRecord.getRemarks());
         applicationResource.setLicenseType(EnumMapperUtil.getPendantFromEnum(applicationRecord.getLicenseType()));
+        applicationResource.setApplicationStatus(EnumMapperUtil.getPendantFromEnum(applicationRecord.getApplicationStatus()));
     }
 
     public static void mapLicenseRecordToResource(LicenseRecord licenseRecord, LicenseResource licenseResource) {
