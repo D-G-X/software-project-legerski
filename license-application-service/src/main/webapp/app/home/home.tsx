@@ -15,7 +15,7 @@ export default function Home() {
       ></div>
 
       <div className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <h1 className="text-[256px] font-extrabold text-center text-mallorca-purple z-10">
+        <h1 className="xl:text-[16rem] font-extrabold text-center text-mallorca-purple z-10 tracking-widest">
           {t("home.index.headline")}
         </h1>
       </div>
