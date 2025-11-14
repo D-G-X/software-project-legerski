@@ -1,4 +1,20 @@
 body {
-    overflow-y: hidden;
-    overflow-x: auto;
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+.responsive-stroke {
+  -webkit-text-stroke: 1px white;
+}
+
+@media (min-width: 640px) {
+  .responsive-stroke {
+    -webkit-text-stroke: 3px white;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-stroke {
+    -webkit-text-stroke: 5px white;
+  }
 }
