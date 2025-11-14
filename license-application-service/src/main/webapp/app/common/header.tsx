@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router";
 // import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -30,40 +30,40 @@ export default function Header() {
     setOpen(false);
   };
 
-  const headerRef = useRef<HTMLElement | null>(null);
+  // const headerRef = useRef<HTMLElement | null>(null);
 
-  const handleClick = (event: Event) => {
-    // close any open dropdown
-    const $clickedDropdown = (event.target as HTMLElement).closest(
-      ".js-dropdown"
-    );
-    const $dropdowns = headerRef.current!.querySelectorAll(".js-dropdown");
-    $dropdowns.forEach(($dropdown: Element) => {
-      if (
-        $clickedDropdown !== $dropdown &&
-        $dropdown.getAttribute("data-dropdown-keepopen") !== "true"
-      ) {
-        $dropdown.ariaExpanded = "false";
-        $dropdown.nextElementSibling!.classList.add("hidden");
-      }
-    });
+  // const handleClick = (event: Event) => {
+  //   // close any open dropdown
+  //   const $clickedDropdown = (event.target as HTMLElement).closest(
+  //     ".js-dropdown"
+  //   );
+  //   const $dropdowns = headerRef.current!.querySelectorAll(".js-dropdown");
+  //   $dropdowns.forEach(($dropdown: Element) => {
+  //     if (
+  //       $clickedDropdown !== $dropdown &&
+  //       $dropdown.getAttribute("data-dropdown-keepopen") !== "true"
+  //     ) {
+  //       $dropdown.ariaExpanded = "false";
+  //       $dropdown.nextElementSibling!.classList.add("hidden");
+  //     }
+  //   });
 
-    // toggle selected if applicable
-    if ($clickedDropdown) {
-      $clickedDropdown.ariaExpanded =
-        "" + ($clickedDropdown.ariaExpanded !== "true");
-      $clickedDropdown.nextElementSibling!.classList.toggle("hidden");
-    }
-  };
+  //   // toggle selected if applicable
+  //   if ($clickedDropdown) {
+  //     $clickedDropdown.ariaExpanded =
+  //       "" + ($clickedDropdown.ariaExpanded !== "true");
+  //     $clickedDropdown.nextElementSibling!.classList.toggle("hidden");
+  //   }
+  // };
 
-  useEffect(() => {
-    document.body.addEventListener("click", handleClick);
-    return () => document.body.removeEventListener("click", handleClick);
-  }, []);
+  // useEffect(() => {
+  //   document.body.addEventListener("click", handleClick);
+  //   return () => document.body.removeEventListener("click", handleClick);
+  // }, []);
 
   return (
-    <header ref={headerRef} className="bg-gray-5 max-h-20 font-inter">
-      <nav className="py-4 w-full px-5 md:px-10">
+    <header className="bg-gray-5 max-h-20 font-inter">
+      <nav className="py-4 w-full px-5">
         <div className="flex justify-between w-full">
           {/* Title and Logo */}
           <div>
@@ -74,13 +74,13 @@ export default function Header() {
               <img
                 src="/images/logo.svg"
                 alt={t("nav.appLogoAlt")}
-                width="100"
-                height="100"
+                width="104"
+                height="104"
                 className="inline-block"
               />
-              <span className="text-xl md:text-2xl pl-5 font-semibold text-mallorca-purple">
+              <div className="text-xl md:text-2xl lg:text-[1.5rem] xl:text-3xl pl-5 font-semibold text-mallorca-purple">
                 {t("app.title")}
-              </span>
+              </div>
             </Link>
           </div>
 
@@ -155,9 +155,9 @@ export default function Header() {
 
             {/* Contact Button */}
             <div className="ml-1 h-full">
-              <a
-                href="/contact"
-                className="ml-1 rounded w-28 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
+              <Link
+                to="/contact"
+                className="ml-1 rounded-lg w-28 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
               >
                 <div className="flex justify-between items-center gap-2 h-full rounded px-3">
                   <div className="text-md text-left h-5">
@@ -168,35 +168,35 @@ export default function Header() {
                     <Users size={20} />
                   </span>
                 </div>
-              </a>
+              </Link>
             </div>
 
             {/* Signin Button */}
             <div className="ml-3">
-              <a
-                href="/login"
-                className="rounded-lg bg-mallorca-purple/75 text-white p-2 px-4"
+              <Link
+                to="/login"
+                className="block rounded-lg bg-mallorca-purple/75 border-2 border-mallorca-purple/75 text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
               >
                 {t("nav.signInBtn")}
-              </a>
+              </Link>
             </div>
 
             {/* Register Button */}
             <div className="ml-3">
-              <a
-                href="/register"
-                className="rounded-lg bg-mallorca-purple text-white p-2 px-4"
+              <Link
+                to="/register"
+                className="rounded-lg block bg-mallorca-purple border-2 border-mallorca-purple text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
               >
                 {t("nav.registerBtn")}
-              </a>
+              </Link>
             </div>
           </div>
 
           {/* Hamburger Navigation Menu */}
-          <div className="flex items-center md:hidden">
+          <div className="flex lg:hidden items-center">
             <button
               type="button"
-              className="js-dropdown md:hidden rounded cursor-pointer p-2 border text-center hover:bg-mallorca-purple/50"
+              className="js-dropdown rounded cursor-pointer p-2 text-center hover:bg-mallorca-purple/50"
               data-dropdown-keepopen="true"
               aria-label={t("nav.toggle")}
               aria-controls="navbarToggle"
