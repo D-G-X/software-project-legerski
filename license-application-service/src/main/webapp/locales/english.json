@@ -2,10 +2,24 @@
   "app": {
     "title": "Mallorca Holiday Licenses"
   },
-  "navigation": {
+  "nav": {
     "toggle": "Toggle navigation",
     "home": "Home",
-    "entities": "Entities"
+    "entities": "Entities",
+    "appLogoAlt": "Application logo",
+    "contactBtn": "Contact",
+    "signInBtn": "Sign in",
+    "registerBtn": "Register",
+    "languages": {
+      "en": {
+        "name": "English",
+        "iconAlt": "English language icon."
+      },
+      "es": {
+        "name": "Spanish",
+        "iconAlt": "Spanish language icon."
+      }
+    }
   },
   "home": {
     "index": {

@@ -11,12 +11,14 @@ export default function Header() {
 
   const language_title_img_map: Record<string, LanguageInfo> = {
     en: {
-      language: "English",
+      language: t("nav.languages.en.name"),
       img: "/images/languages/english.png",
+      imgAlt: t("nav.languages.en.iconAlt"),
     },
     es: {
-      language: "Spanish",
+      language: t("nav.languages.es.name"),
       img: "/images/languages/spanish.png",
+      imgAlt: t("nav.languages.es.iconAlt"),
     },
   };
 
@@ -71,7 +73,7 @@ export default function Header() {
             >
               <img
                 src="/images/logo.svg"
-                alt={t("app.title")}
+                alt={t("nav.appLogoAlt")}
                 width="100"
                 height="100"
                 className="inline-block"
@@ -158,7 +160,9 @@ export default function Header() {
                 className="ml-1 rounded w-28 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
               >
                 <div className="flex justify-between items-center gap-2 h-full rounded px-3">
-                  <div className="text-md text-left h-5">Contact</div>
+                  <div className="text-md text-left h-5">
+                    {t("nav.contactBtn")}
+                  </div>
 
                   <span className="items-baseline inline-flex">
                     <Users size={20} />
@@ -173,7 +177,7 @@ export default function Header() {
                 href="/login"
                 className="rounded-lg bg-mallorca-purple/75 text-white p-2 px-4"
               >
-                Sign in
+                {t("nav.signInBtn")}
               </a>
             </div>
 
@@ -183,7 +187,7 @@ export default function Header() {
                 href="/register"
                 className="rounded-lg bg-mallorca-purple text-white p-2 px-4"
               >
-                Register
+                {t("nav.registerBtn")}
               </a>
             </div>
           </div>
@@ -194,7 +198,7 @@ export default function Header() {
               type="button"
               className="js-dropdown md:hidden rounded cursor-pointer p-2 border text-center hover:bg-mallorca-purple/50"
               data-dropdown-keepopen="true"
-              aria-label={t("navigation.toggle")}
+              aria-label={t("nav.toggle")}
               aria-controls="navbarToggle"
               aria-expanded="false"
             >

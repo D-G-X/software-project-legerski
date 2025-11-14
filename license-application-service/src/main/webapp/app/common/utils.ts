@@ -127,4 +127,5 @@ export interface ErrorResponse {
 export interface LanguageInfo {
   language: string;
   img: string;
+  imgAlt: string;
 }
