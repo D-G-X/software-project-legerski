@@ -3,6 +3,7 @@ import { Link } from "react-router";
 // import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageInfo } from "./utils";
+import { Menu, Users } from "lucide-react";
 
 export default function Header() {
   const { t, i18n } = useTranslation();
@@ -44,6 +45,7 @@ export default function Header() {
         $dropdown.nextElementSibling!.classList.add("hidden");
       }
     });
+
     // toggle selected if applicable
     if ($clickedDropdown) {
       $clickedDropdown.ariaExpanded =
@@ -61,6 +63,7 @@ export default function Header() {
     <header ref={headerRef} className="bg-gray-5 max-h-20 font-inter">
       <nav className="py-4 w-full px-5 md:px-10">
         <div className="flex justify-between w-full">
+          {/* Title and Logo */}
           <div>
             <Link
               to="/"
@@ -78,39 +81,33 @@ export default function Header() {
               </span>
             </Link>
           </div>
-          <div>
+
+          {/* Full Navigation Button */}
+          <div className="hidden lg:flex items-center h-12">
             {/* Language Dropdown */}
-            <div
-              className="flex md:block grow md:grow-0 justify-end basis-full md:basis-auto pt-3 md:pt-1 pb-1"
-              id="navbarToggle"
-            >
-              <ul className="flex">
-                <li className="relative group">
+            <div className="h-full" id="navbarToggle">
+              <ul className="rounded min-w-34 w-full h-full">
+                <li className="relative w-full h-full">
                   <button
                     type="button"
                     onClick={toggleDropdown}
-                    className="text-gray-500 p-2 cursor-pointer flex items-center"
+                    className="text-gray-500 cursor-pointer flex items-center h-full"
                   >
-                    <div className="flex mr-2">
-                      <span className="mx-3 text-lg text-mallorca-purple/75">
+                    <div className="flex justify-between items-center gap-2 h-full text-mallorca-purple/75 hover:bg-mallorca-purple/10 rounded-lg px-3">
+                      <div className="text-md text-left h-5 min-w-15">
                         {language_title_img_map[i18n.language]?.language}
-                      </span>
-                      <span>
-                        <img
-                          src={language_title_img_map[i18n.language]?.img}
-                          alt={t("app.title")}
-                          className="inline-block h-5 w-8"
-                        />
-                      </span>
+                      </div>
+
+                      <img
+                        src={language_title_img_map[i18n.language]?.img}
+                        alt={t("app.title")}
+                        className="inline-block h-5 w-10"
+                      />
                     </div>
-                    {/* <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-200 ${
-                        open ? "rotate-180" : "rotate-0"
-                      }`}
-                    /> */}
                   </button>
+
                   {open && (
-                    <ul className="absolute right-0 bg-white border-gray-300 shadow-sm shadow-black rounded z-50 min-w-40">
+                    <ul className="absolute left-0 bg-white shadow-sm shadow-black rounded-lg z-50 min-w-34">
                       {Object.keys(language_title_img_map).map((key, index) => {
                         const lang = language_title_img_map[key];
                         const isSelected = i18n.language === key;
@@ -125,20 +122,24 @@ export default function Header() {
                           <li
                             key={key}
                             className={`${
-                              isSelected ? "bg-gray-200" : "bg-white"
+                              isSelected ? "bg-gray-300" : "bg-white"
                             } ${roundedClass}`}
                           >
                             <button
+                              disabled={isSelected}
                               onClick={() => changeLanguage(key)}
-                              className={`flex justify-between items-center gap-2 w-full text-mallorca-purple/75 hover:bg-gray-100 px-4 py-2 ${roundedClass}`}
+                              className={`cursor-pointer flex justify-between items-center gap-2 text-mallorca-purple/75 ${
+                                isSelected ? "" : "hover:bg-gray-100"
+                              } px-3 py-2 ${roundedClass}`}
                             >
-                              <div className="text-lg text-left">
+                              <div className="text-left h-5 min-w-15">
                                 {lang?.language}
                               </div>
+
                               <img
                                 src={lang?.img}
                                 alt={t("app.title")}
-                                className="inline-block h-5 w-8"
+                                className="inline-block h-5 w-10"
                               />
                             </button>
                           </li>
@@ -150,23 +151,55 @@ export default function Header() {
               </ul>
             </div>
 
-            {/* Hamburger Menu */}
-            {/* <div className="">
-              <button
-                type="button"
-                className="js-dropdown md:hidden rounded cursor-pointer"
-                data-dropdown-keepopen="true"
-                aria-label={t("navigation.toggle")}
-                aria-controls="navbarToggle"
-                aria-expanded="false"
+            {/* Contact Button */}
+            <div className="ml-1 h-full">
+              <a
+                href="/contact"
+                className="ml-1 rounded w-28 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
               >
-                <div className="space-y-1.5 my-2.5 mx-4">
-                  <div className="w-6 h-0.5 bg-gray-500"></div>
-                  <div className="w-6 h-0.5 bg-gray-500"></div>
-                  <div className="w-6 h-0.5 bg-gray-500"></div>
+                <div className="flex justify-between items-center gap-2 h-full rounded px-3">
+                  <div className="text-md text-left h-5">Contact</div>
+
+                  <span className="items-baseline inline-flex">
+                    <Users size={20} />
+                  </span>
                 </div>
-              </button>
-            </div> */}
+              </a>
+            </div>
+
+            {/* Signin Button */}
+            <div className="ml-3">
+              <a
+                href="/login"
+                className="rounded-lg bg-mallorca-purple/75 text-white p-2 px-4"
+              >
+                Sign in
+              </a>
+            </div>
+
+            {/* Register Button */}
+            <div className="ml-3">
+              <a
+                href="/register"
+                className="rounded-lg bg-mallorca-purple text-white p-2 px-4"
+              >
+                Register
+              </a>
+            </div>
+          </div>
+
+          {/* Hamburger Navigation Menu */}
+          <div className="flex items-center md:hidden">
+            <button
+              type="button"
+              className="js-dropdown md:hidden rounded cursor-pointer p-2 border text-center hover:bg-mallorca-purple/50"
+              data-dropdown-keepopen="true"
+              aria-label={t("navigation.toggle")}
+              aria-controls="navbarToggle"
+              aria-expanded="false"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </nav>
