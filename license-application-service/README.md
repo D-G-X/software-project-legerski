@@ -10,43 +10,42 @@
 
 ### Quick Start
 
-1. Have Docker running
+1. Have Docker running.
 2. When prompted: "Maven build script found `license-application-service`", accept by clicking "Load".
 3. Launch the Maven setup config: `Setup Database and API` which performs the following steps:
     - `docker compose up` to start the database,
     - `mvn liquibase:update` to apply database changelogs,
-    - `mvn compile` to generate OpenAPI and jOOQ classes,
-    - `mvn clean` to clean up leftovers.
-   
-   if this step fails, run `docker compose up` manually in the `license-application-service` directory and re-run the Maven setup config.
+    - `mvn compile` to generate OpenAPI and jOOQ classes.
+
+   > ⚠️ If this step fails, run `docker compose up` manually in the `license-application-service` directory and re-run the Maven setup config.
 4. Open the two freshly auto-generated modules:
     - `license-application-service/target/generated-sources/jooq`
     - `license-application-service/target/generated-sources/openapi`
    
-   and set their `src` folders as "Generated Sources Root"
+   and set their `src` folders as "Generated Sources Root".
    > ℹ️ Right-click on the folder in the Project view -> "Mark Directory as" -> "Generated Sources Root".
 
 ### Development
 
-1. Launch the Spring Boot configuration: `Dev LicenseApplicationService`
-2. Launch the npm configuration: `npm dev`
+1. Launch the Spring Boot configuration: `Dev LicenseApplicationService`.
+2. Launch the npm configuration: `npm dev`.
 
     > ℹ️ All npm configurations automatically perform `npm install` before building or testing the frontend.
 
 ### Manual Production Build (optional)
 
-1. Launch the Spring Boot configuration: `Prod LicenseApplicationService`
-2. Launch the npm configuration: `npm prod`
+1. Launch the Spring Boot configuration: `Prod LicenseApplicationService`.
+2. Launch the npm configuration: `npm prod`.
 
 ### Manual Testing (optional)
 
 1. _TODO: Add JUnit test instructions here_
-2. Launch the npm configuration: `npm test`
+2. Launch the npm configuration: `npm test`.
 
-### Cleanup
+### Clean-Up (only after dependency updates)
 
-1. Stop the Spring Boot **and** npm applications if running
-2. Run `clean.sh` (Linux/macOS) or `clean.bat` (Windows) in `license-application-service`
+1. Stop the Spring Boot **and** npm applications if running.
+2. Run `clean.sh` (Linux/macOS) or `clean.bat` (Windows) in `license-application-service`.
 
 This removes outdated npm and maven packages.
 
