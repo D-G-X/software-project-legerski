@@ -15,6 +15,26 @@ export default function Header() {
       img: "/images/languages/english.png",
       imgAlt: t("nav.languages.en.iconAlt"),
     },
+    fr: {
+        language: t("nav.languages.fr.name"),
+        img: "/images/languages/french.png",
+        imgAlt: t("nav.languages.fr.iconAlt"),
+      },
+    de: {
+        language: t("nav.languages.de.name"),
+        img: "/images/languages/german.png",
+        imgAlt: t("nav.languages.de.iconAlt"),
+      },
+    hi: {
+        language: t("nav.languages.hi.name"),
+        img: "/images/languages/hindi.png",
+        imgAlt: t("nav.languages.hi.iconAlt"),
+      },
+    id: {
+        language: t("nav.languages.id.name"),
+        img: "/images/languages/indonesian.png",
+        imgAlt: t("nav.languages.id.iconAlt"),
+    },
     es: {
       language: t("nav.languages.es.name"),
       img: "/images/languages/spanish.png",
@@ -96,15 +116,14 @@ export default function Header() {
                     className="text-gray-500 cursor-pointer flex items-center h-full"
                   >
                     <div className="flex justify-between items-center gap-2 h-full text-mallorca-purple/75 hover:bg-mallorca-purple/10 rounded-lg px-3">
+                        <img
+                            src={language_title_img_map[i18n.language]?.img}
+                            alt={t("app.title")}
+                            className="inline-block h-5 w-10"
+                        />
                       <div className="text-md text-left h-5 min-w-15">
                         {language_title_img_map[i18n.language]?.language}
                       </div>
-
-                      <img
-                        src={language_title_img_map[i18n.language]?.img}
-                        alt={t("app.title")}
-                        className="inline-block h-5 w-10"
-                      />
                     </div>
                   </button>
 
@@ -134,15 +153,16 @@ export default function Header() {
                                 isSelected ? "" : "hover:bg-gray-100"
                               } px-3 py-2 ${roundedClass}`}
                             >
-                              <div className="text-left h-5 min-w-15">
-                                {lang?.language}
-                              </div>
-
                               <img
                                 src={lang?.img}
                                 alt={t("app.title")}
                                 className="inline-block h-5 w-10"
                               />
+                              <div className="text-left h-5 min-w-15">
+                                {lang?.language}
+                              </div>
+
+
                             </button>
                           </li>
                         );
