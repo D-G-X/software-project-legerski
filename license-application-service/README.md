@@ -43,6 +43,13 @@
 1. _TODO: Add JUnit test instructions here_
 2. Launch the npm configuration: `npm test`
 
+### Cleanup
+
+1. Stop the Spring Boot **and** npm applications if running
+2. Run `clean.sh` (Linux/macOS) or `clean.bat` (Windows) in `license-application-service`
+
+This removes outdated npm and maven packages.
+
 ---
 
 The application is now running on [localhost:3000](http://localhost:3000). All changes are immediately visible in the browser.
