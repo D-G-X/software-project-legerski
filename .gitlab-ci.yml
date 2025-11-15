@@ -88,7 +88,7 @@ test-backend:
     POSTGRES_DB: rental_license_db
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
-    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/rental_license_db
+    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5433/rental_license_db
     SPRING_DATASOURCE_USERNAME: postgres
     SPRING_DATASOURCE_PASSWORD: postgres
   before_script:
