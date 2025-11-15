@@ -115,7 +115,7 @@
                     <skip>${jooq.codegen.skip}</skip>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
-                        <url>jdbc:postgresql://localhost:5432/government</url>
+                        <url>jdbc:postgresql://localhost:5433/government</url>
                         <user>postgres</user>
                         <password>P4ssword!</password>
                     </jdbc>
