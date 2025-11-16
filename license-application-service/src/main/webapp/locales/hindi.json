@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Licencias vacacionales en Mallorca"
+    "title": "मल्लोर्का हॉलिडे लाइसेंस"
   },
   "nav": {
     "toggle": "Toggle navigation",
@@ -39,7 +39,7 @@
   },
   "home": {
     "index": {
-      "headline": "Mallorca"
+      "headline": "मल्लोर्का"
     }
   },
   "error": {

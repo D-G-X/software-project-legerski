@@ -4,7 +4,7 @@ import de.hft.licensing.api.ConsentsApi;
 import de.hft.licensing.model.CheckConsentForUser200Response;
 import de.hft.licensing.model.CheckConsentForUserRequest;
 import de.hft.licensing.model.ConsentCreate;
-import de.hft.licensing.model.ConsentRecord;
+import de.hft.licensing.model.ConsentResource;
 import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +27,7 @@ public class ConsentController implements ConsentsApi {
     }
 
     @Override
-    public ResponseEntity<ConsentRecord> createConsentForUser(ConsentCreate consentCreate) {
+    public ResponseEntity<ConsentResource> createConsentForUser(ConsentCreate consentCreate) {
         return null;
     }
 
@@ -37,7 +37,7 @@ public class ConsentController implements ConsentsApi {
     }
 
     @Override
-    public ResponseEntity<List<ConsentRecord>> listConsentsForUser() {
+    public ResponseEntity<List<ConsentResource>> listConsentsForUser() {
         return null;
     }
 
