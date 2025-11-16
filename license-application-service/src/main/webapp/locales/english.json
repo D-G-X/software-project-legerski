@@ -51,9 +51,7 @@
     },
     "password": {
       "required": "Password is required",
-      "minLength": "Password must be at least 6 characters long",
-      "uppercase": "Password must contain at least one uppercase letter",
-      "number": "Password must contain at least one number",
+      "minLength": "Password must be at least 8 characters long",
       "specialChar": "Password must contain at least one special character (!@#$%^&*)",
       "valid": "Password is valid"
     },
