@@ -17,9 +17,9 @@
         <java.version>21</java.version>
         <jooq.version>3.19.27</jooq.version>
         <jooq.codegen.skip>false</jooq.codegen.skip>
-        <jooq.db.url>jdbc:postgresql://localhost:5433/rental_license_db</jooq.db.url>
+        <jooq.db.url>jdbc:postgresql://localhost:5433/government</jooq.db.url>
         <jooq.db.username>postgres</jooq.db.username>
-        <jooq.db.password>postgres</jooq.db.password>
+        <jooq.db.password>P4ssword!</jooq.db.password>
     </properties>
 
     <dependencies>
