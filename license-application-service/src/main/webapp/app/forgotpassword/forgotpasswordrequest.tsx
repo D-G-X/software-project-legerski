@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { redirect } from "react-router";
 
 export default function ForgotPasswordRequest() {
   const [email, setEmail] = useState("");
@@ -7,6 +8,8 @@ export default function ForgotPasswordRequest() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    redirect("/request-sent");
+
     // try {
     //   await axios.post("/api/account/reset-password/init", email, {
     //     headers: { "Content-Type": "text/plain" },
