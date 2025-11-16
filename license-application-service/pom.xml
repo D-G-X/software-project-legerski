@@ -15,7 +15,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <!-- DB CREDENTIALS - SINGLE SOURCE OF TRUTH - DO NOT CHANGE!!! -->
+        <!-- DB CREDENTIALS - DO NOT CHANGE!!! -->
         <db.hostname>localhost</db.hostname>
         <db.port>5433</db.port>
         <db.name>government</db.name>

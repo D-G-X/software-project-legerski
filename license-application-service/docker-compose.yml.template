@@ -1,9 +1,0 @@
-services:
-  postgres:
-    image: postgres:18.0
-    environment:
-      POSTGRES_DB: ${db.name}
-      POSTGRES_USER: ${db.username}
-      POSTGRES_PASSWORD: ${db.password}
-    ports:
-    - "${db.port}:5432"

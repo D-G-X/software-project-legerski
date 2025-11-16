@@ -1,0 +1,10 @@
+# DB CREDENTIALS - DO NOT CHANGE!!!
+services:
+  postgres:
+    image: postgres:18.0
+    environment:
+    - POSTGRES_DB=government
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=P4ssword!
+    ports:
+    - "5433:5432"
