@@ -4,6 +4,10 @@ import { initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import axios from 'axios';
 import english from './locales/english.json';
+import french from './locales/french.json';
+import german from './locales/german.json';
+import hindi from './locales/hindi.json';
+import indonesian from './locales/indonesian.json';
 import spanish from './locales/spanish.json';
 import AppRoutes from './app/routes';
 import './index.css';
@@ -14,6 +18,10 @@ i18n
   .init({
     resources: {
       en: { translation: english },
+      fr: { translation: french },
+      de: { translation: german },
+      hi: { translation: hindi },
+      id: { translation: indonesian },
       es: { translation: spanish }
     },
     lng: 'en',

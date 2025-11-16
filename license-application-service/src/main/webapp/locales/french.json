@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Licencias vacacionales en Mallorca"
+    "title": "Licences de vacances à Majorque"
   },
   "nav": {
     "toggle": "Toggle navigation",
@@ -39,7 +39,7 @@
   },
   "home": {
     "index": {
-      "headline": "Mallorca"
+      "headline": "Majorque"
     }
   },
   "error": {
