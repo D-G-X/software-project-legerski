@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 // import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,7 @@ import { Menu, Users } from "lucide-react";
 export default function Header() {
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLUListElement>(null);
 
   const language_title_img_map: Record<string, LanguageInfo> = {
     en: {
@@ -47,8 +48,30 @@ export default function Header() {
   const toggleDropdown = () => setOpen((prev) => !prev);
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+    localStorage.setItem("language", lng);
     setOpen(false);
   };
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("language");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage); // Set the language if saved in localStorage
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false); // Close dropdown if click is outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside); // Listen for mouse clicks
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Clean up the event listener
+    };
+  }, []);
 
   // const headerRef = useRef<HTMLElement | null>(null);
 
@@ -128,7 +151,10 @@ export default function Header() {
                   </button>
 
                   {open && (
-                    <ul className="absolute left-0 bg-white shadow-sm shadow-black rounded-lg z-50 min-w-36">
+                    <ul
+                      ref={dropdownRef}
+                      className="absolute left-0 bg-white shadow-sm shadow-black rounded-lg z-50 min-w-36"
+                    >
                       {Object.keys(language_title_img_map).map((key, index) => {
                         const lang = language_title_img_map[key];
                         const isSelected = i18n.language === key;

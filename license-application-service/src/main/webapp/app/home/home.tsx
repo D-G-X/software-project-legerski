@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import "./home.css";
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
   useDocumentTitle(t("home.index.headline"));
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("language");
+    console.log(savedLanguage, i18n.language, t("home.index.headline"));
+    if (savedLanguage && savedLanguage !== i18n.language) {
+      i18n.changeLanguage(savedLanguage);
+    }
+  }, [i18n]);
 
   return (
     <main className="relative h-screen w-full overflow-hidden">
