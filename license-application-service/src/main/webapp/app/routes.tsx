@@ -12,6 +12,8 @@ import LicenseList from './license/license-list';
 import LicenseAdd from './license/license-add';
 import LicenseEdit from './license/license-edit';
 import Error from './error/error';
+import ForgotPasswordRequest from './forgotpassword/forgotpasswordrequest';
+import RequestSent from './forgotpassword/requestsent';
 
 
 export default function AppRoutes() {
@@ -20,6 +22,8 @@ export default function AppRoutes() {
       element: <App />,
       children: [
         { path: '', element: <Home /> },
+        { path: 'forgot-password', element: <ForgotPasswordRequest /> },
+        { path: 'forgot-password-sent', element: <RequestSent /> },
         { path: 'appUsers', element: <AppUserList /> },
         { path: 'appUsers/add', element: <AppUserAdd /> },
         { path: 'appUsers/edit/:id', element: <AppUserEdit /> },
