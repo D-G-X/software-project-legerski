@@ -15,11 +15,19 @@
 
     <properties>
         <java.version>21</java.version>
+        <!-- DB CREDENTIALS - SINGLE SOURCE OF TRUTH - DO NOT CHANGE!!! -->
+        <db.hostname>localhost</db.hostname>
+        <db.port>5433</db.port>
+        <db.name>government</db.name>
+        <db.schema>licensing</db.schema>
+        <db.url>jdbc:postgresql://${db.hostname}:${db.port}/${db.name}</db.url>
+        <db.username>postgres</db.username>
+        <db.password>P4ssword!</db.password>
         <jooq.version>3.19.27</jooq.version>
         <jooq.codegen.skip>false</jooq.codegen.skip>
-        <jooq.db.url>jdbc:postgresql://localhost:5433/rental_license_db</jooq.db.url>
-        <jooq.db.username>postgres</jooq.db.username>
-        <jooq.db.password>postgres</jooq.db.password>
+        <jooq.db.url>${db.url}</jooq.db.url>
+        <jooq.db.username>${db.username}</jooq.db.username>
+        <jooq.db.password>${db.password}</jooq.db.password>
     </properties>
 
     <dependencies>
@@ -115,9 +123,9 @@
                     <skip>${jooq.codegen.skip}</skip>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
-                        <url>jdbc:postgresql://localhost:5433/government</url>
-                        <user>postgres</user>
-                        <password>P4ssword!</password>
+                        <url>${db.url}</url>
+                        <user>${db.username}</user>
+                        <password>${db.password}</password>
                     </jdbc>
                     <generator>
                         <database>
