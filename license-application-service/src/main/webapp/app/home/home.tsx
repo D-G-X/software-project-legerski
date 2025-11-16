@@ -27,7 +27,7 @@ export default function Home() {
       ></div>
 
       <div className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <h1 className="responsive-stroke text-7xl sm:text-8xl md:text-9xl xl:text-[15.5rem] font-extrabold text-center text-mallorca-purple z-10 tracking-widest font-inter">
+        <h1 className="responsive-stroke text-7xl sm:text-8xl md:text-9xl xl:text-[15.5rem] font-extrabold text-center text-mallorca-purple z-10 tracking-widest font-inter select-none">
           {t("home.index.headline")}
         </h1>
       </div>

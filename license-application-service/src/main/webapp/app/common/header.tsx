@@ -144,7 +144,7 @@ export default function Header() {
                         alt={t("app.title")}
                         className="inline-block h-5 w-10"
                       />
-                      <div className="text-md text-left h-5 min-w-15">
+                      <div className="text-md text-left h-5 min-w-18">
                         {language_title_img_map[i18n.language]?.language}
                       </div>
                     </div>
