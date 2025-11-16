@@ -1,26 +1,21 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from "react";
 
 export default function ForgotPasswordRequest() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    try {
-      await axios.post('/api/account/reset-password/init', email, {
-        headers: { 'Content-Type': 'text/plain' },
-      });
-    
-      navigate('/forgot-password-sent');
-    } catch (error) {
-      console.error("Failed to send reset email", error);
-      alert("An error occurred. Please try again.");
-      setIsLoading(false);
-    }
+    // try {
+    //   await axios.post("/api/account/reset-password/init", email, {
+    //     headers: { "Content-Type": "text/plain" },
+    //   });
+    // } catch (error) {
+    //   console.error("Failed to send reset email", error);
+    //   alert("An error occurred. Please try again.");
+    //   setIsLoading(false);
+    // }
   };
 
   return (
@@ -32,7 +27,10 @@ export default function ForgotPasswordRequest() {
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-left text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-left text-gray-700"
+            >
               Email
             </label>
             <input
@@ -50,7 +48,7 @@ export default function ForgotPasswordRequest() {
             disabled={isLoading}
             className="w-full py-2 px-4 font-semibold text-white bg-purple-800 rounded-md hover:bg-purple-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-400"
           >
-            {isLoading ? 'Sending...' : 'Reset password'}
+            {isLoading ? "Sending..." : "Reset password"}
           </button>
         </form>
       </div>

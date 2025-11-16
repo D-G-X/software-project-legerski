@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from "react";
 
 export default function ResetPassword() {
-  const { token } = useParams<{ token: string }>();
-  const navigate = useNavigate();
+  // const { token } = useParams<{ token: string }>();
 
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,18 +18,16 @@ export default function ResetPassword() {
     }
     setIsLoading(true);
 
-    try {
-        await axios.post('/api/account/reset-password/finish', { 
-        key: token, 
-        newPassword: password 
-      });
-      
-      navigate('/reset-password-success');
-    } catch (err) {
-      console.error("Failed to reset password", err);
-      setError("Link may be invalid or expired. Please try again.");
-      setIsLoading(false);
-    }
+    // try {
+    //   await axios.post("/api/account/reset-password/finish", {
+    //     key: token,
+    //     newPassword: password,
+    //   });
+    // } catch (err) {
+    //   console.error("Failed to reset password", err);
+    //   setError("Link may be invalid or expired. Please try again.");
+    //   setIsLoading(false);
+    // }
   };
 
   return (
@@ -40,11 +35,18 @@ export default function ResetPassword() {
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h2 className="text-2xl font-bold">Create new password</h2>
-          <p className="mt-2 text-sm text-gray-600">Please enter your new password.</p>
+          <p className="mt-2 text-sm text-gray-600">
+            Please enter your new password.
+          </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-left text-gray-700">Password</label>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-left text-gray-700"
+            >
+              Password
+            </label>
             <input
               id="password"
               type="password"
@@ -55,7 +57,12 @@ export default function ResetPassword() {
             />
           </div>
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-left text-gray-700">Confirm password</label>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-left text-gray-700"
+            >
+              Confirm password
+            </label>
             <input
               id="confirmPassword"
               type="password"
@@ -71,7 +78,7 @@ export default function ResetPassword() {
             disabled={isLoading}
             className="w-full py-2 px-4 font-semibold text-white bg-purple-800 rounded-md hover:bg-purple-900 disabled:bg-gray-400"
           >
-            {isLoading ? 'Changing...' : 'Change password'}
+            {isLoading ? "Changing..." : "Change password"}
           </button>
         </form>
       </div>
