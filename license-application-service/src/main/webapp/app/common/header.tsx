@@ -94,11 +94,11 @@ export default function Header() {
               <img
                 src="/images/logo.svg"
                 alt={t("nav.appLogoAlt")}
-                width="104"
-                height="104"
+                width="80"
+                height="80"
                 className="inline-block"
               />
-              <div className="text-xl md:text-2xl lg:text-[1.5rem] xl:text-3xl pl-5 font-semibold text-mallorca-purple">
+              <div className="text-xl md:text-xl lg:text-[1.5rem] xl:text-3xl pl-5 font-semibold text-mallorca-purple">
                 {t("app.title")}
               </div>
             </Link>
