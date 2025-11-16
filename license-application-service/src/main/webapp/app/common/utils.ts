@@ -124,6 +124,11 @@ export interface ErrorResponse {
   fieldErrors?: FieldError[];
 }
 
+export interface validateResults {
+  isValid: boolean;
+  message: string;
+}
+
 export interface LanguageInfo {
   language: string;
   img: string;
