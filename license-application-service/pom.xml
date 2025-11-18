@@ -120,7 +120,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <skip>${jooq.codegen.skip}</skip>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
                         <url>${db.url}</url>
@@ -134,7 +133,7 @@
                             <includes>.*</includes>
                             <excludes>
                                 DATABASECHANGELOG
-                                | DATABASECHANGELOGLOCK
+                                DATABASECHANGELOGLOCK
                             </excludes>
                         </database>
                         <generate>
