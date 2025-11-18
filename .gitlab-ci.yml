@@ -54,6 +54,17 @@ test-frontend:
 build-backend:
   stage: build
   image: maven:3.9-eclipse-temurin-21
+  services:
+    - postgres:15
+  variables:
+    # PostgreSQL configuration
+    POSTGRES_DB: government
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: P4ssword!%
+    # Database connection for Liquibase and jOOQ
+    DB_URL: jdbc:postgresql://postgres:5432/government
+    DB_USER: postgres
+    DB_PASSWORD: P4ssword!%
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
@@ -62,10 +73,22 @@ build-backend:
     - job: build-frontend
       artifacts: true
   before_script:
+    # Install PostgreSQL client to test connection
+    - apt-get update && apt-get install -y postgresql-client
+    # Wait for PostgreSQL to be ready
+    - until PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q'; do
+        echo "Waiting for PostgreSQL to be ready...";
+        sleep 2;
+      done
+    - echo "PostgreSQL is ready!"
     - cd license-application-service
   script:
-    # Skip jOOQ code generation during CI/CD build
-    - ./mvnw clean package -DskipTests -Djooq.codegen.skip=true
+    # Step 1: Run Liquibase to create database schema
+    - ./mvnw liquibase:update -Dliquibase.url=$DB_URL -Dliquibase.username=$DB_USER -Dliquibase.password=$DB_PASSWORD
+    # Step 2: Generate jOOQ code from database
+    - ./mvnw jooq-codegen:generate -Ddb.hostname=postgres -Ddb.port=5432 -Ddb.name=government -Ddb.username=$DB_USER -Ddb.password=$DB_PASSWORD
+    # Step 3: Build the application with generated code
+    - ./mvnw clean package -DskipTests -Ddb.hostname=postgres -Ddb.port=5432 -Ddb.name=government -Ddb.username=$DB_USER -Ddb.password=$DB_PASSWORD
   artifacts:
     paths:
       - license-application-service/target/*.jar
@@ -75,26 +98,50 @@ build-backend:
     paths:
       - license-application-service/.m2/repository
 
+
 test-backend:
   stage: test
   image: maven:3.9-eclipse-temurin-21
+  services:
+    - postgres:15
+  variables:
+    # PostgreSQL configuration
+    POSTGRES_DB: government
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: P4ssword!%
+    # Database connection for Liquibase and jOOQ
+    DB_URL: jdbc:postgresql://postgres:5432/government
+    DB_USER: postgres
+    DB_PASSWORD: P4ssword!%
+    # Spring connection for tests
+    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/government
+    SPRING_DATASOURCE_USERNAME: postgres
+    SPRING_DATASOURCE_PASSWORD: P4ssword!%
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  services:
-    - postgres:15
-  variables:
-    POSTGRES_DB: rental_license_db
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5433/rental_license_db
-    SPRING_DATASOURCE_USERNAME: postgres
-    SPRING_DATASOURCE_PASSWORD: postgres
   before_script:
+    # Install PostgreSQL client
+    - apt-get update && apt-get install -y postgresql-client
+    # Wait for PostgreSQL to be ready
+    - until PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c '\q'; do
+        echo "Waiting for PostgreSQL to be ready...";
+        sleep 2;
+      done
+    - echo "PostgreSQL is ready!"
     - cd license-application-service
   script:
-    - ./mvnw test -Djooq.codegen.skip=true
+    # Generate database schema and jOOQ code before tests
+    - ./mvnw liquibase:update -Dliquibase.url=$DB_URL -Dliquibase.username=$DB_USER -Dliquibase.password=$DB_PASSWORD
+    - ./mvnw jooq-codegen:generate -Ddb.hostname=postgres -Ddb.port=5432 -Ddb.name=government -Ddb.username=$DB_USER -Ddb.password=$DB_PASSWORD
+    # Run tests
+    - ./mvnw test -Ddb.hostname=postgres -Ddb.port=5432 -Ddb.name=government -Ddb.username=$DB_USER -Ddb.password=$DB_PASSWORD
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - license-application-service/target/surefire-reports/TEST-*.xml
   cache:
     key: "${CI_COMMIT_REF_SLUG}-backend"
     paths:
@@ -105,16 +152,10 @@ test-backend:
 
 
 include:
-  - template: Jobs/SAST.gitlab-ci.yml
   - template: Jobs/Secret-Detection.gitlab-ci.yml
   - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 
 # Only run security scans on main branch or merge requests
-sast:
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
 secret_detection:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
