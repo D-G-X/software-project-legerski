@@ -194,12 +194,6 @@ public class ApplicationController implements ApplicationsApi {
         return ResponseEntity.ok(mappedPayments);
     }
 
-    // TODO: Implement lottery logic
-    @Override
-    public ResponseEntity<RunLottery200Response> runLottery(RunLotteryRequest runLotteryRequest) {
-        return null;
-    }
-
     @Override
     public ResponseEntity<ApplicationResource> updateApplication(Integer applicationId, ApplicationUpdate applicationUpdate) {
         if (applicationId == null || applicationUpdate == null || applicationUpdate.getApplicationStatus() == null || applicationUpdate.getRemarks() == null) {
