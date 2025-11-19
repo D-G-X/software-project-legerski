@@ -629,9 +629,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  round_id:
-                    type: integer
-                    description: Lottery round unique identifier
                   selected_applications:
                     type: array
                     items:
