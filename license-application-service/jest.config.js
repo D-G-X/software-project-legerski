@@ -6,7 +6,7 @@ module.exports = {
   transform: {
     '.(ts|tsx)$': ['ts-jest', { 'tsconfig': 'tsconfig.json' }]
   },
-  testRegex: '.*\\.test\\.tsx$',
+  testRegex: '.*\\.test\\.(ts|tsx)$',
   moduleDirectories: ['node_modules', 'src/main/webapp'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.tsx'],
