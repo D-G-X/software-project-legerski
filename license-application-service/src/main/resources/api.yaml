@@ -511,18 +511,108 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApplicationPaymentResource"
 
-  /applications/lottery:
+  /ballot-periods:
     post:
-      tags: [Applications]
-      summary: Run the lottery/ballot on eligible applications
-      description: >
-        Triggers the allocation (lottery) process, assigning statuses such as 'selected' or 'not_selected'
-        to eligible applications for the current lottery round.
-      operationId: runLottery
-      security:
-        - KeycloakOAuth2: [openid]
+      tags: [Ballot Periods]
+      summary: Create a ballot period
+      description: Create a new ballot period by defining its start and end dates.
+      operationId: createBallotPeriod
       requestBody:
-        description: Optional parameters for the lottery, such as filtering by license_type or other business criteria
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                  format: date-time
+                end_date:
+                  type: string
+                  format: date-time
+      responses:
+        "201":
+          description: Ballot period created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BallotPeriodResource"
+        "409":
+          description: Conflict - overlapping ballot periods are not allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                    example: "OVERLAPPING_PERIOD"
+                  message:
+                    type: string
+                    example: "The specified start and end dates overlap with an existing ballot period."
+
+  /ballot-periods/{period_id}:
+    get:
+      tags: [Ballot Periods]
+      summary: Retrieve ballot period details
+      description: >
+        Retrieves the details and configuration for a specific ballot period, 
+        including its start and end dates and other metadata.
+      operationId: getBallotPeriodDetails
+      parameters:
+        - in: path
+          name: period_id
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier for the ballot period
+      responses:
+        "200":
+          description: Ballot period details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BallotPeriodResource"
+
+
+  /ballot-periods/{period_id}/entries:
+    get:
+      tags: [Ballot Periods]
+      summary: List entries for a ballot period
+      description: List all submitted applications/entries for a specific ballot period.
+      operationId: getBallotPeriodEntries
+      parameters:
+        - in: path
+          name: period_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of entries for the period
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApplicationResource"
+
+
+  /ballot-periods/{period_id}/lottery:
+    post:
+      tags: [Ballot Periods]
+      summary: Run the lottery round for a ballot period
+      description: >
+        Triggers the allocation (lottery) process for this ballot period,
+        assigning selected status as true/false to eligible applications within the given period.
+      operationId: runLotteryForBallotPeriod
+      parameters:
+        - in: path
+          name: period_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
         required: false
         content:
           application/json:
@@ -533,15 +623,12 @@ paths:
                   $ref: "#/components/schemas/LicenseTypeApiEnum"
       responses:
         "200":
-          description: Lottery results with updated application statuses
+          description: Lottery results with updated statuses for applications in the period
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  round_id:
-                    type: string
-                    description: Unique identifier for the lottery round
                   selected_applications:
                     type: array
                     items:
@@ -550,6 +637,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/ApplicationResource"
+
 
   /licenses:
     get:
@@ -1181,3 +1269,18 @@ components:
         - filename
         - uploaded_at
         - verification_status
+
+    BallotPeriodResource:
+      type: object
+      properties:
+        ballot_period_id:
+          type: integer
+          description: Unique identifier for the ballot period
+        start_date:
+          type: string
+          format: date-time
+          description: Ballot period start, ISO 8601 format
+        end_date:
+          type: string
+          format: date-time
+          description: Ballot period end, ISO 8601 format
