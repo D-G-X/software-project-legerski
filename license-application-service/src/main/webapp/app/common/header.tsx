@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 // import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,7 @@ import { Menu, Users } from "lucide-react";
 export default function Header() {
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLUListElement>(null);
 
   const language_title_img_map: Record<string, LanguageInfo> = {
     en: {
@@ -16,24 +17,24 @@ export default function Header() {
       imgAlt: t("nav.languages.en.iconAlt"),
     },
     fr: {
-        language: t("nav.languages.fr.name"),
-        img: "/images/languages/french.png",
-        imgAlt: t("nav.languages.fr.iconAlt"),
-      },
+      language: t("nav.languages.fr.name"),
+      img: "/images/languages/french.png",
+      imgAlt: t("nav.languages.fr.iconAlt"),
+    },
     de: {
-        language: t("nav.languages.de.name"),
-        img: "/images/languages/german.png",
-        imgAlt: t("nav.languages.de.iconAlt"),
-      },
+      language: t("nav.languages.de.name"),
+      img: "/images/languages/german.png",
+      imgAlt: t("nav.languages.de.iconAlt"),
+    },
     hi: {
-        language: t("nav.languages.hi.name"),
-        img: "/images/languages/hindi.png",
-        imgAlt: t("nav.languages.hi.iconAlt"),
-      },
+      language: t("nav.languages.hi.name"),
+      img: "/images/languages/hindi.png",
+      imgAlt: t("nav.languages.hi.iconAlt"),
+    },
     id: {
-        language: t("nav.languages.id.name"),
-        img: "/images/languages/indonesian.png",
-        imgAlt: t("nav.languages.id.iconAlt"),
+      language: t("nav.languages.id.name"),
+      img: "/images/languages/indonesian.png",
+      imgAlt: t("nav.languages.id.iconAlt"),
     },
     es: {
       language: t("nav.languages.es.name"),
@@ -47,8 +48,30 @@ export default function Header() {
   const toggleDropdown = () => setOpen((prev) => !prev);
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+    localStorage.setItem("language", lng);
     setOpen(false);
   };
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("language");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage); // Set the language if saved in localStorage
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false); // Close dropdown if click is outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside); // Listen for mouse clicks
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Clean up the event listener
+    };
+  }, []);
 
   // const headerRef = useRef<HTMLElement | null>(null);
 
@@ -108,7 +131,7 @@ export default function Header() {
           <div className="hidden lg:flex items-center h-12">
             {/* Language Dropdown */}
             <div className="h-full" id="navbarToggle">
-              <ul className="rounded min-w-34 w-full h-full">
+              <ul className="rounded min-w-36 w-full h-full">
                 <li className="relative w-full h-full">
                   <button
                     type="button"
@@ -116,19 +139,22 @@ export default function Header() {
                     className="text-gray-500 cursor-pointer flex items-center h-full"
                   >
                     <div className="flex justify-between items-center gap-2 h-full text-mallorca-purple/75 hover:bg-mallorca-purple/10 rounded-lg px-3">
-                        <img
-                            src={language_title_img_map[i18n.language]?.img}
-                            alt={t("app.title")}
-                            className="inline-block h-5 w-10"
-                        />
-                      <div className="text-md text-left h-5 min-w-15">
+                      <img
+                        src={language_title_img_map[i18n.language]?.img}
+                        alt={t("app.title")}
+                        className="inline-block h-5 w-10"
+                      />
+                      <div className="text-md text-left h-5 min-w-18">
                         {language_title_img_map[i18n.language]?.language}
                       </div>
                     </div>
                   </button>
 
                   {open && (
-                    <ul className="absolute left-0 bg-white shadow-sm shadow-black rounded-lg z-50 min-w-34">
+                    <ul
+                      ref={dropdownRef}
+                      className="absolute left-0 bg-white shadow-sm shadow-black rounded-lg z-50 min-w-36"
+                    >
                       {Object.keys(language_title_img_map).map((key, index) => {
                         const lang = language_title_img_map[key];
                         const isSelected = i18n.language === key;
@@ -151,18 +177,16 @@ export default function Header() {
                               onClick={() => changeLanguage(key)}
                               className={`cursor-pointer flex justify-between items-center gap-2 text-mallorca-purple/75 ${
                                 isSelected ? "" : "hover:bg-gray-100"
-                              } px-3 py-2 ${roundedClass}`}
+                              } p-2 ${roundedClass}`}
                             >
                               <img
                                 src={lang?.img}
                                 alt={t("app.title")}
                                 className="inline-block h-5 w-10"
                               />
-                              <div className="text-left h-5 min-w-15">
+                              <div className="text-left h-5 min-w-22">
                                 {lang?.language}
                               </div>
-
-
                             </button>
                           </li>
                         );
