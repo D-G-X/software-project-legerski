@@ -82,7 +82,8 @@
     "password": {
       "required": "Password is required",
       "minLength": "Password must be at least 8 characters long",
-      "specialChar": "Password must contain at least one special character (!@#$%^&*)",
+      "maxLength": "Password must be less than 256 characters long",
+      "specialChar": "Password must contain at least one special character",
       "valid": "Password is valid"
     },
     "confirmPassword": {
