@@ -4,7 +4,8 @@
   "scripts": {
     "devserver": "webpack serve --open --mode development",
     "build": "webpack --mode production",
-    "test": "jest"
+    "test": "jest",
+    "generate:api": "orval --config src/main/webapp/orval.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",
@@ -39,6 +40,7 @@
     "jest": "30.2.0",
     "jest-environment-jsdom": "30.2.0",
     "mini-css-extract-plugin": "2.9.4",
+    "orval": "^7.16.1",
     "postcss-loader": "8.2.0",
     "postcss-preset-env": "10.4.0",
     "style-loader": "4.0.0",
