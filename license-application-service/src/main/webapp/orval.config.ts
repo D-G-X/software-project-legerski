@@ -6,7 +6,7 @@ export default defineConfig({
             target: './app/services',
             schemas: './types',
             mode: 'tags-split',
-            client: 'fetch',
+            client: 'react-query',
             mock: true,
             clean: true
         },
