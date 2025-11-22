@@ -12,12 +12,11 @@ import LicenseList from "./license/license-list";
 import LicenseAdd from "./license/license-add";
 import LicenseEdit from "./license/license-edit";
 import Error from "./error/error";
-import ForgotPasswordRequest from "./forgotpassword/forgotpasswordrequest";
-import RequestSent from "./forgotpassword/requestsent";
-import ResetPassword from "./forgotpassword/resetpassword";
-import ResetSuccess from "./forgotpassword/resetsuccess";
 import Login from "./login/login";
 import Register from "./register/register";
+import ResetPassword from "./forgot-password/resetpassword";
+import ResetSuccess from "./forgot-password/resetsuccess";
+import ForgotPasswordRequest from "./forgot-password/request";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -26,7 +25,6 @@ export default function AppRoutes() {
       children: [
         { path: "", element: <Home /> },
         { path: "forgot-password", element: <ForgotPasswordRequest /> },
-        { path: "forgot-password-sent", element: <RequestSent /> },
         { path: "forgot-reset-password", element: <ResetPassword /> },
         { path: "forgot-reset-success", element: <ResetSuccess /> },
         { path: "login", element: <Login /> },
