@@ -2,6 +2,7 @@
   "name": "license-application-service-frontend",
   "author": "Bootify.io",
   "scripts": {
+    "predevserver": "npm run generate:api",
     "devserver": "webpack serve --open --mode development",
     "build": "webpack --mode production",
     "test": "jest",
