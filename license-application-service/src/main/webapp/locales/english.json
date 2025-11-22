@@ -1,4 +1,5 @@
 {
+  "locale": "en-US",
   "app": {
     "title": "Mallorca Holiday Licenses"
   },
@@ -74,6 +75,12 @@
     }
   },
   "validation": {
+    "name": {
+      "required": "Name is required",
+      "invalid": "Name can only contain letters and spaces",
+      "minLength": "Name must be at least 2 characters long",
+      "valid": "Name is valid"
+    },
     "email": {
       "required": "Email is required",
       "invalid": "Invalid email format",
@@ -91,11 +98,63 @@
       "mismatch": "Passwords do not match",
       "valid": "Passwords match"
     },
-    "name": {
-      "required": "Name is required",
-      "invalid": "Name can only contain letters and spaces",
-      "minLength": "Name must be at least 2 characters long",
-      "valid": "Name is valid"
+    "iban": {
+      "required": "IBAN is required",
+      "minLength": "IBAN must be at least 15 characters long",
+      "maxLength": "IBAN must be less than 35 characters long",
+      "countryCode": "IBAN must start with a valid country code",
+      "specialChar": "IBAN must not contain any special character",
+      "invalid": "IBAN is invalid",
+      "valid": "IBAN is valid"
+    },
+    "bic": {
+      "required": "BIC is required for non-domestic SEPA transactions",
+      "length": "BIC must be exactly 8 or 11 characters long",
+      "countryCode": "BIC must contain a valid country code",
+      "specialChar": {
+        "general": "BIC must not contain any special character",
+        "pos6": "BIC must not contain the number '0' or '1' at position 6",
+        "pos7": "BIC must not contain the letter 'O' at position 7",
+        "pos8": "BIC must not contain the letter 'X' at position 8 if not followed by 'XX'"
+      },
+      "invalid": "BIC is invalid",
+      "valid": "BIC is valid"
+    },
+    "sepaMandate": {
+        "required": "You must accept the SEPA mandate",
+        "valid": "SEPA mandate accepted"
+    }
+  },
+  "payment": {
+    "title": "Payment",
+    "index": {
+      "headline": "Pay now",
+      "subheadline": "SEPA direct debit",
+      "nameLabel": "Account holder",
+      "ibanLabel": "IBAN",
+      "bicLabel": "BIC",
+      "bicLabelOptional": " (optional for domestic SEPA transactions)",
+      "acceptSepaMandateCheckLabel": {
+        "plain": "I accept the",
+        "button": "SEPA direct debit mandate"
+      },
+      "sepaMandateText": {
+        "line1": "SEPA Direct Debit Mandate",
+        "line2": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
+        "line3": "Note:",
+        "line4": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
+        "line5": "Details of the payer:",
+        "line6": "– Account holder: {{accountHolder}}",
+        "line7": "– IBAN: {{iban}}",
+        "line8": "– BIC: {{bic}}",
+        "line9": "Details of the payee:",
+        "line10": "– Beneficiary: {{beneficiaryName}}",
+        "line11": "– Creditor ID: {{creditorId}}",
+        "line12": "– Mandate reference (will be communicated separately if not assigned here): {{mandateReference}}",
+        "line13": "I have read the SEPA direct debit mandate and issue it as legally binding.",
+        "line14": "Date: {{date}}"
+      },
+      "payButtonLabel": "Pay now"
     }
   },
   "error": {

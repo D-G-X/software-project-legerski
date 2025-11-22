@@ -1,4 +1,9 @@
-import {validateConfirmPassword, validateEmail, validateName, validatePassword} from "./validationRules";
+import {
+    validateConfirmPassword,
+    validateEmail,
+    validateName,
+    validatePassword,
+} from "./validationRules";
 
 // Name Validation
 describe("validateName", () => {
@@ -662,12 +667,27 @@ describe("validateEmail", () => {
 // Password Validation
 describe("validatePassword", () => {
     // VALID PASSWORDS
-    test("should return valid if password is longer than 8 chars, shorter than 256 chars and contains at least one special character", () => {
+    test("should return valid if password is longer than 7 chars, shorter than 256 chars and contains at least one special character", () => {
         const result = validatePassword("test-123!");
         expect(result).toEqual({
             isValid: true,
         });
     })
+
+    test("should return valid if password is longer than 7 chars, shorter than 256 chars and contains at least one special character", () => {
+        const result = validatePassword("%\"*(4fIh1M2z3fv7wM}J9xxAc4(\"N/9SAt({_!\\>{Sh:Lw_\"QJv9_y-I;`UdGBF&+VW?3)5o%pqT5H%'47S7=wDyAZR+&Ib*'>Y?J.P\"61j@8q0,pkm4ieFAV7wd']:)s;K^wSHvS}V~&T\\pXJR%3jWd0|NkAOF56?3pStc<39ds:XK\\*AR<P/IeVva]OLPh^I#h5_LBf<'£50e?vLCD'r}Lb3KfA*Q:{BM]7~?bK?5Q9>*R9[0lL!nfl#d1E11");
+        expect(result).toEqual({
+            isValid: true,
+        });
+    })
+
+    test("should return valid if password is longer than 7 chars, shorter than 256 chars and contains at least one special character", () => {
+        const result = validatePassword("olaf-scholz");
+        expect(result).toEqual({
+            isValid: true,
+        });
+    })
+
     // INVALID PASSWORDS
     test("should return invalid if password is empty", () => {
         const result = validatePassword("");

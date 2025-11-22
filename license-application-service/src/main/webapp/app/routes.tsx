@@ -14,6 +14,7 @@ import LicenseEdit from "./license/license-edit";
 import Error from "./error/error";
 import Login from "./login/login";
 import Register from "./register/register";
+import Payment from "./payment/payment";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -23,6 +24,7 @@ export default function AppRoutes() {
         { path: "", element: <Home /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
+        { path: "payment", element: <Payment /> },
         { path: "appUsers", element: <AppUserList /> },
         { path: "appUsers/add", element: <AppUserAdd /> },
         { path: "appUsers/edit/:id", element: <AppUserEdit /> },
