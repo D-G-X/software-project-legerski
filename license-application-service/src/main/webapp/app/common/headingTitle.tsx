@@ -1,6 +1,6 @@
 import React from "react";
 
-export function FormHeader(props: { heading: string; subHeading: string }) {
+export function FormHeader(props: { heading: string; subHeading?: string }) {
   return (
     <>
       <div className="text-4xl font-bold text-mallorca-purple">

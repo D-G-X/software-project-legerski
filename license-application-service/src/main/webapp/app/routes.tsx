@@ -14,9 +14,8 @@ import LicenseEdit from "./license/license-edit";
 import Error from "./error/error";
 import Login from "./login/login";
 import Register from "./register/register";
-import ResetPassword from "./forgot-password/resetpassword";
-import ResetSuccess from "./forgot-password/resetsuccess";
 import ForgotPasswordRequest from "./forgot-password/request";
+import ResetPassword from "./forgot-password/reset";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -25,8 +24,7 @@ export default function AppRoutes() {
       children: [
         { path: "", element: <Home /> },
         { path: "forgot-password", element: <ForgotPasswordRequest /> },
-        { path: "forgot-reset-password", element: <ResetPassword /> },
-        { path: "forgot-reset-success", element: <ResetSuccess /> },
+        { path: "reset-password", element: <ResetPassword /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
         { path: "appUsers", element: <AppUserList /> },

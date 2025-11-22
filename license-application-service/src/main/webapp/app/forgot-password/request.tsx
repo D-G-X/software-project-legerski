@@ -3,16 +3,14 @@ import { validateResults } from "app/common/utils";
 import { validateEmail } from "app/common/validationRules";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import RequestSent from "./confirmation";
-// import { redirect } from "react-router";
+import { RequestSent } from "./confirmation";
 
 export default function ForgotPasswordRequest() {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [submitError, setSubmitError] = useState("");
-
-  const showConfirmation = true;
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleSubmit = () => {
     const emailValidateResult: validateResults = validateEmail(email);
@@ -25,7 +23,7 @@ export default function ForgotPasswordRequest() {
     setEmailError("");
 
     // implement the API call for login and redirection to the dashboard if the login credentials has been authorized successfully;
-    alert("API has to be integrated yet!!");
+    setShowConfirmation(true);
     setSubmitError("");
     return true;
   };
