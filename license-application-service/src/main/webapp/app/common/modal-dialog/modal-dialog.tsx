@@ -1,5 +1,5 @@
 import React from "react";
-import {downloadPdfOfficialDocument} from "../downloadPdf";
+import {downloadPdfOfficialDocument} from "../download-pdf";
 
 interface ModalDialogProps {
     open: boolean;
