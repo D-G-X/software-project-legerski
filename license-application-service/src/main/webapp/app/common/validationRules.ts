@@ -18,7 +18,7 @@ const emailRegex = new RegExp(
     "(?:[A-Za-z]{2,})$",
 );
 
-const ibanRegex = new RegExp("^[A-Z]{2}\\d{13,32}$", "i");
+const ibanRegex = new RegExp("^[A-Z]{2}[0-9A-Z]{13,32}$", "i");
 
 const bicRegex = new RegExp("^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$", "i");
 
@@ -107,6 +107,7 @@ export const validateConfirmPassword = (
 export const validateIban = (iban: string) => {
     if (!iban)
         return { isValid: false, message: t("validation.iban.required") };
+    iban = iban.replace(/\s+/g, ''); // Remove spaces
 
     if (iban.length < 15)
         return {
@@ -141,6 +142,8 @@ export const validateBic = (bic: string, iban: string) => {
     if (!bic)
         return { isValid: false, message: t("validation.bic.required") };
 
+    bic = bic.replace(/\s+/g, ''); // Remove spaces
+
     if (bic.length != 8 && bic.length != 11)
         return {
             isValid: false,
@@ -153,7 +156,7 @@ export const validateBic = (bic: string, iban: string) => {
             message: t("validation.bic.specialChar.general"),
         };
 
-    if (!isValidCountryCode(bic.slice(4, 5)))
+    if (!isValidCountryCode(bic.slice(4, 6)))
         return {
             isValid: false,
             message: t("validation.bic.countryCode"),

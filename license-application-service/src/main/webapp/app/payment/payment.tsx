@@ -119,6 +119,7 @@ export default function Payment() {
     }
 
     // implement the API call for payment;
+    // TODO: remove spaces from IBAN & BIC before sending to backend
     alert("API has to be integrated yet!!");
     return true;
   };

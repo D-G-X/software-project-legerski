@@ -142,7 +142,7 @@
       "valid": "BIC is valid"
     },
     "sepaMandate": {
-        "required": "You must accept the SEPA mandate",
+        "required": "You must read and accept the SEPA mandate",
         "valid": "SEPA mandate accepted"
     }
   },
