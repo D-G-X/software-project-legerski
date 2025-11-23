@@ -96,6 +96,33 @@
       "invalid": "Name can only contain letters and spaces",
       "minLength": "Name must be at least 2 characters long",
       "valid": "Name is valid"
+    },
+    "phone": {
+      "required": "Phone number is required.",
+      "invalid": "Please enter a valid phone number.",
+      "valid": "Phone number looks good."
+    },
+    "reason": {
+      "required": "Reason is required.",
+      "minLength": "Reason must be at least 3 characters long.",
+      "maxLength": "Reason cannot exceed 500 characters.",
+      "valid": "Reason looks good."
+    },
+    "address": {
+      "required": "Street address is required.",
+      "minLength": "Street address must be at least 3 characters long.",
+      "invalid": "Please enter a valid street address.",
+      "valid": "Street address looks good."
+    },
+    "city": {
+      "required": "City is required.",
+      "invalid": "Please enter a valid city name.",
+      "valid": "City looks good."
+    },
+    "postalCode": {
+      "required": "Postal code is required.",
+      "invalid": "Please enter a valid postal code.",
+      "valid": "Postal code looks good."
     }
   },
   "error": {
