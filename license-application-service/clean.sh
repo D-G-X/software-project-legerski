@@ -1,5 +1,7 @@
 #!/bin/sh
 
+git clean -fd
+
 # Clean up build artifacts and temporary files
 echo "Cleaning up build artifacts and temporary files..."
 
