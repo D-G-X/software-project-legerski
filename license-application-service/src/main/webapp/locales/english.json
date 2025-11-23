@@ -1,7 +1,28 @@
 {
   "locale": "en-US",
   "app": {
-    "title": "Mallorca Holiday Licenses"
+    "title": "Mallorca Holiday Licenses",
+    "contact": {
+      "legalName": "Dirección Insular de Licencias Turísticas",
+      "legalAddress": {
+        "street": "Plaça de Cort, 1",
+        "city": "Palma de Mallorca (Illes Balears)",
+        "zipCode": "07001",
+        "country": "Spain"
+      },
+      "email": {
+        "label": "email",
+        "address": "contacto@palma.es"
+      },
+      "website":{
+        "label": "website",
+        "url": "www.palma.es"
+      },
+      "phone": {
+        "label": "phone",
+        "number": "+34 971 22 59 00"
+      }
+    }
   },
   "nav": {
     "toggle": "Toggle navigation",
@@ -134,25 +155,31 @@
       "ibanLabel": "IBAN",
       "bicLabel": "BIC",
       "bicLabelOptional": " (optional for domestic SEPA transactions)",
-      "acceptSepaMandateCheckLabel": {
-        "plain": "I accept the",
-        "button": "SEPA direct debit mandate"
+      "acceptSepaMandateLabel": {
+        "plain": "I have read and accept the",
+        "button": "SEPA Mandate"
       },
-      "sepaMandateText": {
-        "line1": "SEPA Direct Debit Mandate",
-        "line2": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
-        "line3": "Note:",
-        "line4": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
-        "line5": "Details of the payer:",
-        "line6": "– Account holder: {{accountHolder}}",
-        "line7": "– IBAN: {{iban}}",
-        "line8": "– BIC: {{bic}}",
-        "line9": "Details of the payee:",
-        "line10": "– Beneficiary: {{beneficiaryName}}",
-        "line11": "– Creditor ID: {{creditorId}}",
-        "line12": "– Mandate reference (will be communicated separately if not assigned here): {{mandateReference}}",
-        "line13": "I have read the SEPA direct debit mandate and issue it as legally binding.",
-        "line14": "Date: {{date}}"
+      "sepaMandateDialog": {
+        "title": "SEPA Direct Debit Mandate",
+        "text": {
+          "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
+          "line2": "Note:",
+          "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
+          "line4": "Details of the payer:",
+          "line5": " –  Account holder: {{accountHolder}}",
+          "line6": " –  IBAN: {{iban}}",
+          "line7": " –  BIC: {{bic}}",
+          "line8": "Details of the payee:",
+          "line9": " –  Beneficiary: {{beneficiaryName}}",
+          "line10": " –  Creditor ID: {{creditorId}}",
+          "line11": " –  Mandate reference: {{mandateReference}}",
+          "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
+          "line13": "Issuing date: {{date}}"
+        },
+        "acceptButtonLabel": "Accept",
+        "cancelButtonLabel": "Cancel",
+        "downloadButtonLabel": "Download",
+        "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
       },
       "payButtonLabel": "Pay now"
     }

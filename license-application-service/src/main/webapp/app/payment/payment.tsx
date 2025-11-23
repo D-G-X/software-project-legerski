@@ -4,6 +4,7 @@ import { validateName, validateIban, validateBic, validateSepaMandateCheck} from
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
+import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
 import "./payment.css";
 
 export default function Payment() {
@@ -19,7 +20,7 @@ export default function Payment() {
       });
   };
 
-  const [showSepaMandateText, setShowSepaMandateText] = useState(false);
+  const [showSepaDialog, setShowSepaDialog] = useState(false);
 
   // IBAN format: max 34 characters in groups of 4 separated by spaces (no manual input of spaces)
   const formatIban = (raw: string): string => {
@@ -228,30 +229,19 @@ export default function Payment() {
                           htmlFor="sepaMandateChecked"
                           className="text-mallorca-purple/70 text-lg"
                       >
-                          {t("payment.index.acceptSepaMandateCheckLabel.plain")}
+                          {t("payment.index.acceptSepaMandateLabel.plain")}
 
                           <button
                               type="button"
                               onClick={(e) => {
                                   e.stopPropagation();
-                                  setShowSepaMandateText((prev) => !prev);
+                                  setShowSepaDialog((prev) => !prev);
                               }}
                               className="ml-1 text-mallorca-purple underline hover:text-mallorca-purple/80"
                           >
-                              {t("payment.index.acceptSepaMandateCheckLabel.button")}
+                              {t("payment.index.acceptSepaMandateLabel.button")}
                           </button>
                       </label>
-
-                      {/* Checkbox rechts */}
-                      <input
-                          type="checkbox"
-                          id="sepaMandateChecked"
-                          checked={form.sepaMandateChecked}
-                          onChange={handleChange}
-                          className="border border-mallorca-purple rounded-xl h-8 w-8
-                 focus:outline-none focus:ring-1 focus:ring-mallorca-purple
-                 checked:bg-mallorca-purple"
-                      />
                   </div>
 
                   {errors.sepaMandateCheck && (
@@ -261,38 +251,37 @@ export default function Payment() {
                   )}
               </div>
 
-            {/* SEPA Mandate Text Dropdown */}
-            {showSepaMandateText && (
-                  <div className="mt-4 p-3 [writing-mode-rl] whitespace-pre-line border border-mallorca-purple/30 rounded-md text-md text-mallorca-purple bg-gray-50">
-                      {t("payment.index.sepaMandateText.line1")}
-                      {"\n\n"}
-                      {t("payment.index.sepaMandateText.line2")}
-                      {"\n\n"}
-                      {t("payment.index.sepaMandateText.line3")}
-                      {"\n"}
-                      {t("payment.index.sepaMandateText.line4")}
-                      {"\n\n"}
-                      {t("payment.index.sepaMandateText.line5")}
-                      {"\n"}
-                      {t("payment.index.sepaMandateText.line6", { accountHolder: form.name ? form.name : "" })}
-                      {"\n"}
-                      {t("payment.index.sepaMandateText.line7", { iban: form.iban ? form.iban : "" })}
-                      {form.bic ? "\n" : ""}
-                      {form.bic ? (t("payment.index.sepaMandateText.line8", { bic: form.bic })) : "" }
-                      {"\n\n"}
-                      {t("payment.index.sepaMandateText.line9")}
-                      {"\n"}
-                      {t("payment.index.sepaMandateText.line10", { beneficiaryName: "Dirección Insular de Licencias Turísticas" })}
-                      {"\n"}
-                      {t("payment.index.sepaMandateText.line11", { creditorId: "ES98ZZZ09999999999" })}
-                      {"\n"}
-                      {t("payment.index.sepaMandateText.line12", { mandateReference: "ESM-2025-003129" })}
-                      {"\n\n"}
-                      {t("payment.index.sepaMandateText.line13")}
-                      {"\n"}
-                      {t("payment.index.sepaMandateText.line14", { date: getFormattedDate() ? getFormattedDate() : "" })}
-                  </div>
-              )}
+            {/* SEPA Mandate Dialog */}
+            <SepaMandateDialog
+                open={showSepaDialog}
+                showDownloadButton={true}
+                acceptButtonLabel={t("payment.index.sepaMandateDialog.acceptButtonLabel")}
+                cancelButtonLabel={t("payment.index.sepaMandateDialog.cancelButtonLabel")}
+                downloadButtonLabel={t("payment.index.sepaMandateDialog.downloadButtonLabel")}
+                downloadFileName={t("payment.index.sepaMandateDialog.downloadFileName", { accountHolder: form.name ? (" " + form.name) : "" })}
+                title={t("payment.index.sepaMandateDialog.title") + "\n\n"}
+                text={(
+                    t("payment.index.sepaMandateDialog.text.line1") + "\n\n" +
+                    t("payment.index.sepaMandateDialog.text.line2") + "\n" +
+                    t("payment.index.sepaMandateDialog.text.line3") + "\n\n" +
+                    t("payment.index.sepaMandateDialog.text.line4") + "\n" +
+                    t("payment.index.sepaMandateDialog.text.line5", { accountHolder: form.name ? form.name : "" }) + "\n" +
+                    t("payment.index.sepaMandateDialog.text.line6", { iban: form.iban ? form.iban : "" }) + (form.bic ? "\n" : "") +
+                    (form.bic ? (t("payment.index.sepaMandateDialog.text.line7", { bic: form.bic })) : "")  + "\n\n" +
+                    t("payment.index.sepaMandateDialog.text.line8") + "\n" +
+                    t("payment.index.sepaMandateDialog.text.line9", { beneficiaryName:  t("app.contact.legalName")}) + "\n" +
+                    t("payment.index.sepaMandateDialog.text.line10", { creditorId: "ES98ZZZ09999999999" }) + "\n" +
+                    t("payment.index.sepaMandateDialog.text.line11", { mandateReference: "ESM-2025-00001" }) + "\n\n" +
+                    t("payment.index.sepaMandateDialog.text.line12") + "\n\n\n" +
+                    t("payment.index.sepaMandateDialog.text.line13", { date: getFormattedDate() ? getFormattedDate() : "" })
+                )}
+                t={t}
+                onAccept={() => {
+                    setShowSepaDialog(false);
+                    setForm(prev => ({...prev, sepaMandateChecked: true}));
+                }}
+                onCancel={() => setShowSepaDialog(false)}
+              />
           </div>
 
           <div className="my-4">
@@ -302,7 +291,11 @@ export default function Payment() {
             <button
               // type="submit"
               onClick={handleSubmit}
-              className="mt-4 bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg"
+              className={`mt-4
+              ${errors.pay
+                  ? "bg-mallorca-purple/75"
+                  : "bg-mallorca-purple"
+              } text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90`}
             >
               {t("payment.index.payButtonLabel")}
             </button>
