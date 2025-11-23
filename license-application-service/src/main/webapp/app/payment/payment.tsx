@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
 import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
+//import { ApplicationPaymentCreate} from "/types/applicationPaymentCreate";
 import "./payment.css";
 
 export default function Payment() {
@@ -118,9 +119,14 @@ export default function Payment() {
         form.bic = "";
     }
 
-    // implement the API call for payment;
     // TODO: remove spaces from IBAN & BIC before sending to backend
     alert("API has to be integrated yet!!");
+    /*const mutation = ApplicationPaymentCreate();
+    mutation.mutate({
+        application_id: 123, // TODO: replace with actual application ID
+        amount: 100.00, // TODO: replace with actual amount
+        payment_status: "PAID",
+    });*/
     return true;
   };
 
