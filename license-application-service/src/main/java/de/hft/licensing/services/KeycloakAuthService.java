@@ -2,6 +2,7 @@ package de.hft.licensing.services;
 
 import de.hft.licensing.utils.auth.LoginRequest;
 import de.hft.licensing.utils.auth.LoginResponse;
+import de.hft.licensing.utils.auth.RegisterResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -50,5 +51,74 @@ public class KeycloakAuthService {
                 restTemplate.exchange(url, HttpMethod.POST, entity, LoginResponse.class);
 
         return response.getBody();
+    }
+
+    public RegisterResponse register(de.hft.licensing.utils.auth.RegisterRequest request) {
+        String url = keycloakUrl + "/admin/realms/" + realm + "/users";
+
+        Map<String, Object> user = new LinkedHashMap<>();
+        user.put("username", request.getUsername());
+        user.put("email", request.getEmail());
+        user.put("firstName", request.getFirstName());
+        user.put("lastName", request.getLastName());
+        user.put("enabled", true);
+        user.put("emailVerified", false);
+
+        Map<String, Object> credentials = new LinkedHashMap<>();
+        credentials.put("type", "password");
+        credentials.put("value", request.getPassword());
+        credentials.put("temporary", false);
+
+        user.put("credentials", new Map[]{credentials});
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+        headers.setBearerAuth(adminToken);
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(user, headers);
+
+        ResponseEntity<String> response =
+                restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+
+        String newUserId = extractUserIdFromLocationHeader(response);
+
+        return new RegisterResponse(newUserId);
+    }
+
+    private String extractUserIdFromLocationHeader(ResponseEntity<String> response) {
+        String location = response.getHeaders().get("Location").getFirst();
+        if (location != null && location.contains("/users/")) {
+            return location.substring(location.lastIndexOf("/") + 1);
+        }
+        return null;
+    }
+
+    private String getAdminToken() {
+        String url = keycloakUrl + "/realms/master/protocol/openid-connect/token";
+
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put("grant_type", "password");
+        params.put("client_id", "admin-cli");
+        params.put("username", "admin");
+        params.put("password", "admin");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        StringBuilder body = new StringBuilder();
+        params.forEach((k, v) -> body.append(k).append("=").append(v).append("&"));
+        body.setLength(body.length() - 1);
+
+        HttpEntity<String> entity = new HttpEntity<>(body.toString(), headers);
+
+        ResponseEntity<Map> response =
+                restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+
+        Map<String, Object> responseBody = response.getBody();
+        return responseBody != null ? (String) responseBody.get("access_token") : null;
     }
 }
