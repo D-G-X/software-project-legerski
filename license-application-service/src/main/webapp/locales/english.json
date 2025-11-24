@@ -151,6 +151,7 @@
     "index": {
       "headline": "Pay now",
       "subheadline": "SEPA direct debit",
+      "amountLabel": "Total amount: {{amount}}",
       "nameLabel": "Account holder",
       "ibanLabel": "IBAN",
       "bicLabel": "BIC",

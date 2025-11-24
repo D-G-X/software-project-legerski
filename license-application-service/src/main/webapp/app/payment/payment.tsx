@@ -9,6 +9,8 @@ import { createPayment } from "app/services/payments/payments"
 import "./payment.css";
 
 export default function Payment() {
+  const applicationId = 12345; // TODO: get the actual application ID from context or props
+  const amount = 9999.99; // TODO: get the actual amount to be paid
   const { t } = useTranslation();
   useDocumentTitle(t("payment.title"));
 
@@ -22,6 +24,15 @@ export default function Payment() {
   };
 
   const [showSepaDialog, setShowSepaDialog] = useState(false);
+
+  const formatAmount = (amount: number, locale: string, currency: string): string => {
+      return new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency: currency,
+        currencyDisplay: "symbol",
+        minimumFractionDigits: 2,
+      }).format(amount);
+  }
 
   // IBAN format: max 34 characters in groups of 4 separated by spaces (no manual input of spaces)
   const formatIban = (raw: string): string => {
@@ -119,14 +130,16 @@ export default function Payment() {
         form.bic = "";
     }
 
-    // TODO: remove spaces from IBAN & BIC before sending to backend
-    let applicationId = 12345; // TODO: get the actual application ID from context or props
-    let amount = 100.00; // TODO: get the actual amount to be paid
-
     try{
         createPayment(applicationId,{
             application_id: applicationId,
             amount: amount,
+            //payment_method: "SEPA_DEBIT",
+            //payment_details: "{
+            //  \"account_holder\": \"" + form.name + "\",\
+            //  \"iban\": \"" + form.iban.replace(/\s+/g, "") + "\",\
+            //  \"bic\": \"" + form.bic.replace(/\s+/g, "") + "\"\
+            //}",
             payment_status: "PAID",
         });
     } catch (error) {
@@ -152,6 +165,13 @@ export default function Payment() {
             heading={t("payment.index.headline")}
             subHeading={t("payment.index.subheadline")}
           />
+
+          <label>
+            <span className="text-mallorca-purple text-lg">
+                {t("payment.index.amountLabel", { amount: formatAmount(amount, t("locale"), "EUR") })}
+            </span>
+          </label>
+
           {/* Payment Form */}
           <div>
             {/* Name Field */}
