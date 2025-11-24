@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
 import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
-//import { ApplicationPaymentCreate} from "/types/applicationPaymentCreate";
+import { createPayment } from "app/services/payments/payments"
 import "./payment.css";
 
 export default function Payment() {
@@ -120,15 +120,26 @@ export default function Payment() {
     }
 
     // TODO: remove spaces from IBAN & BIC before sending to backend
-    alert("API has to be integrated yet!!");
-    /*const mutation = ApplicationPaymentCreate();
-    mutation.mutate({
-        application_id: 123, // TODO: replace with actual application ID
-        amount: 100.00, // TODO: replace with actual amount
-        payment_status: "PAID",
-    });*/
+    let applicationId = 12345; // TODO: get the actual application ID from context or props
+    let amount = 100.00; // TODO: get the actual amount to be paid
+    try{
+        const response = createPayment(applicationId,{
+            application_id: applicationId,
+            amount: amount,
+            payment_status: "PAID",
+        });
+    } catch (error) {
+        setErrors((prev) => ({
+            ...prev,
+            pay: t("payment.response.error"),
+        }));
+        alert(t("payment.response.error"));
+        return false;
+    }
+    alert(t("payment.response.success"));
+
     return true;
-  };
+  }
 
   const [bicFocused, setBicFocused] = useState(false);
 

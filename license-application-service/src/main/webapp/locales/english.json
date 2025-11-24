@@ -182,6 +182,10 @@
         "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
       },
       "payButtonLabel": "Pay now"
+    },
+    "response": {
+      "success": "Payment successful! Thank you for your payment.",
+      "error": "Payment failed! Please try again later."
     }
   },
   "error": {
