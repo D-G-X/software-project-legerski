@@ -122,8 +122,9 @@ export default function Payment() {
     // TODO: remove spaces from IBAN & BIC before sending to backend
     let applicationId = 12345; // TODO: get the actual application ID from context or props
     let amount = 100.00; // TODO: get the actual amount to be paid
+
     try{
-        const response = createPayment(applicationId,{
+        createPayment(applicationId,{
             application_id: applicationId,
             amount: amount,
             payment_status: "PAID",

@@ -29,10 +29,6 @@
     "strictNullChecks": true,
     "typeRoots": ["src/main/webapp/types", "node_modules/@types"]
   },
-  "include": [
-    "src/main/webapp/app",
-    "src/main/webapp/types"
-  ],
   "exclude": [
     "node_modules/**/*",
     "**/build/**/*",
