@@ -8,3 +8,26 @@ services:
     - POSTGRES_PASSWORD=P4ssword!
     ports:
     - "5433:5432"
+    volumes:
+      - kc_db:/var/lib/postgresql
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    command:
+      - start-dev
+      - --import-realm
+      - --features=scripts
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_FEATURES: scripts
+      KC_SCRIPTS_UPLOAD_ENABLED: "true"
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    volumes:
+      - ./keycloak/imports:/opt/keycloak/data/import
+
+volumes:
+  kc_db:

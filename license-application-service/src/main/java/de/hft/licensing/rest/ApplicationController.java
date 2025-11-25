@@ -13,12 +13,18 @@ import de.hft.licensing.model.*;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -128,6 +134,23 @@ public class ApplicationController implements ApplicationsApi {
     //TODO: finish implementation as Parameter Types clash
     @Override
     public ResponseEntity<List<ApplicationResource>> listApplications(UUID userId, ApplicationStatusApiEnum applicationStatus) {
+        // Get current authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof JwtAuthenticationToken jwt)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        // Maps roles from JWT token
+        boolean isAdmin = jwt.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
+        // Extract the user ID from Keycloak token: "sub" claim
+        UUID currentUserId = UUID.fromString(jwt.getToken().getSubject());
+        // Enforce: normal users can only see their own applications
+        if (userId != null && !isAdmin && !userId.equals(currentUserId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } else if (!isAdmin) {
+            userId = currentUserId;
+        }
+
         List<ApplicationRecord> result = null;
         // no filters
         if(userId == null && applicationStatus == null) {
