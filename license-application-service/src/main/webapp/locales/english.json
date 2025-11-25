@@ -145,6 +145,22 @@
         "errorMissing": "Please specify the expected rental start date."
       },
 
+      "documents": {
+        "label": "Documents",
+        "id": {
+          "description": "Upload a government-issued identification document (e.g., passport, driver's license) for identity verification.",
+          "errorMissing": "ID documents are required"
+        },
+        "address": {
+          "description": "Upload a document showing your current address (e.g., utility bill, bank statement, rental agreement).",
+          "errorMissing": "Address documents are required"
+        },
+        "input": {
+          "buttonLabel": "Browse",
+          "fileSizeLabel": " File with a max size of 10 MB"
+        }
+      },
+
       "comments": {
         "label": "Additional Comments / Remarks",
         "description": "If you have any additional comments or information to provide, please share it here.",

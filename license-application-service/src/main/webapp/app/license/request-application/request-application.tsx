@@ -11,6 +11,7 @@ import {
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import "./request-application.css";
+import { Upload } from "lucide-react";
 
 export default function RequestApplication() {
   const { t } = useTranslation();
@@ -49,6 +50,8 @@ export default function RequestApplication() {
     rental_start_date: "",
     additional_comments: "",
     consent_personal_data: false,
+    id_proof_doc: "",
+    address_proof_doc: "",
   });
 
   const [errors, setErrors] = useState({
@@ -67,6 +70,8 @@ export default function RequestApplication() {
     additional_comments: "",
     app_submit: "",
     consent_personal_data: "",
+    id_proof_doc: "",
+    address_proof_doc: "",
   });
 
   const handleChange = (
@@ -134,6 +139,8 @@ export default function RequestApplication() {
       additional_comments: "",
       app_submit: "",
       consent_personal_data: "",
+      id_proof_doc: "",
+      address_proof_doc: "",
     };
 
     if (!firstNameValidateResult.isValid) {
@@ -186,6 +193,16 @@ export default function RequestApplication() {
       );
     }
 
+    if (!form.id_proof_doc) {
+      newErrors.id_proof_doc = t("license.request.documents.id.errorMissing");
+    }
+
+    if (!form.address_proof_doc) {
+      newErrors.address_proof_doc = t(
+        "license.request.documents.address.errorMissing"
+      );
+    }
+
     if (
       newErrors.first_name ||
       newErrors.last_name ||
@@ -196,7 +213,9 @@ export default function RequestApplication() {
       newErrors.city ||
       newErrors.postal_code ||
       newErrors.rental_license_type ||
-      newErrors.rental_start_date
+      newErrors.rental_start_date ||
+      newErrors.id_proof_doc ||
+      newErrors.address_proof_doc
     ) {
       setErrors(newErrors);
       console.log(newErrors);
@@ -219,6 +238,8 @@ export default function RequestApplication() {
       rental_start_date: "",
       additional_comments: "",
       consent_personal_data: "",
+      id_proof_doc: "",
+      address_proof_doc: "",
     });
 
     // implement the API call for register;
@@ -539,6 +560,68 @@ export default function RequestApplication() {
             {errors.rental_start_date && (
               <div className="text-red-500 mt-1 pl-4 text-xs">
                 {errors.rental_start_date}
+              </div>
+            )}
+          </div>
+
+          {/* Documents Upload */}
+          <div className="mb-4">
+            <label>
+              <span className="block">
+                {t("license.request.documents.label")}
+                <span className="text-red-500">*</span>
+              </span>
+            </label>
+            <div className="w-full mt-1">
+              <div>
+                <label className="block text-gray-400 my-1 mb-2">
+                  {t("license.request.documents.id.description")}
+                </label>
+                <label className="flex items-center justify-between shadow-sm cursor-pointer transition p-2 bg-mallorca-purple/25 hover:bg-mallorca-purple/75 border-2 border-mallorca-purple rounded-2xl text-mallorca-purple hover:text-white">
+                  <div className="flex items-center gap-2 p-1 rounded-xl">
+                    <span className="inline-flex items-center justify-center rounded-full ml-1 mr-2">
+                      <Upload size={18} />
+                    </span>
+                    <span className="font-medium pr-3">
+                      {t("license.request.documents.input.buttonLabel")}
+                    </span>
+                  </div>
+                  <span className="text-sm ">
+                    {t("license.request.documents.input.fileSizeLabel")}
+                  </span>
+                  <input id="id_proof" type="file" className="hidden" />
+                </label>
+              </div>
+              {errors.id_proof_doc && (
+                <div className="text-red-500 mt-1 pl-4 text-xs">
+                  {errors.id_proof_doc}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-gray-400 my-2 mb-1">
+                  {t("license.request.documents.address.description")}
+                </label>
+                <label className="flex items-center justify-between shadow-sm cursor-pointer transition p-2 bg-mallorca-purple/25 hover:bg-mallorca-purple/75 border-2 border-mallorca-purple rounded-2xl text-mallorca-purple hover:text-white">
+                  <div className="flex items-center gap-2 p-1 rounded-xl">
+                    <span className="inline-flex items-center justify-center rounded-full ml-1 mr-2">
+                      <Upload size={18} />
+                    </span>
+                    <span className="font-medium pr-3">
+                      {t("license.request.documents.input.buttonLabel")}
+                    </span>
+                  </div>
+                  <span className="text-sm ">
+                    {t("license.request.documents.input.fileSizeLabel")}
+                  </span>
+                  <input id="address_proof" type="file" className="hidden" />
+                </label>
+              </div>
+            </div>
+
+            {errors.address_proof_doc && (
+              <div className="text-red-500 mt-1 pl-4 text-xs">
+                {errors.address_proof_doc}
               </div>
             )}
           </div>
