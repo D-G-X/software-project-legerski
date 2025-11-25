@@ -143,7 +143,9 @@ public class ApplicationController implements ApplicationsApi {
         // Extract the user ID from Keycloak token: "sub" claim
         UUID currentUserId = UUID.fromString(jwt.getToken().getSubject());
         // Enforce: normal users can only see their own applications
-        if (!isAdmin) {
+        if (userId != null && !isAdmin && !userId.equals(currentUserId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } else if (!isAdmin) {
             userId = currentUserId;
         }
 

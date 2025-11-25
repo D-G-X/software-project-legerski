@@ -2,7 +2,7 @@ package de.hft.licensing.utils.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class LoginResponse {
+public class LoginRessource {
     @JsonProperty("access_token")
     private String accessToken;
 

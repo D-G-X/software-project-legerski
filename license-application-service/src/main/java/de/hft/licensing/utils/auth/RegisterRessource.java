@@ -1,9 +1,9 @@
 package de.hft.licensing.utils.auth;
 
-public class RegisterResponse {
+public class RegisterRessource {
     final private String userId;
 
-    public RegisterResponse(String userId) {
+    public RegisterRessource(String userId) {
         this.userId = userId;
     }
 

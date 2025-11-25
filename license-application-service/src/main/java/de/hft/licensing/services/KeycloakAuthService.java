@@ -1,8 +1,8 @@
 package de.hft.licensing.services;
 
 import de.hft.licensing.utils.auth.LoginRequest;
-import de.hft.licensing.utils.auth.LoginResponse;
-import de.hft.licensing.utils.auth.RegisterResponse;
+import de.hft.licensing.utils.auth.LoginRessource;
+import de.hft.licensing.utils.auth.RegisterRessource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class KeycloakAuthService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginRessource login(LoginRequest request) {
         String url = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 
         Map<String, String> params = new LinkedHashMap<>();
@@ -47,13 +47,13 @@ public class KeycloakAuthService {
 
         HttpEntity<String> entity = new HttpEntity<>(body.toString(), headers);
 
-        ResponseEntity<LoginResponse> response =
-                restTemplate.exchange(url, HttpMethod.POST, entity, LoginResponse.class);
+        ResponseEntity<LoginRessource> response =
+                restTemplate.exchange(url, HttpMethod.POST, entity, LoginRessource.class);
 
         return response.getBody();
     }
 
-    public RegisterResponse register(de.hft.licensing.utils.auth.RegisterRequest request) {
+    public RegisterRessource register(de.hft.licensing.utils.auth.RegisterRequest request) {
         String url = keycloakUrl + "/admin/realms/" + realm + "/users";
 
         Map<String, Object> user = new LinkedHashMap<>();
@@ -86,7 +86,7 @@ public class KeycloakAuthService {
 
         String newUserId = extractUserIdFromLocationHeader(response);
 
-        return new RegisterResponse(newUserId);
+        return new RegisterRessource(newUserId);
     }
 
     private String extractUserIdFromLocationHeader(ResponseEntity<String> response) {
