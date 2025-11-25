@@ -427,7 +427,7 @@ paths:
     get:
       tags: [Payments]
       summary: List payments for an application
-      description: Retrieve payment records associated with a specific application.
+      description: Retrieve direct debit payment records associated with a specific application.
       operationId: listPayments
       security:
         - KeycloakOAuth2: [openid]
@@ -448,8 +448,8 @@ paths:
                   $ref: "#/components/schemas/ApplicationPaymentResource"
     post:
       tags: [Payments]
-      summary: Record a payment for an application
-      description: Record a new payment related to a holiday rental license application.
+      summary: Record a new payment
+      description: Record a new direct debit payment related to a holiday rental license application.
       operationId: createPayment
       security:
         - KeycloakOAuth2: [openid]
@@ -497,12 +497,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                payment_status:
-                  $ref: "#/components/schemas/PaymentStatusApiEnum"
-              required:
-                - payment_status
+              $ref: "#/components/schemas/ApplicationPaymentCreate"
       responses:
         "200":
           description: Payment status updated
@@ -1096,6 +1091,18 @@ components:
           format: decimal
           description: Payment amount in EUR.
           example: 123.45
+        name:
+          type: string
+          description: Account holder's name.
+          example: John Doe
+        iban:
+          type: string
+          description: IBAN of the payment method.
+          example: DE01234567890123456789
+        bic:
+          type: string
+          description: BIC/SWIFT code of the bank.
+          example: DEUTDEAAXXX
         payment_date:
           type: string
           format: date-time
@@ -1107,6 +1114,8 @@ components:
         - id
         - application_id
         - amount
+        - name
+        - iban
         - payment_status
 
     ApplicationPaymentCreate:
@@ -1117,17 +1126,22 @@ components:
           type: integer
           description: Associated application ID.
           example: 201
-        amount:
-          type: number
-          format: decimal
-          description: Amount to be paid in EUR.
-          example: 99.99
-        payment_status:
-          $ref: "#/components/schemas/PaymentStatusApiEnum"
+        name:
+          type: string
+          description: Account holder's name.
+          example: John Doe
+        iban:
+          type: string
+          description: IBAN of the payment method.
+          example: DE01234567890123456789
+        bic:
+          type: string
+          description: BIC/SWIFT code of the bank.
+          example: DEUTDEAAXXX
       required:
         - application_id
-        - amount
-        - payment_status
+        - name
+        - iban
 
     ConsentResource:
       type: object
