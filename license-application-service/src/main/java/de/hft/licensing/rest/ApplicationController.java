@@ -65,6 +65,8 @@ public class ApplicationController implements ApplicationsApi {
             return ResponseEntity.status(500).build();
         }
 
+        // TODO: if active ballot period add SUBMITTED to ballotperiod
+
         // map DB record -> API model and convert enums explicitly
         ApplicationResource apiResource = new ApplicationResource();
         RecordToResourceMapperUtil.mapApplicationRecordToResource(dbRecord, apiResource);
@@ -206,6 +208,9 @@ public class ApplicationController implements ApplicationsApi {
                 .where(Application.APPLICATION.ID.eq(applicationId))
                 .returning()
                 .fetchOneInto(ApplicationRecord.class);
+
+
+        // TODO: if active ballot period add SUBMITTED to ballotperiod
 
         if(updatedApplicationRecord != null){
             ApplicationResource updatedApplicationResource = new ApplicationResource();
