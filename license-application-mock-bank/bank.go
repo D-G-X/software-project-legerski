@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"strings"
 	"fmt"
 	"log"
 	"math/rand"
@@ -14,7 +15,7 @@ type PaymentRequest struct {
 	Amount      float64 `json:"amount"`
 	Name        string  `json:"name"`
 	IBAN        string  `json:"iban"`
-	BIC         string  `json:"bic"`
+	BIC         *string  `json:"bic"` // optional for Spanish IBANs
 	PaymentDate string  `json:"payment_date"`
 }
 
@@ -25,7 +26,6 @@ type PaymentResponse struct {
 }
 
 func main() {
-	// seed for random payment IDs
 	rand.Seed(time.Now().UnixNano())
 
 	http.HandleFunc("/process-payment", func(w http.ResponseWriter, r *http.Request) {
@@ -42,12 +42,18 @@ func main() {
 			return
 		}
 
-		// generate payment ID (simple mock)
-		paymentID := generatePaymentId()
+		// BIC optional for Spanish IBAN (starts with "ES")
+		iban := strings.ToUpper(strings.TrimSpace(req.IBAN))
+		bic := req.BIC != nil && strings.TrimSpace(*req.BIC) != ""
+
+		if (len(iban) < 2 || iban[:2] != "ES") && !bic {
+			http.Error(w, "BIC required for non-Spanish IBAN", http.StatusBadRequest)
+			return
+		}
 
 		resp := PaymentResponse{
 			Status:    "SUCCESS",
-			PaymentID: paymentID,
+			PaymentID: generatePaymentId(),
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -60,5 +66,5 @@ func main() {
 
 func generatePaymentId() string {
 	// simple mock payment ID: PAY-<timestamp>-<rand>
-	return fmt.Sprintf("PAY-%d-%d", time.Now().Unix(), rand.Intn(999999))
+	return fmt.Sprintf("SEPA-%d-%d", time.Now().Unix(), rand.Intn(999999))
 }
