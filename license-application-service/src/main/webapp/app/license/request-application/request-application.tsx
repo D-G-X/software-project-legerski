@@ -669,7 +669,7 @@ export default function RequestApplication() {
             </label>
           </div>
           {errors.consent_personal_data && (
-            <div className="text-red-500 mt-1 pl-1 text-xs">
+            <div className="text-red-500 mt-1 pl-4 text-xs">
               {errors.consent_personal_data}
             </div>
           )}
