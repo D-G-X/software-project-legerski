@@ -5,11 +5,11 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
 import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
-import { createPayment } from "app/services/payments/payments"
+//import { createPayment } from "app/services/payments/payments"
 import "./payment.css";
 
 export default function Payment() {
-  const applicationId = 12345; // TODO: get the actual application ID from context or props
+  //const applicationId = 12345; // TODO: get the actual application ID from context or props
   const amount = 9999.99; // TODO: get the actual amount to be paid
   const { t } = useTranslation();
   useDocumentTitle(t("payment.title"));
@@ -131,17 +131,7 @@ export default function Payment() {
     }
 
     try{
-        createPayment(applicationId,{
-            application_id: applicationId,
-            amount: amount,
-            //payment_method: "SEPA_DEBIT",
-            //payment_details: "{
-            //  \"account_holder\": \"" + form.name + "\",\
-            //  \"iban\": \"" + form.iban.replace(/\s+/g, "") + "\",\
-            //  \"bic\": \"" + form.bic.replace(/\s+/g, "") + "\"\
-            //}",
-            payment_status: "PAID",
-        });
+        console.log("API has to be implemented yet!");
     } catch (error) {
         setErrors((prev) => ({
             ...prev,
