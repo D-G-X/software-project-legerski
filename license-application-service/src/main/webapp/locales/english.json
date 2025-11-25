@@ -73,6 +73,95 @@
       "signInLinkLabel": "Sign in"
     }
   },
+  "license": {
+    "request": {
+      "title": "Property Rental License Request Form",
+      "noteRequired": {
+        "beforeStar": "Fields marked with",
+        "afterStar": "are required"
+      },
+
+      "fullName": {
+        "label": "Full Name",
+        "description": "Please enter your full name as it appears on your official documents",
+        "firstNamePlaceholder": "First Name",
+        "lastNamePlaceholder": "Last Name"
+      },
+
+      "email": {
+        "label": "Email Address",
+        "description": "Provide a valid email address where we can contact you regarding your application",
+        "placeholder": "Email Address"
+      },
+
+      "phone": {
+        "label": "Phone Number",
+        "description": "Please enter a phone number where you can be reached for any follow-up questions",
+        "placeholder": "Phone Number"
+      },
+
+      "reason": {
+        "label": "Reason for Rental License Request",
+        "description": "Please explain why you are applying for a rental license for this property.",
+        "placeholder": "Reason for License"
+      },
+
+      "address": {
+        "label": "Property Address",
+        "description": "Enter the complete address of the property for which you are requesting a rental license.",
+        "street1Placeholder": "Street Address 1",
+        "street2Placeholder": "Street Address 2",
+        "postalPlaceholder": "Postal Code",
+        "cityPlaceholder": "City",
+        "countryLabel": "Spain"
+      },
+
+      "rentalType": {
+        "label": "Rental License Type",
+        "description": "Please select the type of rental you are interested in.",
+        "types": {
+          "ETV": {
+            "value": "ETV",
+            "label": "ETV",
+            "description": "Standard license for single family homes or villas"
+          },
+          "ETVPL": {
+            "value": "ETVPL",
+            "label": "ETVPL",
+            "description": "For multi - unit buildings like apartments or townhouses"
+          },
+          "ETV60": {
+            "value": "ETV60",
+            "label": "ETV60",
+            "description": "Limited license allowing up to 60 rental days per year"
+          }
+        },
+        "errorMissing": "Please select a rental license type."
+      },
+
+      "rentalStart": {
+        "label": "Expected Rental Start Date",
+        "description": "Please specify the date you plan to start renting the property.",
+        "errorMissing": "Please specify the expected rental start date."
+      },
+
+      "comments": {
+        "label": "Additional Comments / Remarks",
+        "description": "If you have any additional comments or information to provide, please share it here.",
+        "placeholder": "Add your comments here"
+      },
+
+      "consent": {
+        "label": "I understand that my personal data will be securely stored in the database for the purpose of processing my request.",
+        "errorMissing": "Consent is required to continue."
+      },
+
+      "buttons": {
+        "submit": "Submit and Pay",
+        "draft": "Save as Draft"
+      }
+    }
+  },
   "validation": {
     "email": {
       "required": "Email is required",
@@ -223,53 +312,6 @@
     },
     "delete": {
       "success": "Application was removed successfully."
-    }
-  },
-  "license": {
-    "list": {
-      "headline": "Licenses",
-      "createNew": "Create new License",
-      "empty": "No Licenses could be found.",
-      "edit": "Edit",
-      "delete": "Delete"
-    },
-    "add": {
-      "headline": "Add License",
-      "back": "Back to list"
-    },
-    "id": {
-      "label": "Id"
-    },
-    "licenseType": {
-      "label": "License Type"
-    },
-    "licenseStatus": {
-      "label": "License Status"
-    },
-    "issuedAt": {
-      "label": "Issued At"
-    },
-    "expiresAt": {
-      "label": "Expires At"
-    },
-    "user": {
-      "label": "User"
-    },
-    "application": {
-      "label": "Application"
-    },
-    "edit": {
-      "headline": "Edit License",
-      "back": "Back to list"
-    },
-    "create": {
-      "success": "License was created successfully."
-    },
-    "update": {
-      "success": "License was updated successfully."
-    },
-    "delete": {
-      "success": "License was removed successfully."
     }
   },
   "select": {

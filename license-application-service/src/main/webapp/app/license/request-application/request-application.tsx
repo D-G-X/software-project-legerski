@@ -18,19 +18,19 @@ export default function RequestApplication() {
 
   const rentalLicenseType = [
     {
-      value: "ETV",
-      label: "ETV",
-      description: "Standard license for single family homes or villas",
+      value: t("license.request.rentalType.types.ETV.value"),
+      label: t("license.request.rentalType.types.ETV.label"),
+      description: t("license.request.rentalType.types.ETV.description"),
     },
     {
-      value: "ETVPL",
-      label: "ETVPL",
-      description: "For multi - unit buildings like apartments or townhouses",
+      value: t("license.request.rentalType.types.ETVPL.value"),
+      label: t("license.request.rentalType.types.ETVPL.label"),
+      description: t("license.request.rentalType.types.ETVPL.description"),
     },
     {
-      value: "ETV60",
-      label: "ETV60",
-      description: "Limited license allowing up to 60 rental days per year",
+      value: t("license.request.rentalType.types.ETV60.value"),
+      label: t("license.request.rentalType.types.ETV60.label"),
+      description: t("license.request.rentalType.types.ETV60.description"),
     },
   ];
 
@@ -74,14 +74,21 @@ export default function RequestApplication() {
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>
   ) => {
-    const { id, value, name } = e.target;
+    let { id, value: rawValue, name } = e.target;
+
+    let value: string | boolean = rawValue; // allow boolean overrides
 
     const key = id || name;
+
+    if (key === "consent_personal_data") {
+      value = !form.consent_personal_data;
+    }
 
     setForm((prev) => ({
       ...prev,
       [key]: value,
     }));
+
     setErrors((prev) => ({
       ...prev,
       [key]: "",
@@ -162,12 +169,21 @@ export default function RequestApplication() {
     }
 
     if (!form.rental_license_type) {
-      newErrors.rental_license_type = "Please select a rental license type.";
+      newErrors.rental_license_type = t(
+        "license.request.rentalType.errorMissing"
+      );
     }
 
     if (!form.rental_start_date) {
-      newErrors.rental_start_date =
-        "Please specify the expected rental start date.";
+      newErrors.rental_start_date = t(
+        "license.request.rentalStart.errorMissing"
+      );
+    }
+
+    if (!form.consent_personal_data) {
+      newErrors.consent_personal_data = t(
+        "license.request.consent.errorMissing"
+      );
     }
 
     if (
@@ -213,33 +229,37 @@ export default function RequestApplication() {
   return (
     <div className="mx-15 mt-4 mb-10 relative min-h-[calc(100vh-4rem)] bg-white items-center justify-center">
       <h1 className="text-mallorca-purple font-semibold tracking-wide text-2xl text-center py-4">
-        Property Rental License Request Form
+        {t("license.request.title")}
       </h1>
       <div className="font-inter min-w-96 grid md:grid-cols-2">
         {/* License Request Form */}
         <div className=" p-5 relative">
           <div className="italic text-right z-10 absolute top-5 right-5 text-gray-400">
-            Fields marked with <span className="text-red-500">*</span> are
-            required.
+            {t("license.request.noteRequired.beforeStar")}{" "}
+            <span className="text-red-500">*</span>{" "}
+            {t("license.request.noteRequired.afterStar")}
           </div>
           {/* First & Last Name Field */}
           <div className="mb-4 mt-3">
             <label>
               <span className="block">
-                Full Name <span className="text-red-500">*</span>
+                {t("license.request.fullName.label")}{" "}
+                <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                Please enter your full name as it appears on your official
-                documents
+                {t("license.request.fullName.description")}{" "}
               </span>
             </label>
             <div className="grid grid-cols-2 gap-5 mt-1">
+              {/* First Name */}
               <div className="">
                 <input
                   type="text"
                   id="first_name"
                   value={form.first_name}
-                  placeholder="First Name"
+                  placeholder={t(
+                    "license.request.fullName.firstNamePlaceholder"
+                  )}
                   onChange={handleChange}
                   className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
                 />
@@ -249,13 +269,17 @@ export default function RequestApplication() {
                   </div>
                 )}
               </div>
+
+              {/* Last Name */}
               <div>
                 <div className="">
                   <input
                     type="text"
                     id="last_name"
                     value={form.last_name}
-                    placeholder="Last Name"
+                    placeholder={t(
+                      "license.request.fullName.lastNamePlaceholder"
+                    )}
                     onChange={handleChange}
                     className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
                   />
@@ -273,11 +297,11 @@ export default function RequestApplication() {
           <div className="mb-4">
             <label>
               <span className="block">
-                Email Address <span className="text-red-500">*</span>
+                {t("license.request.email.label")}{" "}
+                <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                Provide a valid email address where we can contact you regarding
-                your application
+                {t("license.request.email.description")}
               </span>
             </label>
             <div className="mt-1">
@@ -285,7 +309,7 @@ export default function RequestApplication() {
                 type="email"
                 id="email"
                 value={form.email}
-                placeholder="Email Address"
+                placeholder={t("license.request.email.placeholder")}
                 onChange={handleChange}
                 className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />
@@ -301,11 +325,11 @@ export default function RequestApplication() {
           <div className="mb-4">
             <label>
               <span className="block">
-                Phone Number <span className="text-red-500">*</span>
+                {t("license.request.phone.label")}{" "}
+                <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                Please enter a phone number where you can be reached for any
-                follow-up questions
+                {t("license.request.phone.description")}
               </span>
             </label>
             <div className="mt-1">
@@ -313,7 +337,7 @@ export default function RequestApplication() {
                 type="tel"
                 id="phone_number"
                 value={form.phone_number}
-                placeholder="Phone Number"
+                placeholder={t("license.request.phone.placeholder")}
                 onChange={handleChange}
                 className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />
@@ -328,17 +352,16 @@ export default function RequestApplication() {
           {/* Reason */}
           <div className="mb-4">
             <label>
-              <span className="block">Reason for Rental License Request</span>
+              <span className="block">{t("license.request.reason.label")}</span>
               <span className="block text-gray-400">
-                Please explain why you are applying for a rental license for
-                this property.
+                {t("license.request.reason.description")}
               </span>
             </label>
             <div className="mt-1">
               <textarea
                 id="reason"
                 value={form.reason}
-                placeholder="Reason for License"
+                placeholder={t("license.request.reason.placeholder")}
                 onChange={handleChange}
                 className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />
@@ -354,11 +377,11 @@ export default function RequestApplication() {
           <div className="mb-4">
             <label>
               <span className="block">
-                Property Address <span className="text-red-500">*</span>
+                {t("license.request.address.label")}{" "}
+                <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                Enter the complete address of the property for which you are
-                requesting a rental license.
+                {t("license.request.address.description")}
               </span>
             </label>
             <div className="mt-1">
@@ -366,7 +389,7 @@ export default function RequestApplication() {
                 type="text"
                 id="street_address_1"
                 value={form.street_address_1}
-                placeholder="Street Address 1"
+                placeholder={t("license.request.address.street1Placeholder")}
                 onChange={handleChange}
                 className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />
@@ -381,7 +404,7 @@ export default function RequestApplication() {
                 type="text"
                 id="street_address_2"
                 value={form.street_address_2}
-                placeholder="Street Address 2"
+                placeholder={t("license.request.address.street2Placeholder")}
                 onChange={handleChange}
                 className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />
@@ -397,7 +420,7 @@ export default function RequestApplication() {
                   type="number"
                   id="postal_code"
                   value={form.postal_code}
-                  placeholder="Postal Code"
+                  placeholder={t("license.request.address.postalPlaceholder")}
                   onChange={handleChange}
                   className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
                 />
@@ -412,7 +435,7 @@ export default function RequestApplication() {
                   type="text"
                   id="city"
                   value={form.city}
-                  placeholder="City"
+                  placeholder={t("license.request.address.cityPlaceholder")}
                   onChange={handleChange}
                   className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
                 />
@@ -428,7 +451,7 @@ export default function RequestApplication() {
                 type="text"
                 id="country"
                 disabled
-                value="Spain"
+                value={t("license.request.address.countryLabel")}
                 className="bg-gray-200 rounded-xl text-mallorca-purple/60 focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />
             </div>
@@ -438,10 +461,11 @@ export default function RequestApplication() {
           <div className="mb-4">
             <label>
               <span className="block">
-                Rental License Type <span className="text-red-500">*</span>
+                {t("license.request.rentalType.label")}{" "}
+                <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                Please select the type of rental you are interested in.
+                {t("license.request.rentalType.description")}
               </span>
             </label>
             <div className="mt-1">
@@ -479,11 +503,11 @@ export default function RequestApplication() {
           <div className="mb-4">
             <label>
               <span className="block">
-                Expected Rental Start Date{" "}
+                {t("license.request.rentalStart.label")}
                 <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                Please specify the date you plan to start renting the property.
+                {t("license.request.rentalStart.description")}
               </span>
             </label>
             <div className="mt-1 relative">
@@ -522,16 +546,17 @@ export default function RequestApplication() {
           {/* Additional Comments / Remarks */}
           <div className="mb-4">
             <label>
-              <span className="block">Additional Comments / Remarks</span>
+              <span className="block">
+                {t("license.request.comments.label")}
+              </span>
               <span className="block text-gray-400">
-                If you have any additional comments or information to provide,
-                please share it here.
+                {t("license.request.comments.description")}
               </span>
             </label>
             <textarea
               id="additional_comments"
               value={form.additional_comments}
-              placeholder="Add your comments here"
+              placeholder={t("license.request.comments.placeholder")}
               onChange={handleChange}
               className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full mt-1"
             />
@@ -556,8 +581,7 @@ export default function RequestApplication() {
               htmlFor="consent_personal_data"
               className="text-base font-normal cursor-pointer"
             >
-              I understand that my personal data will be securely stored in the
-              database for the purpose of processing my request.
+              {t("license.request.consent.label")}
               <span className="text-red-500">*</span>
             </label>
           </div>
@@ -577,14 +601,14 @@ export default function RequestApplication() {
                 onClick={handleSubmit}
                 className="bg-mallorca-purple border-2 border-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg hover:bg-mallorca-red/75 hover:border-mallorca-red"
               >
-                Submit and Pay
+                {t("license.request.buttons.submit")}
               </button>
               <button
                 type="submit"
                 onClick={handleSubmit}
                 className="block bg-mallorca-purple/75 border-2 border-mallorca-purple hover:bg-mallorca-red/75 hover:border-mallorca-red text-white px-10 py-2 rounded-md w-full font-medium text-lg"
               >
-                Save as Draft
+                {t("license.request.buttons.draft")}
               </button>
             </div>
           </div>
