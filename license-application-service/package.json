@@ -4,6 +4,7 @@
   "scripts": {
     "predevserver": "npm run generate:api",
     "devserver": "webpack serve --open --mode development",
+    "prebuild": "npm run generate:api",
     "build": "webpack --mode production",
     "test": "jest",
     "generate:api": "orval --config src/main/webapp/orval.config.ts"
