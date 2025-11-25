@@ -448,7 +448,7 @@ paths:
                   $ref: "#/components/schemas/ApplicationPaymentResource"
     post:
       tags: [Payments]
-      summary: Record a new payment
+      summary: Record a new payment for an application
       description: Record a new direct debit payment related to a holiday rental license application.
       operationId: createPayment
       security:
@@ -476,8 +476,8 @@ paths:
   /applications/{applicationId}/payments/{paymentId}:
     patch:
       tags: [Payments]
-      summary: Update payment status for an application payment
-      description: Update the status of a specific payment.
+      summary: Update a payment for an application
+      description: Update the details of an existing direct debit payment related to a holiday rental license application.
       operationId: updatePayment
       security:
         - KeycloakOAuth2: [openid]
@@ -500,7 +500,7 @@ paths:
               $ref: "#/components/schemas/ApplicationPaymentCreate"
       responses:
         "200":
-          description: Payment status updated
+          description: Payment details updated
           content:
             application/json:
               schema:
