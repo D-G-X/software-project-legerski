@@ -26,14 +26,21 @@ The mock document validator service listens on port `8083` and exposes the follo
 }
 ```
 
-The service responds with a JSON object indicating the success or failure of the payment processing:
+The service responds with a JSON object indicating the initial state of the payment processing (PENDING):
 
 ```json
 {
-    "status": "string", // only "SUCCESS"
-    "verification_id": "string"
+    "status": "string", // only "VERIFIED", "PENDING" or "REJECTED"
+    "verification_id": "string",
+    "rejection_reason": "string" // only present if status is "REJECTED"
 }
 ```
+
+The status of the document verification can be retrieved using the `verification_id` through the `/process-document/status/{verification_id}` endpoint.
+
+The response will be similar to the one above, but the status will eventually change to "VERIFIED" or "REJECTED" after a short delay.
+
+Rejection probability and delay can be configured in `document-validator.go`.
 
 ### Testing the Service
 
@@ -55,7 +62,33 @@ This should return a response similar to:
 
 ```json
 {
-    "status": "SUCCESS",
+    "status": "PENDING",
     "verification_id": "DOC-1764173117-648016"
+}
+```
+
+You can then check the status of the document verification using the `verification_id`:
+
+```bash
+curl http://localhost:8083/process-document/status/{YOUR_VERIFICATION_ID}
+```
+> Replace `{YOUR_VERIFICATION_ID}` with the actual `verification_id` received from the previous response.
+
+This should return a response similar to:
+
+```json
+{
+    "status": "VERIFIED",
+    "verification_id": "DOC-1764173117-648016"
+}
+```
+
+or, if the document was rejected:
+
+```json
+{
+    "status": "REJECTED",
+    "verification_id": "DOC-1764173117-648016",
+    "rejection_reason": "Document is corrupted or unreadable"
 }
 ```
