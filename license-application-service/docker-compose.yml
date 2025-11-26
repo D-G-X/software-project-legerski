@@ -29,5 +29,14 @@ services:
     volumes:
       - ./keycloak/imports:/opt/keycloak/data/import
 
+  mock-bank:
+    build:
+      context: ../license-application-mock-bank
+      dockerfile: Dockerfile
+    container_name: mock-bank
+    ports:
+      - "8082:8080"
+    restart: unless-stopped
+
 volumes:
   kc_db:
