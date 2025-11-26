@@ -15,6 +15,7 @@ import Error from "./error/error";
 import Login from "./login/login";
 import Register from "./register/register";
 import PaymentForm from "./payment/paymentForm";
+import PaymentConfirm from "./payment/paymentConfirm";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -24,7 +25,8 @@ export default function AppRoutes() {
         { path: "", element: <Home /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
-        { path: "paymentForm", element: <PaymentForm /> },
+        { path: "payment", element: <PaymentForm /> },
+        { path: "paymentDone", element: <PaymentConfirm /> },
         { path: "appUsers", element: <AppUserList /> },
         { path: "appUsers/add", element: <AppUserAdd /> },
         { path: "appUsers/edit/:id", element: <AppUserEdit /> },
