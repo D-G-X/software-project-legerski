@@ -63,6 +63,6 @@ func main() {
 }
 
 func generatePaymentId() string {
-	// simple mock payment ID: PAY-<timestamp>-<rand>
+	// simple mock payment ID: SEPA-<timestamp>-<rand>
 	return fmt.Sprintf("SEPA-%d-%d", time.Now().Unix(), rand.Intn(999999))
 }

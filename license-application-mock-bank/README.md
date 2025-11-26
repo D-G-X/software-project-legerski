@@ -37,3 +37,41 @@ The service responds with a JSON object indicating the success or failure of the
     "payment_id": "string"
 }
 ```
+
+### Testing the Service
+
+You can test the mock document validator service using `curl` or any API testing tool like Postman or simply the terminal.
+
+Here are two example `curl` commands:
+
+```bash
+curl -X POST http://localhost:8082/process-payment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 123.45,
+    "name": "John Doe",
+    "iban": "ES01234567890123456789",           
+    "payment_date": "2025-05-22T15:10:00Z"
+  }'
+```
+
+```bash
+curl -X POST http://localhost:8082/process-payment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 678.90,
+    "name": "Jane Doe",
+    "iban": "DE09876543210987654321",
+    "bic": "DEUTDEXX",
+    "payment_date": "2025-06-15T09:30:00Z"
+  }'
+```
+
+This should return a response similar to:
+
+```json
+{
+  "status":"SUCCESS",
+  "payment_id":"SEPA-1764173549-896471"
+}
+```
