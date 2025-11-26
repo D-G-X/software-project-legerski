@@ -2,32 +2,30 @@ package main
 
 import (
 	"encoding/json"
-	"strings"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 )
 
-// Incoming payload
+// PaymentRequest Incoming payload
 type PaymentRequest struct {
 	Amount      float64 `json:"amount"`
 	Name        string  `json:"name"`
 	IBAN        string  `json:"iban"`
-	BIC         *string  `json:"bic"` // optional for Spanish IBANs
+	BIC         *string `json:"bic"` // optional for Spanish IBANs
 	PaymentDate string  `json:"payment_date"`
 }
 
-// Outgoing response
+// PaymentResponse Outgoing response
 type PaymentResponse struct {
 	Status    string `json:"status"`
 	PaymentID string `json:"payment_id"`
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	http.HandleFunc("/process-payment", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "only POST allowed", http.StatusMethodNotAllowed)
