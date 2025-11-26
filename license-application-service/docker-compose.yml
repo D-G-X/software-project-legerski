@@ -38,5 +38,14 @@ services:
       - "8082:8080"
     restart: unless-stopped
 
+  mock-document-validator:
+    build:
+      context: ../license-application-mock-validator
+      dockerfile: Dockerfile
+    container_name: mock-document-validator
+    ports:
+      - "8083:8080"
+    restart: unless-stopped
+
 volumes:
   kc_db:
