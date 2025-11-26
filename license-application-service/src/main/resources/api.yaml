@@ -467,7 +467,7 @@ paths:
               $ref: "#/components/schemas/ApplicationPaymentCreate"
       responses:
         "201":
-          description: Payment recorded
+          description: PaymentForm recorded
           content:
             application/json:
               schema:
@@ -500,7 +500,7 @@ paths:
               $ref: "#/components/schemas/ApplicationPaymentCreate"
       responses:
         "200":
-          description: Payment details updated
+          description: PaymentForm details updated
           content:
             application/json:
               schema:
@@ -1089,7 +1089,7 @@ components:
         amount:
           type: number
           format: decimal
-          description: Payment amount in EUR.
+          description: PaymentForm amount in EUR.
           example: 123.45
         name:
           type: string
@@ -1203,7 +1203,7 @@ components:
         - DOCUMENTS_SUBMITTED # Documents uploaded
         - VERIFICATION_PENDING # Awaiting verification
         - AWAITING_PAYMENT # Waiting for user payment
-        - PAYMENT_RECEIVED # Payment completed
+        - PAYMENT_RECEIVED # PaymentForm completed
         - SUBMITTED # Application formally submitted
         - IN_BALLOT # Entered into selection/ballot
         - SELECTED # Chosen/approved via ballot
@@ -1218,8 +1218,8 @@ components:
       type: string
       description: Status for any payment attempt.
       enum:
-        - UNPAID # Payment is pending
-        - PAID # Payment completed
+        - UNPAID # PaymentForm is pending
+        - PAID # PaymentForm completed
 
     LicenseStatusApiEnum:
       type: string

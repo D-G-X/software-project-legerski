@@ -1,5 +1,5 @@
 import React from "react";
-import Register from "./payment";
+import Register from "./paymentForm";
 
 test("should create", () => {
   const { container } = renderWithRouter(<Register />);

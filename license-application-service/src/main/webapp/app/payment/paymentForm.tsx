@@ -6,9 +6,9 @@ import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
 import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
 //import { createPayment } from "app/services/payments/payments"
-import "./payment.css";
+import "./paymentForm.css";
 
-export default function Payment() {
+export default function PaymentForm() {
   //const applicationId = 12345; // TODO: get the actual application ID from context or props
   const amount = 9999.99; // TODO: get the actual amount to be paid
   const { t } = useTranslation();
@@ -162,7 +162,7 @@ export default function Payment() {
             </span>
           </label>
 
-          {/* Payment Form */}
+          {/* PaymentForm Form */}
           <div>
             {/* Name Field */}
             <div className="relative mb-4 mt-8">
