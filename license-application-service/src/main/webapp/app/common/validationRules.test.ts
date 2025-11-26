@@ -1,4 +1,12 @@
-import {validateConfirmPassword, validateEmail, validateName, validatePassword} from "./validationRules";
+import {
+    //validateBic,
+    validateConfirmPassword,
+    validateEmail,
+    validateIban,
+    validateName,
+    validatePassword,
+    validateSepaMandateCheck
+} from "./validationRules";
 
 // Name Validation
 describe("validateName", () => {
@@ -662,12 +670,27 @@ describe("validateEmail", () => {
 // Password Validation
 describe("validatePassword", () => {
     // VALID PASSWORDS
-    test("should return valid if password is longer than 8 chars, shorter than 256 chars and contains at least one special character", () => {
+    test("should return valid if password is longer than 7 chars, shorter than 256 chars and contains at least one special character", () => {
         const result = validatePassword("test-123!");
         expect(result).toEqual({
             isValid: true,
         });
     })
+
+    test("should return valid if password is longer than 7 chars, shorter than 256 chars and contains at least one special character", () => {
+        const result = validatePassword("%\"*(4fIh1M2z3fv7wM}J9xxAc4(\"N/9SAt({_!\\>{Sh:Lw_\"QJv9_y-I;`UdGBF&+VW?3)5o%pqT5H%'47S7=wDyAZR+&Ib*'>Y?J.P\"61j@8q0,pkm4ieFAV7wd']:)s;K^wSHvS}V~&T\\pXJR%3jWd0|NkAOF56?3pStc<39ds:XK\\*AR<P/IeVva]OLPh^I#h5_LBf<'£50e?vLCD'r}Lb3KfA*Q:{BM]7~?bK?5Q9>*R9[0lL!nfl#d1E11");
+        expect(result).toEqual({
+            isValid: true,
+        });
+    })
+
+    test("should return valid if password is longer than 7 chars, shorter than 256 chars and contains at least one special character", () => {
+        const result = validatePassword("olaf-scholz");
+        expect(result).toEqual({
+            isValid: true,
+        });
+    })
+
     // INVALID PASSWORDS
     test("should return invalid if password is empty", () => {
         const result = validatePassword("");
@@ -815,6 +838,146 @@ describe("validateConfirmPassword", () => {
 
     test("should return invalid if passwords not matching (umlaut unicode mismatch)", () => {
         const result = validateConfirmPassword("täst", "t\u0061\u0308st");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+})
+
+// IBAN Validation
+describe("validateIban", () => {
+    // VALID IBANS
+    test("should return valid if IBAN is longer than 14 chars and contains valid country code followed only by numbers", () => {
+        const result = validateIban("DE3301234567890");
+        expect(result).toEqual({
+            isValid: true,
+        });
+    })
+
+    test("should return valid if IBAN contains multiple spaces and valid country code followed only by numbers", () => {
+        const result = validateIban("FR00 1123 5813 2134");
+        expect(result).toEqual({
+            isValid: true,
+        });
+    })
+
+    test("should return valid if IBAN is shorter than 35 chars and contains valid country code followed only by numbers", () => {
+        const result = validateIban(" es  01  01  01  01  01  01  01  01  01  01  01  01  01  01  01  01 ");
+        expect(result).toEqual({
+            isValid: true,
+        });
+    })
+
+    // INVALID IBANS
+    test("should return invalid if IBAN is empty", () => {
+        const result = validateIban("");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN is shorter than 15 chars", () => {
+        const result = validateIban("DE001234567890");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN is longer than 34 chars", () => {
+        const result = validateIban("DE001234567891234567891234567891234");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has no country code", () => {
+        const result = validateIban("141592653589793238");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has single digit country code", () => {
+        const result = validateIban("D141592653589793238");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has tree digit country code", () => {
+        const result = validateIban("DEW141592653589793238");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has invalid country code", () => {
+        const result = validateIban("XX141592653589793238");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has digits after country code", () => {
+        const result = validateIban("DE14159265358979323A");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has umlaute", () => {
+        const result = validateIban("ÖS141592653589793234");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has french accents", () => {
+        const result = validateIban("ÁU141592653589793234");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has polish accents", () => {
+        const result = validateIban("ŁU141592653589793234");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has special chars in country code", () => {
+        const result = validateIban("D.141592653589793234");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+
+    test("should return invalid if IBAN has special chars after country code", () => {
+        const result = validateIban("DE.41592653589793234");
+        expect(result).toEqual({
+            isValid: false,
+        });
+    })
+})
+
+// BIC Validation
+describe("validateBic", () => {
+    // TODO: Implement BIC validation tests
+})
+
+// SEPA Mandate Validation
+describe("validateSepaMandateCheck", () => {
+    // VALID SEPA MANDATE
+    test("valid SEPA mandate", () => {
+        const result = validateSepaMandateCheck(true);
+        expect(result).toEqual({
+            isValid: true,
+        });
+    })
+    // INVALID SEPA MANDATE
+    test("invalid SEPA mandate", () => {
+        const result = validateSepaMandateCheck(false);
         expect(result).toEqual({
             isValid: false,
         });

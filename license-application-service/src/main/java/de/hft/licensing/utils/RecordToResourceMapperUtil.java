@@ -1,13 +1,7 @@
 package de.hft.licensing.utils;
 
-import de.hft.licensing.db.tables.records.ApplicationPaymentRecord;
-import de.hft.licensing.db.tables.records.ApplicationRecord;
-import de.hft.licensing.db.tables.records.LicenseRecord;
-import de.hft.licensing.db.tables.records.UserRecord;
-import de.hft.licensing.model.ApplicationPaymentResource;
-import de.hft.licensing.model.ApplicationResource;
-import de.hft.licensing.model.LicenseResource;
-import de.hft.licensing.model.UserResource;
+import de.hft.licensing.db.tables.records.*;
+import de.hft.licensing.model.*;
 
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -64,6 +58,15 @@ public class RecordToResourceMapperUtil {
         //userResource.setCreatedTimestamp(userRecord.getCreatedAt().atOffset(ZoneOffset.UTC));
         //userResource.setEnabled(userRecord.getEnabled());
         //userResource.setEmailVerified(userRecord.getEmailVerified());
+    }
+
+    public static void mapBallotPeriodRecordToResource(BallotPeriodRecord ballotPeriodRecord, BallotPeriodResource ballotPeriodResource) {
+        if (ballotPeriodRecord == null || ballotPeriodResource == null) {
+            return;
+        }
+        ballotPeriodResource.setBallotPeriodId(ballotPeriodRecord.getId());
+        ballotPeriodResource.setStartDate(ballotPeriodRecord.getStartDate().atOffset(ZoneOffset.UTC));
+        ballotPeriodResource.setEndDate(ballotPeriodRecord.getEndDate().atOffset(ZoneOffset.UTC));
     }
 
 }
