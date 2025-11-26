@@ -12,6 +12,7 @@ import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.model.*;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
+import java.math.BigDecimal;
 import org.jooq.DSLContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -89,9 +90,9 @@ public class ApplicationController implements ApplicationsApi {
         LocalDateTime now = LocalDateTime.now();
         var dbPayment = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
                 .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, applicationPaymentCreate.getAmount())
+                .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, new BigDecimal("99.99")) //TODO: add amount to model and DB
                 .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, (PaymentStatus) EnumMapperUtil.getPendantFromEnum(applicationPaymentCreate.getPaymentStatus()))
+                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
                 .returning()
                 .fetchOneInto(ApplicationPaymentRecord.class);
 
@@ -243,17 +244,19 @@ public class ApplicationController implements ApplicationsApi {
         return ResponseEntity.notFound().build();
     }
 
-    @Override
-    public ResponseEntity<ApplicationPaymentResource> updatePayment(Integer applicationId, Integer paymentId, UpdatePaymentRequest updatePaymentRequest) {
-        if(applicationId == null || paymentId == null || updatePaymentRequest == null || updatePaymentRequest.getPaymentStatus() == null) {
+  @Override
+    public ResponseEntity<ApplicationPaymentResource> updatePayment(Integer applicationId, Integer paymentId, ApplicationPaymentCreate updatePaymentRequest) {
+        if(applicationId == null || paymentId == null || updatePaymentRequest == null) {
             return ResponseEntity.badRequest().build();
         }
-        var updatedPaymentRecord = dsl.update(ApplicationPayment.APPLICATION_PAYMENT)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, (PaymentStatus) EnumMapperUtil.getPendantFromEnum(updatePaymentRequest.getPaymentStatus()))
-                .where(ApplicationPayment.APPLICATION_PAYMENT.ID.eq(paymentId))
-                .and(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(applicationId))
-                .returning()
-                .fetchOneInto(ApplicationPaymentRecord.class);
+        LocalDateTime now = LocalDateTime.now();
+        var updatedPaymentRecord = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
+            .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
+            .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, new BigDecimal("99.99")) //TODO: add amount to model and DB
+            .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
+            .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
+            .returning()
+            .fetchOneInto(ApplicationPaymentRecord.class);
 
         if(updatedPaymentRecord != null){
             ApplicationPaymentResource updatedPaymentResource = new ApplicationPaymentResource();
