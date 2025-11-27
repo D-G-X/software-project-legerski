@@ -1,15 +1,65 @@
 # DB CREDENTIALS - DO NOT CHANGE!!!
 services:
+  # NGINX LOAD BALANCER (NEW)
+  nginx:
+    build: ../nginx
+    container_name: nginx-load-balancer
+    ports:
+      - "80:80"
+    depends_on:
+      - backend1
+      - backend2
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # BACKEND INSTANCE 1 (NEW)
+  backend1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-instance-1
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/government
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=P4ssword!
+      - SERVER_PORT=8080
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # BACKEND INSTANCE 2 (NEW)
+  backend2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-instance-2
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/government
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=P4ssword!
+      - SERVER_PORT=8080
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # EXISTING SERVICES
   postgres:
     image: postgres:18.0
     environment:
-    - POSTGRES_DB=government
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=P4ssword!
+      - POSTGRES_DB=government
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=P4ssword!
     ports:
-    - "5433:5432"
+      - "5433:5432"
     volumes:
       - kc_db:/var/lib/postgresql
+    networks:
+      - app-network
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.0
@@ -28,6 +78,8 @@ services:
       - postgres
     volumes:
       - ./keycloak/imports:/opt/keycloak/data/import
+    networks:
+      - app-network
 
   mock-bank:
     build:
@@ -36,6 +88,8 @@ services:
     container_name: mock-bank
     ports:
       - "8082:8080"
+    networks:
+      - app-network
     restart: unless-stopped
 
   mock-document-validator:
@@ -45,7 +99,16 @@ services:
     container_name: mock-document-validator
     ports:
       - "8083:8080"
+    networks:
+      - app-network
     restart: unless-stopped
 
+# NETWORKS
+networks:
+  app-network:
+    driver: bridge
+
+
+# VOLUMES
 volumes:
   kc_db:
