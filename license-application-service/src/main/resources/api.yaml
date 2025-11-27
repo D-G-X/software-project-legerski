@@ -91,7 +91,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserCreate"
+              type: object
+              properties:
+                schema:
+                  $ref: "#/components/schemas/UserCreate"
       responses:
         "201":
           description: User created successfully
