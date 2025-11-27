@@ -91,10 +91,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                schema:
-                  $ref: "#/components/schemas/UserCreate"
+              $ref: "#/components/schemas/UserCreate"
       responses:
         "201":
           description: User created successfully
@@ -194,9 +191,9 @@ paths:
             type: string
             format: uuid
       responses:
-        "201":
+        "401":
           description: Unauthorized
-        "203":
+        "403":
           description: Forbidden
         "204":
           description: User deleted
@@ -468,39 +465,6 @@ paths:
       responses:
         "201":
           description: Payment recorded
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApplicationPaymentResource"
-
-  /applications/{applicationId}/payments/{paymentId}:
-    patch:
-      tags: [Payments]
-      summary: Update a payment for an application
-      description: Update the details of an existing direct debit payment related to a holiday rental license application.
-      operationId: updatePayment
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: paymentId
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ApplicationPaymentCreate"
-      responses:
-        "200":
-          description: Payment details updated
           content:
             application/json:
               schema:
