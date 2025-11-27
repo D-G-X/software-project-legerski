@@ -21,7 +21,8 @@ The mock document validator service listens on port `8083` and exposes the follo
 
 ```json
 {
-    "filename": "string", // only "pdf"
+    "id_filename": "string", // only "pdf"
+    "proof_filename": "string", // only "pdf"
     "uploaded_at": "string"
 }
 ```
@@ -50,12 +51,9 @@ Here’s an example `curl` command:
 
 ```bash
 curl -X POST http://localhost:8083/process-document \
-  -H "Content-Type: application/json" \
-  -d '{
-    "document_type": "pdf",
-    "filename": "./license-application-mock-validator/sample.pdf",
-    "uploaded_at": "2025-05-22T10:00:00Z"
-  }'
+  -F "id_file=@./sample.pdf" \
+  -F "proof_file=@./sample.pdf" \
+  -F "uploaded_at=2025-05-22T10:00:00Z"
 ```
 
 This should return a response similar to:
