@@ -1,39 +1,67 @@
-import React from "react";
+import React, {useState} from "react";
 import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
-//import { createPayment } from "app/services/payments/payments"
 import "./paymentConfirm.css";
+import {CircleCheck, CircleX} from "lucide-react";
 
-export default function PaymentConfirm() {
-  //const applicationId = 12345; // TODO: get the actual application ID from context or props
-  const amount = 9999.99; // TODO: get the actual amount to be paid
+
+type Props = {
+  data: {
+    id: number;
+    application_id: number;
+    amount: number;
+    name: string;
+    iban: string;
+    bic?: string;
+    payment_date: string;
+    payment_status: string;
+  };
+};
+
+
+export default function PaymentConfirm({data}: Props) {
   const {t} = useTranslation();
-  useDocumentTitle(t("payment.title"));
+  useDocumentTitle(t("paymentConfirm.title"));
 
-  const formatAmount = (amount: number, locale: string, currency: string): string => {
-    return new Intl.NumberFormat(locale, {
+  const [success] = useState(true); // TODO: This would be determined by actual payment status
+
+  const formatAmount = (amount: number): string => {
+    return new Intl.NumberFormat(t("locale"), {
       style: "currency",
-      currency: currency,
+      currency: "EUR",
       currencyDisplay: "symbol",
       minimumFractionDigits: 2,
     }).format(amount);
   }
 
   // IBAN format: max 34 characters in groups of 4 separated by spaces (no manual input of spaces)
-  /*const formatIban = (raw: string): string => {
-    return raw
-    .replace(/\s+/g, "")
-    .toUpperCase()
+  const formatIban = (raw: string): string => {
+    const visibleLength = 4;
+    const clean = raw.replace(/\s+/g, "").toUpperCase()
+    const visible = clean.slice(-visibleLength);
+    const masked = "•".repeat(clean.length - visibleLength);
+    return (masked + visible)
     .replace(/(.{4})/g, "$1 ")
     .trim();
   };
   // BIC format: max 11 characters no manual input of spaces
   const formatBic = (raw: string): string => {
-    return raw
-    .replace(/\s+/g, "")
-    .toUpperCase()
-  };*/
+    const visibleLength = 4;
+    const clean = raw.replace(/\s+/g, "").toUpperCase()
+    const visible = clean.slice(0, visibleLength);
+    const masked = "•".repeat(clean.length - visibleLength);
+    return (visible + masked);
+  };
+
+  const formattedDate = new Date(data.payment_date).toLocaleString(t("locale"), {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   const handleSubmit = () => {
     return true;
@@ -41,26 +69,98 @@ export default function PaymentConfirm() {
 
   return (
       <div className="container mx-auto px-4 md:px-6">
+
         <div
-            className="relative min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center">
-          <div className="font-inter min-w-96">
+            className="relative min-h-[calc(100vh-4rem)] bg-white flex flex-col items-center justify-center">
+          <div className="flex top-8 mb-6 items-center justify-center">
+            {success ?
+                <CircleCheck className="text-green-500" size={72}/>
+                :
+                <CircleX className="text-red-500" size={72}/>
+            }
+          </div>
+          <div className="font-inter text-center min-w-96">
             <FormHeader
-                heading={t("payment.index.headline")}
-                subHeading={t("payment.index.subheadline")}
+                heading={
+                  success ?
+                      t("paymentConfirm.index.headline.success")
+                      :
+                      t("paymentConfirm.index.headline.failure")
+                }
+                subHeading={
+                  success ?
+                      t("paymentConfirm.index.subHeadline.success")
+                      :
+                      t("paymentConfirm.index.subHeadline.failure")
+                }
             />
+            {/* 3. Response fields */}
+            <div className="bg-gray-100 rounded-lg p-6 my-6 shadow">
+              <div className="flex justify-between text-xl font-semibold">
+                <span className="">{t("paymentConfirm.index.amountLabel") + ": "}</span>
+                <div className="flex flex-col items-end leading-tight">
+                  <span>{formatAmount(data.amount)}</span>
+                  <span
+                      className="text-xs font-light italic">{t("paymentConfirm.index.taxLabel")}</span>
+                </div>
+              </div>
 
-            <label>
-            <span className="text-mallorca-purple text-lg">
-                {t("payment.index.amountLabel", {amount: formatAmount(amount, t("locale"), "EUR")})}
-            </span>
-            </label>
+              <hr className="mt-2 mb-6 border-gray-300"/>
 
+              <div className="space-y-2.5 text-gray-700">
+                <div className="flex justify-between">
+                  <span
+                      className="font-semibold">{t("paymentConfirm.index.applicationIdLabel") + ": "}</span>
+                  <span>{data.application_id}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span
+                      className="font-semibold">{t("paymentConfirm.index.paymentIdLabel") + ": "}</span>
+                  <span>{data.id}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span
+                      className="font-semibold">{t("paymentConfirm.index.nameLabel") + ": "}</span>
+                  <span>{data.name}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span
+                      className="font-semibold">{t("paymentConfirm.index.ibanLabel") + ": "}</span>
+                  <span>{formatIban(data.iban)}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="font-semibold">{t("paymentConfirm.index.bicLabel") + ": "}</span>
+                  <span>
+                    {data.bic
+                        ? formatBic(data.bic)
+                        : <em>{t("paymentConfirm.index.bicOptional")}</em>}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span
+                      className="font-semibold">{t("paymentConfirm.index.dateLabel") + ": "}</span>
+                  <span>{formattedDate}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="my-4">
             <button
                 // type="submit"
                 onClick={handleSubmit}
-                className={"mt-4bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90"}
-            >
-              {t("payment.index.payButtonLabel")}
+                className={`mt-4 bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90`}
+            >{
+              (success ?
+                  t("paymentConfirm.index.leaveButtonLabel.success")
+                  :
+                  t("paymentConfirm.index.leaveButtonLabel.failure")
+              )
+            }
             </button>
           </div>
         </div>

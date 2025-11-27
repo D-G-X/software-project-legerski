@@ -146,12 +146,12 @@
         "valid": "SEPA mandate accepted"
     }
   },
-  "payment": {
+  "paymentForm": {
     "title": "Payment",
     "index": {
       "headline": "Pay now",
-      "subheadline": "SEPA direct debit",
-      "amountLabel": "Total amount: {{amount}}",
+      "subHeadline": "SEPA direct debit",
+      "amountLabel": "Total amount",
       "nameLabel": "Account holder",
       "ibanLabel": "IBAN",
       "bicLabel": "BIC",
@@ -160,34 +160,86 @@
         "plain": "I have read and accept the",
         "button": "SEPA Mandate"
       },
-      "sepaMandateDialog": {
-        "title": "SEPA Direct Debit Mandate",
-        "text": {
-          "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
-          "line2": "Note:",
-          "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
-          "line4": "Details of the payer:",
-          "line5": " –  Account holder: {{accountHolder}}",
-          "line6": " –  IBAN: {{iban}}",
-          "line7": " –  BIC: {{bic}}",
-          "line8": "Details of the payee:",
-          "line9": " –  Beneficiary: {{beneficiaryName}}",
-          "line10": " –  Creditor ID: {{creditorId}}",
-          "line11": " –  Mandate reference: {{mandateReference}}",
-          "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
-          "line13": "Issuing date: {{date}}"
-        },
-        "acceptButtonLabel": "Accept",
-        "cancelButtonLabel": "Cancel",
-        "downloadButtonLabel": "Download",
-        "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
-      },
       "payButtonLabel": "Pay now"
     },
-    "response": {
-      "success": "Payment successful! Thank you for your payment.",
-      "error": "Payment failed! Please try again later."
-    }
+    "sepaMandateDialog": {
+      "title": "SEPA Direct Debit Mandate",
+      "text": {
+        "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
+        "line2": "Note:",
+        "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
+        "line4": "Details of the payer:",
+        "line5": " –  Account holder: {{accountHolder}}",
+        "line6": " –  IBAN: {{iban}}",
+        "line7": " –  BIC: {{bic}}",
+        "line8": "Details of the payee:",
+        "line9": " –  Beneficiary: {{beneficiaryName}}",
+        "line10": " –  Creditor ID: {{creditorId}}",
+        "line11": " –  Mandate reference: {{mandateReference}}",
+        "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
+        "line13": "Issuing date: {{date}}"
+      },
+      "acceptButtonLabel": "Accept",
+      "cancelButtonLabel": "Cancel",
+      "downloadButtonLabel": "Download",
+      "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
+    },
+    "processing": "Processing payment"
+  },
+  "paymentConfirm": {
+    "title": "Payment Done",
+    "index": {
+      "headline": {
+        "success": "Payment Successful",
+        "failure": "Payment Failed"
+      },
+      "subHeadline": {
+        "success": "Your payment has been processed successfully.",
+        "failure": "Your payment could not be processed. Please try again."
+      },
+      "amountLabel": "Total amount",
+      "taxLabel": "no vat applies",
+      "paymentIdLabel": "Payment ID",
+      "applicationIdLabel": "Application ID",
+      "nameLabel": "Account holder",
+      "ibanLabel": "IBAN",
+      "bicLabel": "BIC",
+      "bicOptional": "not required",
+      "dateLabel": "Payment date",
+      "statusLabel":{
+        "plain": "Payment status",
+        "success": "Pending",
+        "failure": "Failed"
+      },
+      "sendReceiptLabel": "Send payment receipt to {{email}}",
+      "leaveButtonLabel": {
+        "success": "Back to Dashboard",
+        "failure": "Try Again"
+      }
+    },
+    "sepaMandateDialog": {
+      "title": "SEPA Direct Debit Mandate",
+      "text": {
+        "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
+        "line2": "Note:",
+        "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
+        "line4": "Details of the payer:",
+        "line5": " –  Account holder: {{accountHolder}}",
+        "line6": " –  IBAN: {{iban}}",
+        "line7": " –  BIC: {{bic}}",
+        "line8": "Details of the payee:",
+        "line9": " –  Beneficiary: {{beneficiaryName}}",
+        "line10": " –  Creditor ID: {{creditorId}}",
+        "line11": " –  Mandate reference: {{mandateReference}}",
+        "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
+        "line13": "Issuing date: {{date}}"
+      },
+      "acceptButtonLabel": "Accept",
+      "cancelButtonLabel": "Cancel",
+      "downloadButtonLabel": "Download",
+      "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
+    },
+    "processing": "Processing payment..."
   },
   "error": {
     "page": {

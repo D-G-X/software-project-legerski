@@ -1,12 +1,12 @@
 import React from "react";
-import Register from "./paymentForm";
+import PaymentForm from "./paymentForm";
 
 test("should create", () => {
-  const { container } = renderWithRouter(<Register />);
+  const { container } = renderWithRouter(<PaymentForm />);
   expect(container).toBeTruthy();
 });
 
 test("should render title", () => {
-  const { container } = renderWithRouter(<Register />);
+  const { container } = renderWithRouter(<PaymentForm />);
   expect(container).toBeTruthy();
 });
