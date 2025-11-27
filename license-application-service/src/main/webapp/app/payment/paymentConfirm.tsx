@@ -24,6 +24,8 @@ export default function PaymentConfirm({data}: Props) {
   const {t} = useTranslation();
   useDocumentTitle(t("paymentConfirm.title"));
 
+  let email = "peter.heusch@hft-stuttgart.de";
+
   const [success] = useState(true); // TODO: This would be determined by actual payment status
 
   const formatAmount = (amount: number): string => {
@@ -95,7 +97,7 @@ export default function PaymentConfirm({data}: Props) {
                 }
             />
             {/* 3. Response fields */}
-            <div className="bg-gray-100 rounded-lg p-6 my-6 shadow">
+            <div className="bg-gray-100 rounded-lg p-6 mt-6 mb-2 shadow">
               <div className="flex justify-between text-xl font-semibold">
                 <span className="">{t("paymentConfirm.index.amountLabel") + ": "}</span>
                 <div className="flex flex-col items-end leading-tight">
@@ -108,17 +110,6 @@ export default function PaymentConfirm({data}: Props) {
               <hr className="mt-2 mb-6 border-gray-300"/>
 
               <div className="space-y-2.5 text-gray-700">
-                <div className="flex justify-between">
-                  <span
-                      className="font-semibold">{t("paymentConfirm.index.applicationIdLabel") + ": "}</span>
-                  <span>{data.application_id}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span
-                      className="font-semibold">{t("paymentConfirm.index.paymentIdLabel") + ": "}</span>
-                  <span>{data.id}</span>
-                </div>
 
                 <div className="flex justify-between">
                   <span
@@ -143,27 +134,71 @@ export default function PaymentConfirm({data}: Props) {
 
                 <div className="flex justify-between">
                   <span
+                      className="font-semibold">{t("paymentConfirm.index.applicationIdLabel") + ": "}</span>
+                  <span>{data.application_id}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span
+                      className="font-semibold">{t("paymentConfirm.index.paymentIdLabel") + ": "}</span>
+                  <span>{data.id}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span
                       className="font-semibold">{t("paymentConfirm.index.dateLabel") + ": "}</span>
                   <span>{formattedDate}</span>
                 </div>
+
+                <div className="flex justify-between">
+                  <span
+                      className="font-semibold">{t("paymentConfirm.index.statusLabel.plain") + ": "}</span>
+                  <span
+                      className="font-bold">
+                    <div className={`rounded-md px-3 py-1 text-white
+                    ${success ? "bg-green-600" : "bg-red-600"}`}>
+                    {
+                      (success ?
+                              t("paymentConfirm.index.statusLabel.success")
+                              :
+                              t("paymentConfirm.index.statusLabel.failure")
+                      )
+                    }
+                    </div>
+                  </span>
+                </div>
+
               </div>
             </div>
           </div>
-          <div className="my-4">
+          {
+            success &&
+              <div className="my-2">
+                <button
+                    // type="submit"
+                    onClick={handleSubmit}
+                    className={`mt-0 border border-mallorca-purple text-mallorca-purple px-10 py-2 rounded-md w-96 font-medium text-lg bg-white hover:bg-gray-100`}
+                >{t("paymentConfirm.index.sendReceiptLabel", {email: email})}
+                </button>
+              </div>
+          }
+          <div className="my-2">
             <button
                 // type="submit"
                 onClick={handleSubmit}
-                className={`mt-4 bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90`}
+                className={`${success ? "mt-2" : "mt-4"}
+                bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90`}
             >{
               (success ?
-                  t("paymentConfirm.index.leaveButtonLabel.success")
-                  :
-                  t("paymentConfirm.index.leaveButtonLabel.failure")
+                      t("paymentConfirm.index.leaveButtonLabel.success")
+                      :
+                      t("paymentConfirm.index.leaveButtonLabel.failure")
               )
             }
             </button>
           </div>
         </div>
       </div>
-  );
+  )
+      ;
 }
