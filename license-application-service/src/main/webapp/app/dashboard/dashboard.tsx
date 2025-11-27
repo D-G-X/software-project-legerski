@@ -11,14 +11,14 @@ export default function Dashboard(){
 
     return (
         <div className="container mx-auto px-4 md:px-6">
-            <div className="relative min-h-[calc(100vh-4rem)] bg-white flex justify-center">
-            <h2>{t("dashboard.headline")}</h2>
+            <div className="relative min-h-[calc(100vh-4rem)] bg-white justify-center mt-8">
+            <h2 className="font-bold text-center mb-6">{t("dashboard.headline")}</h2>
             <button
                 type="button"
-                className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg">
+                className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg mb-6 w-max block m-auto">
                 {t("dashboard.button-text")}
             </button>
-            <h1>{t("dashboard.title")}</h1>
+            <h1 className="font-bold">{t("dashboard.title")}</h1>
             </div>
         </div>
     );
