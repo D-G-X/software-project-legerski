@@ -112,3 +112,51 @@ networks:
 # VOLUMES
 volumes:
   kc_db:
+# THE ACTUAL BACKENDS
+  backend1:
+    image: license-application-service-backend  # Or build context if you build locally
+    container_name: backend-instance-1
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/government
+      - DB_USER=postgres
+      - DB_PASSWORD=P4ssword!
+      - KEYCLOAK_AUTH-SERVER-URL=http://keycloak:8080
+    depends_on:
+      - postgres
+      - keycloak
+    networks:
+      - app-network
+
+  backend2:
+    image: license-application-service-backend # Same image!
+    container_name: backend-instance-2
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/government
+      - DB_USER=postgres
+      - DB_PASSWORD=P4ssword!
+      - KEYCLOAK_AUTH-SERVER-URL=http://keycloak:8080
+    depends_on:
+      - postgres
+      - keycloak
+    networks:
+      - app-network
+
+  # THE LOAD BALANCER
+  nginx:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: nginx-load-balancer
+    ports:
+      - "80:80"
+    depends_on:
+      - backend1
+      - backend2
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
