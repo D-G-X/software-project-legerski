@@ -194,9 +194,9 @@ paths:
             type: string
             format: uuid
       responses:
-        "201":
+        "401":
           description: Unauthorized
-        "203":
+        "403":
           description: Forbidden
         "204":
           description: User deleted
@@ -427,7 +427,7 @@ paths:
     get:
       tags: [Payments]
       summary: List payments for an application
-      description: Retrieve payment records associated with a specific application.
+      description: Retrieve direct debit payment records associated with a specific application.
       operationId: listPayments
       security:
         - KeycloakOAuth2: [openid]
@@ -448,8 +448,8 @@ paths:
                   $ref: "#/components/schemas/ApplicationPaymentResource"
     post:
       tags: [Payments]
-      summary: Record a payment for an application
-      description: Record a new payment related to a holiday rental license application.
+      summary: Record a new payment for an application
+      description: Record a new direct debit payment related to a holiday rental license application.
       operationId: createPayment
       security:
         - KeycloakOAuth2: [openid]
@@ -473,25 +473,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApplicationPaymentResource"
 
-  /applications/{applicationId}/payments/{paymentId}:
-    patch:
-      tags: [Payments]
-      summary: Update payment status for an application payment
-      description: Update the status of a specific payment.
-      operationId: updatePayment
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: paymentId
-          in: path
-          required: true
-          schema:
-            type: integer
+  /ballot-periods:
+    post:
+      tags: [Ballot Periods]
+      summary: Create a ballot period
+      description: Create a new ballot period by defining its start and end dates.
+      operationId: createBallotPeriod
       requestBody:
         required: true
         content:
@@ -499,30 +486,95 @@ paths:
             schema:
               type: object
               properties:
-                payment_status:
-                  $ref: "#/components/schemas/PaymentStatusApiEnum"
-              required:
-                - payment_status
+                start_date:
+                  type: string
+                  format: date-time
+                end_date:
+                  type: string
+                  format: date-time
       responses:
-        "200":
-          description: Payment status updated
+        "201":
+          description: Ballot period created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationPaymentResource"
+                $ref: "#/components/schemas/BallotPeriodResource"
+        "409":
+          description: Conflict - overlapping ballot periods are not allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                    example: "OVERLAPPING_PERIOD"
+                  message:
+                    type: string
+                    example: "The specified start and end dates overlap with an existing ballot period."
 
-  /applications/lottery:
-    post:
-      tags: [Applications]
-      summary: Run the lottery/ballot on eligible applications
+  /ballot-periods/{period_id}:
+    get:
+      tags: [Ballot Periods]
+      summary: Retrieve ballot period details
       description: >
-        Triggers the allocation (lottery) process, assigning statuses such as 'selected' or 'not_selected'
-        to eligible applications for the current lottery round.
-      operationId: runLottery
-      security:
-        - KeycloakOAuth2: [openid]
+        Retrieves the details and configuration for a specific ballot period, 
+        including its start and end dates and other metadata.
+      operationId: getBallotPeriodDetails
+      parameters:
+        - in: path
+          name: period_id
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier for the ballot period
+      responses:
+        "200":
+          description: Ballot period details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BallotPeriodResource"
+
+
+  /ballot-periods/{period_id}/entries:
+    get:
+      tags: [Ballot Periods]
+      summary: List entries for a ballot period
+      description: List all submitted applications/entries for a specific ballot period.
+      operationId: getBallotPeriodEntries
+      parameters:
+        - in: path
+          name: period_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of entries for the period
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApplicationResource"
+
+
+  /ballot-periods/{period_id}/lottery:
+    post:
+      tags: [Ballot Periods]
+      summary: Run the lottery round for a ballot period
+      description: >
+        Triggers the allocation (lottery) process for this ballot period,
+        assigning selected status as true/false to eligible applications within the given period.
+      operationId: runLotteryForBallotPeriod
+      parameters:
+        - in: path
+          name: period_id
+          required: true
+          schema:
+            type: integer
       requestBody:
-        description: Optional parameters for the lottery, such as filtering by license_type or other business criteria
         required: false
         content:
           application/json:
@@ -533,15 +585,12 @@ paths:
                   $ref: "#/components/schemas/LicenseTypeApiEnum"
       responses:
         "200":
-          description: Lottery results with updated application statuses
+          description: Lottery results with updated statuses for applications in the period
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  round_id:
-                    type: string
-                    description: Unique identifier for the lottery round
                   selected_applications:
                     type: array
                     items:
@@ -550,6 +599,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/ApplicationResource"
+
 
   /licenses:
     get:
@@ -1008,6 +1058,18 @@ components:
           format: decimal
           description: Payment amount in EUR.
           example: 123.45
+        name:
+          type: string
+          description: Account holder's name.
+          example: John Doe
+        iban:
+          type: string
+          description: IBAN of the payment method.
+          example: DE01234567890123456789
+        bic:
+          type: string
+          description: BIC/SWIFT code of the bank.
+          example: DEUTDEAAXXX
         payment_date:
           type: string
           format: date-time
@@ -1019,6 +1081,8 @@ components:
         - id
         - application_id
         - amount
+        - name
+        - iban
         - payment_status
 
     ApplicationPaymentCreate:
@@ -1029,17 +1093,22 @@ components:
           type: integer
           description: Associated application ID.
           example: 201
-        amount:
-          type: number
-          format: decimal
-          description: Amount to be paid in EUR.
-          example: 99.99
-        payment_status:
-          $ref: "#/components/schemas/PaymentStatusApiEnum"
+        name:
+          type: string
+          description: Account holder's name.
+          example: John Doe
+        iban:
+          type: string
+          description: IBAN of the payment method.
+          example: DE01234567890123456789
+        bic:
+          type: string
+          description: BIC/SWIFT code of the bank.
+          example: DEUTDEAAXXX
       required:
         - application_id
-        - amount
-        - payment_status
+        - name
+        - iban
 
     ConsentResource:
       type: object
@@ -1181,3 +1250,18 @@ components:
         - filename
         - uploaded_at
         - verification_status
+
+    BallotPeriodResource:
+      type: object
+      properties:
+        ballot_period_id:
+          type: integer
+          description: Unique identifier for the ballot period
+        start_date:
+          type: string
+          format: date-time
+          description: Ballot period start, ISO 8601 format
+        end_date:
+          type: string
+          format: date-time
+          description: Ballot period end, ISO 8601 format

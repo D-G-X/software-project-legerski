@@ -37,6 +37,18 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
@@ -120,7 +132,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <skip>${jooq.codegen.skip}</skip>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
                         <url>${db.url}</url>
@@ -134,7 +145,7 @@
                             <includes>.*</includes>
                             <excludes>
                                 DATABASECHANGELOG
-                                | DATABASECHANGELOGLOCK
+                                DATABASECHANGELOGLOCK
                             </excludes>
                         </database>
                         <generate>
