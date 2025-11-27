@@ -244,28 +244,6 @@ public class ApplicationController implements ApplicationsApi {
         return ResponseEntity.notFound().build();
     }
 
-  @Override
-    public ResponseEntity<ApplicationPaymentResource> updatePayment(Integer applicationId, Integer paymentId, ApplicationPaymentCreate updatePaymentRequest) {
-        if(applicationId == null || paymentId == null || updatePaymentRequest == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        LocalDateTime now = LocalDateTime.now();
-        var updatedPaymentRecord = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
-            .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
-            .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, new BigDecimal("99.99")) //TODO: add amount to model and DB
-            .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
-            .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
-            .returning()
-            .fetchOneInto(ApplicationPaymentRecord.class);
-
-        if(updatedPaymentRecord != null){
-            ApplicationPaymentResource updatedPaymentResource = new ApplicationPaymentResource();
-            RecordToResourceMapperUtil.mapApplicationPaymentRecordToResource(updatedPaymentRecord, updatedPaymentResource);
-            return ResponseEntity.ok(updatedPaymentResource);
-        }
-        return ResponseEntity.notFound().build();
-    }
-
     @Override
     public ResponseEntity<ApplicationDocumentResource> uploadDocument(Integer applicationId, MultipartFile file, String documentType) {
         return null;
