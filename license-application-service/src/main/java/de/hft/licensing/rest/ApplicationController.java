@@ -12,13 +12,20 @@ import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.model.*;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
+import java.math.BigDecimal;
 import org.jooq.DSLContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,6 +72,8 @@ public class ApplicationController implements ApplicationsApi {
             return ResponseEntity.status(500).build();
         }
 
+        // TODO: if active ballot period add SUBMITTED to ballotperiod
+
         // map DB record -> API model and convert enums explicitly
         ApplicationResource apiResource = new ApplicationResource();
         RecordToResourceMapperUtil.mapApplicationRecordToResource(dbRecord, apiResource);
@@ -81,9 +90,9 @@ public class ApplicationController implements ApplicationsApi {
         LocalDateTime now = LocalDateTime.now();
         var dbPayment = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
                 .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, applicationPaymentCreate.getAmount())
+                .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, new BigDecimal("99.99")) //TODO: add amount to model and DB
                 .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, (PaymentStatus) EnumMapperUtil.getPendantFromEnum(applicationPaymentCreate.getPaymentStatus()))
+                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
                 .returning()
                 .fetchOneInto(ApplicationPaymentRecord.class);
 
@@ -126,6 +135,23 @@ public class ApplicationController implements ApplicationsApi {
     //TODO: finish implementation as Parameter Types clash
     @Override
     public ResponseEntity<List<ApplicationResource>> listApplications(UUID userId, ApplicationStatusApiEnum applicationStatus) {
+        // Get current authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof JwtAuthenticationToken jwt)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        // Maps roles from JWT token
+        boolean isAdmin = jwt.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
+        // Extract the user ID from Keycloak token: "sub" claim
+        UUID currentUserId = UUID.fromString(jwt.getToken().getSubject());
+        // Enforce: normal users can only see their own applications
+        if (userId != null && !isAdmin && !userId.equals(currentUserId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } else if (!isAdmin) {
+            userId = currentUserId;
+        }
+
         List<ApplicationRecord> result = null;
         // no filters
         if(userId == null && applicationStatus == null) {
@@ -207,30 +233,13 @@ public class ApplicationController implements ApplicationsApi {
                 .returning()
                 .fetchOneInto(ApplicationRecord.class);
 
+
+        // TODO: if active ballot period add SUBMITTED to ballotperiod
+
         if(updatedApplicationRecord != null){
             ApplicationResource updatedApplicationResource = new ApplicationResource();
             RecordToResourceMapperUtil.mapApplicationRecordToResource(updatedApplicationRecord, updatedApplicationResource);
             return ResponseEntity.ok(updatedApplicationResource);
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @Override
-    public ResponseEntity<ApplicationPaymentResource> updatePayment(Integer applicationId, Integer paymentId, UpdatePaymentRequest updatePaymentRequest) {
-        if(applicationId == null || paymentId == null || updatePaymentRequest == null || updatePaymentRequest.getPaymentStatus() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        var updatedPaymentRecord = dsl.update(ApplicationPayment.APPLICATION_PAYMENT)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, (PaymentStatus) EnumMapperUtil.getPendantFromEnum(updatePaymentRequest.getPaymentStatus()))
-                .where(ApplicationPayment.APPLICATION_PAYMENT.ID.eq(paymentId))
-                .and(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(applicationId))
-                .returning()
-                .fetchOneInto(ApplicationPaymentRecord.class);
-
-        if(updatedPaymentRecord != null){
-            ApplicationPaymentResource updatedPaymentResource = new ApplicationPaymentResource();
-            RecordToResourceMapperUtil.mapApplicationPaymentRecordToResource(updatedPaymentRecord, updatedPaymentResource);
-            return ResponseEntity.ok(updatedPaymentResource);
         }
         return ResponseEntity.notFound().build();
     }

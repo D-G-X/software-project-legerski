@@ -6,6 +6,7 @@ import Error from "./error/error";
 import Login from "./login/login";
 import Register from "./register/register";
 import RequestApplication from "./license/request-application/request-application";
+import Payment from "./payment/payment";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -19,6 +20,7 @@ export default function AppRoutes() {
           path: "license-application-request",
           element: <RequestApplication />,
         },
+        { path: "payment", element: <Payment /> },
         { path: "error", element: <Error /> },
         { path: "*", element: <Error /> },
       ],
