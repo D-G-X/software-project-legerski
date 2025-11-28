@@ -99,7 +99,7 @@ func isPdf(data []byte) bool {
 	if len(data) < 4 {
 		return false
 	}
-	// check magic number
+	// check "magic" number
 	return bytes.HasPrefix(data, []byte("%PDF"))
 }
 
@@ -109,14 +109,14 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// limit total multipart size (here: 10 MB)
+	// limit total multipart size
 	err := r.ParseMultipartForm(maxFileSize << 20)
 	if err != nil {
 		http.Error(w, "invalid multipart request", http.StatusBadRequest)
 		return
 	}
 
-	// read ID file
+	// read id file
 	idFile, idHeader, err := r.FormFile("id_file")
 	if err != nil {
 		reject(w, "Missing ID PDF")
@@ -180,7 +180,7 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	mu.Unlock()
 
-	// Hintergrundjob OHNE ResponseWriter starten
+	// start background processing
 	go runBackgroundJob(applicationId, verificationId, idHeader.Filename, proofHeader.Filename)
 
 	resp := ProcessDocumentResponse{
