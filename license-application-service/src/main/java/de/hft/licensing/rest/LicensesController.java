@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-public class LicenseController implements LicensesApi {
+public class LicensesController implements LicensesApi {
 
     private final DSLContext dsl;
 
-    public LicenseController(DSLContext dsl) {
+    public LicensesController(DSLContext dsl) {
         this.dsl = dsl;
     }
 
