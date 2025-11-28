@@ -53,6 +53,31 @@ paths:
                 $ref: "#/components/schemas/LoginResource"
         "401":
           description: Unauthorized - invalid credentials
+
+  /register:
+    post:
+      tags: [Authentication]
+      summary: User registration
+      description: Register a new user account in the system.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResource"
+        "400":
+          description: Bad request - invalid input data
+        "409":
+            description: Conflict - user already exists
+
   /users:
     get:
       tags: [Users]
@@ -923,7 +948,7 @@ components:
           description: User's desired password.
           example: securepassword123
 
-    RegisterResponse:
+    RegisterResource:
       type: object
       description: Response payload after successful user registration.
       properties:
