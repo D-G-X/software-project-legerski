@@ -10,6 +10,8 @@ servers:
   - url: https://localhost
 
 tags:
+  - name: Authentication
+    description: Endpoints for user authentication and token management via Keycloak.
   - name: Users
     description: Operations related to user management including account creation, updates, and authentication.
   - name: Applications
@@ -22,12 +24,35 @@ tags:
     description: Processing and tracking payments related to license applications and renewals.
   - name: Consent
     description: Managing user consents for data processing and compliance with regulatory requirements.
+  - name: Ballot Periods
+    description: Managing ballot periods for fair allocation of holiday rental licenses.
 
 
 security:
   - KeycloakOAuth2: [openid, profile, email]
 
 paths:
+  /login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate a user and obtain JWT access and refresh tokens.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResource"
+        "401":
+          description: Unauthorized - invalid credentials
   /users:
     get:
       tags: [Users]
@@ -830,6 +855,88 @@ components:
             email: Email access
 
   schemas:
+    LoginRequest:
+        type: object
+        description: Request payload for user login.
+        properties:
+          username:
+            type: string
+            description: User's username.
+            example: johndoe
+          password:
+            type: string
+            format: password
+            description: User's password.
+            example: securepassword123
+        required:
+            - username
+            - password
+    LoginResource:
+        type: object
+        description: Response payload containing authentication tokens.
+        properties:
+          access_token:
+            type: string
+            description: JWT access token for authenticated requests.
+            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+          refresh_token:
+            type: string
+            description: Token used to obtain a new access token.
+            example: dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...
+          expires_in:
+            type: integer
+            description: Time in seconds until the access token expires.
+            example: 3600
+          refresh_expires_in:
+            type: integer
+            description: Time in seconds until the refresh token expires.
+            example: 86400
+          token_type:
+            type: string
+            description: Type of the token issued.
+            example: Bearer
+        required:
+            - access_token
+            - refresh_token
+            - expires_in
+            - token_type
+    RegisterRequest:
+      type: object
+      description: Request payload for user registration.
+      properties:
+        firstname:
+          type: string
+          description: User's first name.
+          example: John
+        lastname:
+          type: string
+          description: User's last name.
+          example: Doe
+        email:
+          type: string
+          format: email
+          description: User's email address.
+          example: johndoe@email.com
+        password:
+          type: string
+          format: password
+          description: User's desired password.
+          example: securepassword123
+
+    RegisterResponse:
+      type: object
+      description: Response payload after successful user registration.
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: Unique identifier of the newly created user.
+          example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
+        message:
+          type: string
+          description: Confirmation message.
+          example: User registered successfully. Please verify your email to activate the account.
+
     UserResource:
       type: object
       description: Represents a user of the holiday rental licensing portal, typically sourced from a Keycloak identity provider.

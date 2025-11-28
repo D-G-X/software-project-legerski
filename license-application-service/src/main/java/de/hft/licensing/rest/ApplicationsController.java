@@ -3,38 +3,34 @@ package de.hft.licensing.rest;
 import de.hft.licensing.api.ApplicationsApi;
 import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseType;
-import de.hft.licensing.db.enums.PaymentStatus;
 import de.hft.licensing.db.tables.Application;
-import de.hft.licensing.db.tables.ApplicationPayment;
 import de.hft.licensing.db.tables.User;
-import de.hft.licensing.db.tables.records.ApplicationPaymentRecord;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
-import de.hft.licensing.model.*;
+import de.hft.licensing.model.ApplicationCreate;
+import de.hft.licensing.model.ApplicationResource;
+import de.hft.licensing.model.ApplicationStatusApiEnum;
+import de.hft.licensing.model.ApplicationUpdate;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
-import java.math.BigDecimal;
 import org.jooq.DSLContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-public class ApplicationController implements ApplicationsApi {
+public class ApplicationsController implements ApplicationsApi {
 
     private final DSLContext dsl;
 
-    public ApplicationController(DSLContext dsl) {
+    public ApplicationsController(DSLContext dsl) {
         this.dsl = dsl;
     }
 
@@ -79,31 +75,6 @@ public class ApplicationController implements ApplicationsApi {
         RecordToResourceMapperUtil.mapApplicationRecordToResource(dbRecord, apiResource);
 
         return ResponseEntity.created(URI.create("/applications/" + apiResource.getId())).body(apiResource);
-    }
-
-
-    @Override
-    public ResponseEntity<ApplicationPaymentResource> createPayment(Integer applicationId, ApplicationPaymentCreate applicationPaymentCreate) {
-        if (applicationId == null || applicationPaymentCreate.getApplicationId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        LocalDateTime now = LocalDateTime.now();
-        var dbPayment = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, new BigDecimal("99.99")) //TODO: add amount to model and DB
-                .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
-                .returning()
-                .fetchOneInto(ApplicationPaymentRecord.class);
-
-        if(dbPayment == null) {
-            return ResponseEntity.status(500).build();
-        }
-
-        ApplicationPaymentResource apiPayment = new ApplicationPaymentResource();
-        RecordToResourceMapperUtil.mapApplicationPaymentRecordToResource(dbPayment, apiPayment);
-
-        return ResponseEntity.created(URI.create("/applications/" + applicationId + "/payments/" + apiPayment.getId())).body(apiPayment);
     }
 
     @Override
@@ -189,36 +160,6 @@ public class ApplicationController implements ApplicationsApi {
         return ResponseEntity.ok(mappedResult);
     }
 
-    @Override
-    public ResponseEntity<List<ApplicationDocumentResource>> listDocuments(Integer applicationId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<List<ApplicationPaymentResource>> listPayments(Integer applicationId) {
-        if (applicationId == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        if(!dsl.fetchExists(
-                dsl.selectOne()
-                        .from(Application.APPLICATION)
-                        .where(Application.APPLICATION.ID.eq(applicationId))
-        )) {
-            return ResponseEntity.notFound().build();
-        }
-        var payments = dsl.select()
-                .from(ApplicationPayment.APPLICATION_PAYMENT)
-                .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(applicationId))
-                .fetchInto(ApplicationPaymentRecord.class);
-
-        List<ApplicationPaymentResource> mappedPayments = payments.stream().map(record -> {
-            ApplicationPaymentResource resource = new ApplicationPaymentResource();
-            RecordToResourceMapperUtil.mapApplicationPaymentRecordToResource(record, resource);
-            return resource;
-        }).toList();
-
-        return ResponseEntity.ok(mappedPayments);
-    }
 
     @Override
     public ResponseEntity<ApplicationResource> updateApplication(Integer applicationId, ApplicationUpdate applicationUpdate) {
@@ -244,14 +185,4 @@ public class ApplicationController implements ApplicationsApi {
         return ResponseEntity.notFound().build();
     }
 
-    @Override
-    public ResponseEntity<ApplicationDocumentResource> uploadDocument(Integer applicationId, MultipartFile file, String documentType) {
-        return null;
-    }
-
-    // TODO: Send Api call to Document Service to verify document
-    @Override
-    public ResponseEntity<ApplicationDocumentResource> verifyDocument(Integer applicationId, Integer documentId, VerifyDocumentRequest verifyDocumentRequest) {
-        return null;
-    }
 }
