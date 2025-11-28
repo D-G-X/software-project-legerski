@@ -1,53 +1,5 @@
 # DB CREDENTIALS - DO NOT CHANGE!!!
 services:
-  # NGINX LOAD BALANCER (NEW)
-  nginx:
-    build: ../nginx
-    container_name: nginx-load-balancer
-    ports:
-      - "80:80"
-    depends_on:
-      - backend1
-      - backend2
-    networks:
-      - app-network
-    restart: unless-stopped
-
-  # BACKEND INSTANCE 1 (NEW)
-  backend1:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: backend-instance-1
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/government
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=P4ssword!
-      - SERVER_PORT=8080
-    depends_on:
-      - postgres
-    networks:
-      - app-network
-    restart: unless-stopped
-
-  # BACKEND INSTANCE 2 (NEW)
-  backend2:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: backend-instance-2
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/government
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=P4ssword!
-      - SERVER_PORT=8080
-    depends_on:
-      - postgres
-    networks:
-      - app-network
-    restart: unless-stopped
-
-  # EXISTING SERVICES
   postgres:
     image: postgres:18.0
     environment:
@@ -58,7 +10,7 @@ services:
       - "5433:5432"
     volumes:
       - kc_db:/var/lib/postgresql
-    networks:
+    networks:      
       - app-network
 
   keycloak:
@@ -78,7 +30,7 @@ services:
       - postgres
     volumes:
       - ./keycloak/imports:/opt/keycloak/data/import
-    networks:
+    networks:      
       - app-network
 
   mock-bank:
@@ -88,8 +40,6 @@ services:
     container_name: mock-bank
     ports:
       - "8082:8080"
-    networks:
-      - app-network
     restart: unless-stopped
 
   mock-document-validator:
@@ -99,28 +49,21 @@ services:
     container_name: mock-document-validator
     ports:
       - "8083:8080"
-    networks:
-      - app-network
     restart: unless-stopped
 
-# NETWORKS
-networks:
-  app-network:
-    driver: bridge
-
-
-# VOLUMES
-volumes:
-  kc_db:
-# THE ACTUAL BACKENDS
+  # THE ACTUAL BACKENDS
   backend1:
-    image: license-application-service-backend  # Or build context if you build locally
+    image: license-application-service-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: backend-instance-1
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - DB_URL=jdbc:postgresql://postgres:5432/government
-      - DB_USER=postgres
-      - DB_PASSWORD=P4ssword!
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/government
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=P4ssword!
+      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
       - KEYCLOAK_AUTH-SERVER-URL=http://keycloak:8080
     depends_on:
       - postgres
@@ -129,13 +72,14 @@ volumes:
       - app-network
 
   backend2:
-    image: license-application-service-backend # Same image!
+    image: license-application-service-backend
     container_name: backend-instance-2
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - DB_URL=jdbc:postgresql://postgres:5432/government
-      - DB_USER=postgres
-      - DB_PASSWORD=P4ssword!
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/government
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=P4ssword!
+      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
       - KEYCLOAK_AUTH-SERVER-URL=http://keycloak:8080
     depends_on:
       - postgres
@@ -145,18 +89,23 @@ volumes:
 
   # THE LOAD BALANCER
   nginx:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: nginx:latest
     container_name: nginx-load-balancer
     ports:
-      - "80:80"
+      - "8090:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - backend1
       - backend2
     networks:
       - app-network
 
+# VOLUMES
+volumes:
+  kc_db:
+
+# NETWORKS\
 networks:
   app-network:
     driver: bridge
