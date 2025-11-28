@@ -123,7 +123,6 @@
       "required": "IBAN is required",
       "minLength": "IBAN must be at least 15 characters long",
       "maxLength": "IBAN must be less than 35 characters long",
-      "countryCode": "IBAN must start with a valid country code",
       "specialChar": "IBAN must not contain any special character",
       "invalid": "IBAN is invalid",
       "valid": "IBAN is valid"
@@ -131,13 +130,7 @@
     "bic": {
       "required": "BIC is required for non-domestic SEPA transactions",
       "length": "BIC must be exactly 8 or 11 characters long",
-      "countryCode": "BIC must contain a valid country code",
-      "specialChar": {
-        "general": "BIC must not contain any special character",
-        "pos6": "BIC must not contain the number '0' or '1' at position 6",
-        "pos7": "BIC must not contain the letter 'O' at position 7",
-        "pos8": "BIC must not contain the letter 'X' at position 8 if not followed by 'XX'"
-      },
+      "specialChar": "BIC must not contain any special character",
       "invalid": "BIC is invalid",
       "valid": "BIC is valid"
     },
