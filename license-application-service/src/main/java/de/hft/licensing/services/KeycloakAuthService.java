@@ -47,7 +47,7 @@ public class KeycloakAuthService {
         params.put("grant_type", "password");
         params.put("client_id", clientId);
         params.put("client_secret", clientSecret);
-        params.put("username", request.getUsername());
+        params.put("email", request.getEmail());
         params.put("password", request.getPassword());
 
         HttpHeaders headers = new HttpHeaders();
