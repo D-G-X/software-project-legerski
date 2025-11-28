@@ -41,6 +41,10 @@ var rejectionReasons = []string{
 
 const callbackURL = "http://host.docker.internal:8080/validation-callback" // backend callback endpoint
 
+var httpClient = &http.Client{
+	Timeout: timeout * time.Second,
+}
+
 // ProcessDocumentResponse Outgoing response (to client)
 type ProcessDocumentResponse struct {
 	ApplicationId   string  `json:"application_id"`
@@ -82,6 +86,8 @@ type RateInfo struct {
 var rateStore = make(map[string]*RateInfo)
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	http.HandleFunc("/process-document", startProcessingHandler)
 	http.HandleFunc("/process-document/status/", statusHandler)
 
@@ -93,6 +99,7 @@ func isPdf(data []byte) bool {
 	if len(data) < 4 {
 		return false
 	}
+	// check magic number
 	return bytes.HasPrefix(data, []byte("%PDF"))
 }
 
@@ -102,6 +109,7 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// limit total multipart size (here: 10 MB)
 	err := r.ParseMultipartForm(maxFileSize << 20)
 	if err != nil {
 		http.Error(w, "invalid multipart request", http.StatusBadRequest)
@@ -115,10 +123,8 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer func(idFile multipart.File) {
-		err := idFile.Close()
-		if err != nil {
-			sendErr(err, w)
-			return
+		if cerr := idFile.Close(); cerr != nil {
+			log.Printf("error closing idFile: %v", cerr)
 		}
 	}(idFile)
 
@@ -135,10 +141,8 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer func(proofFile multipart.File) {
-		err := proofFile.Close()
-		if err != nil {
-			sendErr(err, w)
-			return
+		if cerr := proofFile.Close(); cerr != nil {
+			log.Printf("error closing proofFile: %v", cerr)
 		}
 	}(proofFile)
 
@@ -153,7 +157,7 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		reject(w, "Missing application ID")
 		return
 	}
-	//TODO: validate application ID format?
+	// TODO: validate application ID format?
 
 	// validate pdf format
 	if !isPdf(idData) {
@@ -176,7 +180,8 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	mu.Unlock()
 
-	go runBackgroundJob(applicationId, verificationId, idHeader.Filename, proofHeader.Filename, w)
+	// Hintergrundjob OHNE ResponseWriter starten
+	go runBackgroundJob(applicationId, verificationId, idHeader.Filename, proofHeader.Filename)
 
 	resp := ProcessDocumentResponse{
 		ApplicationId:  applicationId,
@@ -185,20 +190,23 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(resp)
-	if err != nil {
-		sendErr(err, w)
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("error encoding response: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 }
 
-func runBackgroundJob(applicationId, verificationId, idFile, proofFile string, w http.ResponseWriter) {
+func runBackgroundJob(applicationId, verificationId, idFile, proofFile string) {
 	// simulate processing duration
 	time.Sleep(processDuration[rand.Intn(len(processDuration))])
 
-	mu.Lock()
 	status := getRandomStatus()
 
+	var rejectionReason *string
+
+	mu.Lock()
+	// update job status
 	jobStore[verificationId] = JobInfo{
 		ApplicationId:    applicationId,
 		IdFilename:       idFile,
@@ -207,53 +215,61 @@ func runBackgroundJob(applicationId, verificationId, idFile, proofFile string, w
 	}
 
 	if status == "REJECTED" {
-		reasonStore[verificationId] = rejectionReasons[rand.Intn(len(rejectionReasons))]
+		reason := rejectionReasons[rand.Intn(len(rejectionReasons))]
+		reasonStore[verificationId] = reason
+		// copy for callback payload
+		reasonCopy := reason
+		rejectionReason = &reasonCopy
 	}
 	mu.Unlock()
 
-	sendCallback(CallbackPayload{
+	payload := CallbackPayload{
 		ApplicationId:    applicationId,
 		VerificationId:   verificationId,
 		IdFilename:       idFile,
 		PropertyFilename: proofFile,
 		Status:           status,
-		RejectionReason: func() *string {
-			if status == "REJECTED" {
-				r := reasonStore[verificationId]
-				return &r
-			}
-			return nil
-		}(),
-	}, w)
+		RejectionReason:  rejectionReason,
+	}
+
+	if err := sendCallback(payload); err != nil {
+		log.Printf("callback error for verification_id=%s: %v", verificationId, err)
+	}
 }
 
-func sendCallback(p CallbackPayload, w http.ResponseWriter) {
-	body, _ := json.Marshal(p)
-
-	req, err := http.NewRequest("POST", callbackURL, strings.NewReader(string(body)))
+func sendCallback(p CallbackPayload) error {
+	body, err := json.Marshal(p)
 	if err != nil {
-		sendErr(err, w)
+		return fmt.Errorf("marshal callback payload: %w", err)
+	}
 
-		return
+	req, err := http.NewRequest(http.MethodPost, callbackURL, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("create callback request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{Timeout: timeout * time.Second}
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
-		sendErr(err, w)
-		return
+		return fmt.Errorf("execute callback request: %w", err)
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			sendErr(err, w)
+		if cerr := Body.Close(); cerr != nil {
+			log.Printf("error closing callback response body: %v", cerr)
 		}
 	}(resp.Body)
+
+	if resp.StatusCode >= 400 {
+		b, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("callback returned status %s: %s", resp.Status, string(b))
+	}
+
+	return nil
 }
 
 func sendErr(err error, w http.ResponseWriter) {
+	log.Printf("internal error: %v", err)
 	http.Error(w, "internal server error: "+err.Error(), http.StatusInternalServerError)
 }
 
@@ -267,23 +283,38 @@ func reject(w http.ResponseWriter, msg string) {
 		RejectionReason: &msg,
 	}
 
-	err := json.NewEncoder(w).Encode(resp)
-	if err != nil {
-		sendErr(err, w)
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("error encoding rejection response: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 }
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "only GET allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	base := "/process-document/status/"
 	if !strings.HasPrefix(r.URL.Path, base) {
 		http.NotFound(w, r)
 		return
 	}
-	verificationId := r.URL.Path[len(base):]
+
+	verificationId := strings.TrimPrefix(r.URL.Path, base)
+	if verificationId == "" {
+		http.Error(w, "missing verification ID", http.StatusBadRequest)
+		return
+	}
 
 	mu.Lock()
 	job, exists := jobStore[verificationId]
+	var reasonPtr *string
+	if reason, ok := reasonStore[verificationId]; ok && reason != "" {
+		rCopy := reason
+		reasonPtr = &rCopy
+	}
 	mu.Unlock()
 
 	if !exists {
@@ -296,13 +327,6 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reasonPtr *string
-	mu.Lock()
-	if reason, ok := reasonStore[verificationId]; ok && reason != "" {
-		reasonPtr = &reason
-	}
-	mu.Unlock()
-
 	resp := ProcessDocumentResponse{
 		VerificationId:  verificationId,
 		ApplicationId:   job.ApplicationId,
@@ -311,20 +335,18 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(resp)
-	if err != nil {
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		sendErr(err, w)
 		return
 	}
-	//_ = json.NewEncoder(w).Encode(resp)
 }
 
 func checkRateLimit(applicationId string) bool {
 	mu.Lock()
 	defer mu.Unlock()
 
-	ri, exists := rateStore[applicationId]
 	now := time.Now()
+	ri, exists := rateStore[applicationId]
 
 	if !exists || now.After(ri.ResetTime) {
 		rateStore[applicationId] = &RateInfo{
