@@ -7,6 +7,9 @@ stages:
   - test
   - security
 
+variables:
+  GIT_DEPTH: 1  
+
 # FRONTEND BUILD & TEST
 
 build-frontend:
@@ -49,7 +52,7 @@ test-frontend:
       - license-application-service/.npm/
       - license-application-service/node_modules/
 
-# BACKEND BUILD & TEST (with jOOQ skipped)
+# BACKEND BUILD & TEST 
 
 build-backend:
   stage: build
