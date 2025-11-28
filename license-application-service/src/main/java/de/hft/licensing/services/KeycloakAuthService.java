@@ -12,10 +12,13 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class KeycloakAuthService {
@@ -47,17 +50,17 @@ public class KeycloakAuthService {
         params.put("grant_type", "password");
         params.put("client_id", clientId);
         params.put("client_secret", clientSecret);
-        params.put("email", request.getEmail());
+        params.put("username", request.getEmail());
         params.put("password", request.getPassword());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        StringBuilder body = new StringBuilder();
-        params.forEach((k, v) -> body.append(k).append("=").append(v).append("&"));
-        body.setLength(body.length() - 1);
+        String body = params.entrySet().stream()
+                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
 
-        HttpEntity<String> entity = new HttpEntity<>(body.toString(), headers);
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
         ResponseEntity<LoginResource> response =
                 restTemplate.exchange(url, HttpMethod.POST, entity, LoginResource.class);
