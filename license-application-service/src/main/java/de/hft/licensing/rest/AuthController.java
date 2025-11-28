@@ -7,11 +7,13 @@ import de.hft.licensing.model.RegisterRequest;
 import de.hft.licensing.model.RegisterResource;
 import de.hft.licensing.services.KeycloakAuthService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class AuthController implements AuthenticationApi {
 
     private final KeycloakAuthService authService;
