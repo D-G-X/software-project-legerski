@@ -86,7 +86,7 @@ type RateInfo struct {
 var rateStore = make(map[string]*RateInfo)
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	http.HandleFunc("/process-document", startProcessingHandler)
 	http.HandleFunc("/process-document/status/", statusHandler)
