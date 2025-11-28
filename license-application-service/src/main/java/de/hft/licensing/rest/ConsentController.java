@@ -1,6 +1,6 @@
 package de.hft.licensing.rest;
 
-import de.hft.licensing.api.ConsentsApi;
+import de.hft.licensing.api.ConsentApi;
 import de.hft.licensing.model.CheckConsentForUser200Response;
 import de.hft.licensing.model.CheckConsentForUserRequest;
 import de.hft.licensing.model.ConsentCreate;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-public class ConsentController implements ConsentsApi {
+public class ConsentController implements ConsentApi {
 
     private final DSLContext dsl;
 
