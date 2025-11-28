@@ -10,7 +10,7 @@ services:
       - "5433:5432"
     volumes:
       - kc_db:/var/lib/postgresql
-    networks:      
+    networks:
       - app-network
 
   keycloak:
@@ -30,7 +30,7 @@ services:
       - postgres
     volumes:
       - ./keycloak/imports:/opt/keycloak/data/import
-    networks:      
+    networks:
       - app-network
 
   mock-bank:
@@ -73,6 +73,7 @@ services:
 
   backend2:
     image: license-application-service-backend
+    # NO BUILD SECTION HERE (Fixes race condition)
     container_name: backend-instance-2
     environment:
       - SPRING_PROFILES_ACTIVE=docker
@@ -92,7 +93,7 @@ services:
     image: nginx:latest
     container_name: nginx-load-balancer
     ports:
-      - "8090:80"
+      - "8090:80"  # Frontend-safe port
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
@@ -105,7 +106,7 @@ services:
 volumes:
   kc_db:
 
-# NETWORKS\
+# NETWORKS
 networks:
   app-network:
     driver: bridge
