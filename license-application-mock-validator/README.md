@@ -15,33 +15,60 @@
 
 ### Usage
 
+#### Client call to the mock document validator service
+
 The mock document validator service listens on port `8083` and exposes the following endpoint:
 
-- `POST /process-document`: Simulates processing a payment. Expects a JSON payload with the following structure:
+- `POST /process-document`: Simulates processing a document validation. Expects a JSON payload with the following structure:
 
 ```json
 {
-    "id_filename": "string", // only "pdf"
-    "proof_filename": "string", // only "pdf"
-    "uploaded_at": "string"
+    "application_id": "string",
+    "id_filename": "application/pdf",
+    "proof_filename": "application/pdf"
 }
 ```
 
-The service responds with a JSON object indicating the initial state of the payment processing (PENDING):
+The service responds with a JSON object indicating the initial state of the validation processing (PENDING):
 
 ```json
 {
-    "status": "string", // only "VERIFIED", "PENDING" or "REJECTED"
+    "application_id": "string",
     "verification_id": "string",
-    "rejection_reason": "string" // only present if status is "REJECTED"
+    "status": "string" // only "PENDING"
 }
 ```
 
 The status of the document verification can be retrieved using the `verification_id` through the `/process-document/status/{verification_id}` endpoint.
 
-The response will be similar to the one above, but the status will eventually change to "VERIFIED" or "REJECTED" after a short delay.
+The response will be similar to the one above, but the status will eventually change to "VERIFIED" or "REJECTED" after a short delay:
 
-Rejection probability and delay can be configured in `document-validator.go`.
+
+```json
+{
+    "application_id": "string",
+    "verification_id": "string",
+    "status": "string", // only "VERIFIED", "PENDING" or "REJECTED"
+    "rejection_reason": "*string" // only present if status is "REJECTED"
+}
+```
+
+#### Callback to the License Application Service
+
+The mock document validator service also performs a callback to the License Application Service once the document verification is complete. The callback is sent to the `/validation-callback` endpoint of the License Application Service.
+
+The callback payload has the following structure:
+
+```json
+{
+    "application_id": "string",
+    "verification_id": "string",
+    "status": "string", // only "VERIFIED" or "REJECTED"
+    "rejection_reason": "*string" // only present if status is "REJECTED"
+}
+```
+
+Rejection probability, delay and max file size (per file) can be configured in `document-validator.go`.
 
 ### Testing the Service
 
@@ -51,17 +78,18 @@ Here’s an example `curl` command:
 
 ```bash
 curl -X POST http://localhost:8083/process-document \
+  -F "application_id=123" \
   -F "id_file=@./sample.pdf" \
-  -F "proof_file=@./sample.pdf" \
-  -F "uploaded_at=2025-05-22T10:00:00Z"
+  -F "proof_file=@./sample.pdf"
 ```
 
 This should return a response similar to:
 
 ```json
 {
-    "status": "PENDING",
-    "verification_id": "DOC-1764173117-648016"
+    "application_id": "123",
+    "verification_id": "DOC-1764173117-648016",
+    "status": "PENDING"
 }
 ```
 
@@ -70,14 +98,17 @@ You can then check the status of the document verification using the `verificati
 ```bash
 curl http://localhost:8083/process-document/status/{YOUR_VERIFICATION_ID}
 ```
+
 > Replace `{YOUR_VERIFICATION_ID}` with the actual `verification_id` received from the previous response.
+> Rate limiting may apply to this endpoint.
 
 This should return a response similar to:
 
 ```json
 {
-    "status": "VERIFIED",
-    "verification_id": "DOC-1764173117-648016"
+    "application_id": "123",
+    "verification_id": "DOC-1764173117-648016",
+    "status": "VERIFIED"
 }
 ```
 
@@ -85,8 +116,30 @@ or, if the document was rejected:
 
 ```json
 {
-    "status": "REJECTED",
+    "application_id": "123",
     "verification_id": "DOC-1764173117-648016",
+    "status": "REJECTED",
+    "rejection_reason": "Document is corrupted or unreadable"
+}
+```
+
+the callback will also be sent to the License Application Service at this point with the following payload:
+
+```json
+{
+    "application_id": "123",
+    "verification_id": "DOC-1764173117-648016",
+    "status": "VERIFIED"
+}
+```
+
+or, if the document was rejected:
+
+```json
+{
+    "application_id": "123",
+    "verification_id": "DOC-1764173117-648016",
+    "status": "REJECTED",
     "rejection_reason": "Document is corrupted or unreadable"
 }
 ```

@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-public class UserController implements UsersApi {
+public class UsersController implements UsersApi {
 
     private final DSLContext dsl;
 
-    public UserController(DSLContext dsl) {
+    public UsersController(DSLContext dsl) {
         this.dsl = dsl;
     }
 
