@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,21 +10,55 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
 const successProbability = 99 // percentage chance of SUCCESS status
-// min/max processing duration
+
+const callbackURL = "http://host.docker.internal:8080/payment-callback" // <— Ziel für deinen Backend Callback
+
 var processDuration = []time.Duration{
 	5 * time.Millisecond,
 	30 * time.Millisecond,
+}
+
+var rejectionReasons = []string{
+	"Insufficient funds",
+	"Account closed",
+	"Invalid account details",
+	"Suspected fraud",
+	"Payment exceeds limit",
+	"Beneficiary account frozen",
+	"Technical error processing payment",
 }
 
 var nameRegex = regexp.MustCompile(`^[\p{L}\p{M}'’\-–]+(?: [\p{L}\p{M}'’\-–]+)*$`)
 var ibanRegex = regexp.MustCompile(`^[A-Z]{2}[0-9A-Z]{13,33}$`)
 var bicRegex = regexp.MustCompile(`^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$`)
 
-// PaymentRequest Incoming payload
+// pollLimiter to limit polling frequency per application id
+var pollLimiter = struct {
+	sync.Mutex
+	last map[string]time.Time
+}{last: make(map[string]time.Time)}
+
+func allowPoll(appId string, interval time.Duration) bool {
+	pollLimiter.Lock()
+	defer pollLimiter.Unlock()
+
+	now := time.Now()
+	last, exists := pollLimiter.last[appId]
+
+	if exists && now.Sub(last) < interval {
+		return false
+	}
+
+	pollLimiter.last[appId] = now
+	return true
+}
+
+// PaymentRequest Incoming payment request
 type PaymentRequest struct {
 	ApplicationId string  `json:"application_id"`
 	Amount        float64 `json:"amount"`
@@ -32,19 +67,31 @@ type PaymentRequest struct {
 	BIC           *string `json:"bic"` // optional for Spanish IBANs
 }
 
-// PaymentResponse Outgoing response
+// PaymentResponse Outgoing payment response
 type PaymentResponse struct {
-	ApplicationId string `json:"application_id"`
-	PaymentId     string `json:"payment_id"`
-	Status        string `json:"status"`
+	ApplicationId   string  `json:"application_id"`
+	PaymentId       string  `json:"payment_id"`
+	Status          string  `json:"status"`
+	RejectionReason *string `json:"rejection_reason,omitempty"`
+}
+
+// PaymentCallback Outgoing callback payload
+type PaymentCallback struct {
+	ApplicationId   string  `json:"application_id"`
+	PaymentId       string  `json:"payment_id"`
+	Status          string  `json:"status"`
+	RejectionReason *string `json:"rejection_reason,omitempty"`
 }
 
 func main() {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+
 	http.HandleFunc("/process-payment", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "only POST allowed", http.StatusMethodNotAllowed)
 			return
 		}
+
 		// simulate processing time
 		time.Sleep(processDuration[rand.Intn(len(processDuration))])
 
@@ -53,13 +100,12 @@ func main() {
 			http.Error(w, "invalid JSON", http.StatusBadRequest)
 			return
 		}
-		defer func(Body io.ReadCloser) {
-			err := Body.Close()
-			if err != nil {
-				http.Error(w, "internal error", http.StatusInternalServerError)
-				return
-			}
-		}(r.Body)
+		_ = r.Body.Close()
+
+		if !allowPoll(req.ApplicationId, time.Millisecond) {
+			http.Error(w, "rate limit exceeded for: "+req.ApplicationId, http.StatusTooManyRequests)
+			return
+		}
 
 		if req.ApplicationId == "" {
 			http.Error(w, "application_id required", http.StatusBadRequest)
@@ -75,31 +121,86 @@ func main() {
 			http.Error(w, "name format invalid", http.StatusBadRequest)
 			return
 		}
+
 		if !ibanValid(req.IBAN, w) {
 			http.Error(w, "IBAN format invalid", http.StatusBadRequest)
 			return
 		}
+
 		if !bicValid(req.BIC, req.IBAN, w) {
 			http.Error(w, "BIC format invalid", http.StatusBadRequest)
 			return
 		}
 
-		resp := PaymentResponse{
-			ApplicationId: req.ApplicationId,
-			PaymentId:     generatePaymentId(),
-			Status:        getRandomStatus(),
+		paymentId := generatePaymentId()
+		status := getRandomStatus()
+
+		var rejectionReason *string
+		if status == "REJECTED" {
+			reason := rejectionReasons[rand.Intn(len(rejectionReasons))]
+			rejectionReason = &reason
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		err := json.NewEncoder(w).Encode(resp)
-		if err != nil {
-			http.Error(w, "internal error", http.StatusInternalServerError)
-			return
+		resp := PaymentResponse{
+			ApplicationId:   req.ApplicationId,
+			PaymentId:       paymentId,
+			Status:          status,
+			RejectionReason: rejectionReason,
 		}
+
+		// Return immediate response
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(resp)
+
+		// Fire callback async
+		go sendCallbackAsync(req.ApplicationId, paymentId, status, w)
 	})
 
 	log.Println("Mock bank service running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func sendCallbackAsync(appId, paymentId, status string, w http.ResponseWriter) {
+	// simulate callback delay (mock bank doing work)
+	time.Sleep(time.Duration(200+rand.Intn(500)) * time.Millisecond)
+
+	cb := PaymentCallback{
+		ApplicationId: appId,
+		PaymentId:     paymentId,
+		Status:        status,
+	}
+
+	body, err := json.Marshal(cb)
+	if err != nil {
+		log.Println("callback marshal error:", err)
+		return
+	}
+
+	req, err := http.NewRequest("POST", callbackURL, bytes.NewBuffer(body))
+	if err != nil {
+		log.Println("callback request error:", err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println("callback send error:", err)
+		return
+	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+		}
+	}(resp.Body)
+
+	if resp.StatusCode >= 300 {
+		respBody, _ := io.ReadAll(resp.Body)
+		log.Printf("callback returned %d: %s\n", resp.StatusCode, string(respBody))
+	}
 }
 
 func amountValid(amount float64, w http.ResponseWriter) bool {
@@ -144,17 +245,16 @@ func ibanValid(iban string, w http.ResponseWriter) bool {
 }
 
 func bicValid(bicPtr *string, iban string, w http.ResponseWriter) bool {
-	// BIC optional for Spanish IBAN (starts with "ES")
 	iban = strings.ToUpper(strings.ReplaceAll(iban, " ", ""))
 	bic := ""
 	if bicPtr != nil {
-		if cleaned := strings.ToUpper(strings.ReplaceAll(*bicPtr, " ", "")); cleaned != "" {
+		cleaned := strings.ToUpper(strings.ReplaceAll(*bicPtr, " ", ""))
+		if cleaned != "" {
 			bic = cleaned
 		}
 	}
 
 	if strings.HasPrefix(iban, "ES") {
-		// allowed only for Spanish IBANs
 		return true
 	}
 
