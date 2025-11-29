@@ -1,18 +1,33 @@
 package de.hft.licensing.services;
 
-import de.hft.licensing.utils.auth.LoginRequest;
-import de.hft.licensing.utils.auth.LoginRessource;
-import de.hft.licensing.utils.auth.RegisterRessource;
+import de.hft.licensing.db.tables.User;
+import de.hft.licensing.model.LoginRequest;
+import de.hft.licensing.model.LoginResource;
+import de.hft.licensing.model.RegisterRequest;
+import de.hft.licensing.model.RegisterResource;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class KeycloakAuthService {
+
+    private final DSLContext dsl;
+
+    public KeycloakAuthService(DSLContext dsl) {
+        this.dsl = dsl;
+    }
 
     @Value("${keycloak.realm}")
     private String realm;
@@ -28,7 +43,7 @@ public class KeycloakAuthService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public LoginRessource login(LoginRequest request) {
+    public LoginResource login(LoginRequest request) {
         String url = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 
         Map<String, String> params = new LinkedHashMap<>();
@@ -41,26 +56,26 @@ public class KeycloakAuthService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        StringBuilder body = new StringBuilder();
-        params.forEach((k, v) -> body.append(k).append("=").append(v).append("&"));
-        body.setLength(body.length() - 1);
+        String body = params.entrySet().stream()
+                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
 
-        HttpEntity<String> entity = new HttpEntity<>(body.toString(), headers);
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<LoginRessource> response =
-                restTemplate.exchange(url, HttpMethod.POST, entity, LoginRessource.class);
+        ResponseEntity<LoginResource> response =
+                restTemplate.exchange(url, HttpMethod.POST, entity, LoginResource.class);
 
         return response.getBody();
     }
 
-    public RegisterRessource register(de.hft.licensing.utils.auth.RegisterRequest request) {
+    public RegisterResource register(RegisterRequest request) {
         String url = keycloakUrl + "/admin/realms/" + realm + "/users";
 
         Map<String, Object> user = new LinkedHashMap<>();
-        user.put("username", request.getUsername());
         user.put("email", request.getEmail());
-        user.put("firstName", request.getFirstName());
-        user.put("lastName", request.getLastName());
+        user.put("username", request.getFirstname() + request.getLastname() + request.getEmail());
+        user.put("firstName", request.getFirstname());
+        user.put("lastName", request.getLastname());
         user.put("enabled", true);
         user.put("emailVerified", false);
 
@@ -84,15 +99,34 @@ public class KeycloakAuthService {
         ResponseEntity<String> response =
                 restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
 
-        String newUserId = extractUserIdFromLocationHeader(response);
+        UUID newUserUUID = extractUserUUIdFromLocationHeader(response);
 
-        return new RegisterRessource(newUserId);
+        RegisterResource registerResource = new RegisterResource();
+        try {
+            assert newUserUUID != null;
+            int inserted = dsl.insertInto(User.USER)
+                    .set(User.USER.ID, newUserUUID.toString())
+                    .execute();
+            if (inserted == 0){
+                System.out.println("[WARNING] - Failed to insert user with ID " + newUserUUID + " into the local database.");
+                registerResource.setUserId(null);
+                registerResource.setMessage("Failed to register user");
+            } else {
+                registerResource.setUserId(newUserUUID);
+                registerResource.setMessage("User registered successfully");
+            }
+        } catch (DataIntegrityViolationException e) {
+            System.out.println("[ERROR] - User with ID " + newUserUUID + " already exists in the local database.");
+            registerResource.setUserId(null);
+            registerResource.setMessage("User already exists");
+        }
+        return registerResource;
     }
 
-    private String extractUserIdFromLocationHeader(ResponseEntity<String> response) {
-        String location = response.getHeaders().get("Location").getFirst();
+    private UUID extractUserUUIdFromLocationHeader(ResponseEntity<String> response) {
+        String location = Objects.requireNonNull(response.getHeaders().get("Location")).getFirst();
         if (location != null && location.contains("/users/")) {
-            return location.substring(location.lastIndexOf("/") + 1);
+            return UUID.fromString(location.substring(location.lastIndexOf("/") + 1));
         }
         return null;
     }
@@ -118,7 +152,7 @@ public class KeycloakAuthService {
         ResponseEntity<Map> response =
                 restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
 
-        Map<String, Object> responseBody = response.getBody();
+        Map responseBody = response.getBody();
         return responseBody != null ? (String) responseBody.get("access_token") : null;
     }
 }

@@ -182,6 +182,7 @@
                                 <interfaceOnly>true</interfaceOnly>
                                 <skipDefaultInterface>true</skipDefaultInterface>
                                 <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <useTags>true</useTags>
                             </configOptions>
                         </configuration>
                     </execution>

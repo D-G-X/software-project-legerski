@@ -1,28 +1,40 @@
 package de.hft.licensing.rest;
 
+import de.hft.licensing.api.AuthenticationApi;
+import de.hft.licensing.model.LoginRequest;
+import de.hft.licensing.model.LoginResource;
+import de.hft.licensing.model.RegisterRequest;
+import de.hft.licensing.model.RegisterResource;
 import de.hft.licensing.services.KeycloakAuthService;
-import de.hft.licensing.utils.auth.LoginRequest;
-import de.hft.licensing.utils.auth.LoginRessource;
-import de.hft.licensing.utils.auth.RegisterRequest;
-import de.hft.licensing.utils.auth.RegisterRessource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
 
 @RestController
-@RequestMapping("/auth")
 @CrossOrigin(origins = "*")
-public class AuthController {
+public class AuthController implements AuthenticationApi {
 
-    @Autowired
-    private KeycloakAuthService authService;
+    private final KeycloakAuthService authService;
 
-    @PostMapping("/login")
-    public LoginRessource login(@RequestBody LoginRequest request) {
-        return authService.login(request);
+    public AuthController(KeycloakAuthService authService) {
+        this.authService = authService;
     }
 
-    @PostMapping("/register")
-    public RegisterRessource register(@RequestBody RegisterRequest request) {
-        return authService.register(request);
+    @Override
+    public ResponseEntity<LoginResource> loginUser(LoginRequest loginRequest) {
+        return ResponseEntity.ok().body(authService.login(loginRequest));
+    }
+
+    @Override
+    public ResponseEntity<RegisterResource> registerUser(RegisterRequest registerRequest) {
+        RegisterResource registerResource = authService.register(registerRequest);
+        if(registerResource == null) {
+            return ResponseEntity.status(409).build();
+        } else if (registerResource.getUserId() == null) {
+            return ResponseEntity.badRequest().body(registerResource);
+        }
+        return ResponseEntity.created(URI.create("/auth/register/" + registerResource.getUserId())).build();
     }
 }
