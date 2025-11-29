@@ -28,8 +28,7 @@ type Props = {
 
 export default function PaymentConfirm() {
   const {applicationId} = useParams();  // TODO: get the actual application ID from submit (application form) or GET request
-  const amount = 9999.99; // TODO: get the actual amount to be paid from GET request
-  console.log("Application ID:", applicationId);
+  const amount = 123.45; // TODO: get the actual amount to be paid from submit (application form) or GET request
 
   const {t} = useTranslation();
   const navigate = useNavigate()
@@ -178,38 +177,34 @@ export default function PaymentConfirm() {
         data: {...postData}
       });
 
-      const last = response.data[];
-
-      if /*(!Array.isArray(response) || response.length === 0)*/( last === null ) { // TODO: fix response is an array in orval config
+      if (!response || typeof response !== "object") {
         console.error("Payment API returned empty or invalid response:", response);
         throw new Error("Empty response");
       }
 
       console.log("Payment API response:", response);
 
-      const fieldsToMatch = ["application_id", "name", "iban", "bic"]
-      // TODO: fix response is an array in orval config
-      const responseMatchesPost = postData===last/*fieldsToMatch.every(
-          (key) => postData[key] === last[key]
-      )*/;
+      function isEqualData(a: Record<string, any>, b: Record<string, any>) {
+        return Object.keys(a).every(key => a[key] === b[key]);
+      }
 
-      if(!responseMatchesPost){
+      if(!isEqualData(postData, response.data)){
         console.error("Payment API response does not match submitted data:", {
           submitted: postData,
-          received: last
+          received: response.data
         });
         throw new Error("Response data mismatch");
       }
 
       const stateData: Props = {
         ...postData,
-        payment_id: last.id,
-        amount: amount, // TODO: get the actual amount from response if available
-        payment_date: last.payment_date,
-        payment_status: last.payment_status,
+        payment_id: response.data.id,
+        amount: response.data.amount,
+        payment_date: response.data.payment_date,
+        payment_status: response.data.payment_status,
       }
 
-      navigate(`/payment/${applicationId}/done`, {
+      navigate(`/applications/${applicationId}/payments/done`, {
         state: stateData, // pass API result to the next page
       });
     } catch (error: any) {
@@ -332,19 +327,19 @@ export default function PaymentConfirm() {
                       )}
                     </label>
                     {errors.bic && (
-                        <div className="text-red-500 mt-1 pl-4 text-xs">
+                        <div className="text-red-500 my-1 pl-4 text-xs">
                           {errors.bic}
                         </div>
                     )}
                   </div>
 
                   {/* SEPA Mandate Check Field */}
-                  <div className="relative my-4 pt-2">
+                  <div className="relative mt-4 pt-2">
                     <div className="flex items-center gap-4">
                       {/* Label incl. Button */}
                       <label
                           htmlFor="sepaMandateChecked"
-                          className="text-mallorca-purple/70 text-lg"
+                          className="px-3 text-mallorca-purple/70 text-lg"
                       >
                         {t("paymentForm.index.acceptSepaMandateLabel.plain")}
 
@@ -401,14 +396,14 @@ export default function PaymentConfirm() {
                   />
                 </div>
 
-                <div className="my-2">
+                <div>
                   {errors.pay && (
-                      <div className="text-red-500 mt-2 pl-4">{errors.pay}</div>
+                      <div className="text-red-500 my-2 pl-4">{errors.pay}</div>
                   )}
                   <button
                       type="submit"
                       onClick={handleSubmit}
-                      className={`mt-4
+                      className={`mt-8
                 ${errors.pay
                           ? "bg-mallorca-purple/75"
                           : "bg-mallorca-purple"
@@ -420,6 +415,7 @@ export default function PaymentConfirm() {
               </div>
               :
               <div className="font-inter text-center">
+                {/* Loading Screen */}
                 <div
                     className="w-16 h-16 border-6 border-gray-200 border-t-mallorca-purple rounded-full animate-spin mx-auto"/>
                 <p className="mt-6 font-light text-xl text-gray-600 relative inline-block">{t("paymentForm.processing")}

@@ -3,38 +3,37 @@ import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
 import "./paymentConfirm.css";
-import {CircleCheck, CircleX, EyeClosed, Mail, MailCheck} from "lucide-react";
+import {CircleCheck, CircleX} from "lucide-react";
 import {useLocation, useNavigate} from "react-router";
 
 
 type Props = {
-    application_id: number;
-    amount: number;
-    name: string;
-    iban: string;
-    bic?: string;
-    payment_date: string;
-    payment_status: string;
+  payment_id: number;
+  application_id: number;
+  amount: number;
+  name: string;
+  iban: string;
+  bic: string;
+  payment_date: string;
+  payment_status: string;
 };
 
 
 export default function PaymentConfirm() {
   const {t} = useTranslation();
   const navigate = useNavigate();
-  const { state } = useLocation()
+  const {state} = useLocation()
   const data: Props = state
   useDocumentTitle(t("paymentConfirm.title"));
 
   useEffect(() => {
     if (!state || Object.keys(state).length === 0) {
-      navigate("/error", { replace: true });
+      navigate("/error", {replace: true});
     }
   }, [state, navigate]);
 
   if (!state) return null;
 
-  let paymentId = "XXXXXXXXXXX" // TODO: This would be fetched from BE response
-  let email = "peter.heusch@hft-stuttgart.de"; // TODO: This would be fetched from user table/session
   const [success] = useState(true); // TODO: This would be determined by actual payment status
 
   const formatAmount = (amount: number): string => {
@@ -48,7 +47,7 @@ export default function PaymentConfirm() {
 
   // IBAN format: max 34 characters in groups of 4 separated by spaces (no manual input of spaces)
   const formatIban = (raw: string): string => {
-    if(!raw) return "";
+    if (!raw) return "";
     const visibleLength = 4;
     const clean = raw.replace(/\s+/g, "").toUpperCase()
     const visible = clean.slice(-visibleLength);
@@ -59,7 +58,7 @@ export default function PaymentConfirm() {
   };
   // BIC format: max 11 characters no manual input of spaces
   const formatBic = (raw: string): string => {
-    if(!raw) return "";
+    if (!raw) return "";
     const visibleLength = 4;
     const clean = raw.replace(/\s+/g, "").toUpperCase()
     const visible = clean.slice(0, visibleLength);
@@ -76,18 +75,8 @@ export default function PaymentConfirm() {
     second: "2-digit",
   });
 
-  const [sent, setSent] = useState(false);
-
-  const onClick = () => {
-    setSent(true);
-    handleMail();
-  };
-  function handleMail() {
-    alert(t("API not implemented yet!", {email: email}));
-  }
-
   const handleSubmit = () => {
-    navigate(`/dashboard/${data.application_id}`);
+    navigate(`/applications/${data.application_id}`);
   }
 
   return (
@@ -118,7 +107,7 @@ export default function PaymentConfirm() {
                 }
             />
             {/* 3. Response fields */}
-            <div className="bg-gray-50 rounded-lg p-6 mt-12 shadow">
+            <div className="bg-gray-50 rounded-lg p-6 mt-8 shadow">
               <div className="flex justify-between text-xl font-semibold">
                 <span className="">{t("paymentConfirm.index.amountLabel") + ": "}</span>
                 <div className="flex flex-col items-end leading-tight">
@@ -162,7 +151,7 @@ export default function PaymentConfirm() {
                 <div className="flex justify-between">
                   <span
                       className="font-semibold">{t("paymentConfirm.index.paymentIdLabel") + ": "}</span>
-                  <span>{paymentId}</span>
+                  <span>{data.payment_id}</span>
                 </div>
 
                 <div className="flex justify-between">
@@ -174,42 +163,8 @@ export default function PaymentConfirm() {
               </div>
             </div>
           </div>
-          {
-              success &&
-              <button
-                  onClick={onClick}
-                  disabled={sent}
-                  className={`group mt-6 border border-mallorca-purple text-mallorca-purple px-10 py-2 rounded-md w-96 font-medium bg-white flex flex-col items-center gap-1 transition-all
-        ${sent ? "opacity-60 cursor-default" : "hover:bg-gray-100"}`}
-              >
-
-                {/* Default (no hover) */}
-                {!sent && (
-                    <span className="flex items-center gap-2 group-hover:hidden">
-          {t("paymentConfirm.index.sendReceiptLabel")}
-                      <EyeClosed className="w-5 h-5"/>
-        </span>
-                )}
-
-                {/* HOVER MODE */}
-                {!sent && (
-                    <div className="hidden group-hover:flex items-center gap-2">
-                      <Mail className="w-5 h-5" />
-                      <span className="font-normal">{email}</span>
-                    </div>
-                )}
-
-                {/* SENT STATE */}
-                {sent && (
-                    <div className="flex items-center gap-2">
-                      <MailCheck className="w-5 h-5" />
-                      <span>{t("paymentConfirm.index.receiptSentLabel") || "Send"}</span>
-                    </div>
-                )}
-
-              </button>
-          }
-          <div className="mt-6">
+          { /* Leave Button */}
+          <div className="mt-8">
             <button
                 // type="submit"
                 onClick={handleSubmit}
