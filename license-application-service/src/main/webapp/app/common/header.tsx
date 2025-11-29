@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
-// import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageInfo } from "./utils";
-import { Menu, Users } from "lucide-react";
+import { Menu } from "lucide-react";
 
 export default function Header() {
   const { t, i18n } = useTranslation();
@@ -72,37 +71,6 @@ export default function Header() {
       document.removeEventListener("mousedown", handleClickOutside); // Clean up the event listener
     };
   }, []);
-
-  // const headerRef = useRef<HTMLElement | null>(null);
-
-  // const handleClick = (event: Event) => {
-  //   // close any open dropdown
-  //   const $clickedDropdown = (event.target as HTMLElement).closest(
-  //     ".js-dropdown"
-  //   );
-  //   const $dropdowns = headerRef.current!.querySelectorAll(".js-dropdown");
-  //   $dropdowns.forEach(($dropdown: Element) => {
-  //     if (
-  //       $clickedDropdown !== $dropdown &&
-  //       $dropdown.getAttribute("data-dropdown-keepopen") !== "true"
-  //     ) {
-  //       $dropdown.ariaExpanded = "false";
-  //       $dropdown.nextElementSibling!.classList.add("hidden");
-  //     }
-  //   });
-
-  //   // toggle selected if applicable
-  //   if ($clickedDropdown) {
-  //     $clickedDropdown.ariaExpanded =
-  //       "" + ($clickedDropdown.ariaExpanded !== "true");
-  //     $clickedDropdown.nextElementSibling!.classList.toggle("hidden");
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   document.body.addEventListener("click", handleClick);
-  //   return () => document.body.removeEventListener("click", handleClick);
-  // }, []);
 
   return (
     <header className="bg-gray-5 max-h-20 font-inter">
@@ -195,24 +163,6 @@ export default function Header() {
                   )}
                 </li>
               </ul>
-            </div>
-
-            {/* Contact Button */}
-            <div className="ml-1 h-full">
-              <Link
-                to="/contact"
-                className="ml-1 rounded-lg w-28 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
-              >
-                <div className="flex justify-between items-center gap-2 h-full rounded px-3">
-                  <div className="text-md text-left h-5">
-                    {t("nav.contactBtn")}
-                  </div>
-
-                  <span className="items-baseline inline-flex">
-                    <Users size={20} />
-                  </span>
-                </div>
-              </Link>
             </div>
 
             {/* Signin Button */}
