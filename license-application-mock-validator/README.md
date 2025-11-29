@@ -24,8 +24,8 @@ The mock document validator service listens on port `8083` and exposes the follo
 ```json
 {
     "application_id": "string",
-    "id_filename": "application/pdf",
-    "proof_filename": "application/pdf"
+    "id_file": "application/pdf",
+    "proof_file": "application/pdf"
 }
 ```
 
