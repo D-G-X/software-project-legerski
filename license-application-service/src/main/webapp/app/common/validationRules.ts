@@ -106,7 +106,6 @@ export const validateConfirmPassword = (
 export const validateIban = (iban: string) => {
     if (!iban)
         return { isValid: false, message: t("validation.iban.required") };
-    iban = iban.replace(/\s+/g, ''); // Remove spaces
 
     if (iban.length < 15)
         return {
@@ -135,8 +134,6 @@ export const validateBic = (bic: string, iban: string) => {
 
     if (!bic)
         return { isValid: false, message: t("validation.bic.required") };
-
-    bic = bic.replace(/\s+/g, ''); // Remove spaces
 
     if (bic.length != 8 && bic.length != 11)
         return {

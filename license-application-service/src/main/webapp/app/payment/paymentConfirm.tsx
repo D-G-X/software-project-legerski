@@ -1,15 +1,13 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
 import "./paymentConfirm.css";
 import {CircleCheck, CircleX, EyeClosed, Mail, MailCheck} from "lucide-react";
-import {useNavigate} from "react-router";
+import {useLocation, useNavigate} from "react-router";
 
 
 type Props = {
-  data: {
-    id: number;
     application_id: number;
     amount: number;
     name: string;
@@ -17,17 +15,26 @@ type Props = {
     bic?: string;
     payment_date: string;
     payment_status: string;
-  };
 };
 
 
-export default function PaymentConfirm({data}: Props) {
+export default function PaymentConfirm() {
   const {t} = useTranslation();
   const navigate = useNavigate();
+  const { state } = useLocation()
+  const data: Props = state
   useDocumentTitle(t("paymentConfirm.title"));
 
-  let email = "peter.heusch@hft-stuttgart.de";
+  useEffect(() => {
+    if (!state || Object.keys(state).length === 0) {
+      navigate("/error", { replace: true });
+    }
+  }, [state, navigate]);
 
+  if (!state) return null;
+
+  let paymentId = "XXXXXXXXXXX" // TODO: This would be fetched from BE response
+  let email = "peter.heusch@hft-stuttgart.de"; // TODO: This would be fetched from user table/session
   const [success] = useState(true); // TODO: This would be determined by actual payment status
 
   const formatAmount = (amount: number): string => {
@@ -41,6 +48,7 @@ export default function PaymentConfirm({data}: Props) {
 
   // IBAN format: max 34 characters in groups of 4 separated by spaces (no manual input of spaces)
   const formatIban = (raw: string): string => {
+    if(!raw) return "";
     const visibleLength = 4;
     const clean = raw.replace(/\s+/g, "").toUpperCase()
     const visible = clean.slice(-visibleLength);
@@ -51,6 +59,7 @@ export default function PaymentConfirm({data}: Props) {
   };
   // BIC format: max 11 characters no manual input of spaces
   const formatBic = (raw: string): string => {
+    if(!raw) return "";
     const visibleLength = 4;
     const clean = raw.replace(/\s+/g, "").toUpperCase()
     const visible = clean.slice(0, visibleLength);
@@ -153,7 +162,7 @@ export default function PaymentConfirm({data}: Props) {
                 <div className="flex justify-between">
                   <span
                       className="font-semibold">{t("paymentConfirm.index.paymentIdLabel") + ": "}</span>
-                  <span>{data.id}</span>
+                  <span>{paymentId}</span>
                 </div>
 
                 <div className="flex justify-between">

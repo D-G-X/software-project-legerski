@@ -9,19 +9,30 @@ import {
 import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
-//import {createPayment, useCreatePayment} from "app/services/payments/payments"
-//import type { ApplicationPaymentCreate } from "/types";
+import {useCreatePayment} from "app/services/payments/payments"
 import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
-import {useNavigate} from "react-router";
+import {useNavigate, useParams} from "react-router";
 import "./paymentForm.css";
 import {AnimatedDots} from "../common/AnimatedDots";
 
+type Props = {
+  application_id: number;
+  amount: number;
+  name: string;
+  iban: string;
+  bic?: string;
+  payment_date: string;
+  payment_status: string;
+};
+
 export default function PaymentConfirm() {
-  const applicationId = 123; // TODO: get the actual application ID from context or props
-  const amount = 9999.99; // TODO: get the actual amount to be paid from context or props
+  const {application_id} = useParams();  // TODO: get the actual application ID from submit (application form) or GET request
+  const amount = 9999.99; // TODO: get the actual amount to be paid from GET request
+  console.log("Application ID:", application_id);
+
   const {t} = useTranslation();
   const navigate = useNavigate()
-  //const mutation = useCreatePayment();
+  const mutation = useCreatePayment();
   useDocumentTitle(t("payment.title"));
 
   const getFormattedDate = () => {
@@ -37,6 +48,7 @@ export default function PaymentConfirm() {
   // loading screen state
   const [loading, setLoading] = useState(false);
 
+  // Format amount as currency according to locale
   const formatAmount = (amount: number): string => {
     return new Intl.NumberFormat(t("locale"), {
       style: "currency",
@@ -77,14 +89,17 @@ export default function PaymentConfirm() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {id, value, type, checked} = e.target;
+    e.preventDefault()
+    if(!application_id){
+      console.error("No application ID found in URL parameters.");
+      return;
+    }
+    const {id, value, type} = e.target;
     let finalValue;
 
-    if (type === "checkbox") {
-      finalValue = checked;
-    } else if (id === "iban") {
+    if (id === "iban" && type === "text") {
       finalValue = formatIban(value);
-    } else if (id === "bic") {
+    } else if (id === "bic" && type === "text") {
       finalValue = formatBic(value);
     } else {
       finalValue = value;
@@ -95,10 +110,15 @@ export default function PaymentConfirm() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-
-    if (!applicationId) {
+    e.preventDefault()
+    if (!application_id) {
       return;
     }
+    // Clean IBAN and BIC inputs by removing spaces for validation and responses
+    form.name = form.name.trim();
+    form.iban = form.iban.replace(/\s+/g, '');
+    form.bic = form.bic.replace(/\s+/g, '');
+
     const nameValidateResult: validateResults = validateName(form.name);
     const ibanValidateResult: validateResults = validateIban(form.iban);
     const bicValidateResult: validateResults = validateBic(form.bic, form.iban);
@@ -132,7 +152,7 @@ export default function PaymentConfirm() {
     ) {
       setErrors(newErrors);
       console.log(newErrors);
-      return false;
+      return;
     }
     setErrors({
       name: "",
@@ -146,34 +166,8 @@ export default function PaymentConfirm() {
       form.bic = "";
     }
 
-    /*
-mutation.mutate(
-    {
-      applicationId: Number(applicationId),
-      data: form,
-    },
-    {
-      onSuccess: (response) => {
-        navigate(`/payment/done`, { // TODO: add ${applicationId}
-          state: response.data, // pass API result to the next page
-        });
-        return true;
-      },
-      onError: (error: any) => {
-        console.log(error)
-        return false;
-      }
-    }
-);
- */
-
-    e.preventDefault();
-    setLoading(true);
-    // mock api call and response
-    await new Promise((r) => setTimeout(r, 2000));
-
-    const mockResponse = {
-      application_id: Number(applicationId),
+    const submitData: Props = {
+      application_id: Number(application_id),
       amount: amount,
       name: form.name,
       iban: form.iban,
@@ -182,14 +176,27 @@ mutation.mutate(
       payment_status: "UNPAID",
     };
 
-    navigate(`/payment/${applicationId}/done`, {
-      state: {payment: mockResponse},
-    });
+    try{
+      console.log("Submitting payment data:", submitData);
+      setLoading(true);
+      const response = await mutation.mutateAsync(
+        {
+          applicationId: Number(application_id),
+          data: submitData,
+        }
+      );
 
-    setLoading(false);
+      console.log("Payment API response:", response);
 
-
-    return true;
+      navigate(`/payment/${application_id}/done`, {
+        state: submitData, // pass API result to the next page
+      });
+    } catch (error: any) {
+      console.error("Payment submission error:", error);
+      setErrors(prev => ({ ...prev, pay: "Payment failed" }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const [bicFocused, setBicFocused] = useState(false);
@@ -378,7 +385,7 @@ mutation.mutate(
                       <div className="text-red-500 mt-2 pl-4">{errors.pay}</div>
                   )}
                   <button
-                      // type="submit"
+                      type="submit"
                       onClick={handleSubmit}
                       className={`mt-4
                 ${errors.pay
