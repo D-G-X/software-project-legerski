@@ -199,12 +199,8 @@
       "bicLabel": "BIC",
       "bicOptional": "not required",
       "dateLabel": "Payment date",
-      "statusLabel":{
-        "plain": "Payment status",
-        "success": "Pending",
-        "failure": "Failed"
-      },
-      "sendReceiptLabel": "Send payment receipt to {{email}}",
+      "sendReceiptLabel": "Send payment receipt to",
+      "receiptSentLabel": "Payment receipt sent!",
       "leaveButtonLabel": {
         "success": "Back to Dashboard",
         "failure": "Try Again"

@@ -204,17 +204,28 @@ mutation.mutate(
                     heading={t("paymentForm.index.headline")}
                     subHeading={t("paymentForm.index.subHeadline")}
                 />
+                {/* Amount Field */}
+                <div className="relative mt-12 bg-gray-50 px-3 pt-5 pb-2 rounded-xl">
+                  <div className="flex justify-between items-baseline text-xl font-semibold">
+                    {/* Left: label */}
+                    <span>{t("paymentForm.index.amountLabel") + ": "}</span>
 
-                <label>
-              <span className="text-mallorca-purple text-lg">
-                  {t("paymentForm.index.amountLabel") + " " + formatAmount(amount)}
-              </span>
-                </label>
+                    {/* Right: amount */}
+                    <div className="flex flex-col items-end">
+                      <span className="text-xl font-semibold leading-none">
+                        {formatAmount(amount)}
+                      </span>
+                      <span className="text-xs font-light italic mt-1 leading-none">
+                        {t("paymentConfirm.index.taxLabel")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
                 {/* PaymentForm Form */}
                 <div>
                   {/* Name Field */}
-                  <div className="relative mb-4 mt-8">
+                  <div className="relative mt-8 mb-4">
                     <input
                         type="text"
                         id="name"
@@ -300,7 +311,7 @@ mutation.mutate(
                   </div>
 
                   {/* SEPA Mandate Check Field */}
-                  <div className="relative my-4 pt-6">
+                  <div className="relative my-4 pt-2">
                     <div className="flex items-center gap-4">
                       {/* Label incl. Button */}
                       <label
@@ -362,7 +373,7 @@ mutation.mutate(
                   />
                 </div>
 
-                <div className="my-4">
+                <div className="my-2">
                   {errors.pay && (
                       <div className="text-red-500 mt-2 pl-4">{errors.pay}</div>
                   )}

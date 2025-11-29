@@ -3,7 +3,8 @@ import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
 import "./paymentConfirm.css";
-import {CircleCheck, CircleX} from "lucide-react";
+import {CircleCheck, CircleX, EyeClosed, Mail, MailCheck} from "lucide-react";
+import {useNavigate} from "react-router";
 
 
 type Props = {
@@ -22,6 +23,7 @@ type Props = {
 
 export default function PaymentConfirm({data}: Props) {
   const {t} = useTranslation();
+  const navigate = useNavigate();
   useDocumentTitle(t("paymentConfirm.title"));
 
   let email = "peter.heusch@hft-stuttgart.de";
@@ -65,8 +67,18 @@ export default function PaymentConfirm({data}: Props) {
     second: "2-digit",
   });
 
+  const [sent, setSent] = useState(false);
+
+  const onClick = () => {
+    setSent(true);
+    handleMail();
+  };
+  function handleMail() {
+    alert(t("API not implemented yet!", {email: email}));
+  }
+
   const handleSubmit = () => {
-    return true;
+    navigate(`/dashboard/${data.application_id}`);
   }
 
   return (
@@ -74,14 +86,14 @@ export default function PaymentConfirm({data}: Props) {
 
         <div
             className="relative min-h-[calc(100vh-4rem)] bg-white flex flex-col items-center justify-center">
-          <div className="flex top-8 mb-6 items-center justify-center">
+          <div className="flex top-8 items-center justify-center">
             {success ?
                 <CircleCheck className="text-green-500" size={72}/>
                 :
                 <CircleX className="text-red-500" size={72}/>
             }
           </div>
-          <div className="font-inter text-center min-w-96">
+          <div className="font-inter mt-8 min-w-96">
             <FormHeader
                 heading={
                   success ?
@@ -97,7 +109,7 @@ export default function PaymentConfirm({data}: Props) {
                 }
             />
             {/* 3. Response fields */}
-            <div className="bg-gray-100 rounded-lg p-6 mt-6 mb-2 shadow">
+            <div className="bg-gray-50 rounded-lg p-6 mt-12 shadow">
               <div className="flex justify-between text-xl font-semibold">
                 <span className="">{t("paymentConfirm.index.amountLabel") + ": "}</span>
                 <div className="flex flex-col items-end leading-tight">
@@ -107,7 +119,7 @@ export default function PaymentConfirm({data}: Props) {
                 </div>
               </div>
 
-              <hr className="mt-2 mb-6 border-gray-300"/>
+              <hr className="my-4 border-gray-300"/>
 
               <div className="space-y-2.5 text-gray-700">
 
@@ -150,44 +162,49 @@ export default function PaymentConfirm({data}: Props) {
                   <span>{formattedDate}</span>
                 </div>
 
-                <div className="flex justify-between">
-                  <span
-                      className="font-semibold">{t("paymentConfirm.index.statusLabel.plain") + ": "}</span>
-                  <span
-                      className="font-bold">
-                    <div className={`rounded-md px-3 py-1 text-white
-                    ${success ? "bg-green-600" : "bg-red-600"}`}>
-                    {
-                      (success ?
-                              t("paymentConfirm.index.statusLabel.success")
-                              :
-                              t("paymentConfirm.index.statusLabel.failure")
-                      )
-                    }
-                    </div>
-                  </span>
-                </div>
-
               </div>
             </div>
           </div>
           {
-            success &&
-              <div className="my-2">
-                <button
-                    // type="submit"
-                    onClick={handleSubmit}
-                    className={`mt-0 border border-mallorca-purple text-mallorca-purple px-10 py-2 rounded-md w-96 font-medium text-lg bg-white hover:bg-gray-100`}
-                >{t("paymentConfirm.index.sendReceiptLabel", {email: email})}
-                </button>
-              </div>
+              success &&
+              <button
+                  onClick={onClick}
+                  disabled={sent}
+                  className={`group mt-6 border border-mallorca-purple text-mallorca-purple px-10 py-2 rounded-md w-96 font-medium bg-white flex flex-col items-center gap-1 transition-all
+        ${sent ? "opacity-60 cursor-default" : "hover:bg-gray-100"}`}
+              >
+
+                {/* Default (no hover) */}
+                {!sent && (
+                    <span className="flex items-center gap-2 group-hover:hidden">
+          {t("paymentConfirm.index.sendReceiptLabel")}
+                      <EyeClosed className="w-5 h-5"/>
+        </span>
+                )}
+
+                {/* HOVER MODE */}
+                {!sent && (
+                    <div className="hidden group-hover:flex items-center gap-2">
+                      <Mail className="w-5 h-5" />
+                      <span className="font-normal">{email}</span>
+                    </div>
+                )}
+
+                {/* SENT STATE */}
+                {sent && (
+                    <div className="flex items-center gap-2">
+                      <MailCheck className="w-5 h-5" />
+                      <span>{t("paymentConfirm.index.receiptSentLabel") || "Send"}</span>
+                    </div>
+                )}
+
+              </button>
           }
-          <div className="my-2">
+          <div className="mt-6">
             <button
                 // type="submit"
                 onClick={handleSubmit}
-                className={`${success ? "mt-2" : "mt-4"}
-                bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90`}
+                className={`bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90`}
             >{
               (success ?
                       t("paymentConfirm.index.leaveButtonLabel.success")
