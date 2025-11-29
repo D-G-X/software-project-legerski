@@ -16,19 +16,20 @@ import "./paymentForm.css";
 import {AnimatedDots} from "../common/AnimatedDots";
 
 type Props = {
+  payment_id?: number;
   application_id: number;
-  amount: number;
+  amount?: number;
   name: string;
   iban: string;
-  bic?: string;
-  payment_date: string;
-  payment_status: string;
+  bic: string;
+  payment_date?: string;
+  payment_status?: string;
 };
 
 export default function PaymentConfirm() {
-  const {application_id} = useParams();  // TODO: get the actual application ID from submit (application form) or GET request
+  const {applicationId} = useParams();  // TODO: get the actual application ID from submit (application form) or GET request
   const amount = 9999.99; // TODO: get the actual amount to be paid from GET request
-  console.log("Application ID:", application_id);
+  console.log("Application ID:", applicationId);
 
   const {t} = useTranslation();
   const navigate = useNavigate()
@@ -90,7 +91,7 @@ export default function PaymentConfirm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
-    if(!application_id){
+    if(!applicationId){
       console.error("No application ID found in URL parameters.");
       return;
     }
@@ -111,13 +112,9 @@ export default function PaymentConfirm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!application_id) {
+    if (!applicationId) {
       return;
     }
-    // Clean IBAN and BIC inputs by removing spaces for validation and responses
-    form.name = form.name.trim();
-    form.iban = form.iban.replace(/\s+/g, '');
-    form.bic = form.bic.replace(/\s+/g, '');
 
     const nameValidateResult: validateResults = validateName(form.name);
     const ibanValidateResult: validateResults = validateIban(form.iban);
@@ -166,30 +163,54 @@ export default function PaymentConfirm() {
       form.bic = "";
     }
 
-    const submitData: Props = {
-      application_id: Number(application_id),
-      amount: amount,
-      name: form.name,
-      iban: form.iban,
-      bic: form.bic,
-      payment_date: new Date().toISOString(),
-      payment_status: "UNPAID",
-    };
+    const postData = {
+      application_id: Number(applicationId),
+      name: form.name.trim(),
+      iban: form.iban.replace(/\s+/g, ''),
+      bic: form.bic.replace(/\s+/g, ''),
+    }
 
     try{
-      console.log("Submitting payment data:", submitData);
+      console.log("Submitting payment data:", postData);
       setLoading(true);
-      const response = await mutation.mutateAsync(
-        {
-          applicationId: Number(application_id),
-          data: submitData,
-        }
-      );
+      const response = await mutation.mutateAsync({
+        applicationId: Number(applicationId),
+        data: {...postData}
+      });
+
+      const last = response.data;
+
+      if (!Array.isArray(response) || response.length === 0) {
+        console.error("Payment API returned empty or invalid response:", response);
+        throw new Error("Empty response");
+      }
 
       console.log("Payment API response:", response);
 
-      navigate(`/payment/${application_id}/done`, {
-        state: submitData, // pass API result to the next page
+      const fieldsToMatch = ["application_id", "name", "iban", "bic"]
+      // TODO: fix response is an array in orval config
+      const responseMatchesPost = postData===last/*fieldsToMatch.every(
+          (key) => postData[key] === last[key]
+      )*/;
+
+      if(!responseMatchesPost){
+        console.error("Payment API response does not match submitted data:", {
+          submitted: postData,
+          received: last
+        });
+        throw new Error("Response data mismatch");
+      }
+
+      const stateData: Props = {
+        ...postData,
+        payment_id: last.id,
+        amount: amount, // TODO: get the actual amount from response if available
+        payment_date: last.payment_date,
+        payment_status: last.payment_status,
+      }
+
+      navigate(`/payment/${applicationId}/done`, {
+        state: stateData, // pass API result to the next page
       });
     } catch (error: any) {
       console.error("Payment submission error:", error);
