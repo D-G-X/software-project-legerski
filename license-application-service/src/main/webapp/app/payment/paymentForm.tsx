@@ -116,9 +116,9 @@ export default function PaymentConfirm() {
       return;
     }
 
-    const nameValidateResult: validateResults = validateName(form.name);
-    const ibanValidateResult: validateResults = validateIban(form.iban);
-    const bicValidateResult: validateResults = validateBic(form.bic, form.iban);
+    const nameValidateResult: validateResults = validateName(form.name.trim());
+    const ibanValidateResult: validateResults = validateIban(form.iban.replace(/\s+/g, ''));
+    const bicValidateResult: validateResults = validateBic(form.bic.replace(/\s+/g, ''), form.iban.replace(/\s+/g, ''));
     const sepaMandateCheckValidateResult: validateResults = validateSepaMandateCheck(form.sepaMandateChecked);
     let newErrors = {
       name: "",
@@ -178,9 +178,9 @@ export default function PaymentConfirm() {
         data: {...postData}
       });
 
-      const last = response.data;
+      const last = response.data[];
 
-      if (!Array.isArray(response) || response.length === 0) {
+      if /*(!Array.isArray(response) || response.length === 0)*/( last === null ) { // TODO: fix response is an array in orval config
         console.error("Payment API returned empty or invalid response:", response);
         throw new Error("Empty response");
       }
