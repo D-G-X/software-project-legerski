@@ -183,12 +183,12 @@
     "title": "Payment Done",
     "index": {
       "headline": {
-        "success": "Payment Successful",
+        "success": "Payment Received",
         "failure": "Payment Failed"
       },
       "subHeadline": {
-        "success": "Your payment has been processed successfully.",
-        "failure": "Your payment could not be processed. Please try again."
+        "success": "Your payment data has been received.",
+        "failure": "Your payment data could not be stored. Please try again."
       },
       "amountLabel": "Total amount",
       "taxLabel": "no vat applies",

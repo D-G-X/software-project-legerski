@@ -11,7 +11,7 @@ import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
 import {useCreatePayment} from "app/services/payments/payments"
 import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
-import {useNavigate, useParams} from "react-router";
+import {useLocation, useNavigate} from "react-router";
 import "./paymentForm.css";
 import {AnimatedDots} from "../common/AnimatedDots";
 
@@ -27,8 +27,8 @@ type Props = {
 };
 
 export default function PaymentConfirm() {
-  const {applicationId} = useParams();  // TODO: get the actual application ID from submit (application form) or GET request
-  const amount = 123.45; // TODO: get the actual amount to be paid from submit (application form) or GET request
+  const {state} = useLocation()
+  const data: Props = state
 
   const {t} = useTranslation();
   const navigate = useNavigate()
@@ -90,7 +90,7 @@ export default function PaymentConfirm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
-    if(!applicationId){
+    if (!data.application_id) {
       console.error("No application ID found in URL parameters.");
       return;
     }
@@ -111,7 +111,7 @@ export default function PaymentConfirm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!applicationId) {
+    if (!data.application_id) {
       return;
     }
 
@@ -163,17 +163,17 @@ export default function PaymentConfirm() {
     }
 
     const postData = {
-      application_id: Number(applicationId),
+      application_id: Number(data.application_id),
       name: form.name.trim(),
       iban: form.iban.replace(/\s+/g, ''),
       bic: form.bic.replace(/\s+/g, ''),
     }
 
-    try{
+    try {
       console.log("Submitting payment data:", postData);
       setLoading(true);
       const response = await mutation.mutateAsync({
-        applicationId: Number(applicationId),
+        applicationId: Number(data.application_id),
         data: {...postData}
       });
 
@@ -188,7 +188,7 @@ export default function PaymentConfirm() {
         return Object.keys(a).every(key => a[key] === b[key]);
       }
 
-      if(!isEqualData(postData, response.data)){
+      if (!isEqualData(postData, response.data)) {
         console.error("Payment API response does not match submitted data:", {
           submitted: postData,
           received: response.data
@@ -204,12 +204,12 @@ export default function PaymentConfirm() {
         payment_status: response.data.payment_status,
       }
 
-      navigate(`/applications/${applicationId}/payments/done`, {
+      navigate(`/applications/${data.application_id}/payments/done`, {
         state: stateData, // pass API result to the next page
       });
     } catch (error: any) {
       console.error("Payment submission error:", error);
-      setErrors(prev => ({ ...prev, pay: "Payment failed" }));
+      setErrors(prev => ({...prev, pay: "Payment failed"}));
     } finally {
       setLoading(false);
     }
@@ -236,7 +236,7 @@ export default function PaymentConfirm() {
                     {/* Right: amount */}
                     <div className="flex flex-col items-end">
                       <span className="text-xl font-semibold leading-none">
-                        {formatAmount(amount)}
+                        {formatAmount(data.amount)}
                       </span>
                       <span className="text-xs font-light italic mt-1 leading-none">
                         {t("paymentConfirm.index.taxLabel")}

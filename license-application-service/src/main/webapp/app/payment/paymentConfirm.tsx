@@ -34,7 +34,7 @@ export default function PaymentConfirm() {
 
   if (!state) return null;
 
-  const [success] = useState(true); // TODO: This would be determined by actual payment status
+  const [success] = useState(data.payment_status === "UNPAID");
 
   const formatAmount = (amount: number): string => {
     return new Intl.NumberFormat(t("locale"), {
@@ -48,7 +48,7 @@ export default function PaymentConfirm() {
   // IBAN format: max 34 characters in groups of 4 separated by spaces (no manual input of spaces)
   const formatIban = (raw: string): string => {
     if (!raw) return "";
-    const visibleLength = 4;
+    const visibleLength = 2;
     const clean = raw.replace(/\s+/g, "").toUpperCase()
     const visible = clean.slice(-visibleLength);
     const masked = "•".repeat(clean.length - visibleLength);
@@ -59,11 +59,7 @@ export default function PaymentConfirm() {
   // BIC format: max 11 characters no manual input of spaces
   const formatBic = (raw: string): string => {
     if (!raw) return "";
-    const visibleLength = 4;
-    const clean = raw.replace(/\s+/g, "").toUpperCase()
-    const visible = clean.slice(0, visibleLength);
-    const masked = "•".repeat(clean.length - visibleLength);
-    return (visible + masked);
+    return raw.replace(/\s+/g, "").toUpperCase();
   };
 
   const formattedDate = new Date(data.payment_date).toLocaleString(t("locale"), {
