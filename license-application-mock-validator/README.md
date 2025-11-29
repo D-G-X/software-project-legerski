@@ -19,7 +19,7 @@
 
 The mock document validator service listens on port `8083` and exposes the following endpoint:
 
-- `POST /process-document`: Simulates processing a payment. Expects a JSON payload with the following structure:
+- `POST /process-document`: Simulates processing a document validation. Expects a JSON payload with the following structure:
 
 ```json
 {
@@ -29,7 +29,7 @@ The mock document validator service listens on port `8083` and exposes the follo
 }
 ```
 
-The service responds with a JSON object indicating the initial state of the payment processing (PENDING):
+The service responds with a JSON object indicating the initial state of the validation processing (PENDING):
 
 ```json
 {
