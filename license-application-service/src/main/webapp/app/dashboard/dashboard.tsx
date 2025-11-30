@@ -1,64 +1,39 @@
-import React, {useState} from "react";
-import {useTranslation} from "react-i18next";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
 import Pagination from "../common/Pagination";
-import {Link, useNavigate} from "react-router";
-import {FormHeader} from "../common/headingTitle";
+import { Link, useNavigate } from "react-router";
+import { FormHeader } from "../common/headingTitle";
 import { useListApplications } from "app/services/applications/applications";
 
-// import useDocumentTitle from "app/common/use-document-title";
-
-
-type LicenseRecord = {
-    id: number,
-    user_id: string,
-    license_type: string,
-    cadastral_reference: string,
-    applied_at: string | undefined,
-    changed_at: string,
-    application_status: string,
-    remarks: string
-}
-
-// const call: any = () => {
-//     const {
-//         data: response
-//     } = useListApplications(
-//
-//     );
-//     return response?.data ?? [];
-// }
-
 export default function Dashboard() {
-
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   useDocumentTitle(t("home.index.headline"));
 
+  const { data } = useListApplications({
+    user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
+  });
 
+  const applications = data?.data ?? [];
+  console.log(applications);
 
-    const { data: response } = useListApplications({
-        user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-    });
-    // const response?.data: LicenseRecord[] = response?.data ?? [];
-    console.log(response?.data);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const totalPage = Math.ceil(response?.data.length / itemsPerPage); // Determine total number of pages
-  let currentData: typeof response?.data = [];
-  if (response?.data.length > 0) {
-    currentData = response?.data.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-  }
+  const totalPage = Math.ceil(applications.length / itemsPerPage);
+
+  const currentData =
+      applications.length > 0
+          ? applications.slice(
+              (currentPage - 1) * itemsPerPage,
+              currentPage * itemsPerPage
+          )
+          : [];
 
   const formatDate = (rawDate: string | undefined) => {
-      if (!rawDate) {
-          return "";
-      }
+    if (!rawDate) return "";
     return new Date(rawDate).toLocaleString(t("locale"), {
       day: "2-digit",
       month: "2-digit",
@@ -69,18 +44,18 @@ export default function Dashboard() {
   };
 
   function handleNewApplicationClick() {
-    navigate(`/license-application-request`)
+    navigate(`/license-application-request`);
   }
-    console.log(currentData);
+
   return (
       <div className="container mx-auto px-4 md:px-6">
         <div className="relative min-h-[calc(100vh-4rem)] bg-white flex justify-center">
           <div className="font-inter flex flex-col items-center w-full">
 
             <FormHeader
-                heading={response?.data.length > 0
-                    ? t("dashboard.headline.getStarted")
-                    : ""}
+                heading={
+                  applications.length > 0 ? t("dashboard.headline.getStarted") : ""
+                }
                 className="text-center mt-16"
             />
 
@@ -109,39 +84,44 @@ export default function Dashboard() {
                         <th>{t("dashboard.table.action.title")}</th>
                       </tr>
 
-                      {currentData?.map(item => (
+                      {currentData.map((item) => (
                           <tr key={item.id}>
                             <td>{item.id}</td>
                             <td>{item.cadastral_reference}</td>
                             <td>{formatDate(item.applied_at)}</td>
                             <td>{item.license_type}</td>
                             <td>
-                    <span
-                        className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[10rem] rounded-md ${
-                            item.application_status === "ACCEPTED"
-                                ? "text-green-600 bg-green-300"
-                                : item.application_status === "EXPIRED"
-                                    ? "text-red-800 bg-red-200"
-                                    : item.application_status === "DOCUMENTS_SUBMITTED"|| "VERIFICATION_PENDING"|| "AWAITING_PAYMENT"|| "PAYMENT_RECEIVED"|| "SUBMITTED"|| "IN_BALLOT"
-                                        ? "text-orange-800 bg-orange-200"
+                        <span
+                            className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[10rem] rounded-md ${
+                                item.application_status === "APPROVED"
+                                    ? "text-green-600 bg-green-300"
+                                    : item.application_status === "EXPIRED"
+                                        ? "text-red-800 bg-red-200"
                                         : item.application_status === "DRAFT"
                                             ? "text-gray-800 bg-gray-200"
-                                            : "text-red-800 bg-red-200"
-                        }`}
-                    >
-                      {
-                        item.application_status === "ACCEPTED" ? t("dashboard.licenceStatus.accepted") :
-                            item.application_status === "EXPIRED" ? t("dashboard.licenceStatus.expired") :
-                                item.application_status === "DRAFT" ? t("dashboard.licenceStatus.draft") :
-                                    ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING", "AWAITING_PAYMENT", "PAYMENT_RECEIVED", "SUBMITTED", "IN_BALLOT"].includes(item.application_status)
-                                        ? t("dashboard.licenceStatus.inProcess")
-                                        : item.application_status === "REJECTED"
-                                            ? t("dashboard.licenceStatus.declined")
-                                            : ""
-                      }
-
-                    </span>
+                                            : ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING", "AWAITING_PAYMENT", "PAYMENT_RECEIVED", "SUBMITTED", "IN_BALLOT"].includes(
+                                                item.application_status
+                                            )
+                                                ? "text-orange-800 bg-orange-200"
+                                                : "text-red-800 bg-red-200"
+                            }`}
+                        >
+                          {item.application_status === "APPROVED"
+                              ? t("dashboard.licenceStatus.accepted")
+                              : item.application_status === "EXPIRED"
+                                  ? t("dashboard.licenceStatus.expired")
+                                  : item.application_status === "DRAFT"
+                                      ? t("dashboard.licenceStatus.draft")
+                                      : ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING", "AWAITING_PAYMENT", "PAYMENT_RECEIVED", "SUBMITTED", "IN_BALLOT"].includes(
+                                          item.application_status
+                                      )
+                                          ? t("dashboard.licenceStatus.inProcess")
+                                          : item.application_status === "REJECTED"
+                                              ? t("dashboard.licenceStatus.declined")
+                                              : ""}
+                        </span>
                             </td>
+
                             <td>
                               <Link
                                   to="register"
@@ -154,7 +134,7 @@ export default function Dashboard() {
                       ))}
                     </table>
 
-                    <div className="my-8"></div>
+                    <div className="my-8" />
 
                     <Pagination
                         currentPage={currentPage}
@@ -162,7 +142,7 @@ export default function Dashboard() {
                         onPageChange={setCurrentPage}
                         start={(currentPage - 1) * itemsPerPage + 1}
                         end={currentPage * itemsPerPage}
-                        numberOfItems={response?.data.length}
+                        numberOfItems={applications.length}
                     />
                   </div>
                 </div>
