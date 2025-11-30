@@ -10,7 +10,11 @@ import de.hft.licensing.model.UpdateLicenseStatusRequest;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -64,8 +68,26 @@ public class LicensesController implements LicensesApi {
 
     @Override
     public ResponseEntity<List<LicenseResource>> listLicenses(UUID userId) {
+        // Get current authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof JwtAuthenticationToken jwt)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        // Maps roles from JWT token
+        boolean isAdmin = jwt.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
+        // Extract the user ID from Keycloak token: "sub" claim
+        UUID currentUserId = UUID.fromString(jwt.getToken().getSubject());
+        // Enforce: normal users can only see their own applications
+        if (userId != null && !isAdmin && !userId.equals(currentUserId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } else if (!isAdmin) {
+            userId = currentUserId;
+        }
+
         List<LicenseRecord> dbLicenses = new ArrayList<>();
         List<LicenseResource> apiLicenses = new ArrayList<>();
+
         if(userId != null) {
             dbLicenses = dsl.select()
                     .from(License.LICENSE)
