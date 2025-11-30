@@ -3,13 +3,11 @@ package de.hft.licensing.rest;
 import de.hft.licensing.api.ApplicationsApi;
 import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseType;
+import de.hft.licensing.db.enums.VerificationStatus;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
-import de.hft.licensing.model.ApplicationCreate;
-import de.hft.licensing.model.ApplicationResource;
-import de.hft.licensing.model.ApplicationStatusApiEnum;
-import de.hft.licensing.model.ApplicationUpdate;
+import de.hft.licensing.model.*;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
@@ -61,6 +59,7 @@ public class ApplicationsController implements ApplicationsApi {
                 .set(Application.APPLICATION.CADASTRAL_REFERENCE, applicationCreate.getCadastralReference())
                 .set(Application.APPLICATION.LICENSE_TYPE, (LicenseType) EnumMapperUtil.getPendantFromEnum(applicationCreate.getLicenseType()))
                 .set(Application.APPLICATION.REMARKS, applicationCreate.getRemarks())
+                .set(Application.APPLICATION.VERIFICATION_STATUS, VerificationStatus.pending)
                 .returning()
                 .fetchOneInto(ApplicationRecord.class);
 
