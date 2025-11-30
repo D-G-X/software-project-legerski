@@ -167,10 +167,8 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jobKey := applicationId + "-" + fmt.Sprint(time.Now().UnixNano())
-
 	mu.Lock()
-	jobStore[jobKey] = JobInfo{
+	jobStore[applicationId] = JobInfo{
 		ApplicationId:    applicationId,
 		IdFilename:       idHeader.Filename,
 		PropertyFilename: proofHeader.Filename,
@@ -179,7 +177,7 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	mu.Unlock()
 
 	// start background processing
-	go runBackgroundJob(applicationId, jobKey, idHeader.Filename, proofHeader.Filename)
+	go runBackgroundJob(applicationId, idHeader.Filename, proofHeader.Filename)
 
 	resp := ProcessDocumentResponse{
 		ApplicationId: applicationId,
@@ -194,7 +192,7 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func runBackgroundJob(applicationId, jobKey, idFile, proofFile string) {
+func runBackgroundJob(applicationId, idFile, proofFile string) {
 	// simulate processing duration
 	time.Sleep(processDuration[rand.Intn(len(processDuration))])
 
@@ -204,7 +202,7 @@ func runBackgroundJob(applicationId, jobKey, idFile, proofFile string) {
 
 	mu.Lock()
 	// update job status
-	jobStore[jobKey] = JobInfo{
+	jobStore[applicationId] = JobInfo{
 		ApplicationId:    applicationId,
 		IdFilename:       idFile,
 		PropertyFilename: proofFile,
@@ -213,7 +211,7 @@ func runBackgroundJob(applicationId, jobKey, idFile, proofFile string) {
 
 	if status == "REJECTED" {
 		reason := rejectionReasons[rand.Intn(len(rejectionReasons))]
-		reasonStore[jobKey] = reason
+		reasonStore[applicationId] = reason
 		reasonCopy := reason
 		rejectionReason = &reasonCopy
 	}
@@ -296,23 +294,23 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jobKey := strings.TrimPrefix(r.URL.Path, base)
-	if jobKey == "" {
-		http.Error(w, "missing job key", http.StatusBadRequest)
+	applicationId := strings.TrimPrefix(r.URL.Path, base)
+	if applicationId == "" {
+		http.Error(w, "missing application ID", http.StatusBadRequest)
 		return
 	}
 
 	mu.Lock()
-	job, exists := jobStore[jobKey]
+	job, exists := jobStore[applicationId]
 	var reasonPtr *string
-	if reason, ok := reasonStore[jobKey]; ok && reason != "" {
+	if reason, ok := reasonStore[applicationId]; ok && reason != "" {
 		rCopy := reason
 		reasonPtr = &rCopy
 	}
 	mu.Unlock()
 
 	if !exists {
-		http.Error(w, "unknown job key", http.StatusNotFound)
+		http.Error(w, "unknown application ID", http.StatusNotFound)
 		return
 	}
 
