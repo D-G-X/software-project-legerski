@@ -34,12 +34,11 @@ The service responds with a JSON object indicating the initial state of the vali
 ```json
 {
     "application_id": "string",
-    "verification_id": "string",
     "status": "string" // only "PENDING"
 }
 ```
 
-The status of the document verification can be retrieved using the `verification_id` through the `/process-document/status/{verification_id}` endpoint.
+The status of the document verification can be retrieved using the `application_id` through the `/process-document/status/{application_id}` endpoint.
 
 The response will be similar to the one above, but the status will eventually change to "VERIFIED" or "REJECTED" after a short delay:
 
@@ -47,7 +46,6 @@ The response will be similar to the one above, but the status will eventually ch
 ```json
 {
     "application_id": "string",
-    "verification_id": "string",
     "status": "string", // only "VERIFIED", "PENDING" or "REJECTED"
     "rejection_reason": "*string" // only present if status is "REJECTED"
 }
@@ -62,7 +60,6 @@ The callback payload has the following structure:
 ```json
 {
     "application_id": "string",
-    "verification_id": "string",
     "status": "string", // only "VERIFIED" or "REJECTED"
     "rejection_reason": "*string" // only present if status is "REJECTED"
 }
@@ -88,18 +85,17 @@ This should return a response similar to:
 ```json
 {
     "application_id": "123",
-    "verification_id": "DOC-1764173117-648016",
     "status": "PENDING"
 }
 ```
 
-You can then check the status of the document verification using the `verification_id`:
+You can then check the status of the document verification using the `application_id`:
 
 ```bash
-curl http://localhost:8083/process-document/status/{YOUR_VERIFICATION_ID}
+curl http://localhost:8083/process-document/status/{YOUR_APPLICATION_ID}
 ```
 
-> Replace `{YOUR_VERIFICATION_ID}` with the actual `verification_id` received from the previous response.
+> Replace `{YOUR_APPLICATION_ID}` with the actual `application_id` received from the previous response.
 > Rate limiting may apply to this endpoint.
 
 This should return a response similar to:
@@ -107,7 +103,6 @@ This should return a response similar to:
 ```json
 {
     "application_id": "123",
-    "verification_id": "DOC-1764173117-648016",
     "status": "VERIFIED"
 }
 ```
@@ -117,7 +112,6 @@ or, if the document was rejected:
 ```json
 {
     "application_id": "123",
-    "verification_id": "DOC-1764173117-648016",
     "status": "REJECTED",
     "rejection_reason": "Document is corrupted or unreadable"
 }
@@ -128,7 +122,6 @@ the callback will also be sent to the License Application Service at this point 
 ```json
 {
     "application_id": "123",
-    "verification_id": "DOC-1764173117-648016",
     "status": "VERIFIED"
 }
 ```
@@ -138,7 +131,6 @@ or, if the document was rejected:
 ```json
 {
     "application_id": "123",
-    "verification_id": "DOC-1764173117-648016",
     "status": "REJECTED",
     "rejection_reason": "Document is corrupted or unreadable"
 }
