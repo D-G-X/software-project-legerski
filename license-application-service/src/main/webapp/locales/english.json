@@ -85,6 +85,20 @@
         "title": "Action",
         "value": "Details"
       }
+    },
+    "license_status": {
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "in_process": "In Process",
+      "draft": "Draft",
+      "expired": "Expired"
+    },
+    "pagination": {
+      "showing_from": "Showing from",
+      "to": "to",
+      "of": "of",
+      "previous": "Previous",
+      "next": "Next"
     }
   },
   "common": {

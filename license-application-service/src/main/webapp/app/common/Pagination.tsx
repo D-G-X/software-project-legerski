@@ -1,4 +1,5 @@
 import React from 'react';
+import {useTranslation} from "react-i18next";
 
 // 1. Define the TypeScript interface for the component's props
 interface PaginationProps {
@@ -13,17 +14,18 @@ interface PaginationProps {
 // 2. Attach the interface to the component function
 const Pagination: React.FC<PaginationProps> = ({currentPage, totalPage, onPageChange, start, end, numberOfItems
 }) => {
-    // The rest of the logic is correct JSX
+
+    const { t } = useTranslation();
     const pages = Array.from({ length: totalPage }, (_, i) => i + 1);
 
     return (
         <div className={"flex justify-between mt-4 items-center "}>
             <div className={"text-xs text-gray-500"}>
-                Showing from from {start} to {end > numberOfItems ? numberOfItems : end} of {numberOfItems}
+                {t("dashboard.pagination.showing_from")} {start} {t("dashboard.pagination.to")} {end > numberOfItems ? numberOfItems : end} {t("dashboard.pagination.of")} {numberOfItems}
             </div>
             <div>
-                <button className="mx-1 px-3 py-1 bg-gray-200 text-black rounded-sm disabled:opacity-50"
-                        onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>Prev
+                <button className="mx-1 px-3 py-1 bg-gray-200 text-black rounded-sm disabled:opacity-50" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
+                    {t("dashboard.pagination.previous")}
                 </button>
                 {pages.map((page) => (
                     // Key prop is correct, and the onClick handler is correct
@@ -36,7 +38,9 @@ const Pagination: React.FC<PaginationProps> = ({currentPage, totalPage, onPageCh
                         {page}
                     </button>
                 ))}
-                <button className="mx-1 px-3 py-1 bg-gray-200 text-black rounded-sm disabled:opacity-50" onClick={ () => onPageChange(currentPage + 1)} disabled={currentPage === totalPage}>Next</button>
+                <button className="mx-1 px-3 py-1 bg-gray-200 text-black rounded-sm disabled:opacity-50" onClick={ () => onPageChange(currentPage + 1)} disabled={currentPage === totalPage}>
+                    {t("dashboard.pagination.next")}
+                </button>
             </div>
         </div>
     );

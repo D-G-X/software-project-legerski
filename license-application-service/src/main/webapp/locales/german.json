@@ -42,6 +42,36 @@
       "headline": "Mallorca"
     }
   },
+  "dashboard": {
+    "headline": "Starten Sie mit einer neuen Ferienwohnungslizenz oder verwalten Sie Ihren Antrag an einem Ort!",
+    "button-text": "Mietlizenz beantragen",
+    "title": "Ihre Anträge",
+    "licence_status": {
+      "accepted": "Angenommen",
+      "declined": "Abgelehnt",
+      "in_process": "In Bearbeitung",
+      "draft": "Entwurf",
+      "expired": "Abgelaufen"
+    },
+    "table": {
+      "application_id": "Antrags-ID",
+      "address": "Adresse",
+      "request_date": "Antragsdatum",
+      "licence_type": "Lizenztyp",
+      "status": "Status",
+      "action": {
+        "title": "Aktion",
+        "value": "Details"
+      }
+    },
+    "pagination": {
+      "showing_from": "Anzeige von",
+      "to": "bis",
+      "of": "von",
+      "previous": "Zurück",
+      "next": "Weiter"
+    }
+  },
   "error": {
     "page": {
       "headline": "Error",

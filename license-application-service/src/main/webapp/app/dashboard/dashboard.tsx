@@ -126,7 +126,10 @@ export default function Dashboard(){
                                     (item.license_status === "In Process" ? "text-orange-600 bg-orange-300 border-orange-600" :
                                     (item.license_status === "Draft" ? "text-gray-600 bg-gray-300 border-gray-600" : "text-green-600 bg-red-300 border-green-600" )))
                                 }`}>
-                                    {item.license_status}
+                                    {item.license_status === 'Accepted' ? t("dashboard.licence_status.accepted") :
+                                    (item.license_status === "Declined" ? t("dashboard.licence_status.declined") :
+                                    (item.license_status === "In Process" ? t("dashboard.licence_status.in_process") :
+                                    (item.license_status === "Draft" ? t("dashboard.licence_status.draft") : t("dashboard.licence_status.expired") )))}
                                 </span>
 
                             </td>
