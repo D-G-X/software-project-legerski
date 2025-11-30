@@ -59,6 +59,29 @@
       }
     }
   },
+  "forgotPassword": {
+    "request": {
+      "headline": "Forgot Password",
+      "subheadline": "Enter your registered email to receive a link to reset your password",
+      "resetPasswordBtn": "Reset Password"
+    },
+    "confirmation": {
+      "headline": "Sent !",
+      "subheadline": "The link has been sent to your email.",
+      "redirectToSignIn": "Go back to Sign in"
+    },
+    "resetPassword": {
+      "headline": "Create new password",
+      "subheadline": "Choose a new password to secure your account.",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm your password",
+      "changePasswordBtn": "Change Password"
+    },
+    "resetConfirmation": {
+      "headline": "Password Changed !",
+      "redirectToSignIn": "Go back to Sign in"
+    }
+  },
   "home": {
     "index": {
       "headline": "Mallorca"
