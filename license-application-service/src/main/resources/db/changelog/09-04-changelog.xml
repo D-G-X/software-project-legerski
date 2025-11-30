@@ -1,0 +1,28 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS"
+        logicalFilePath="db/changelog/09-03-changelog.xml">
+
+    <changeSet id="create_verification_status_enum" author="Florian">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM pg_type WHERE typname = 'verification_status';
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            CREATE TYPE verification_status AS ENUM ('verified', 'pending', 'rejected');
+        </sql>
+    </changeSet>
+
+    <changeSet id="add_verification_status_to_application" author="Florian">
+        <addColumn tableName="application">
+            <column name="verification_status" type="VERIFICATION_STATUS">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
