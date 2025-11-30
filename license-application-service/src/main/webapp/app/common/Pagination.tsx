@@ -21,7 +21,7 @@ const Pagination: React.FC<PaginationProps> = ({currentPage, totalPage, onPageCh
     return (
         <div className={"flex justify-between mt-4 items-center "}>
             <div className={"text-xs text-gray-500"}>
-                {t("dashboard.pagination.showing_from")} {start} {t("dashboard.pagination.to")} {end > numberOfItems ? numberOfItems : end} {t("dashboard.pagination.of")} {numberOfItems}
+                {t("dashboard.pagination.showingFrom")} {start} {t("dashboard.pagination.to")} {end > numberOfItems ? numberOfItems : end} {t("dashboard.pagination.of")} {numberOfItems} {t("dashboard.pagination.entries")}
             </div>
             <div>
                 <button className="mx-1 px-3 py-1 bg-gray-200 text-black rounded-sm disabled:opacity-50" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
@@ -30,7 +30,7 @@ const Pagination: React.FC<PaginationProps> = ({currentPage, totalPage, onPageCh
                 {pages.map((page) => (
                     // Key prop is correct, and the onClick handler is correct
                     <button
-                        className={`mx-1 px-3 py-1 ${currentPage === page ? 'bg-blue-600' : 'bg-gray-200'} ${currentPage === page ? 'text-white' : 'text-black'} rounded-sm disabled:opacity-50`}
+                        className={`mx-1 px-3 py-1 ${currentPage === page ? 'bg-mallorca-purple' : 'bg-gray-200'} ${currentPage === page ? 'text-white' : 'text-black'} rounded-sm disabled:opacity-50`}
                         key={page}
                         onClick={() => onPageChange(page)}
                         // You might add a className here to style the current page

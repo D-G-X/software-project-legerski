@@ -16,7 +16,7 @@ export default function AppRoutes() {
         { path: "", element: <Home /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
-        { path: "dashboard", element: <Dashboard /> },
+        { path: "applications", element: <Dashboard /> },
         { path: "payment", element: <Payment /> },
         { path: "error", element: <Error /> },
         { path: "*", element: <Error /> },

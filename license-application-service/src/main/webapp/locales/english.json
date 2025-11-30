@@ -66,37 +66,31 @@
   },
   "dashboard": {
     "headline": "Get started with a new Holiday Rental Licence or manage your application in one place!",
-    "button-text": "Request Rental Licence",
+    "buttonLabel": "Request new licence",
     "title": "Your Applications",
-    "licence_status": {
+    "licenceStatus": {
       "accepted": "Accepted",
       "declined": "Declined",
-      "in_process": "In Process",
+      "inProcess": "In Process",
       "draft": "Draft",
       "expired": "Expired"
     },
     "table": {
-      "application_id": "Application ID",
-      "address": "Address",
-      "request_date": "Request Date",
-      "licence_type": "Licence Type",
+      "applicationId": "Application ID",
+      "cadastalId": "Cadastral ID",
+      "requestDate": "Request Date",
+      "licenceType": "Licence Type",
       "status": "Status",
       "action": {
         "title": "Action",
         "value": "Details"
       }
     },
-    "license_status": {
-      "accepted": "Accepted",
-      "declined": "Declined",
-      "in_process": "In Process",
-      "draft": "Draft",
-      "expired": "Expired"
-    },
     "pagination": {
-      "showing_from": "Showing from",
+      "showingFrom": "Showing",
       "to": "to",
       "of": "of",
+      "entries": "entries",
       "previous": "Previous",
       "next": "Next"
     }
