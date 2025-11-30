@@ -1,36 +1,38 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, {useState} from "react";
+import {useTranslation} from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
 import Pagination from "../common/Pagination";
-import { Link, useNavigate } from "react-router";
-import { FormHeader } from "../common/headingTitle";
-import { useListApplications } from "app/services/applications/applications";
+import {Link, useNavigate} from "react-router";
+import {FormHeader} from "../common/headingTitle";
+import {useListApplications} from "app/services/applications/applications";
+import {ApplicationResource} from "../../types";
 
 export default function Dashboard() {
-  const { t } = useTranslation();
-  useDocumentTitle(t("home.index.headline"));
-
-  const { data } = useListApplications({
-    user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-  });
-
-  const applications = data?.data ?? [];
-  console.log(applications);
-
+  const {t} = useTranslation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  useDocumentTitle(t("home.index.headline"));
+
+  const { data: response } = useListApplications({
+    user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
+  });
+
+// response = AxiosResponse
+  const applications: ApplicationResource[] =
+      Array.isArray(response?.data) ? response.data : [];
+
+  console.log("Applications:", applications);
 
   const totalPage = Math.ceil(applications.length / itemsPerPage);
 
-  const currentData =
-      applications.length > 0
-          ? applications.slice(
-              (currentPage - 1) * itemsPerPage,
-              currentPage * itemsPerPage
-          )
-          : [];
+  const currentData = applications.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+  );
+
+
 
   const formatDate = (rawDate: string | undefined) => {
     if (!rawDate) return "";
@@ -91,35 +93,59 @@ export default function Dashboard() {
                             <td>{formatDate(item.applied_at)}</td>
                             <td>{item.license_type}</td>
                             <td>
-                        <span
-                            className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[10rem] rounded-md ${
-                                item.application_status === "APPROVED"
-                                    ? "text-green-600 bg-green-300"
-                                    : item.application_status === "EXPIRED"
-                                        ? "text-red-800 bg-red-200"
-                                        : item.application_status === "DRAFT"
-                                            ? "text-gray-800 bg-gray-200"
-                                            : ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING", "AWAITING_PAYMENT", "PAYMENT_RECEIVED", "SUBMITTED", "IN_BALLOT"].includes(
-                                                item.application_status
-                                            )
-                                                ? "text-orange-800 bg-orange-200"
-                                                : "text-red-800 bg-red-200"
-                            }`}
-                        >
-                          {item.application_status === "APPROVED"
-                              ? t("dashboard.licenceStatus.accepted")
-                              : item.application_status === "EXPIRED"
-                                  ? t("dashboard.licenceStatus.expired")
-                                  : item.application_status === "DRAFT"
-                                      ? t("dashboard.licenceStatus.draft")
-                                      : ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING", "AWAITING_PAYMENT", "PAYMENT_RECEIVED", "SUBMITTED", "IN_BALLOT"].includes(
-                                          item.application_status
-                                      )
-                                          ? t("dashboard.licenceStatus.inProcess")
-                                          : item.application_status === "REJECTED"
-                                              ? t("dashboard.licenceStatus.declined")
-                                              : ""}
-                        </span>
+                              <span
+                                  className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[10rem] rounded-md ${
+                                      item.application_status === "APPROVED"
+                                          ? "text-green-600 bg-green-300"
+                                          : item.application_status === "EXPIRED"
+                                              ? "text-red-800 bg-red-200"
+                                              : item.application_status === "CANCELLED"
+                                                  ? "text-red-800 bg-red-200"
+                                                  : item.application_status === "REJECTED"
+                                                      ? "text-red-800 bg-red-200"
+                                                      : item.application_status === "DRAFT"
+                                                          ? "text-gray-800 bg-gray-200"
+                                                          : [
+                                                            "DOCUMENTS_SUBMITTED",
+                                                            "VERIFICATION_PENDING",
+                                                            "AWAITING_PAYMENT",
+                                                            "PAYMENT_RECEIVED",
+                                                            "SUBMITTED",
+                                                            "IN_BALLOT",
+                                                            "SELECTED",
+                                                            "NOT_SELECTED",
+                                                            "UNDER_REVIEW",
+                                                          ].includes(item.application_status)
+                                                              ? "text-orange-800 bg-orange-200"
+                                                              : "text-gray-800 bg-gray-200"
+                                  }`}
+                              >
+                                {
+                                  item.application_status === "APPROVED"
+                                      ? t("dashboard.licenceStatus.accepted")
+                                      : item.application_status === "EXPIRED"
+                                          ? t("dashboard.licenceStatus.expired")
+                                          : item.application_status === "CANCELLED"
+                                              ? t("dashboard.licenceStatus.cancelled")
+                                              : item.application_status === "REJECTED"
+                                                  ? t("dashboard.licenceStatus.declined")
+                                                  : item.application_status === "DRAFT"
+                                                      ? t("dashboard.licenceStatus.draft")
+                                                      : [
+                                                        "DOCUMENTS_SUBMITTED",
+                                                        "VERIFICATION_PENDING",
+                                                        "AWAITING_PAYMENT",
+                                                        "PAYMENT_RECEIVED",
+                                                        "SUBMITTED",
+                                                        "IN_BALLOT",
+                                                        "SELECTED",
+                                                        "NOT_SELECTED",
+                                                        "UNDER_REVIEW",
+                                                      ].includes(item.application_status)
+                                                          ? t("dashboard.licenceStatus.inProcess")
+                                                          : ""
+                                }
+                              </span>
                             </td>
 
                             <td>
@@ -134,7 +160,7 @@ export default function Dashboard() {
                       ))}
                     </table>
 
-                    <div className="my-8" />
+                    <div className="my-8"/>
 
                     <Pagination
                         currentPage={currentPage}
