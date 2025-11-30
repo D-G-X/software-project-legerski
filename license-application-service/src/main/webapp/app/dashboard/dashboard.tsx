@@ -14,84 +14,182 @@ export default function Dashboard(){
     const { t } = useTranslation();
 
     const licenseRecords = [
-        {
-            "application_id": 201,
-            "address": "In der Au 16B, Stuttgart",
-            "requested_date": "2025-07-01T10:00:00Z",
-            "license_type": "ETV",
-            "license_status": "Accepted",
-        },
-        {
-            "application_id": 202,
-            "address": "Königstraße 54, Stuttgart",
-            "requested_date": "2025-07-01T14:30:00Z",
-            "license_type": "B2C",
-            "license_status": "Declined",
-        },
-        {
-            "application_id": 203,
-            "address": "Hauptstraße 88, Ludwigsburg",
-            "requested_date": "2025-07-02T09:15:00Z",
-            "license_type": "ETV",
-            "license_status": "In Process",
-        },
-        {
-            "application_id": 204,
-            "address": "Filderbahnplatz 28, Stuttgart",
-            "requested_date": "2025-07-02T16:00:00Z",
-            "license_type": "B2C",
-            "license_status": "Draft",
-        },
-        {
-            "application_id": 205,
-            "address": "Gerberstraße 12, Esslingen am Neckar",
-            "requested_date": "2025-07-03T11:20:00Z",
-            "license_type": "HML",
-            "license_status": "Expired",
-        },
-        {
-            "application_id": 206,
-            "address": "Charlottenplatz 1, Stuttgart",
-            "requested_date": "2025-07-03T15:45:00Z",
-            "license_type": "ETV",
-            "license_status": "Accepted",
-        },
-        {
-            "application_id": 207,
-            "address": "Schillerplatz 7, Waiblingen",
-            "requested_date": "2025-07-04T08:00:00Z",
-            "license_type": "B2C",
-            "license_status": "Expired",
-        },
-        {
-            "application_id": 208,
-            "address": "Theodor-Heuss-Straße 30, Stuttgart",
-            "requested_date": "2025-07-04T12:00:00Z",
-            "license_type": "HML",
-            "license_status": "Draft",
-        },
-        {
-            "application_id": 209,
-            "address": "Marktplatz 1, Fellbach",
-            "requested_date": "2025-07-05T13:30:00Z",
-            "license_type": "ETV",
-            "license_status": "Expired",
-        },
-        {
-            "application_id": 210,
-            "address": "Rotebühlplatz 2, Stuttgart",
-            "requested_date": "2025-07-05T17:00:00Z",
-            "license_type": "B2C",
-            "license_status": "Declined",
-        }
+      {
+        "application_id": 201,
+        "address": "07123A04500012",
+        "requested_date": "2025-07-01T10:00:00Z",
+        "license_type": "ETV",
+        "license_status": "Accepted"
+      },
+      {
+        "application_id": 202,
+        "address": "07123A04600098",
+        "requested_date": "2025-07-01T14:30:00Z",
+        "license_type": "ETVPL",
+        "license_status": "Declined"
+      },
+      {
+        "application_id": 203,
+        "address": "07084B01200341",
+        "requested_date": "2025-07-02T09:15:00Z",
+        "license_type": "ETV",
+        "license_status": "In Process"
+      },
+      {
+        "application_id": 204,
+        "address": "07123C05100177",
+        "requested_date": "2025-07-02T16:00:00Z",
+        "license_type": "ETVPL",
+        "license_status": "Draft"
+      },
+      {
+        "application_id": 205,
+        "address": "07085A02200456",
+        "requested_date": "2025-07-03T11:20:00Z",
+        "license_type": "ETV60",
+        "license_status": "Expired"
+      },
+      {
+        "application_id": 206,
+        "address": "07123D03300912",
+        "requested_date": "2025-07-03T15:45:00Z",
+        "license_type": "ETV",
+        "license_status": "Accepted"
+      },
+      {
+        "application_id": 207,
+        "address": "07092A01400072",
+        "requested_date": "2025-07-04T08:00:00Z",
+        "license_type": "ETVPL",
+        "license_status": "Expired"
+      },
+      {
+        "application_id": 208,
+        "address": "07123B05700831",
+        "requested_date": "2025-07-04T12:00:00Z",
+        "license_type": "ETV60",
+        "license_status": "Draft"
+      },
+      {
+        "application_id": 209,
+        "address": "07086A00900214",
+        "requested_date": "2025-07-05T13:30:00Z",
+        "license_type": "ETV",
+        "license_status": "Expired"
+      },
+      {
+        "application_id": 210,
+        "address": "07123A01900166",
+        "requested_date": "2025-07-05T17:00:00Z",
+        "license_type": "ETVPL",
+        "license_status": "Declined"
+      },
+      {
+        "application_id": 211,
+        "address": "07084C00400095",
+        "requested_date": "2025-07-06T10:30:00Z",
+        "license_type": "ETV60",
+        "license_status": "In Process"
+      },
+      {
+        "application_id": 212,
+        "address": "07123A04100320",
+        "requested_date": "2025-07-06T14:15:00Z",
+        "license_type": "ETV",
+        "license_status": "Accepted"
+      },
+      {
+        "application_id": 213,
+        "address": "07085B01600402",
+        "requested_date": "2025-07-07T09:45:00Z",
+        "license_type": "ETVPL",
+        "license_status": "Draft"
+      },
+      {
+        "application_id": 214,
+        "address": "07123D06200911",
+        "requested_date": "2025-07-07T16:30:00Z",
+        "license_type": "ETV60",
+        "license_status": "Declined"
+      },
+      {
+        "application_id": 215,
+        "address": "07092A01300144",
+        "requested_date": "2025-07-08T11:10:00Z",
+        "license_type": "ETV",
+        "license_status": "In Process"
+      },
+      {
+        "application_id": 216,
+        "address": "07123B03800773",
+        "requested_date": "2025-07-08T15:50:00Z",
+        "license_type": "ETVPL",
+        "license_status": "Accepted"
+      },
+      {
+        "application_id": 217,
+        "address": "07086C02100058",
+        "requested_date": "2025-07-09T10:20:00Z",
+        "license_type": "ETV60",
+        "license_status": "Draft"
+      },
+      {
+        "application_id": 218,
+        "address": "07123A04400610",
+        "requested_date": "2025-07-09T14:40:00Z",
+        "license_type": "ETV",
+        "license_status": "Expired"
+      },
+      {
+        "application_id": 219,
+        "address": "07084B02500281",
+        "requested_date": "2025-07-10T09:00:00Z",
+        "license_type": "ETVPL",
+        "license_status": "Declined"
+      },
+      {
+        "application_id": 220,
+        "address": "07123C03900033",
+        "requested_date": "2025-07-10T13:30:00Z",
+        "license_type": "ETV60",
+        "license_status": "In Process"
+      },
+      {
+        "application_id": 221,
+        "address": "07085A01800490",
+        "requested_date": "2025-07-11T11:45:00Z",
+        "license_type": "ETV",
+        "license_status": "Accepted"
+      },
+      {
+        "application_id": 222,
+        "address": "07123D05400088",
+        "requested_date": "2025-07-11T16:20:00Z",
+        "license_type": "ETVPL",
+        "license_status": "Draft"
+      },
+      {
+        "application_id": 223,
+        "address": "07092B01100039",
+        "requested_date": "2025-07-12T10:05:00Z",
+        "license_type": "ETV60",
+        "license_status": "Expired"
+      },
+      {
+        "application_id": 224,
+        "address": "07123A02700264",
+        "requested_date": "2025-07-12T14:55:00Z",
+        "license_type": "ETV",
+        "license_status": "Declined"
+      }
     ];
 
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itepmsPerPage = 3;
+    const itemsPerPage = 10;
 
-    const totalPage = Math.ceil(licenseRecords.length / itepmsPerPage); // Determine total number of pages
-    const currentData = licenseRecords.slice((currentPage - 1) * itepmsPerPage, currentPage * itepmsPerPage); // Get current page data
+    const totalPage = Math.ceil(licenseRecords.length / itemsPerPage); // Determine total number of pages
+    const currentData = licenseRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage); // Get current page data
 
         useDocumentTitle(t("home.index.headline"));
 
@@ -142,8 +240,8 @@ export default function Dashboard(){
                         currentPage={currentPage}
                         totalPage={totalPage}
                         onPageChange={setCurrentPage}
-                        start={((currentPage - 1) * itepmsPerPage) + 1}
-                        end={currentPage * itepmsPerPage}
+                        start={((currentPage - 1) * itemsPerPage) + 1}
+                        end={currentPage * itemsPerPage}
                         numberOfItems={licenseRecords.length}
                     />
 
