@@ -105,47 +105,51 @@ export default function Dashboard(){
                     {t("dashboard.button-text")}
                 </button>
                 <h1 className="font-bold text-xl">{t("dashboard.title")}</h1>
-                <table className={"mt-8"}>
-                    <tr>
-                        <th>{t("dashboard.table.application_id")}</th>
-                        <th>{t("dashboard.table.address")}</th>
-                        <th>{t("dashboard.table.request_date")}</th>
-                        <th>{t("dashboard.table.licence_type")}</th>
-                        <th>{t("dashboard.table.status")}</th>
-                        <th>{t("dashboard.table.action.title")}</th>
-                    </tr>
-                    {currentData.map(item => (
-                        <tr key={item.application_id}>
-                            <td>{item.application_id}</td>
-                            <td>{item.address}</td>
-                            <td>{item.requested_date}</td>
-                            <td>{item.license_type}</td>
-                            <td>
+                <div className={"overflow-x-auto"}>
+                    <table className={"mt-8"}>
+                        <tr>
+                            <th>{t("dashboard.table.application_id")}</th>
+                            <th>{t("dashboard.table.address")}</th>
+                            <th>{t("dashboard.table.request_date")}</th>
+                            <th>{t("dashboard.table.licence_type")}</th>
+                            <th>{t("dashboard.table.status")}</th>
+                            <th>{t("dashboard.table.action.title")}</th>
+                        </tr>
+                        {currentData.map(item => (
+                            <tr key={item.application_id}>
+                                <td>{item.application_id}</td>
+                                <td>{item.address}</td>
+                                <td>{item.requested_date}</td>
+                                <td>{item.license_type}</td>
+                                <td>
                                 <span className={`text-center p-1 px-4 border rounded-md ${item.license_status === 'Accepted' ? "text-green-600 bg-green-300 border-green-600" :
                                     (item.license_status === "Declined" ? "text-red-600 bg-red-300 border-red-600" :
-                                    (item.license_status === "In Process" ? "text-orange-600 bg-orange-300 border-orange-600" :
-                                    (item.license_status === "Draft" ? "text-gray-600 bg-gray-300 border-gray-600" : "text-green-600 bg-red-300 border-green-600" )))
+                                        (item.license_status === "In Process" ? "text-orange-600 bg-orange-300 border-orange-600" :
+                                            (item.license_status === "Draft" ? "text-gray-600 bg-gray-300 border-gray-600" : "text-green-600 bg-red-300 border-green-600" )))
                                 }`}>
                                     {item.license_status === 'Accepted' ? t("dashboard.licence_status.accepted") :
-                                    (item.license_status === "Declined" ? t("dashboard.licence_status.declined") :
-                                    (item.license_status === "In Process" ? t("dashboard.licence_status.in_process") :
-                                    (item.license_status === "Draft" ? t("dashboard.licence_status.draft") : t("dashboard.licence_status.expired") )))}
+                                        (item.license_status === "Declined" ? t("dashboard.licence_status.declined") :
+                                            (item.license_status === "In Process" ? t("dashboard.licence_status.in_process") :
+                                                (item.license_status === "Draft" ? t("dashboard.licence_status.draft") : t("dashboard.licence_status.expired") )))}
                                 </span>
 
-                            </td>
-                            <td><Link to="register" className={"text-blue-500 underline"}>{t("dashboard.table.action.value")}</Link></td>
-                        </tr>
-                    ))}
-                </table>
+                                </td>
+                                <td><Link to="register" className={"text-blue-500 underline"}>{t("dashboard.table.action.value")}</Link></td>
+                            </tr>
+                        ))}
+                    </table>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPage={totalPage}
+                        onPageChange={setCurrentPage}
+                        start={((currentPage - 1) * itepmsPerPage) + 1}
+                        end={currentPage * itepmsPerPage}
+                        numberOfItems={licenseRecords.length}
+                    />
 
-                <Pagination
-                    currentPage={currentPage}
-                    totalPage={totalPage}
-                    onPageChange={setCurrentPage}
-                    start={((currentPage - 1) * itepmsPerPage) + 1}
-                    end={currentPage * itepmsPerPage}
-                    numberOfItems={licenseRecords.length}
-                />
+                </div>
+
+
             </div>
         </div>
     );
