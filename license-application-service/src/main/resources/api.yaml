@@ -375,103 +375,81 @@ paths:
         '403':
           description: Forbidden - insufficient permissions
 
-
-  /applications/{applicationId}/documents:
+  /validation-callback:
     post:
       tags: [Document Verification]
-      summary: Upload a document for an application
-      description: Upload a supporting document for an application.
-      operationId: uploadDocument
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                document_type:
-                  type: string
-                  example: "proof_of_ownership"
-      responses:
-        "201":
-          description: Document uploaded
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApplicationDocumentResource"
-
-    get:
-      tags: [Document Verification]
-      summary: List documents for an application
-      description: List all uploaded documents belonging to a specific application.
-      operationId: listDocuments
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: List of documents
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ApplicationDocumentResource"
-
-  /applications/{applicationId}/documents/{documentId}/verification:
-    post:
-      tags: [Document Verification]
-      summary: Verify or reject a submitted document
-      description: Update the verification status of a submitted document, marking it as pending, verified, or rejected.
-      operationId: verifyDocument
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: documentId
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Endpoint for mock to send document validation results
+      description: Endpoint for mock to send document validation results
+      operationId: documentValidationCallback
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - application_id
+                - status
               properties:
-                verification_status:
+                application_id:
+                  type: integer
+                  description: ID of the application being validated
+                  example: 1
+                status:
                   type: string
-                  enum: [pending, verified, rejected]
-                remarks:
+                  description: Validation result
+                  enum:
+                    - VERIFIED
+                    - REJECTED
+                rejection_reason:
                   type: string
+                  nullable: true
+                  description: Reason for rejection (only present if status = REJECTED)
+      responses:
+        default:
+          description: No response expected
+
+  /applications/{applicationId}/documents:
+    get:
+      tags: [Document Verification]
+      summary: Get document validation status for an application
+      description: Returns the validation result of the documents belonging to an application
+      operationId: getApplicationDocuments
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the application
       responses:
         "200":
-          description: Document verification status updated
+          description: Document validation result found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationDocumentResource"
+                type: object
+                required:
+                  - application_id
+                  - status
+                properties:
+                  application_id:
+                    type: integer
+                    description: ID of the application being validated
+                    example: 1
+                  status:
+                    type: string
+                    description: Validation result
+                    enum:
+                      - VERIFIED
+                      - REJECTED
+                  rejection_reason:
+                    type: string
+                    nullable: true
+                    description: Reason for rejection (only present if status = REJECTED)
+        "404":
+          description: Application not found
+
 
   /applications/{applicationId}/payments:
     get:
