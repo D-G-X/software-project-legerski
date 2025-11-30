@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
 import { validateEmail, validatePassword } from "../common/validationRules";
 import { useTranslation } from "react-i18next";
@@ -6,8 +6,13 @@ import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
 import { OrDivider } from "app/common/orDivider";
 import "./login.css";
+import { useLoginUser } from "app/services/authentication/authentication";
+import { AuthContext } from "app/common/AuthContext";
+import { useNavigate } from "react-router";
 
 export default function Login() {
+  const auth = useContext(AuthContext);
+  const navigate = useNavigate();
   const { t } = useTranslation();
   useDocumentTitle(t("login.title"));
 
@@ -21,6 +26,13 @@ export default function Login() {
     password: "",
     login: "",
   });
+
+  useEffect(() => {
+    console.log(auth?.accessToken);
+    if (auth?.accessToken) {
+      navigate("/");
+    }
+  }, [auth?.accessToken, navigate]);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,7 +48,15 @@ export default function Login() {
     }));
   };
 
-  const handleSubmit = () => {
+  const loginUser = useLoginUser({
+    mutation: {
+      onError: (error) => {
+        console.error("Login failed:", error);
+      },
+    },
+  });
+
+  const handleSubmit = async () => {
     const emailValidateResult: validateResults = validateEmail(form.email);
     const passwordValidateResult: validateResults = validatePassword(
       form.password
@@ -56,9 +76,43 @@ export default function Login() {
     }
     setErrors({ email: "", password: "", login: "" });
 
-    // implement the API call for login and redirection to the dashboard if the login credentials has been authorized successfully;
-    alert("API has to be integrated yet!!");
-    return true;
+    try {
+      const response = await loginUser.mutateAsync({
+        data: {
+          email: form.email,
+          password: form.password,
+        },
+      });
+
+      // Check if login was successful
+      if (response.status === 200) {
+        const { access_token, refresh_token } = response.data;
+
+        localStorage.setItem("accessToken", access_token);
+        localStorage.setItem("refreshToken", refresh_token);
+
+        auth?.setAccessToken(access_token);
+        auth?.setRefreshToken(refresh_token);
+
+        navigate("/"); // redirect to dashboard
+      } else {
+        alert("Unexpected response from server");
+      }
+    } catch (error: any) {
+      const status = error?.response?.status;
+
+      switch (status) {
+        case 401:
+          alert("Invalid email or password");
+          break;
+        case 400:
+          alert("Bad request. Please check your input.");
+          break;
+        default:
+          alert("Something went wrong. Please try again.");
+      }
+    }
+    return;
   };
 
   return (
