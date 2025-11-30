@@ -7,8 +7,8 @@ import (
 	"io"
 	"log"
 	"math/rand"
-	"mime/multipart"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -47,14 +47,14 @@ var httpClient = &http.Client{
 
 // ProcessDocumentResponse Outgoing response (to client)
 type ProcessDocumentResponse struct {
-	ApplicationId   string  `json:"application_id"`
+	ApplicationId   int     `json:"application_id"`
 	Status          string  `json:"status"`
 	RejectionReason *string `json:"rejection_reason,omitempty"`
 }
 
 // CallbackPayload Outgoing callback payload (to backend)
 type CallbackPayload struct {
-	ApplicationId    string  `json:"application_id"`
+	ApplicationId    int     `json:"application_id"`
 	IdFilename       string  `json:"id_filename"`
 	PropertyFilename string  `json:"proof_filename"`
 	Status           string  `json:"status"`
@@ -63,15 +63,15 @@ type CallbackPayload struct {
 
 // JobInfo internal job storage
 type JobInfo struct {
-	ApplicationId    string
+	ApplicationId    int
 	IdFilename       string
 	PropertyFilename string
 	Status           string
 }
 
 var (
-	jobStore    = make(map[string]JobInfo)
-	reasonStore = make(map[string]string)
+	jobStore    = make(map[int]JobInfo)
+	reasonStore = make(map[int]string)
 	mu          sync.Mutex
 )
 
@@ -81,7 +81,7 @@ type RateInfo struct {
 	ResetTime time.Time
 }
 
-var rateStore = make(map[string]*RateInfo)
+var rateStore = make(map[int]*RateInfo)
 
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -97,7 +97,6 @@ func isPdf(data []byte) bool {
 	if len(data) < 4 {
 		return false
 	}
-	// check "magic" number
 	return bytes.HasPrefix(data, []byte("%PDF"))
 }
 
@@ -107,24 +106,18 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// limit total multipart size
 	err := r.ParseMultipartForm(maxFileSize << 20)
 	if err != nil {
 		http.Error(w, "invalid multipart request", http.StatusBadRequest)
 		return
 	}
 
-	// read id file
 	idFile, idHeader, err := r.FormFile("id_file")
 	if err != nil {
 		reject(w, "Missing ID PDF")
 		return
 	}
-	defer func(idFile multipart.File) {
-		if cerr := idFile.Close(); cerr != nil {
-			log.Printf("error closing idFile: %v", cerr)
-		}
-	}(idFile)
+	defer idFile.Close()
 
 	idData, err := io.ReadAll(idFile)
 	if err != nil {
@@ -132,17 +125,12 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// read property proof file
 	proofFile, proofHeader, err := r.FormFile("proof_file")
 	if err != nil {
 		reject(w, "Missing proof PDF")
 		return
 	}
-	defer func(proofFile multipart.File) {
-		if cerr := proofFile.Close(); cerr != nil {
-			log.Printf("error closing proofFile: %v", cerr)
-		}
-	}(proofFile)
+	defer proofFile.Close()
 
 	proofData, err := io.ReadAll(proofFile)
 	if err != nil {
@@ -150,14 +138,18 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	applicationId := r.FormValue("application_id")
-	if applicationId == "" {
+	raw := r.FormValue("application_id")
+	if raw == "" {
 		reject(w, "Missing application ID")
 		return
 	}
-	// TODO: validate application ID format?
 
-	// validate pdf format
+	applicationId, err := strconv.Atoi(raw)
+	if err != nil {
+		reject(w, "Invalid application ID")
+		return
+	}
+
 	if !isPdf(idData) {
 		reject(w, "ID document is not a valid PDF: "+idHeader.Filename)
 		return
@@ -176,7 +168,6 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	mu.Unlock()
 
-	// start background processing
 	go runBackgroundJob(applicationId, idHeader.Filename, proofHeader.Filename)
 
 	resp := ProcessDocumentResponse{
@@ -185,15 +176,10 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("error encoding response: %v", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
+	json.NewEncoder(w).Encode(resp)
 }
 
-func runBackgroundJob(applicationId, idFile, proofFile string) {
-	// simulate processing duration
+func runBackgroundJob(applicationId int, idFile, proofFile string) {
 	time.Sleep(processDuration[rand.Intn(len(processDuration))])
 
 	status := getRandomStatus()
@@ -201,7 +187,6 @@ func runBackgroundJob(applicationId, idFile, proofFile string) {
 	var rejectionReason *string
 
 	mu.Lock()
-	// update job status
 	jobStore[applicationId] = JobInfo{
 		ApplicationId:    applicationId,
 		IdFilename:       idFile,
@@ -226,7 +211,7 @@ func runBackgroundJob(applicationId, idFile, proofFile string) {
 	}
 
 	if err := sendCallback(payload); err != nil {
-		log.Printf("callback error for application_id=%s: %v", applicationId, err)
+		log.Printf("callback error for application_id=%d: %v", applicationId, err)
 	}
 }
 
@@ -247,11 +232,7 @@ func sendCallback(p CallbackPayload) error {
 	if err != nil {
 		return fmt.Errorf("execute callback request: %w", err)
 	}
-	defer func(Body io.ReadCloser) {
-		if cerr := Body.Close(); cerr != nil {
-			log.Printf("error closing callback response body: %v", cerr)
-		}
-	}(resp.Body)
+	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
 		b, _ := io.ReadAll(resp.Body)
@@ -275,11 +256,7 @@ func reject(w http.ResponseWriter, msg string) {
 		RejectionReason: &msg,
 	}
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("error encoding rejection response: %v", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
@@ -294,9 +271,10 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	applicationId := strings.TrimPrefix(r.URL.Path, base)
-	if applicationId == "" {
-		http.Error(w, "missing application ID", http.StatusBadRequest)
+	raw := strings.TrimPrefix(r.URL.Path, base)
+	applicationId, err := strconv.Atoi(raw)
+	if err != nil {
+		http.Error(w, "invalid application ID", http.StatusBadRequest)
 		return
 	}
 
@@ -314,8 +292,8 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !checkRateLimit(job.ApplicationId) {
-		http.Error(w, "rate limit exceeded for: "+job.ApplicationId, http.StatusTooManyRequests)
+	if !checkRateLimit(applicationId) {
+		http.Error(w, "rate limit exceeded for: "+strconv.Itoa(applicationId), http.StatusTooManyRequests)
 		return
 	}
 
@@ -326,13 +304,10 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		sendErr(err, w)
-		return
-	}
+	json.NewEncoder(w).Encode(resp)
 }
 
-func checkRateLimit(applicationId string) bool {
+func checkRateLimit(applicationId int) bool {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -342,7 +317,7 @@ func checkRateLimit(applicationId string) bool {
 	if !exists || now.After(ri.ResetTime) {
 		rateStore[applicationId] = &RateInfo{
 			Count:     1,
-			ResetTime: now.Add(time.Second), // reset every second
+			ResetTime: now.Add(time.Second),
 		}
 		return true
 	}
