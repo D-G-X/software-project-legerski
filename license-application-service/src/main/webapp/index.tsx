@@ -11,24 +11,33 @@ import indonesian from "./locales/indonesian.json";
 import spanish from "./locales/spanish.json";
 import AppRoutes from "./app/routes";
 import "./index.css";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 i18n.use(initReactI18next).init({
-  resources: {
-    en: { translation: english },
-    fr: { translation: french },
-    de: { translation: german },
-    hi: { translation: hindi },
-    id: { translation: indonesian },
-    es: { translation: spanish },
-  },
-  lng: localStorage.getItem("language") || "en",
-  fallbackLng: "en",
-  interpolation: {
-    escapeValue: false,
-  },
+    resources: {
+        en: { translation: english },
+        fr: { translation: french },
+        de: { translation: german },
+        hi: { translation: hindi },
+        id: { translation: indonesian },
+        es: { translation: spanish },
+    },
+    lng: localStorage.getItem("language") || "en",
+    fallbackLng: "en",
+    interpolation: {
+        escapeValue: false,
+    },
 });
 
 axios.defaults.baseURL = process.env.API_PATH;
 
 const root = document.getElementById("root")!!;
-ReactDOM.createRoot(root).render(<AppRoutes />);
+ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+        <QueryClientProvider client={queryClient}>
+            <AppRoutes />);
+        </QueryClientProvider>
+    </React.StrictMode>
+);
