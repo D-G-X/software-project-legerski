@@ -4,6 +4,7 @@ import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
 import Pagination from "../common/Pagination";
 import {Link, useNavigate} from "react-router";
+import {FormHeader} from "../common/headingTitle";
 // import useDocumentTitle from "app/common/use-document-title";
 
 
@@ -206,38 +207,43 @@ export default function Dashboard() {
 
   return (
       <div className="container mx-auto px-4 md:px-6">
-        <div className="relative min-h-[calc(100vh-4rem)] bg-white justify-center mt-8">
-          <h2 className="font-bold text-center text-xl mb-6">{t("dashboard.headline")}</h2>
-          <button
-              type="button"
-              className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg mb-6 w-max block m-auto"
-              onClick={handleNewApplicationClick}
-          >
-            {t("dashboard.button-text")}
-          </button>
-          <h1 className="font-bold text-xl text-mallorca-purple">{t("dashboard.title")}</h1>
-          <div className={"overflow-x-auto"}>
-            <table className={"mt-8"}>
-              <tr>
-                <th>{t("dashboard.table.applicationId")}</th>
-                <th>{t("dashboard.table.cadastalId")}</th>
-                <th>{t("dashboard.table.requestDate")}</th>
-                <th>{t("dashboard.table.licenceType")}</th>
-                <th>{t("dashboard.table.status")}</th>
-                <th>{t("dashboard.table.action.title")}</th>
-              </tr>
-              {currentData.map(item => (
-                  <tr key={item.application_id}>
-                    <td>{item.application_id}</td>
-                    <td>{item.cadastralId}</td>
-                    <td>{formatDate(item.requested_date)}</td>
-                    <td>{item.license_type}</td>
-                    <td>
+        <FormHeader
+            heading={t("dashboard.headline")}
+            subHeading=""
+        />
+
+        <button
+            type="button"
+            className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 w-max block m-auto"
+            onClick={handleNewApplicationClick}
+        >
+          {t("dashboard.buttonLabel")}
+        </button>
+        {(currentData.length > 0) &&
+            <div className="mt-16">
+              <h1 className="font-bold text-xl text-mallorca-purple">{t("dashboard.title")}</h1>
+              <div className={"overflow-x-auto"}>
+                <table className={"mt-8 text-lg dashboard-table"}>
+                  <tr>
+                    <th>{t("dashboard.table.applicationId")}</th>
+                    <th>{t("dashboard.table.cadastalId")}</th>
+                    <th>{t("dashboard.table.requestDate")}</th>
+                    <th>{t("dashboard.table.licenceType")}</th>
+                    <th>{t("dashboard.table.status")}</th>
+                    <th>{t("dashboard.table.action.title")}</th>
+                  </tr>
+                  {currentData.map(item => (
+                      <tr key={item.application_id}>
+                        <td>{item.application_id}</td>
+                        <td>{item.cadastralId}</td>
+                        <td>{formatDate(item.requested_date)}</td>
+                        <td>{item.license_type}</td>
+                        <td>
                                 <span
-                                    className={`text-center p-1 px-4 border rounded-md ${item.license_status === 'Accepted' ? "text-green-600 bg-green-300 border-green-600" :
-                                        (item.license_status === "Declined" ? "text-red-600 bg-red-300 border-red-600" :
-                                            (item.license_status === "In Process" ? "text-orange-600 bg-orange-300 border-orange-600" :
-                                                (item.license_status === "Draft" ? "text-gray-600 bg-gray-300 border-gray-600" : "text-green-600 bg-red-300 border-green-600")))
+                                    className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[10rem] rounded-md ${item.license_status === 'Accepted' ? "text-green-600 bg-green-300 border-green-600" :
+                                        (item.license_status === "Declined" ? "text-red-800 bg-red-200" :
+                                            (item.license_status === "In Process" ? "text-orange-800 bg-orange-200" :
+                                                (item.license_status === "Draft" ? "text-gray-800 bg-gray-200" : "text-red-800 bg-red-200")))
                                     }`}>
                                     {item.license_status === 'Accepted' ? t("dashboard.licenceStatus.accepted") :
                                         (item.license_status === "Declined" ? t("dashboard.licenceStatus.declined") :
@@ -245,24 +251,25 @@ export default function Dashboard() {
                                                 (item.license_status === "Draft" ? t("dashboard.licenceStatus.draft") : t("dashboard.licenceStatus.expired"))))}
                                 </span>
 
-                    </td>
-                    <td><Link to="register"
-                              className={"text-mallorca-purple underline"}>{t("dashboard.table.action.value")}</Link>
-                    </td>
-                  </tr>
-              ))}
-            </table>
-            <div className="my-8"></div>
-            <Pagination
-                currentPage={currentPage}
-                totalPage={totalPage}
-                onPageChange={setCurrentPage}
-                start={((currentPage - 1) * itemsPerPage) + 1}
-                end={currentPage * itemsPerPage}
-                numberOfItems={licenseRecords.length}
-            />
-          </div>
-        </div>
+                        </td>
+                        <td><Link to="register"
+                                  className={"text-mallorca-purple underline"}>{t("dashboard.table.action.value")}</Link>
+                        </td>
+                      </tr>
+                  ))}
+                </table>
+                <div className="my-8"></div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPage={totalPage}
+                    onPageChange={setCurrentPage}
+                    start={((currentPage - 1) * itemsPerPage) + 1}
+                    end={currentPage * itemsPerPage}
+                    numberOfItems={licenseRecords.length}
+                />
+              </div>
+            </div>
+        }
       </div>
   );
 }
