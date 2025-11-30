@@ -48,7 +48,6 @@ var httpClient = &http.Client{
 // ProcessDocumentResponse Outgoing response (to client)
 type ProcessDocumentResponse struct {
 	ApplicationId   string  `json:"application_id"`
-	VerificationId  string  `json:"verification_id"`
 	Status          string  `json:"status"`
 	RejectionReason *string `json:"rejection_reason,omitempty"`
 }
@@ -56,7 +55,6 @@ type ProcessDocumentResponse struct {
 // CallbackPayload Outgoing callback payload (to backend)
 type CallbackPayload struct {
 	ApplicationId    string  `json:"application_id"`
-	VerificationId   string  `json:"verification_id"`
 	IdFilename       string  `json:"id_filename"`
 	PropertyFilename string  `json:"proof_filename"`
 	Status           string  `json:"status"`
@@ -169,10 +167,10 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	verificationId := generateVerificationId()
+	jobKey := applicationId + "-" + fmt.Sprint(time.Now().UnixNano())
 
 	mu.Lock()
-	jobStore[verificationId] = JobInfo{
+	jobStore[jobKey] = JobInfo{
 		ApplicationId:    applicationId,
 		IdFilename:       idHeader.Filename,
 		PropertyFilename: proofHeader.Filename,
@@ -181,12 +179,11 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	mu.Unlock()
 
 	// start background processing
-	go runBackgroundJob(applicationId, verificationId, idHeader.Filename, proofHeader.Filename)
+	go runBackgroundJob(applicationId, jobKey, idHeader.Filename, proofHeader.Filename)
 
 	resp := ProcessDocumentResponse{
-		ApplicationId:  applicationId,
-		VerificationId: verificationId,
-		Status:         "PENDING",
+		ApplicationId: applicationId,
+		Status:        "PENDING",
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -197,7 +194,7 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func runBackgroundJob(applicationId, verificationId, idFile, proofFile string) {
+func runBackgroundJob(applicationId, jobKey, idFile, proofFile string) {
 	// simulate processing duration
 	time.Sleep(processDuration[rand.Intn(len(processDuration))])
 
@@ -207,7 +204,7 @@ func runBackgroundJob(applicationId, verificationId, idFile, proofFile string) {
 
 	mu.Lock()
 	// update job status
-	jobStore[verificationId] = JobInfo{
+	jobStore[jobKey] = JobInfo{
 		ApplicationId:    applicationId,
 		IdFilename:       idFile,
 		PropertyFilename: proofFile,
@@ -216,8 +213,7 @@ func runBackgroundJob(applicationId, verificationId, idFile, proofFile string) {
 
 	if status == "REJECTED" {
 		reason := rejectionReasons[rand.Intn(len(rejectionReasons))]
-		reasonStore[verificationId] = reason
-		// copy for callback payload
+		reasonStore[jobKey] = reason
 		reasonCopy := reason
 		rejectionReason = &reasonCopy
 	}
@@ -225,7 +221,6 @@ func runBackgroundJob(applicationId, verificationId, idFile, proofFile string) {
 
 	payload := CallbackPayload{
 		ApplicationId:    applicationId,
-		VerificationId:   verificationId,
 		IdFilename:       idFile,
 		PropertyFilename: proofFile,
 		Status:           status,
@@ -233,7 +228,7 @@ func runBackgroundJob(applicationId, verificationId, idFile, proofFile string) {
 	}
 
 	if err := sendCallback(payload); err != nil {
-		log.Printf("callback error for verification_id=%s: %v", verificationId, err)
+		log.Printf("callback error for application_id=%s: %v", applicationId, err)
 	}
 }
 
@@ -279,7 +274,6 @@ func reject(w http.ResponseWriter, msg string) {
 
 	resp := ProcessDocumentResponse{
 		Status:          "REJECTED",
-		VerificationId:  "",
 		RejectionReason: &msg,
 	}
 
@@ -302,23 +296,23 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	verificationId := strings.TrimPrefix(r.URL.Path, base)
-	if verificationId == "" {
-		http.Error(w, "missing verification ID", http.StatusBadRequest)
+	jobKey := strings.TrimPrefix(r.URL.Path, base)
+	if jobKey == "" {
+		http.Error(w, "missing job key", http.StatusBadRequest)
 		return
 	}
 
 	mu.Lock()
-	job, exists := jobStore[verificationId]
+	job, exists := jobStore[jobKey]
 	var reasonPtr *string
-	if reason, ok := reasonStore[verificationId]; ok && reason != "" {
+	if reason, ok := reasonStore[jobKey]; ok && reason != "" {
 		rCopy := reason
 		reasonPtr = &rCopy
 	}
 	mu.Unlock()
 
 	if !exists {
-		http.Error(w, "unknown verification ID", http.StatusNotFound)
+		http.Error(w, "unknown job key", http.StatusNotFound)
 		return
 	}
 
@@ -328,7 +322,6 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := ProcessDocumentResponse{
-		VerificationId:  verificationId,
 		ApplicationId:   job.ApplicationId,
 		Status:          job.Status,
 		RejectionReason: reasonPtr,
@@ -362,10 +355,6 @@ func checkRateLimit(applicationId string) bool {
 
 	ri.Count++
 	return true
-}
-
-func generateVerificationId() string {
-	return fmt.Sprintf("DOC-%d-%d", time.Now().Unix(), rand.Intn(999999))
 }
 
 func getRandomStatus() string {
