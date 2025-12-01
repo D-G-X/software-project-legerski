@@ -19,8 +19,16 @@ export default function Error() {
     error = location.state?.errorMessage || getReasonPhrase(status);
   }
 
-  return (<>
-    <h1 className="grow text-3xl md:text-4xl font-medium mb-8">{status} - {error}</h1>
-    <p>{t('error.page.message')}</p>
-  </>);
+  return (
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex flex-col items-center justify-center text-center">
+          <h1 className="text-3xl md:text-4xl font-medium text-mallorca-purple mb-4">
+            {status} - {error}
+          </h1>
+          <p className="text-xl text-gray-700">
+            {t('error.page.message')}
+          </p>
+        </div>
+      </div>
+  );
 }

@@ -7,7 +7,7 @@ export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="flex bg-green-50 h-12 font-inter">
+    <footer className="flex bg-white h-12 font-inter">
       <div className="w-full px-5 h-full">
         <div className="flex justify-end w-full h-full">
           {/* Contact Button */}
