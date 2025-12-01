@@ -289,7 +289,7 @@
       },
 
       "buttons": {
-        "submit": "Submit and Pay",
+        "submit": "Submit and Upload",
         "draft": "Save as Draft"
       }
     }
