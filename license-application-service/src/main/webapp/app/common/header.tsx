@@ -75,7 +75,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="bg-gray-5 max-h-20 font-inter">
+    <header className="bg-gray-5 h-20 font-inter">
       <nav className="py-4 w-full px-5">
         <div className="flex justify-between w-full">
           {/* Title and Logo */}

@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto px-4 md:px-6">
-      <div className="relative min-h-[calc(100vh-4rem)] bg-white flex justify-center">
+      <div className="relative min-h-[calc(100vh-10rem)] bg-white flex justify-center">
         <div className="font-inter flex flex-col items-center w-full">
           <FormHeader
             heading={
