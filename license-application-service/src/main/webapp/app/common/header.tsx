@@ -75,7 +75,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="bg-gray-5 max-h-20 font-inter">
+    <header className="bg-gray-5 h-20 font-inter">
       <nav className="py-4 w-full px-5">
         <div className="flex justify-between w-full">
           {/* Title and Logo */}
@@ -112,7 +112,7 @@ export default function Header() {
                       <img
                         src={language_title_img_map[i18n.language]?.img}
                         alt={t("app.title")}
-                        className="inline-block h-5 w-10"
+                        className="inline-block h-5 min-w-10"
                       />
                       <div className="text-md text-left h-5 min-w-18">
                         {language_title_img_map[i18n.language]?.language}
@@ -152,7 +152,7 @@ export default function Header() {
                               <img
                                 src={lang?.img}
                                 alt={t("app.title")}
-                                className="inline-block h-5 w-10"
+                                className="inline-block h-5 min-w-10"
                               />
                               <div className="text-left h-5 min-w-22">
                                 {lang?.language}
