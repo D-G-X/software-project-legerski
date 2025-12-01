@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import { validateResults } from "app/common/utils";
 import {
-  validateAddress,
-  validateCity,
+  validateCadastralNumber,
   validateEmail,
   validateName,
-  validatePhoneNumber,
-  validatePostalCode,
 } from "../../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import "./request-application.css";
-import { Upload } from "lucide-react";
+import { Link } from "react-router";
 
 export default function RequestApplication() {
   const { t } = useTranslation();
@@ -39,39 +36,23 @@ export default function RequestApplication() {
     first_name: "",
     last_name: "",
     email: "",
-    phone_number: "",
-    reason: "",
-    street_address_1: "",
-    street_address_2: "",
-    city: "",
-    postal_code: "",
-    country: "",
+    cadastral_number: "",
     rental_license_type: "",
-    rental_start_date: "",
     additional_comments: "",
     consent_personal_data: false,
-    id_proof_doc: "",
-    address_proof_doc: "",
+    consent_legal_data: false,
   });
 
   const [errors, setErrors] = useState({
     first_name: "",
     last_name: "",
     email: "",
-    phone_number: "",
-    reason: "",
-    street_address_1: "",
-    street_address_2: "",
-    city: "",
-    postal_code: "",
-    country: "",
+    cadastral_number: "",
     rental_license_type: "",
-    rental_start_date: "",
     additional_comments: "",
     app_submit: "",
     consent_personal_data: "",
-    id_proof_doc: "",
-    address_proof_doc: "",
+    consent_legal_data: "",
   });
 
   const handleChange = (
@@ -81,12 +62,16 @@ export default function RequestApplication() {
   ) => {
     let { id, value: rawValue, name } = e.target;
 
-    let value: string | boolean = rawValue; // allow boolean overrides
+    let value: string | boolean = rawValue;
 
     const key = id || name;
 
     if (key === "consent_personal_data") {
       value = !form.consent_personal_data;
+    }
+
+    if (key === "consent_legal_data") {
+      value = !form.consent_legal_data;
     }
 
     setForm((prev) => ({
@@ -108,39 +93,20 @@ export default function RequestApplication() {
       form.last_name
     );
     const emailValidateResult: validateResults = validateEmail(form.email);
-    const phoneNumberValidateResult: validateResults = validatePhoneNumber(
-      form.phone_number
-    );
-    const strAddrsLineOneValidateResult: validateResults = validateAddress(
-      form.street_address_1
-    );
-    const strAddrsLineTwoValidateResult: validateResults = validateAddress(
-      form.street_address_2
-    );
-    const cityValidateResults: validateResults = validateCity(form.city);
-
-    const postCodeValidateResults: validateResults = validatePostalCode(
-      form.postal_code
+    const cadastralNumValidateResult: validateResults = validateCadastralNumber(
+      form.cadastral_number
     );
 
     let newErrors = {
       first_name: "",
       last_name: "",
       email: "",
-      phone_number: "",
-      reason: "",
-      street_address_1: "",
-      street_address_2: "",
-      city: "",
-      postal_code: "",
-      country: "",
+      cadastral_number: "",
       rental_license_type: "",
-      rental_start_date: "",
       additional_comments: "",
       app_submit: "",
       consent_personal_data: "",
-      id_proof_doc: "",
-      address_proof_doc: "",
+      consent_legal_data: "",
     };
 
     if (!firstNameValidateResult.isValid) {
@@ -154,25 +120,8 @@ export default function RequestApplication() {
     if (!emailValidateResult.isValid) {
       newErrors.email = emailValidateResult.message;
     }
-
-    if (!phoneNumberValidateResult.isValid) {
-      newErrors.phone_number = phoneNumberValidateResult.message;
-    }
-
-    if (!strAddrsLineOneValidateResult.isValid) {
-      newErrors.street_address_1 = strAddrsLineOneValidateResult.message;
-    }
-
-    if (!strAddrsLineTwoValidateResult.isValid) {
-      newErrors.street_address_2 = strAddrsLineTwoValidateResult.message;
-    }
-
-    if (!cityValidateResults.isValid) {
-      newErrors.city = cityValidateResults.message;
-    }
-
-    if (!postCodeValidateResults.isValid) {
-      newErrors.postal_code = postCodeValidateResults.message;
+    if (!cadastralNumValidateResult.isValid) {
+      newErrors.cadastral_number = cadastralNumValidateResult.message;
     }
 
     if (!form.rental_license_type) {
@@ -181,25 +130,15 @@ export default function RequestApplication() {
       );
     }
 
-    if (!form.rental_start_date) {
-      newErrors.rental_start_date = t(
-        "license.request.rentalStart.errorMissing"
-      );
-    }
-
     if (!form.consent_personal_data) {
       newErrors.consent_personal_data = t(
-        "license.request.consent.errorMissing"
+        "license.request.personal_consent.errorMissing"
       );
     }
 
-    if (!form.id_proof_doc) {
-      newErrors.id_proof_doc = t("license.request.documents.id.errorMissing");
-    }
-
-    if (!form.address_proof_doc) {
-      newErrors.address_proof_doc = t(
-        "license.request.documents.address.errorMissing"
+    if (!form.consent_legal_data) {
+      newErrors.consent_legal_data = t(
+        "license.request.legal_consent.errorMissing"
       );
     }
 
@@ -207,15 +146,10 @@ export default function RequestApplication() {
       newErrors.first_name ||
       newErrors.last_name ||
       newErrors.email ||
-      newErrors.phone_number ||
-      newErrors.street_address_1 ||
-      newErrors.street_address_2 ||
-      newErrors.city ||
-      newErrors.postal_code ||
+      newErrors.cadastral_number ||
       newErrors.rental_license_type ||
-      newErrors.rental_start_date ||
-      newErrors.id_proof_doc ||
-      newErrors.address_proof_doc
+      newErrors.consent_legal_data ||
+      newErrors.consent_personal_data
     ) {
       setErrors(newErrors);
       console.log(newErrors);
@@ -226,29 +160,20 @@ export default function RequestApplication() {
       first_name: "",
       last_name: "",
       email: "",
-      phone_number: "",
-      reason: "",
-      street_address_1: "",
-      street_address_2: "",
-      city: "",
-      postal_code: "",
-      country: "",
-      app_submit: "",
+      cadastral_number: "",
       rental_license_type: "",
-      rental_start_date: "",
       additional_comments: "",
       consent_personal_data: "",
-      id_proof_doc: "",
-      address_proof_doc: "",
+      consent_legal_data: "",
+      app_submit: "",
     });
 
     // implement the API call for register;
-    alert("API has to be integrated yet!!");
     return true;
   };
 
   return (
-    <div className="mx-15 mt-4 mb-10 relative min-h-[calc(100vh-4rem)] bg-white items-center justify-center">
+    <div className="mx-15 mt-4 mb-10 relative bg-white items-center justify-center">
       <h1 className="text-mallorca-purple font-semibold tracking-wide text-2xl text-center py-4">
         {t("license.request.title")}
       </h1>
@@ -342,139 +267,31 @@ export default function RequestApplication() {
             </div>
           </div>
 
-          {/* Phone number */}
+          {/* Cadastral Number */}
           <div className="mb-4">
             <label>
               <span className="block">
-                {t("license.request.phone.label")}{" "}
+                {t("license.request.cadastraNumber.label")}{" "}
                 <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                {t("license.request.phone.description")}
-              </span>
-            </label>
-            <div className="mt-1">
-              <input
-                type="tel"
-                id="phone_number"
-                value={form.phone_number}
-                placeholder={t("license.request.phone.placeholder")}
-                onChange={handleChange}
-                className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
-              />
-              {errors.phone_number && (
-                <div className="text-red-500 mt-1 pl-4 text-xs">
-                  {errors.phone_number}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Reason */}
-          <div className="mb-4">
-            <label>
-              <span className="block">{t("license.request.reason.label")}</span>
-              <span className="block text-gray-400">
-                {t("license.request.reason.description")}
-              </span>
-            </label>
-            <div className="mt-1">
-              <textarea
-                id="reason"
-                value={form.reason}
-                placeholder={t("license.request.reason.placeholder")}
-                onChange={handleChange}
-                className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
-              />
-              {errors.reason && (
-                <div className="text-red-500 mt-1 pl-4 text-xs">
-                  {errors.reason}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Property Address */}
-          <div className="mb-4">
-            <label>
-              <span className="block">
-                {t("license.request.address.label")}{" "}
-                <span className="text-red-500">*</span>
-              </span>
-              <span className="block text-gray-400">
-                {t("license.request.address.description")}
+                {t("license.request.cadastraNumber.description")}
               </span>
             </label>
             <div className="mt-1">
               <input
                 type="text"
-                id="street_address_1"
-                value={form.street_address_1}
-                placeholder={t("license.request.address.street1Placeholder")}
+                id="cadastral_number"
+                value={form.cadastral_number}
+                placeholder={t("license.request.cadastraNumber.placeholder")}
                 onChange={handleChange}
                 className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />
-              {errors.street_address_1 && (
+              {errors.cadastral_number && (
                 <div className="text-red-500 mt-1 pl-4 text-xs">
-                  {errors.street_address_1}
+                  {errors.cadastral_number}
                 </div>
               )}
-            </div>
-            <div className="mt-2">
-              <input
-                type="text"
-                id="street_address_2"
-                value={form.street_address_2}
-                placeholder={t("license.request.address.street2Placeholder")}
-                onChange={handleChange}
-                className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
-              />
-              {errors.street_address_2 && (
-                <div className="text-red-500 mt-1 pl-4 text-xs">
-                  {errors.street_address_2}
-                </div>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-5 mt-2">
-              <div className="">
-                <input
-                  type="number"
-                  id="postal_code"
-                  value={form.postal_code}
-                  placeholder={t("license.request.address.postalPlaceholder")}
-                  onChange={handleChange}
-                  className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
-                />
-                {errors.postal_code && (
-                  <div className="text-red-500 mt-1 pl-4 text-xs">
-                    {errors.postal_code}
-                  </div>
-                )}
-              </div>
-              <div className="">
-                <input
-                  type="text"
-                  id="city"
-                  value={form.city}
-                  placeholder={t("license.request.address.cityPlaceholder")}
-                  onChange={handleChange}
-                  className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
-                />
-                {errors.city && (
-                  <div className="text-red-500 mt-1 pl-4 text-xs">
-                    {errors.city}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="mt-2">
-              <input
-                type="text"
-                id="country"
-                disabled
-                value={t("license.request.address.countryLabel")}
-                className="bg-gray-200 rounded-xl text-mallorca-purple/60 focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
-              />
             </div>
           </div>
 
@@ -520,51 +337,7 @@ export default function RequestApplication() {
             </div>
           </div>
 
-          {/* Expected Rental Start Date */}
-          <div className="mb-4">
-            <label>
-              <span className="block">
-                {t("license.request.rentalStart.label")}
-                <span className="text-red-500">*</span>
-              </span>
-              <span className="block text-gray-400">
-                {t("license.request.rentalStart.description")}
-              </span>
-            </label>
-            <div className="mt-1 relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-mallorca-purple">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </span>
-              <input
-                type="date"
-                id="rental_start_date"
-                min={new Date().toISOString().split("T")[0]}
-                onChange={handleChange}
-                placeholder="DD/MM/YYYY"
-                className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full pl-10"
-              />
-            </div>
-            {errors.rental_start_date && (
-              <div className="text-red-500 mt-1 pl-4 text-xs">
-                {errors.rental_start_date}
-              </div>
-            )}
-          </div>
-
-          {/* Documents Upload */}
+          {/* Documents Upload
           <div className="mb-4">
             <label>
               <span className="block">
@@ -624,7 +397,7 @@ export default function RequestApplication() {
                 {errors.address_proof_doc}
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Additional Comments / Remarks */}
           <div className="mb-4">
@@ -650,7 +423,35 @@ export default function RequestApplication() {
             )}
           </div>
 
-          {/* Consent Checkbox */}
+          {/* Legal Consent Checkbox */}
+          <div className="mb-2 flex items-start space-x-3">
+            <input
+              type="checkbox"
+              id="consent_legal_data"
+              name="consent_legal_data"
+              checked={form.consent_legal_data}
+              onChange={handleChange}
+              className="mt-1 h-5 w-5 text-mallorca-purple border-gray-300 rounded"
+            />
+            <label
+              htmlFor="consent_legal_data"
+              className="text-base font-normal cursor-pointer"
+            >
+              {t("license.request.legal_consent.label_before_redirect")}{" "}
+              <Link to="/legal" className="underline">
+                {t("license.request.legal_consent.legal_redirect")}
+              </Link>{" "}
+              {t("license.request.legal_consent.label_after_redirect")}
+              <span className="text-red-500">*</span>
+            </label>
+          </div>
+          {errors.consent_legal_data && (
+            <div className="text-red-500 pl-4 text-xs mb-2">
+              {errors.consent_legal_data}
+            </div>
+          )}
+
+          {/* Personal Data Consent Checkbox */}
           <div className="mb-4 flex items-start space-x-3">
             <input
               type="checkbox"
@@ -664,7 +465,7 @@ export default function RequestApplication() {
               htmlFor="consent_personal_data"
               className="text-base font-normal cursor-pointer"
             >
-              {t("license.request.consent.label")}
+              {t("license.request.personal_consent.label")}
               <span className="text-red-500">*</span>
             </label>
           </div>

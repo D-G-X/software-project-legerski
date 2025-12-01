@@ -1,16 +1,12 @@
-body {
-    overflow-y: hidden;
-    overflow-x: auto;
-}
-
-th, td {
-    width: 20%;
-    text-align: left;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 10px;
+th,
+td {
+  width: 20%;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px;
 }
 
 th {
-    color: rgba(0, 0, 0, 0.3 );
-    font-weight: normal;
+  color: rgba(0, 0, 0, 0.3);
+  font-weight: normal;
 }

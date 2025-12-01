@@ -3,19 +3,19 @@ import { ISO_3166_1 } from "./iso-3166-1";
 
 // Regular expressions for validation rules (positive checks only, test with !regexName.test(value))
 const nameRegex = new RegExp(
-    "^[\\p{L}\\p{M}'’\\-–]+(?: [\\p{L}\\p{M}'’\\-–]+)*$",
-    "u"
+  "^[\\p{L}\\p{M}'’\\-–]+(?: [\\p{L}\\p{M}'’\\-–]+)*$",
+  "u"
 );
 
 const emailRegex = new RegExp(
-    "^(?:[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+" +
+  "^(?:[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+" +
     "(?:\\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*" +
     "|" +
-    "\"(?:[\\x21-\\x7E]|\\\\[\\x21-\\x7E])+\"" +
+    '"(?:[\\x21-\\x7E]|\\\\[\\x21-\\x7E])+"' +
     ")" +
     "@" +
     "(?:(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)\\.)+" +
-    "(?:[A-Za-z]{2,})$",
+    "(?:[A-Za-z]{2,})$"
 );
 
 const ibanRegex = new RegExp("^[A-Z]{2}[0-9A-Z]{13,32}$", "i");
@@ -49,12 +49,23 @@ export const validateEmail = (email: string) => {
     return { isValid: false, message: t("validation.email.required") };
 
   if (!emailRegex.test(email))
-    return{
-        isValid: false,
-        message: t("validation.email.invalid")
+    return {
+      isValid: false,
+      message: t("validation.email.invalid"),
     };
 
   return { isValid: true, message: t("validation.email.valid") };
+};
+
+// Email validation
+export const validateCadastralNumber = (cadastral_number: string) => {
+  if (!cadastral_number)
+    return {
+      isValid: false,
+      message: t("validation.cadastral_number.required"),
+    };
+
+  return { isValid: true, message: t("validation.cadastral_number.valid") };
 };
 
 // Password validation: min. 8 and max. 255 characters long and at least one special character
@@ -190,95 +201,93 @@ export const validateCity = (value: string) => {
 };
 
 export const validateIban = (iban: string) => {
-    if (!iban)
-        return { isValid: false, message: t("validation.iban.required") };
-    iban = iban.replace(/\s+/g, ''); // Remove spaces
+  if (!iban) return { isValid: false, message: t("validation.iban.required") };
+  iban = iban.replace(/\s+/g, ""); // Remove spaces
 
-    if (iban.length < 15)
-        return {
-            isValid: false,
-            message: t("validation.iban.minLength"),
-        };
+  if (iban.length < 15)
+    return {
+      isValid: false,
+      message: t("validation.iban.minLength"),
+    };
 
-    if (iban.length > 35)
-        return {
-            isValid: false,
-            message: t("validation.iban.maxLength"),
-        };
+  if (iban.length > 35)
+    return {
+      isValid: false,
+      message: t("validation.iban.maxLength"),
+    };
 
-    if (!isValidCountryCode(iban.slice(0, 2)))
-        return {
-            isValid: false,
-            message: t("validation.iban.countryCode"),
-        };
+  if (!isValidCountryCode(iban.slice(0, 2)))
+    return {
+      isValid: false,
+      message: t("validation.iban.countryCode"),
+    };
 
-    if (!ibanRegex.test(iban))
-        return {
-            isValid: false,
-            message: t("validation.iban.specialChar"),
-        };
+  if (!ibanRegex.test(iban))
+    return {
+      isValid: false,
+      message: t("validation.iban.specialChar"),
+    };
 
-    return { isValid: true, message: t("validation.iban.valid") };
+  return { isValid: true, message: t("validation.iban.valid") };
 };
 
 export const validateBic = (bic: string, iban: string) => {
-    if(iban.slice(0,2) === 'ES' && !bic)
-        return { isValid: true, message: t("validation.bic.valid") };
-    if (!bic)
-        return { isValid: false, message: t("validation.bic.required") };
+  if (iban.slice(0, 2) === "ES" && !bic)
+    return { isValid: true, message: t("validation.bic.valid") };
+  if (!bic) return { isValid: false, message: t("validation.bic.required") };
 
-    bic = bic.replace(/\s+/g, ''); // Remove spaces
+  bic = bic.replace(/\s+/g, ""); // Remove spaces
 
-    if (bic.length != 8 && bic.length != 11)
-        return {
-            isValid: false,
-            message: t("validation.bic.length"),
-        };
+  if (bic.length != 8 && bic.length != 11)
+    return {
+      isValid: false,
+      message: t("validation.bic.length"),
+    };
 
-    if (!bicRegex.test(bic))
-        return {
-            isValid: false,
-            message: t("validation.bic.specialChar.general"),
-        };
+  if (!bicRegex.test(bic))
+    return {
+      isValid: false,
+      message: t("validation.bic.specialChar.general"),
+    };
 
-    if (!isValidCountryCode(bic.slice(4, 6)))
-        return {
-            isValid: false,
-            message: t("validation.bic.countryCode"),
-        };
+  if (!isValidCountryCode(bic.slice(4, 6)))
+    return {
+      isValid: false,
+      message: t("validation.bic.countryCode"),
+    };
 
-    if(bic.charAt(6) === '0' || bic.charAt(6) === '1')
-        return {
-            isValid: false,
-            message: t("validation.bic.specialChar.pos6"),
-        }
+  if (bic.charAt(6) === "0" || bic.charAt(6) === "1")
+    return {
+      isValid: false,
+      message: t("validation.bic.specialChar.pos6"),
+    };
 
-    if(bic.charAt(7) === 'O')
-        return {
-            isValid: false,
-            message: t("validation.bic.specialChar.pos7"),
-        }
+  if (bic.charAt(7) === "O")
+    return {
+      isValid: false,
+      message: t("validation.bic.specialChar.pos7"),
+    };
 
-    if( bic.length === 11)
-        if( bic.charAt(8) === 'X' && bic.slice(8, 11) !== 'XXX')
-            return {
-                isValid: false,
-                message: t("validation.bic.specialChar.pos8"),
-            }
+  if (bic.length === 11)
+    if (bic.charAt(8) === "X" && bic.slice(8, 11) !== "XXX")
+      return {
+        isValid: false,
+        message: t("validation.bic.specialChar.pos8"),
+      };
 
-    return { isValid: true, message: t("validation.iban.valid") };
+  return { isValid: true, message: t("validation.iban.valid") };
 };
 
 const isValidCountryCode = (code: string): boolean => {
-    return ISO_3166_1.has(code.toUpperCase())
-}
+  return ISO_3166_1.has(code.toUpperCase());
+};
 
 export const validateSepaMandateCheck = (value: boolean) => {
-    if (!value)
-        return {
-            isValid: false,
-            message: t("validation.sepaMandate.required"),
-        };
+  if (!value)
+    return {
+      isValid: false,
+      message: t("validation.sepaMandate.required"),
+    };
 
-    return { isValid: true, message: t("validation.sepaMandate.valid") };
+  return { isValid: true, message: t("validation.sepaMandate.valid") };
 };
