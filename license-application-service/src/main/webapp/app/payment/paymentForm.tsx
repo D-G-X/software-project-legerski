@@ -11,7 +11,7 @@ import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
 import { useCreatePayment } from "app/services/payments/payments";
 import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
-import {useLocation, useNavigate} from "react-router";
+import {/*TODO:useLocation, */useNavigate} from "react-router";
 import "./paymentForm.css";
 import { AnimatedDots } from "../common/AnimatedDots";
 import { useGetApplication } from "app/services/applications/applications";
@@ -32,20 +32,20 @@ export default function PaymentConfirm() {
   const navigate = useNavigate();
   const mutation = useCreatePayment();
 
-  const {state} = useLocation()
-  const applicationId: number = state
+  //TODO:const {state} = useLocation()
+  const applicationId: number = 123//TODO:state
 
   useDocumentTitle(t("payment.title"));
 
-  const { data: application } = useGetApplication(applicationId);
+  const { data: application } = useGetApplication(123)//TODO:applicationId);
   const applicationData = application?.data;
 
   useEffect(() => {
     if (application === undefined) return;
 
-    if ( !applicationId ||
+    if ( /*TODO:!applicationId ||*/
         !applicationData ||
-        applicationData.id !== applicationId ||
+        /*TODO:applicationData.id !== applicationId ||*/
         applicationData.id === undefined
     ) {
       alert("Invalid application data received. Redirecting to application request page.");
