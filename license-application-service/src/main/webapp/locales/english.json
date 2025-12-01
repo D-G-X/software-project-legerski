@@ -1,15 +1,273 @@
 {
+  "locale": "en-US",
   "app": {
-    "title": "Mallorca Holiday Licenses"
+    "title": "Mallorca Holiday Licenses",
+    "contact": {
+      "legalName": "Dirección Insular de Licencias Turísticas",
+      "legalAddress": {
+        "street": "Plaça de Cort, 1",
+        "city": "Palma de Mallorca (Illes Balears)",
+        "zipCode": "07001",
+        "country": "Spain"
+      },
+      "email": {
+        "label": "email",
+        "address": "contacto@palma.es"
+      },
+      "website": {
+        "label": "website",
+        "url": "www.palma.es"
+      },
+      "phone": {
+        "label": "phone",
+        "number": "+34 971 22 59 00"
+      }
+    }
   },
-  "navigation": {
+  "nav": {
     "toggle": "Toggle navigation",
     "home": "Home",
-    "entities": "Entities"
+    "entities": "Entities",
+    "appLogoAlt": "Application logo",
+    "contactBtn": "Contact",
+    "signInBtn": "Sign in",
+    "signOutBtn": "Sign Out",
+    "registerBtn": "Register",
+    "languages": {
+      "en": {
+        "name": "English",
+        "iconAlt": "English language icon."
+      },
+      "de": {
+        "name": "German",
+        "iconAlt": "German language icon."
+      },
+      "fr": {
+        "name": "French",
+        "iconAlt": "French language icon."
+      },
+      "hi": {
+        "name": "Hindi",
+        "iconAlt": "Hindi language icon."
+      },
+      "id": {
+        "name": "Indonesian",
+        "iconAlt": "Indonesian language icon."
+      },
+      "es": {
+        "name": "Spanish",
+        "iconAlt": "Spanish language icon."
+      }
+    }
+  },
+  "forgotPassword": {
+    "request": {
+      "headline": "Forgot Password",
+      "subheadline": "Enter your registered email to receive a link to reset your password",
+      "resetPasswordBtn": "Reset Password"
+    },
+    "confirmation": {
+      "headline": "Sent !",
+      "subheadline": "The link has been sent to your email.",
+      "redirectToSignIn": "Go back to Sign in"
+    },
+    "resetPassword": {
+      "headline": "Create new password",
+      "subheadline": "Choose a new password to secure your account.",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm your password",
+      "changePasswordBtn": "Change Password"
+    },
+    "resetConfirmation": {
+      "headline": "Password Changed !",
+      "redirectToSignIn": "Go back to Sign in"
+    }
   },
   "home": {
     "index": {
       "headline": "Mallorca"
+    }
+  },
+  "dashboard": {
+    "headline": {
+      "getStarted": "Get started with a new Holiday Rental Licence",
+      "manageApplications": " or manage your application in one place!"
+    },
+    "buttonLabel": "Request new licence",
+    "title": "Your Applications",
+    "licenceStatus": {
+      "approved": "Approved",
+      "awaitingPayment": "Awaiting Payment",
+      "cancelled": "Cancelled",
+      "documentsSubmitted": "Documents Submitted",
+      "draft": "Draft",
+      "expired": "Expired",
+      "inBallot": "In Ballot",
+      "notSelected": "Not Selected",
+      "paymentReceived": "Payment Received",
+      "rejected": "Rejected",
+      "selected": "Selected",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "verificationPending": "Verification Pending"
+    },
+    "table": {
+      "applicationId": "Application ID",
+      "cadastalId": "Cadastral ID",
+      "requestDate": "Request Date",
+      "licenceType": "Licence Type",
+      "status": "Status",
+      "action": {
+        "title": "Action",
+        "value": "Details"
+      }
+    },
+    "pagination": {
+      "showingFrom": "Showing",
+      "to": "to",
+      "of": "of",
+      "entries": "entries",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "common": {
+    "orDivider": "or"
+  },
+  "login": {
+    "title": "Sign in",
+    "index": {
+      "headline": "Sign in",
+      "subheadline": "Please log in to continue to your account.",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "keepMeLoggedIn": "Keep me logged in",
+      "forgotPassword": "Forgot your password?",
+      "signInButton": "Sign in",
+      "createAccountText": "Need an account?",
+      "createAccountLinkLabel": "Create one"
+    },
+    "loginUserAlerts": {
+      "unexpectedResp": "Unexpected response from server",
+      "invalidEmail": "Invalid email or password",
+      "badRequest": "Bad request. Please check your input",
+      "serverError": "Something went wrong. Please try again."
+    }
+  },
+  "register": {
+    "title": "Register",
+    "index": {
+      "headline": "Register",
+      "subheadline": "Online request for administrative services of the Mallorca Office",
+      "firstNameLabel": "First Name",
+      "lastNameLabel": " Last Name",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm your password",
+      "registerButton": "Register",
+      "alreadyHaveAccountText": "Already have an account?",
+      "signInLinkLabel": "Sign in"
+    },
+    "registerUserAlerts": {
+      "unexpectedErr": "An unexpected error occurred.",
+      "invalidReq": "Invalid Request. Please Check your input",
+      "unAuthReq": "Unauthorized request. You do not have permission.",
+      "userExists": "User already exists. Try logging in instead.",
+      "serverError": "Something went wrong. Please try again."
+    }
+  },
+  "validation": {
+    "name": {
+      "required": "Name is required",
+      "invalid": "Name can only contain letters and spaces",
+      "minLength": "Name must be at least 2 characters long",
+      "valid": "Name is valid"
+    },
+    "email": {
+      "required": "Email is required",
+      "invalid": "Invalid email format",
+      "valid": "Email format is valid"
+    },
+    "password": {
+      "required": "Password is required",
+      "minLength": "Password must be at least 8 characters long",
+      "maxLength": "Password must be less than 256 characters long",
+      "specialChar": "Password must contain at least one special character",
+      "valid": "Password is valid"
+    },
+    "confirmPassword": {
+      "required": "Please confirm your password",
+      "mismatch": "Passwords do not match",
+      "valid": "Passwords match"
+    },
+    "iban": {
+      "required": "IBAN is required",
+      "minLength": "IBAN must be at least 15 characters long",
+      "maxLength": "IBAN must be less than 35 characters long",
+      "countryCode": "IBAN must start with a valid country code",
+      "specialChar": "IBAN must not contain any special character",
+      "invalid": "IBAN is invalid",
+      "valid": "IBAN is valid"
+    },
+    "bic": {
+      "required": "BIC is required for non-domestic SEPA transactions",
+      "length": "BIC must be exactly 8 or 11 characters long",
+      "countryCode": "BIC must contain a valid country code",
+      "specialChar": {
+        "general": "BIC must not contain any special character",
+        "pos6": "BIC must not contain the number '0' or '1' at position 6",
+        "pos7": "BIC must not contain the letter 'O' at position 7",
+        "pos8": "BIC must not contain the letter 'X' at position 8 if not followed by 'XX'"
+      },
+      "invalid": "BIC is invalid",
+      "valid": "BIC is valid"
+    },
+    "sepaMandate": {
+      "required": "You must read and accept the SEPA mandate",
+      "valid": "SEPA mandate accepted"
+    }
+  },
+  "payment": {
+    "title": "Payment",
+    "index": {
+      "headline": "Pay now",
+      "subheadline": "SEPA direct debit",
+      "amountLabel": "Total amount: {{amount}}",
+      "nameLabel": "Account holder",
+      "ibanLabel": "IBAN",
+      "bicLabel": "BIC",
+      "bicLabelOptional": " (optional for domestic SEPA transactions)",
+      "acceptSepaMandateLabel": {
+        "plain": "I have read and accept the",
+        "button": "SEPA Mandate"
+      },
+      "sepaMandateDialog": {
+        "title": "SEPA Direct Debit Mandate",
+        "text": {
+          "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
+          "line2": "Note:",
+          "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
+          "line4": "Details of the payer:",
+          "line5": " –  Account holder: {{accountHolder}}",
+          "line6": " –  IBAN: {{iban}}",
+          "line7": " –  BIC: {{bic}}",
+          "line8": "Details of the payee:",
+          "line9": " –  Beneficiary: {{beneficiaryName}}",
+          "line10": " –  Creditor ID: {{creditorId}}",
+          "line11": " –  Mandate reference: {{mandateReference}}",
+          "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
+          "line13": "Issuing date: {{date}}"
+        },
+        "acceptButtonLabel": "Accept",
+        "cancelButtonLabel": "Cancel",
+        "downloadButtonLabel": "Download",
+        "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
+      },
+      "payButtonLabel": "Pay now"
+    },
+    "response": {
+      "success": "Payment successful! Thank you for your payment.",
+      "error": "Payment failed! Please try again later."
     }
   },
   "error": {

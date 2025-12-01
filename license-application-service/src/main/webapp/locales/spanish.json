@@ -1,219 +1,238 @@
 {
   "app": {
-    "title": "Licencias de Vacaciones en Mallorca"
+    "title": "Licencias vacacionales en Mallorca"
   },
-  "navigation": {
-    "toggle": "Alternar navegación",
-    "home": "Inicio",
-    "entities": "Entidades"
+  "nav": {
+    "toggle": "Toggle navigation",
+    "home": "Home",
+    "entities": "Entities",
+    "appLogoAlt": "Application logo",
+    "contactBtn": "Contact",
+    "signInBtn": "Sign in",
+    "registerBtn": "Register",
+    "languages": {
+      "en": {
+        "name": "English",
+        "iconAlt": "English language icon."
+      },
+      "de": {
+        "name": "German",
+        "iconAlt": "German language icon."
+      },
+      "fr": {
+        "name": "French",
+        "iconAlt": "French language icon."
+      },
+      "hi": {
+        "name": "Hindi",
+        "iconAlt": "Hindi language icon."
+      },
+      "id": {
+        "name": "Indonesian",
+        "iconAlt": "Indonesian language icon."
+      },
+      "es": {
+        "name": "Spanish",
+        "iconAlt": "Spanish language icon."
+      }
+    }
   },
   "home": {
     "index": {
       "headline": "Mallorca"
     }
   },
+  "dashboard": {
+    "headline": "¡Comience con una nueva Licencia de Alquiler Vacacional o gestione su solicitud en un solo lugar!",
+    "button-text": "Solicitar Licencia de Alquiler",
+    "title": "Sus Solicitudes",
+    "licence_status": {
+      "accepted": "Aceptada",
+      "declined": "Rechazada",
+      "in_process": "En Proceso",
+      "draft": "Borrador",
+      "expired": "Caducada"
+    },
+    "table": {
+      "application_id": "ID de Solicitud",
+      "address": "Dirección",
+      "request_date": "Fecha de Solicitud",
+      "licence_type": "Tipo de Licencia",
+      "status": "Estado",
+      "action": {
+        "title": "Acción",
+        "value": "Detalles"
+      }
+    },
+    "pagination": {
+      "showing_from": "Mostrando de",
+      "to": "a",
+      "of": "de",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    }
+  },
   "error": {
     "page": {
       "headline": "Error",
-      "message": "La página que estás buscando no está disponible en este momento."
+      "message": "The page you are looking for is not available right now."
     }
   },
   "appUser": {
     "list": {
-      "headline": "Usuarios de la Aplicación",
-      "createNew": "Crear nuevo Usuario de la Aplicación",
-      "empty": "No se encontraron Usuarios de la Aplicación.",
-      "edit": "Editar",
-      "delete": "Eliminar"
+      "headline": "App Users",
+      "createNew": "Create new App User",
+      "empty": "No App Users could be found.",
+      "edit": "Edit",
+      "delete": "Delete"
     },
     "add": {
-      "headline": "Añadir Usuario de la Aplicación",
-      "back": "Volver a la lista"
+      "headline": "Add App User",
+      "back": "Back to list"
     },
     "id": {
       "label": "Id"
     },
     "edit": {
-      "headline": "Editar Usuario de la Aplicación",
-      "back": "Volver a la lista"
+      "headline": "Edit App User",
+      "back": "Back to list"
     },
     "application": {
       "user": {
-        "referenced": "Esta entidad aún está referenciada por la Solicitud {{id}} a través del campo Usuario."
+        "referenced": "This entity is still referenced by Application {{id}} via field User."
       }
     },
     "license": {
       "user": {
-        "referenced": "Esta entidad aún está referenciada por la Licencia {{id}} a través del campo Usuario."
+        "referenced": "This entity is still referenced by License {{id}} via field User."
       }
     },
     "create": {
-      "success": "El Usuario de la Aplicación se creó correctamente."
+      "success": "App User was created successfully."
     },
     "update": {
-      "success": "El Usuario de la Aplicación se actualizó correctamente."
+      "success": "App User was updated successfully."
     },
     "delete": {
-      "success": "El Usuario de la Aplicación se eliminó correctamente."
+      "success": "App User was removed successfully."
     }
   },
   "application": {
     "list": {
-      "headline": "Solicitudes",
-      "createNew": "Crear nueva Solicitud",
-      "empty": "No se encontraron Solicitudes.",
-      "edit": "Editar",
-      "delete": "Eliminar"
+      "headline": "Applications",
+      "createNew": "Create new Application",
+      "empty": "No Applications could be found.",
+      "edit": "Edit",
+      "delete": "Delete"
     },
     "add": {
-      "headline": "Añadir Solicitud",
-      "back": "Volver a la lista"
+      "headline": "Add Application",
+      "back": "Back to list"
     },
     "id": {
       "label": "Id"
     },
     "licenseType": {
-      "label": "Tipo de Licencia"
+      "label": "License Type"
     },
     "cadastralReference": {
-      "label": "Referencia Catastral"
+      "label": "Cadastral Reference"
     },
     "appliedAt": {
-      "label": "Fecha de Solicitud"
+      "label": "Applied At"
     },
     "changedAt": {
-      "label": "Fecha de Modificación"
+      "label": "Changed At"
     },
     "status": {
-      "label": "Estado"
+      "label": "Status"
     },
     "paymentStatus": {
-      "label": "Estado del Pago"
+      "label": "Payment Status"
     },
     "user": {
-      "label": "Usuario"
+      "label": "User"
     },
     "edit": {
-      "headline": "Editar Solicitud",
-      "back": "Volver a la lista"
+      "headline": "Edit Application",
+      "back": "Back to list"
     },
     "license": {
       "application": {
-        "referenced": "Esta entidad aún está referenciada por la Licencia {{id}} a través del campo Solicitud."
+        "referenced": "This entity is still referenced by License {{id}} via field Application."
       }
     },
     "create": {
-      "success": "La Solicitud se creó correctamente."
+      "success": "Application was created successfully."
     },
     "update": {
-      "success": "La Solicitud se actualizó correctamente."
+      "success": "Application was updated successfully."
     },
     "delete": {
-      "success": "La Solicitud se eliminó correctamente."
+      "success": "Application was removed successfully."
     }
   },
   "license": {
     "list": {
-      "headline": "Licencias",
-      "createNew": "Crear nueva Licencia",
-      "empty": "No se encontraron Licencias.",
-      "edit": "Editar",
-      "delete": "Eliminar"
+      "headline": "Licenses",
+      "createNew": "Create new License",
+      "empty": "No Licenses could be found.",
+      "edit": "Edit",
+      "delete": "Delete"
     },
     "add": {
-      "headline": "Añadir Licencia",
-      "back": "Volver a la lista"
+      "headline": "Add License",
+      "back": "Back to list"
     },
     "id": {
       "label": "Id"
     },
     "licenseType": {
-      "label": "Tipo de Licencia"
+      "label": "License Type"
     },
     "licenseStatus": {
-      "label": "Estado de la Licencia"
+      "label": "License Status"
     },
     "issuedAt": {
-      "label": "Fecha de Emisión"
+      "label": "Issued At"
     },
     "expiresAt": {
-      "label": "Fecha de Expiración"
+      "label": "Expires At"
     },
     "user": {
-      "label": "Usuario"
+      "label": "User"
     },
     "application": {
-      "label": "Solicitud"
+      "label": "Application"
     },
     "edit": {
-      "headline": "Editar Licencia",
-      "back": "Volver a la lista"
+      "headline": "Edit License",
+      "back": "Back to list"
     },
     "create": {
-      "success": "La Licencia se creó correctamente."
+      "success": "License was created successfully."
     },
     "update": {
-      "success": "La Licencia se actualizó correctamente."
+      "success": "License was updated successfully."
     },
     "delete": {
-      "success": "La Licencia se eliminó correctamente."
+      "success": "License was removed successfully."
     }
   },
   "select": {
     "empty": {
-      "label": "Por favor selecciona"
+      "label": "Please select"
     }
   },
   "delete": {
-    "confirm": "¿Realmente deseas eliminar este elemento? Esta acción no se puede deshacer."
+    "confirm": "Do you really want to delete this element? This cannot be undone."
   },
   "operation": {
-    "success": "Tu operación se realizó con éxito."
+    "success": "Your operation was successful."
   },
-  "required": "Por favor proporciona un valor.",
-  "maxlength": "Tu valor debe tener menos de ${max} caracteres.",
+  "required": "Please provide a value.",
+  "maxlength": "Your value must have a length of less then ${max} characters.",
   "valid": {
-    "offsetDateTime": "Por favor proporciona una fecha válida con zona horaria, por ejemplo \"2026-01-23T14:55:00+01:00\"."
-  },
-  "legalNotice": {
-    "lastUpdated": "Última actualización: 27/11/2025",
-    "legalTitle": "Aviso Legal",
-    "legalSection": {
-      "ownerTitle": "Identificación del propietario/controlador del sitio web",
-      "ownerText": "Dirección Insular de Licencias Turísticas\nDirección: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nEmail: avisio.legal@palma.es",
-      "purposeTitle": "Propósito del portal",
-      "purposeList": [
-        "Registrar y mantener cuentas de usuario",
-        "Solicitar licencias de alquiler vacacional",
-        "Subir documentos para verificación",
-        "Rastrear el estado de las solicitudes",
-        "Realizar pagos de tasas administrativas",
-        "Gestionar notificaciones y configuraciones personales"
-      ]
-    },
-    "privacyTitle": "Política de Privacidad",
-    "privacySection": {
-      "controllerTitle": "Responsable de Datos",
-      "controllerText": "Dirección Insular de Licencias Turísticas\nDirección: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nEmail: avisio.legal@palma.es",
-      "dataTitle": "Datos que recopilamos",
-      "dataList": [
-        "Información de cuenta e identidad (nombre, correo electrónico, teléfono, contraseña encriptada)",
-        "Información de propiedad y solicitud de licencia (dirección, documentos de propiedad, copia de ID)",
-        "Documentos subidos (prueba de ID, prueba de propiedad)",
-        "Datos técnicos (IP, navegador, actividad de inicio de sesión)",
-        "Información de pago (IBAN, BIC — manejada de forma segura por Banco Santander)"
-      ]
-    },
-    "cookiesTitle": "Política de Cookies",
-    "cookiesSection": {
-      "whatTitle": "¿Qué son las cookies?",
-      "whatText": "Las cookies son pequeños archivos de texto almacenados en su dispositivo para mejorar su experiencia de navegación.",
-      "typesTitle": "Tipos de cookies que usamos",
-      "typesList": [
-        "Cookies esenciales — requeridas para inicio de sesión, idioma, sesiones de seguridad y envío de formularios."
-      ],
-      "consentTitle": "Consentimiento de cookies",
-      "consentText": "En su primera visita, acepta todas las cookies esenciales. Estas no pueden desactivarse."
-    }
+    "offsetDateTime": "Please provide a valid date with offset, for example \"2026-01-23T14:55:00+01:00\"."
   }
 }

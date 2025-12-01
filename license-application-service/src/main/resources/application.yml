@@ -6,7 +6,11 @@ spring:
     default-schema: licensing
     liquibase-schema: public
     enabled: true
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/license-realm
   docker:
     compose:
       lifecycle-management: start-only
@@ -26,3 +30,9 @@ error:
     full-stacktrace-http-statuses: 5xx
     log-levels:
       5xx: ERROR
+
+keycloak:
+  url: http://localhost:8081
+  realm: license-realm
+  client-id: backend-api
+  client-secret: CLIENT_SECRET_PLACEHOLDER

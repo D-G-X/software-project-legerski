@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import '@testing-library/jest-dom';
 global.TextEncoder = require('util').TextEncoder;
+global.TextDecoder = require('util').TextDecoder;
 import { render, RenderResult } from '@testing-library/react';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 

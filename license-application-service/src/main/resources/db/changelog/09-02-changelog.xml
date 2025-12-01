@@ -1,0 +1,52 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS"
+        logicalFilePath="db/changelog/09-02-changelog.xml">
+
+    <changeSet id="add_ballot_period" author="Alexander">
+        <createTable tableName="ballot_period">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="start_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_ballot" author="Alexander">
+        <createTable tableName="ballot">
+            <column name="ballot_period_id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_ballot"/>
+            </column>
+            <column name="application_id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_ballot"/>
+            </column>
+            <column name="selected" type="BOOLEAN"/>
+        </createTable>
+
+
+        <addForeignKeyConstraint
+                baseTableName="ballot"
+                baseColumnNames="ballot_period_id"
+                constraintName="fk_ballot_ballot_period"
+                referencedTableName="ballot_period"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="ballot"
+                baseColumnNames="application_id"
+                constraintName="fk_ballot_applications"
+                referencedTableName="application"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

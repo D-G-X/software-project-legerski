@@ -1,3 +1,9 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin '@tailwindcss/forms';
 
+@theme {
+  --color-mallorca-purple: #351341;
+  --color-mallorca-yellow: #f6dc33;
+  --color-mallorca-red: #c52f20;
+  --font-inter: "Inter", sans-serif;
+}

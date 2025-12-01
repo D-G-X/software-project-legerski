@@ -7,9 +7,11 @@ info:
     Supports GDPR-compliant user management through Keycloak integration and ensures transparent, fair allocation of ETV licenses.
 
 servers:
-  - url: https://localhost
+  - url: https://localhost:8080/
 
 tags:
+  - name: Authentication
+    description: Endpoints for user authentication and token management via Keycloak.
   - name: Users
     description: Operations related to user management including account creation, updates, and authentication.
   - name: Applications
@@ -22,12 +24,60 @@ tags:
     description: Processing and tracking payments related to license applications and renewals.
   - name: Consent
     description: Managing user consents for data processing and compliance with regulatory requirements.
+  - name: Ballot Periods
+    description: Managing ballot periods for fair allocation of holiday rental licenses.
 
 
 security:
   - KeycloakOAuth2: [openid, profile, email]
 
 paths:
+  /login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate a user and obtain JWT access and refresh tokens.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResource"
+        "401":
+          description: Unauthorized - invalid credentials
+
+  /register:
+    post:
+      tags: [Authentication]
+      summary: User registration
+      description: Register a new user account in the system.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResource"
+        "400":
+          description: Bad request - invalid input data
+        "409":
+            description: Conflict - user already exists
+
   /users:
     get:
       tags: [Users]
@@ -73,7 +123,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/UserRecord"
+                  $ref: "#/components/schemas/UserResource"
         "400":
           description: Invalid query parameter
         "401":
@@ -126,7 +176,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserRecord"
+                $ref: "#/components/schemas/UserResource"
 
     patch:
       summary: Update user attributes or password
@@ -194,9 +244,9 @@ paths:
             type: string
             format: uuid
       responses:
-        "201":
+        "401":
           description: Unauthorized
-        "203":
+        "403":
           description: Forbidden
         "204":
           description: User deleted
@@ -224,7 +274,7 @@ paths:
           description: Filter applications by status
           required: false
           schema:
-            $ref: "#/components/schemas/ApplicationStatus"
+            $ref: "#/components/schemas/ApplicationStatusApiEnum"
       responses:
         "200":
           description: List of applications (optionally filtered by status)
@@ -233,7 +283,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ApplicationRecord"
+                  $ref: "#/components/schemas/ApplicationResource"
     post:
       tags: [Applications]
       summary: Create a new application
@@ -253,7 +303,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationRecord"
+                $ref: "#/components/schemas/ApplicationResource"
 
   /applications/{applicationId}:
     get:
@@ -275,7 +325,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationRecord"
+                $ref: "#/components/schemas/ApplicationResource"
     patch:
       tags: [Applications]
       summary: Update application status or remarks
@@ -300,7 +350,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationRecord"
+                $ref: "#/components/schemas/ApplicationResource"
 
     delete:
       tags: [Applications]
@@ -325,109 +375,87 @@ paths:
         '403':
           description: Forbidden - insufficient permissions
 
-
-  /applications/{applicationId}/documents:
+  /validation-callback:
     post:
       tags: [Document Verification]
-      summary: Upload a document for an application
-      description: Upload a supporting document for an application.
-      operationId: uploadDocument
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                document_type:
-                  type: string
-                  example: "proof_of_ownership"
-      responses:
-        "201":
-          description: Document uploaded
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApplicationDocumentRecord"
-
-    get:
-      tags: [Document Verification]
-      summary: List documents for an application
-      description: List all uploaded documents belonging to a specific application.
-      operationId: listDocuments
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: List of documents
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ApplicationDocumentRecord"
-
-  /applications/{applicationId}/documents/{documentId}/verification:
-    post:
-      tags: [Document Verification]
-      summary: Verify or reject a submitted document
-      description: Update the verification status of a submitted document, marking it as pending, verified, or rejected.
-      operationId: verifyDocument
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: documentId
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Endpoint for mock to send document validation results
+      description: Endpoint for mock to send document validation results
+      operationId: documentValidationCallback
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - application_id
+                - status
               properties:
-                verification_status:
+                application_id:
+                  type: integer
+                  description: ID of the application being validated
+                  example: 1
+                status:
                   type: string
-                  enum: [pending, verified, rejected]
-                remarks:
+                  description: Validation result
+                  enum:
+                    - VERIFIED
+                    - REJECTED
+                rejection_reason:
                   type: string
+                  nullable: true
+                  description: Reason for rejection (only present if status = REJECTED)
+      responses:
+        default:
+          description: No response expected
+
+  /applications/{applicationId}/documents:
+    get:
+      tags: [Document Verification]
+      summary: Get document validation status for an application
+      description: Returns the validation result of the documents belonging to an application
+      operationId: getApplicationDocuments
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the application
       responses:
         "200":
-          description: Document verification status updated
+          description: Document validation result found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationDocumentRecord"
+                type: object
+                required:
+                  - application_id
+                  - status
+                properties:
+                  application_id:
+                    type: integer
+                    description: ID of the application being validated
+                    example: 1
+                  status:
+                    type: string
+                    description: Validation result
+                    enum:
+                      - VERIFIED
+                      - REJECTED
+                  rejection_reason:
+                    type: string
+                    nullable: true
+                    description: Reason for rejection (only present if status = REJECTED)
+        "404":
+          description: Application not found
+
 
   /applications/{applicationId}/payments:
     get:
       tags: [Payments]
       summary: List payments for an application
-      description: Retrieve payment records associated with a specific application.
+      description: Retrieve direct debit payment records associated with a specific application.
       operationId: listPayments
       security:
         - KeycloakOAuth2: [openid]
@@ -445,11 +473,11 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ApplicationPaymentRecord"
+                  $ref: "#/components/schemas/ApplicationPaymentResource"
     post:
       tags: [Payments]
-      summary: Record a payment for an application
-      description: Record a new payment related to a holiday rental license application.
+      summary: Record a new payment for an application
+      description: Record a new direct debit payment related to a holiday rental license application.
       operationId: createPayment
       security:
         - KeycloakOAuth2: [openid]
@@ -471,27 +499,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationPaymentRecord"
+                $ref: "#/components/schemas/ApplicationPaymentResource"
 
-  /applications/{applicationId}/payments/{paymentId}:
-    patch:
-      tags: [Payments]
-      summary: Update payment status for an application payment
-      description: Update the status of a specific payment.
-      operationId: updatePayment
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: paymentId
-          in: path
-          required: true
-          schema:
-            type: integer
+  /ballot-periods:
+    post:
+      tags: [Ballot Periods]
+      summary: Create a ballot period
+      description: Create a new ballot period by defining its start and end dates.
+      operationId: createBallotPeriod
       requestBody:
         required: true
         content:
@@ -499,30 +514,95 @@ paths:
             schema:
               type: object
               properties:
-                payment_status:
-                  $ref: "#/components/schemas/PaymentStatus"
-              required:
-                - payment_status
+                start_date:
+                  type: string
+                  format: date-time
+                end_date:
+                  type: string
+                  format: date-time
       responses:
-        "200":
-          description: Payment status updated
+        "201":
+          description: Ballot period created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationPaymentRecord"
+                $ref: "#/components/schemas/BallotPeriodResource"
+        "409":
+          description: Conflict - overlapping ballot periods are not allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                    example: "OVERLAPPING_PERIOD"
+                  message:
+                    type: string
+                    example: "The specified start and end dates overlap with an existing ballot period."
 
-  /applications/lottery:
-    post:
-      tags: [Applications]
-      summary: Run the lottery/ballot on eligible applications
+  /ballot-periods/{period_id}:
+    get:
+      tags: [Ballot Periods]
+      summary: Retrieve ballot period details
       description: >
-        Triggers the allocation (lottery) process, assigning statuses such as 'selected' or 'not_selected'
-        to eligible applications for the current lottery round.
-      operationId: runLottery
-      security:
-        - KeycloakOAuth2: [openid]
+        Retrieves the details and configuration for a specific ballot period, 
+        including its start and end dates and other metadata.
+      operationId: getBallotPeriodDetails
+      parameters:
+        - in: path
+          name: period_id
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier for the ballot period
+      responses:
+        "200":
+          description: Ballot period details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BallotPeriodResource"
+
+
+  /ballot-periods/{period_id}/entries:
+    get:
+      tags: [Ballot Periods]
+      summary: List entries for a ballot period
+      description: List all submitted applications/entries for a specific ballot period.
+      operationId: getBallotPeriodEntries
+      parameters:
+        - in: path
+          name: period_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of entries for the period
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApplicationResource"
+
+
+  /ballot-periods/{period_id}/lottery:
+    post:
+      tags: [Ballot Periods]
+      summary: Run the lottery round for a ballot period
+      description: >
+        Triggers the allocation (lottery) process for this ballot period,
+        assigning selected status as true/false to eligible applications within the given period.
+      operationId: runLotteryForBallotPeriod
+      parameters:
+        - in: path
+          name: period_id
+          required: true
+          schema:
+            type: integer
       requestBody:
-        description: Optional parameters for the lottery, such as filtering by license_type or other business criteria
         required: false
         content:
           application/json:
@@ -530,26 +610,24 @@ paths:
               type: object
               properties:
                 license_type:
-                  $ref: "#/components/schemas/LicenseType"
+                  $ref: "#/components/schemas/LicenseTypeApiEnum"
       responses:
         "200":
-          description: Lottery results with updated application statuses
+          description: Lottery results with updated statuses for applications in the period
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  round_id:
-                    type: string
-                    description: Unique identifier for the lottery round
                   selected_applications:
                     type: array
                     items:
-                      $ref: "#/components/schemas/ApplicationRecord"
+                      $ref: "#/components/schemas/ApplicationResource"
                   not_selected_applications:
                     type: array
                     items:
-                      $ref: "#/components/schemas/ApplicationRecord"
+                      $ref: "#/components/schemas/ApplicationResource"
+
 
   /licenses:
     get:
@@ -575,7 +653,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/LicenseRecord"
+                  $ref: "#/components/schemas/LicenseResource"
 
   /licenses/{licenseId}:
     get:
@@ -597,7 +675,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LicenseRecord"
+                $ref: "#/components/schemas/LicenseResource"
     patch:
       tags: [Licenses]
       summary: Update the status of a license
@@ -619,7 +697,7 @@ paths:
               type: object
               properties:
                 license_status:
-                  $ref: "#/components/schemas/LicenseStatus"
+                  $ref: "#/components/schemas/LicenseStatusApiEnum"
               required:
                 - license_status
       responses:
@@ -628,7 +706,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LicenseRecord"
+                $ref: "#/components/schemas/LicenseResource"
 
     delete:
       tags: [Licenses]
@@ -667,7 +745,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ConsentRecord"
+                  $ref: "#/components/schemas/ConsentResource"
 
     post:
       tags: [Consent]
@@ -688,7 +766,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ConsentRecord"
+                $ref: "#/components/schemas/ConsentResource"
 
   /consents/{consentId}:
     delete:
@@ -780,7 +858,95 @@ components:
             email: Email access
 
   schemas:
-    UserRecord:
+    LoginRequest:
+        type: object
+        description: Request payload for user login.
+        properties:
+          email:
+            type: string
+            format: email
+            description: User's username.
+            example: johndoe@email.com
+          password:
+            type: string
+            format: password
+            description: User's password.
+            example: securepassword123
+        required:
+            - username
+            - password
+    LoginResource:
+        type: object
+        description: Response payload containing authentication tokens.
+        properties:
+          access_token:
+            type: string
+            description: JWT access token for authenticated requests.
+            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..
+            x-field-extra-annotation: '@JsonProperty("access_token")'
+          refresh_token:
+            type: string
+            description: Token used to obtain a new access token.
+            example: dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...
+            x-field-extra-annotation: '@JsonProperty("refresh_token")'
+          expires_in:
+            type: integer
+            description: Time in seconds until the access token expires.
+            example: 3600
+            x-field-extra-annotation: '@JsonProperty("expires_in")'
+          refresh_expires_in:
+            type: integer
+            description: Time in seconds until the refresh token expires.
+            example: 86400
+            x-field-extra-annotation: '@JsonProperty("refresh_expires_in")'
+          token_type:
+            type: string
+            description: Type of the token issued.
+            example: Bearer
+            x-field-extra-annotation: '@JsonProperty("token_type")'
+        required:
+            - access_token
+            - refresh_token
+            - expires_in
+            - token_type
+    RegisterRequest:
+      type: object
+      description: Request payload for user registration.
+      properties:
+        firstname:
+          type: string
+          description: User's first name.
+          example: John
+        lastname:
+          type: string
+          description: User's last name.
+          example: Doe
+        email:
+          type: string
+          format: email
+          description: User's email address.
+          example: johndoe@email.com
+        password:
+          type: string
+          format: password
+          description: User's desired password.
+          example: securepassword123
+
+    RegisterResource:
+      type: object
+      description: Response payload after successful user registration.
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: Unique identifier of the newly created user.
+          example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
+        message:
+          type: string
+          description: Confirmation message.
+          example: User registered successfully. Please verify your email to activate the account.
+
+    UserResource:
       type: object
       description: Represents a user of the holiday rental licensing portal, typically sourced from a Keycloak identity provider.
       properties:
@@ -872,7 +1038,7 @@ components:
         - username
         - enabled
 
-    LicenseRecord:
+    LicenseResource:
       type: object
       description: Represents a holiday rental license issued to a user for a property.
       properties:
@@ -890,9 +1056,9 @@ components:
           description: ID of the related application.
           example: 201
         license_type:
-          $ref: "#/components/schemas/LicenseType"
+          $ref: "#/components/schemas/LicenseTypeApiEnum"
         license_status:
-          $ref: "#/components/schemas/LicenseStatus"
+          $ref: "#/components/schemas/LicenseStatusApiEnum"
         issued_at:
           type: string
           format: date-time
@@ -910,7 +1076,7 @@ components:
         - license_type
         - license_status
 
-    ApplicationRecord:
+    ApplicationResource:
       type: object
       description: Represents a user's request for a holiday rental license.
       properties:
@@ -924,7 +1090,7 @@ components:
           description: ID of the applicant user.
           example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
         license_type:
-          $ref: "#/components/schemas/LicenseType"
+          $ref: "#/components/schemas/LicenseTypeApiEnum"
         cadastral_reference:
           type: string
           minLength: 20
@@ -942,7 +1108,7 @@ components:
           description: When the application was last updated.
           example: 2025-06-01T10:00:00Z
         application_status:
-          $ref: "#/components/schemas/ApplicationStatus"
+          $ref: "#/components/schemas/ApplicationStatusApiEnum"
         remarks:
           type: string
           description: Additional information or comments.
@@ -964,7 +1130,7 @@ components:
           description: User who submits the application.
           example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
         license_type:
-          $ref: "#/components/schemas/LicenseType"
+          $ref: "#/components/schemas/LicenseTypeApiEnum"
         cadastral_reference:
           type: string
           minLength: 20
@@ -985,13 +1151,13 @@ components:
       description: Used to update the application status or add remarks.
       properties:
         application_status:
-          $ref: "#/components/schemas/ApplicationStatus"
+          $ref: "#/components/schemas/ApplicationStatusApiEnum"
         remarks:
           type: string
           description: Additional notes or comments.
           example: Missing one document
 
-    ApplicationPaymentRecord:
+    ApplicationPaymentResource:
       type: object
       description: Represents a payment made for an application.
       properties:
@@ -1008,17 +1174,31 @@ components:
           format: decimal
           description: Payment amount in EUR.
           example: 123.45
+        name:
+          type: string
+          description: Account holder's name.
+          example: John Doe
+        iban:
+          type: string
+          description: IBAN of the payment method.
+          example: DE01234567890123456789
+        bic:
+          type: string
+          description: BIC/SWIFT code of the bank.
+          example: DEUTDEAAXXX
         payment_date:
           type: string
           format: date-time
           description: When payment was made.
           example: 2025-05-22T15:10:00Z
         payment_status:
-          $ref: "#/components/schemas/PaymentStatus"
+          $ref: "#/components/schemas/PaymentStatusApiEnum"
       required:
         - id
         - application_id
         - amount
+        - name
+        - iban
         - payment_status
 
     ApplicationPaymentCreate:
@@ -1029,19 +1209,24 @@ components:
           type: integer
           description: Associated application ID.
           example: 201
-        amount:
-          type: number
-          format: decimal
-          description: Amount to be paid in EUR.
-          example: 99.99
-        payment_status:
-          $ref: "#/components/schemas/PaymentStatus"
+        name:
+          type: string
+          description: Account holder's name.
+          example: John Doe
+        iban:
+          type: string
+          description: IBAN of the payment method.
+          example: DE01234567890123456789
+        bic:
+          type: string
+          description: BIC/SWIFT code of the bank.
+          example: DEUTDEAAXXX
       required:
         - application_id
-        - amount
-        - payment_status
+        - name
+        - iban
 
-    ConsentRecord:
+    ConsentResource:
       type: object
       description: Tracks user consent for various data processing purposes.
       properties:
@@ -1093,49 +1278,49 @@ components:
       required:
         - purpose
 
-    ApplicationStatus:
+    ApplicationStatusApiEnum:
       type: string
       description: Status values for an application.
       enum:
-        - draft # Saved but not submitted
-        - documents_submitted # Documents uploaded
-        - verification_pending # Awaiting verification
-        - awaiting_payment # Waiting for user payment
-        - payment_received # Payment completed
-        - submitted # Application formally submitted
-        - in_ballot # Entered into selection/ballot
-        - selected # Chosen/approved via ballot
-        - not_selected # Not chosen in ballot
-        - under_review # In manual review process
-        - approved # License approved
-        - rejected # Application rejected
-        - expired # Application expired (not continued)
-        - cancelled # Withdrawn/cancelled by user
+        - DRAFT # Saved but not submitted
+        - DOCUMENTS_SUBMITTED # Documents uploaded
+        - VERIFICATION_PENDING # Awaiting verification
+        - AWAITING_PAYMENT # Waiting for user payment
+        - PAYMENT_RECEIVED # Payment completed
+        - SUBMITTED # Application formally submitted
+        - IN_BALLOT # Entered into selection/ballot
+        - SELECTED # Chosen/approved via ballot
+        - NOT_SELECTED # Not chosen in ballot
+        - UNDER_REVIEW # In manual review process
+        - APPROVED # License approved
+        - REJECTED # Application rejected
+        - EXPIRED # Application expired (not continued)
+        - CANCELLED # Withdrawn/cancelled by user
 
-    PaymentStatus:
+    PaymentStatusApiEnum:
       type: string
       description: Status for any payment attempt.
       enum:
-        - unpaid # Payment is pending
-        - paid # Payment completed
+        - UNPAID # Payment is pending
+        - PAID # Payment completed
 
-    LicenseStatus:
+    LicenseStatusApiEnum:
       type: string
       description: Current license status.
       enum:
-        - active # Valid and usable
-        - suspended # Temporarily revoked
-        - expired # No longer valid
+        - ACTIVE # Valid and usable
+        - SUSPENDED # Temporarily revoked
+        - EXPIRED # No longer valid
 
-    LicenseType:
+    LicenseTypeApiEnum:
       type: string
       description: License categories for holiday rentals.
       enum:
-        - etv
-        - etvpl
-        - etv60
+        - ETV
+        - ETVPL
+        - ETV60
 
-    ApplicationDocumentRecord:
+    ApplicationDocumentResource:
       type: object
       description: Supporting documents attached to an application.
       properties:
@@ -1181,3 +1366,18 @@ components:
         - filename
         - uploaded_at
         - verification_status
+
+    BallotPeriodResource:
+      type: object
+      properties:
+        ballot_period_id:
+          type: integer
+          description: Unique identifier for the ballot period
+        start_date:
+          type: string
+          format: date-time
+          description: Ballot period start, ISO 8601 format
+        end_date:
+          type: string
+          format: date-time
+          description: Ballot period end, ISO 8601 format
