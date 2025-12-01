@@ -42,6 +42,36 @@
       "headline": "Mallorca"
     }
   },
+  "dashboard": {
+    "headline": "Mulai dengan Lisensi Sewa Liburan baru atau kelola aplikasi Anda di satu tempat!",
+    "button-text": "Ajukan Lisensi Sewa",
+    "title": "Aplikasi Anda",
+    "licence_status": {
+      "accepted": "Diterima",
+      "declined": "Ditolak",
+      "in_process": "Dalam Proses",
+      "draft": "Draf",
+      "expired": "Kedaluwarsa"
+    },
+    "table": {
+      "application_id": "ID Aplikasi",
+      "address": "Alamat",
+      "request_date": "Tanggal Permintaan",
+      "licence_type": "Jenis Lisensi",
+      "status": "Status",
+      "action": {
+        "title": "Aksi",
+        "value": "Detail"
+      }
+    },
+    "pagination": {
+      "showing_from": "Menampilkan dari",
+      "to": "sampai",
+      "of": "dari",
+      "previous": "Sebelumnya",
+      "next": "Berikutnya"
+    }
+  },
   "error": {
     "page": {
       "headline": "Error",
