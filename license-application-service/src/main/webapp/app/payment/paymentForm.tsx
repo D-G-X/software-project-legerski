@@ -1,19 +1,20 @@
-import React, {useState} from "react";
-import {validateResults} from "app/common/utils";
+import React, { useState, useEffect } from "react";
+import { validateResults } from "app/common/utils";
 import {
   validateBic,
   validateIban,
   validateName,
   validateSepaMandateCheck
 } from "../common/validationRules";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
-import {FormHeader} from "app/common/headingTitle";
-import {useCreatePayment} from "app/services/payments/payments"
+import { FormHeader } from "app/common/headingTitle";
+import { useCreatePayment } from "app/services/payments/payments";
 import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
 import {useLocation, useNavigate} from "react-router";
 import "./paymentForm.css";
-import {AnimatedDots} from "../common/AnimatedDots";
+import { AnimatedDots } from "../common/AnimatedDots";
+import { useGetApplication } from "app/services/applications/applications";
 
 type Props = {
   payment_id?: number;
@@ -27,13 +28,30 @@ type Props = {
 };
 
 export default function PaymentConfirm() {
-  const {state} = useLocation()
-  const data: Props = state
-
-  const {t} = useTranslation();
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const mutation = useCreatePayment();
+
+  const {state} = useLocation()
+  const applicationId: number = state
+
   useDocumentTitle(t("payment.title"));
+
+  const { data: application } = useGetApplication(applicationId);
+  const applicationData = application?.data;
+
+  useEffect(() => {
+    if (application === undefined) return;
+
+    if ( !applicationId ||
+        !applicationData ||
+        applicationData.id !== applicationId ||
+        applicationData.id === undefined
+    ) {
+      alert("Invalid application data received. Redirecting to application request page.");
+      navigate(`/license-application-request`);
+    }
+  }, [application, applicationData, applicationId, navigate]);
 
   const getFormattedDate = () => {
     const now = new Date();
@@ -43,35 +61,25 @@ export default function PaymentConfirm() {
       year: "numeric",
     });
   };
-  // modal dialog state
+
   const [showSepaDialog, setShowSepaDialog] = useState(false);
-  // loading screen state
   const [loading, setLoading] = useState(false);
 
-  // Format amount as currency according to locale
-  const formatAmount = (amount: number): string => {
+  const formatAmount = (amount: number | undefined): string => {
+    if (amount === undefined) return "N/A";
     return new Intl.NumberFormat(t("locale"), {
       style: "currency",
       currency: "EUR",
       currencyDisplay: "symbol",
       minimumFractionDigits: 2,
     }).format(amount);
-  }
+  };
 
-  // IBAN format: max 34 characters in groups of 4 separated by spaces (no manual input of spaces)
-  const formatIban = (raw: string): string => {
-    return raw
-    .replace(/\s+/g, "")
-    .toUpperCase()
-    .replace(/(.{4})/g, "$1 ")
-    .trim();
-  };
-  // BIC format: max 11 characters no manual input of spaces
-  const formatBic = (raw: string): string => {
-    return raw
-    .replace(/\s+/g, "")
-    .toUpperCase()
-  };
+  const formatIban = (raw: string): string =>
+      raw.replace(/\s+/g, "").toUpperCase().replace(/(.{4})/g, "$1 ").trim();
+
+  const formatBic = (raw: string): string =>
+      raw.replace(/\s+/g, "").toUpperCase();
 
   const [form, setForm] = useState({
     name: "",
@@ -89,36 +97,33 @@ export default function PaymentConfirm() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    if (!data.application_id) {
-      console.error("No application ID found in URL parameters.");
-      return;
-    }
-    const {id, value, type} = e.target;
-    let finalValue;
+    e.preventDefault();
+    const { id, value, type } = e.target;
 
-    if (id === "iban" && type === "text") {
-      finalValue = formatIban(value);
-    } else if (id === "bic" && type === "text") {
-      finalValue = formatBic(value);
-    } else {
-      finalValue = value;
-    }
+    let finalValue =
+        id === "iban" && type === "text"
+            ? formatIban(value)
+            : id === "bic" && type === "text"
+                ? formatBic(value)
+                : value;
 
-    setForm((prev) => ({...prev, [id]: finalValue}));
-    setErrors((prev) => ({...prev, [id]: ""}));
+    setForm((prev) => ({ ...prev, [id]: finalValue }));
+    setErrors((prev) => ({ ...prev, [id]: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!data.application_id) {
-      return;
-    }
+    e.preventDefault();
 
     const nameValidateResult: validateResults = validateName(form.name.trim());
-    const ibanValidateResult: validateResults = validateIban(form.iban.replace(/\s+/g, ''));
-    const bicValidateResult: validateResults = validateBic(form.bic.replace(/\s+/g, ''), form.iban.replace(/\s+/g, ''));
-    const sepaMandateCheckValidateResult: validateResults = validateSepaMandateCheck(form.sepaMandateChecked);
+    const ibanValidateResult: validateResults = validateIban(form.iban.replace(/\s+/g, ""));
+    const bicValidateResult: validateResults = validateBic(
+        form.bic.replace(/\s+/g, ""),
+        form.iban.replace(/\s+/g, "")
+    );
+    const sepaMandateCheckValidateResult: validateResults = validateSepaMandateCheck(
+        form.sepaMandateChecked
+    );
+
     let newErrors = {
       name: "",
       iban: "",
@@ -127,72 +132,46 @@ export default function PaymentConfirm() {
       pay: "",
     };
 
-    if (!nameValidateResult.isValid) {
-      newErrors.name = nameValidateResult.message;
-    }
-    if (!ibanValidateResult.isValid) {
-      newErrors.iban = ibanValidateResult.message;
-    }
-    if (!bicValidateResult.isValid) {
-      newErrors.bic = bicValidateResult.message;
-    }
-    if (!sepaMandateCheckValidateResult.isValid) {
+    if (!nameValidateResult.isValid) newErrors.name = nameValidateResult.message;
+    if (!ibanValidateResult.isValid) newErrors.iban = ibanValidateResult.message;
+    if (!bicValidateResult.isValid) newErrors.bic = bicValidateResult.message;
+    if (!sepaMandateCheckValidateResult.isValid)
       newErrors.sepaMandateCheck = sepaMandateCheckValidateResult.message;
-    }
 
-    if (
-        newErrors.name ||
-        newErrors.iban ||
-        newErrors.bic ||
-        newErrors.sepaMandateCheck
-    ) {
+    if (newErrors.name || newErrors.iban || newErrors.bic || newErrors.sepaMandateCheck) {
       setErrors(newErrors);
-      console.log(newErrors);
       return;
     }
-    setErrors({
-      name: "",
-      iban: "",
-      bic: "",
-      sepaMandateCheck: "",
-      pay: "",
-    });
-    // If the IBAN is from Spain and BIC is invalid, clear the BIC field before submission
-    if (form.iban.slice(0, 2) === 'ES' && !bicValidateResult.isValid) {
+
+    setErrors({ name: "", iban: "", bic: "", sepaMandateCheck: "", pay: "" });
+
+    if (form.iban.slice(0, 2) === "ES" && !bicValidateResult.isValid) {
       form.bic = "";
     }
 
     const postData = {
-      application_id: Number(data.application_id),
+      application_id: Number(applicationId),
       name: form.name.trim(),
-      iban: form.iban.replace(/\s+/g, ''),
-      bic: form.bic.replace(/\s+/g, ''),
-    }
+      iban: form.iban.replace(/\s+/g, ""),
+      bic: form.bic.replace(/\s+/g, ""),
+    };
 
     try {
-      console.log("Submitting payment data:", postData);
       setLoading(true);
       const response = await mutation.mutateAsync({
-        applicationId: Number(data.application_id),
-        data: {...postData}
+        applicationId: Number(applicationId),
+        data: { ...postData },
       });
 
+      function isEqualData(a: Record<string, any>, b: Record<string, any>) {
+        return Object.keys(a).every((key) => a[key] === b[key]);
+      }
+
       if (!response || typeof response !== "object") {
-        console.error("Payment API returned empty or invalid response:", response);
         throw new Error("Empty response");
       }
 
-      console.log("Payment API response:", response);
-
-      function isEqualData(a: Record<string, any>, b: Record<string, any>) {
-        return Object.keys(a).every(key => a[key] === b[key]);
-      }
-
       if (!isEqualData(postData, response.data)) {
-        console.error("Payment API response does not match submitted data:", {
-          submitted: postData,
-          received: response.data
-        });
         throw new Error("Response data mismatch");
       }
 
@@ -202,14 +181,14 @@ export default function PaymentConfirm() {
         amount: response.data.amount,
         payment_date: response.data.payment_date,
         payment_status: response.data.payment_status,
-      }
+      };
 
-      navigate(`/applications/${data.application_id}/payments/done`, {
-        state: stateData, // pass API result to the next page
+      navigate(`/license-application-request/payment/done`, {
+        state: stateData,
       });
     } catch (error: any) {
       console.error("Payment submission error:", error);
-      setErrors(prev => ({...prev, pay: "Payment failed"}));
+      setErrors((prev) => ({ ...prev, pay: "Payment failed" }));
     } finally {
       setLoading(false);
     }
@@ -236,7 +215,7 @@ export default function PaymentConfirm() {
                     {/* Right: amount */}
                     <div className="flex flex-col items-end">
                       <span className="text-xl font-semibold leading-none">
-                        {formatAmount(data.amount)}
+                        {formatAmount(applicationData?.id)}
                       </span>
                       <span className="text-xs font-light italic mt-1 leading-none">
                         {t("paymentConfirm.index.taxLabel")}

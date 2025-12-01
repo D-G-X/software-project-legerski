@@ -23,7 +23,7 @@ export default function PaymentConfirm() {
   const {t} = useTranslation();
   const navigate = useNavigate();
   const {state} = useLocation()
-  const data: Props = state
+  const state_data: Props = state
   useDocumentTitle(t("paymentConfirm.title"));
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function PaymentConfirm() {
 
   if (!state) return null;
 
-  const [success] = useState(data.payment_status === "UNPAID");
+  const [success] = useState(state_data.payment_status === "UNPAID");
 
   const formatAmount = (amount: number): string => {
     return new Intl.NumberFormat(t("locale"), {
@@ -62,7 +62,7 @@ export default function PaymentConfirm() {
     return raw.replace(/\s+/g, "").toUpperCase();
   };
 
-  const formattedDate = new Date(data.payment_date).toLocaleString(t("locale"), {
+  const formattedDate = new Date(state_data.payment_date).toLocaleString(t("locale"), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -72,7 +72,7 @@ export default function PaymentConfirm() {
   });
 
   const handleSubmit = () => {
-    navigate(`/applications/${data.application_id}`);
+    navigate(`/`);
   }
 
   return (
@@ -107,7 +107,7 @@ export default function PaymentConfirm() {
               <div className="flex justify-between text-xl font-semibold">
                 <span className="">{t("paymentConfirm.index.amountLabel") + ": "}</span>
                 <div className="flex flex-col items-end leading-tight">
-                  <span>{formatAmount(data.amount)}</span>
+                  <span>{formatAmount(state_data.amount)}</span>
                   <span
                       className="text-xs font-light italic">{t("paymentConfirm.index.taxLabel")}</span>
                 </div>
@@ -120,20 +120,20 @@ export default function PaymentConfirm() {
                 <div className="flex justify-between">
                   <span
                       className="font-semibold">{t("paymentConfirm.index.nameLabel") + ": "}</span>
-                  <span>{data.name}</span>
+                  <span>{state_data.name}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span
                       className="font-semibold">{t("paymentConfirm.index.ibanLabel") + ": "}</span>
-                  <span>{formatIban(data.iban)}</span>
+                  <span>{formatIban(state_data.iban)}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="font-semibold">{t("paymentConfirm.index.bicLabel") + ": "}</span>
                   <span>
-                    {data.bic
-                        ? formatBic(data.bic)
+                    {state_data.bic
+                        ? formatBic(state_data.bic)
                         : <em>{t("paymentConfirm.index.bicOptional")}</em>}
                   </span>
                 </div>
@@ -141,13 +141,13 @@ export default function PaymentConfirm() {
                 <div className="flex justify-between">
                   <span
                       className="font-semibold">{t("paymentConfirm.index.applicationIdLabel") + ": "}</span>
-                  <span>{data.application_id}</span>
+                  <span>{state_data.application_id}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span
                       className="font-semibold">{t("paymentConfirm.index.paymentIdLabel") + ": "}</span>
-                  <span>{data.payment_id}</span>
+                  <span>{state_data.payment_id}</span>
                 </div>
 
                 <div className="flex justify-between">
