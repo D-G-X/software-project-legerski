@@ -12,10 +12,21 @@ import LicenseList from './license/license-list';
 import LicenseAdd from './license/license-add';
 import LicenseEdit from './license/license-edit';
 import Error from './error/error';
+import LegalNotice from "./legal/LegalNotice";
+import ContactPage from "./contact/ContactPage";
+
 
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
+      {
+          path: 'legalnotice',
+          element: <LegalNotice /> // Legalnoticepage uses its own layout
+      },
+      {
+          path: 'contact',
+          element: <ContactPage />
+      },
     {
       element: <App />,
       children: [

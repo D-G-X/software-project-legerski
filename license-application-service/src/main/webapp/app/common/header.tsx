@@ -46,7 +46,9 @@ export default function Header() {
             <img src="/images/logo.svg" alt={t('app.title')} width="100" height="100" className="inline-block" />
             <span className="text-xl pl-3">{t('app.title')}</span>
           </Link>
-          <button type="button" className="js-dropdown md:hidden border rounded cursor-pointer" data-dropdown-keepopen="true"
+
+
+            <button type="button" className="js-dropdown md:hidden border rounded cursor-pointer" data-dropdown-keepopen="true"
               aria-label={t('navigation.toggle')} aria-controls="navbarToggle" aria-expanded="false">
             <div className="space-y-1.5 my-2.5 mx-4">
               <div className="w-6 h-0.5 bg-gray-500"></div>

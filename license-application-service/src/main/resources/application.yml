@@ -10,7 +10,7 @@ spring:
   docker:
     compose:
       lifecycle-management: start-only
-      file: license-application-service/docker-compose.yml
+      file: docker-compose.yml
   jooq:
     sql-dialect: postgres
 logging.level.org.jooq.Constants: off

@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Dev LicenseApplicationService" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="local" />
     <module name="license-application-service" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="de.hft.licensing.LicensingApplication" />
     <option name="VM_PARAMETERS" value="-Dspring.profiles.active=local" />

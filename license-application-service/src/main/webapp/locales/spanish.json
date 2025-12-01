@@ -174,5 +174,46 @@
   "maxlength": "Tu valor debe tener menos de ${max} caracteres.",
   "valid": {
     "offsetDateTime": "Por favor proporciona una fecha válida con zona horaria, por ejemplo \"2026-01-23T14:55:00+01:00\"."
+  },
+  "legalNotice": {
+    "lastUpdated": "Última actualización: 27/11/2025",
+    "legalTitle": "Aviso Legal",
+    "legalSection": {
+      "ownerTitle": "Identificación del propietario/controlador del sitio web",
+      "ownerText": "Dirección Insular de Licencias Turísticas\nDirección: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nEmail: avisio.legal@palma.es",
+      "purposeTitle": "Propósito del portal",
+      "purposeList": [
+        "Registrar y mantener cuentas de usuario",
+        "Solicitar licencias de alquiler vacacional",
+        "Subir documentos para verificación",
+        "Rastrear el estado de las solicitudes",
+        "Realizar pagos de tasas administrativas",
+        "Gestionar notificaciones y configuraciones personales"
+      ]
+    },
+    "privacyTitle": "Política de Privacidad",
+    "privacySection": {
+      "controllerTitle": "Responsable de Datos",
+      "controllerText": "Dirección Insular de Licencias Turísticas\nDirección: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nEmail: avisio.legal@palma.es",
+      "dataTitle": "Datos que recopilamos",
+      "dataList": [
+        "Información de cuenta e identidad (nombre, correo electrónico, teléfono, contraseña encriptada)",
+        "Información de propiedad y solicitud de licencia (dirección, documentos de propiedad, copia de ID)",
+        "Documentos subidos (prueba de ID, prueba de propiedad)",
+        "Datos técnicos (IP, navegador, actividad de inicio de sesión)",
+        "Información de pago (IBAN, BIC — manejada de forma segura por Banco Santander)"
+      ]
+    },
+    "cookiesTitle": "Política de Cookies",
+    "cookiesSection": {
+      "whatTitle": "¿Qué son las cookies?",
+      "whatText": "Las cookies son pequeños archivos de texto almacenados en su dispositivo para mejorar su experiencia de navegación.",
+      "typesTitle": "Tipos de cookies que usamos",
+      "typesList": [
+        "Cookies esenciales — requeridas para inicio de sesión, idioma, sesiones de seguridad y envío de formularios."
+      ],
+      "consentTitle": "Consentimiento de cookies",
+      "consentText": "En su primera visita, acepta todas las cookies esenciales. Estas no pueden desactivarse."
+    }
   }
 }

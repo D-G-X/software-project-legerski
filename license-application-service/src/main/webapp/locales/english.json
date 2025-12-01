@@ -174,5 +174,49 @@
   "maxlength": "Your value must have a length of less then ${max} characters.",
   "valid": {
     "offsetDateTime": "Please provide a valid date with offset, for example \"2026-01-23T14:55:00+01:00\"."
+  },
+  "legalNotice": {
+    "lastUpdated": "Last Updated: 27/11/2025",
+    "legalTitle": "Legal Notice",
+    "legalSection": {
+      "ownerTitle": "Website Owner / Controller Identification",
+      "ownerText": "Dirección Insular de Licencias Turísticas\nAddress: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nEmail: avisio.legal@palma.es",
+      "purposeTitle": "Purpose of the Portal",
+      "purposeList": [
+        "Registering and maintaining user accounts",
+        "Applying for holiday rental licenses",
+        "Uploading documents for verification",
+        "Tracking application status",
+        "Completing payments for administrative fees",
+        "Managing notifications and personal settings"
+      ]
+    },
+    "privacyTitle": "Privacy Policy",
+    "privacySection": {
+      "controllerTitle": "Data Controller",
+      "controllerText": "Dirección Insular de Licencias Turísticas\nAddress: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nEmail: avisio.legal@palma.es",
+      "dataTitle": "Data We Collect",
+      "dataList": [
+        "Account & Identity Information (name, email, phone, encrypted password)",
+        "Property & License Application Information (address, ownership docs, ID copy)",
+        "Uploaded Documents (ID proof, property proof)",
+        "Technical Data (IP, browser, login activity)",
+        "Payment Information (IBAN, BIC — handled securely by Banco Santander)"
+      ]
+    },
+    "cookiesTitle": "Cookies Policy",
+    "cookiesSection": {
+      "whatTitle": "What Are Cookies?",
+      "whatText": "Cookies are small text files stored on your device to enhance your browsing experience.",
+      "typesTitle": "Types of Cookies We Use",
+      "typesList": [
+        "Essential Cookies — required for login, language, security sessions, and form submissions."
+      ],
+      "consentTitle": "Cookie Consent",
+      "consentText": "On your first visit, you accept all essential cookies. These cannot be disabled."
+    }
   }
 }
+
+
+

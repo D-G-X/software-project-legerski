@@ -16,7 +16,7 @@ export default function App() {
 
   return (<>
     <Header />
-    <main className="h-screen w-full bg-cover bg-top bg-no-repeat"
+    <main className="h-screen w-full overflow-auto w-full bg-cover bg-top bg-no-repeat"
           style={{ backgroundImage: "url('/images/background.jpg')" }}
     >
       <div className="container mx-auto px-4 md:px-6">
