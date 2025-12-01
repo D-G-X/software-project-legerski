@@ -14,7 +14,7 @@
         "label": "email",
         "address": "contacto@palma.es"
       },
-      "website":{
+      "website": {
         "label": "website",
         "url": "www.palma.es"
       },
@@ -30,6 +30,7 @@
     "entities": "Entities",
     "appLogoAlt": "Application logo",
     "signInBtn": "Sign in",
+    "signOutBtn": "Sign Out",
     "registerBtn": "Register",
     "languages": {
       "en": {
@@ -60,9 +61,75 @@
     "contactBtn": "Contact",
     "legalBtn": "Legal Notice"
   },
+  "forgotPassword": {
+    "request": {
+      "headline": "Forgot Password",
+      "subheadline": "Enter your registered email to receive a link to reset your password",
+      "resetPasswordBtn": "Reset Password"
+    },
+    "confirmation": {
+      "headline": "Sent !",
+      "subheadline": "The link has been sent to your email.",
+      "redirectToSignIn": "Go back to Sign in"
+    },
+    "resetPassword": {
+      "headline": "Create new password",
+      "subheadline": "Choose a new password to secure your account.",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm your password",
+      "changePasswordBtn": "Change Password"
+    },
+    "resetConfirmation": {
+      "headline": "Password Changed !",
+      "redirectToSignIn": "Go back to Sign in"
+    }
+  },
   "home": {
     "index": {
       "headline": "Mallorca"
+    }
+  },
+  "dashboard": {
+    "headline": {
+      "getStarted": "Get started with a new Holiday Rental Licence",
+      "manageApplications": " or manage your application in one place!"
+    },
+    "buttonLabel": "Request new licence",
+    "title": "Your Applications",
+    "licenceStatus": {
+      "approved": "Approved",
+      "awaitingPayment": "Awaiting Payment",
+      "cancelled": "Cancelled",
+      "documentsSubmitted": "Documents Submitted",
+      "draft": "Draft",
+      "expired": "Expired",
+      "inBallot": "In Ballot",
+      "notSelected": "Not Selected",
+      "paymentReceived": "Payment Received",
+      "rejected": "Rejected",
+      "selected": "Selected",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "verificationPending": "Verification Pending"
+    },
+    "table": {
+      "applicationId": "Application ID",
+      "cadastalId": "Cadastral ID",
+      "requestDate": "Request Date",
+      "licenceType": "Licence Type",
+      "status": "Status",
+      "action": {
+        "title": "Action",
+        "value": "Details"
+      }
+    },
+    "pagination": {
+      "showingFrom": "Showing",
+      "to": "to",
+      "of": "of",
+      "entries": "entries",
+      "previous": "Previous",
+      "next": "Next"
     }
   },
   "common": {
@@ -80,6 +147,12 @@
       "signInButton": "Sign in",
       "createAccountText": "Need an account?",
       "createAccountLinkLabel": "Create one"
+    },
+    "loginUserAlerts": {
+      "unexpectedResp": "Unexpected response from server",
+      "invalidEmail": "Invalid email or password",
+      "badRequest": "Bad request. Please check your input",
+      "serverError": "Something went wrong. Please try again."
     }
   },
   "register": {
@@ -87,13 +160,21 @@
     "index": {
       "headline": "Register",
       "subheadline": "Online request for administrative services of the Mallorca Office",
-      "nameLabel": "Name",
+      "firstNameLabel": "First Name",
+      "lastNameLabel": " Last Name",
       "emailLabel": "Email",
       "passwordLabel": "Password",
       "confirmPasswordLabel": "Confirm your password",
       "registerButton": "Register",
       "alreadyHaveAccountText": "Already have an account?",
       "signInLinkLabel": "Sign in"
+    },
+    "registerUserAlerts": {
+      "unexpectedErr": "An unexpected error occurred.",
+      "invalidReq": "Invalid Request. Please Check your input",
+      "unAuthReq": "Unauthorized request. You do not have permission.",
+      "userExists": "User already exists. Try logging in instead.",
+      "serverError": "Something went wrong. Please try again."
     }
   },
   "validation": {
@@ -143,8 +224,8 @@
       "valid": "BIC is valid"
     },
     "sepaMandate": {
-        "required": "You must read and accept the SEPA mandate",
-        "valid": "SEPA mandate accepted"
+      "required": "You must read and accept the SEPA mandate",
+      "valid": "SEPA mandate accepted"
     }
   },
   "payment": {

@@ -42,6 +42,36 @@
       "headline": "Majorque"
     }
   },
+  "dashboard": {
+    "headline": "Commencez avec une nouvelle licence de location de vacances ou gérez votre demande en un seul endroit !",
+    "button-text": "Demander une licence de location",
+    "title": "Vos Demandes",
+    "licence_status": {
+      "accepted": "Acceptée",
+      "declined": "Refusée",
+      "in_process": "En Cours de Traitement",
+      "draft": "Brouillon",
+      "expired": "Expirée"
+    },
+    "table": {
+      "application_id": "ID de la Demande",
+      "address": "Adresse",
+      "request_date": "Date de Demande",
+      "licence_type": "Type de Licence",
+      "status": "Statut",
+      "action": {
+        "title": "Action",
+        "value": "Détails"
+      }
+    },
+    "pagination": {
+      "showing_from": "Affichage de",
+      "to": "à",
+      "of": "de",
+      "previous": "Précédent",
+      "next": "Suivant"
+    }
+  },
   "error": {
     "page": {
       "headline": "Error",
