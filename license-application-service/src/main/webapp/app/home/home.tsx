@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import "./home.css";
+import { AuthContext } from "app/common/AuthContext";
+import Dashboard from "app/dashboard/dashboard";
 
 export default function Home() {
   const { t } = useTranslation();
+  const auth = useContext(AuthContext);
 
   useDocumentTitle(t("home.index.headline"));
 
-  return (
-    <main className="relative w-full overflow-hidden">
+  return auth?.accessToken ? (
+    <Dashboard />
+  ) : (
+    <main className="relative h-screen w-full overflow-hidden">
       <div
         className="absolute inset-0 bg-center bg-cover bg-no-repeat opacity-80 scale-110"
         style={{

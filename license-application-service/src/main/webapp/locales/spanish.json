@@ -42,6 +42,36 @@
       "headline": "Mallorca"
     }
   },
+  "dashboard": {
+    "headline": "¡Comience con una nueva Licencia de Alquiler Vacacional o gestione su solicitud en un solo lugar!",
+    "button-text": "Solicitar Licencia de Alquiler",
+    "title": "Sus Solicitudes",
+    "licence_status": {
+      "accepted": "Aceptada",
+      "declined": "Rechazada",
+      "in_process": "En Proceso",
+      "draft": "Borrador",
+      "expired": "Caducada"
+    },
+    "table": {
+      "application_id": "ID de Solicitud",
+      "address": "Dirección",
+      "request_date": "Fecha de Solicitud",
+      "licence_type": "Tipo de Licencia",
+      "status": "Estado",
+      "action": {
+        "title": "Acción",
+        "value": "Detalles"
+      }
+    },
+    "pagination": {
+      "showing_from": "Mostrando de",
+      "to": "a",
+      "of": "de",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    }
+  },
   "error": {
     "page": {
       "headline": "Error",
