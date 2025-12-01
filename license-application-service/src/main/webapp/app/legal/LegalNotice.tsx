@@ -1,12 +1,14 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
-import LegalNoticeLayout from "./LegalNoticeLayout";
+import {useTranslation} from "react-i18next";
 
 export default function LegalNotice() {
-    const { t } = useTranslation("legalNotice");
+  const {t} = useTranslation("legalNotice");
 
-    return (
-        <LegalNoticeLayout>
+  return (
+      <div className="container mx-auto px-4 md:px-6">
+        <div
+            className="relative min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center">
+          <div className="font-inter min-w-96">
             {/* LEGAL NOTICE */}
             <h1 className="text-3xl font-bold mb-6">{t("legalNoticeTitle")}</h1>
             <p className="text-sm mb-8">{t("lastUpdated")}</p>
@@ -15,27 +17,27 @@ export default function LegalNotice() {
             <h2 className="text-xl font-semibold mb-4">1. {t("owner.title")}</h2>
             <p>{t("owner.description")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("owner.address")}</li>
-                <li>{t("owner.email")}</li>
+              <li>{t("owner.address")}</li>
+              <li>{t("owner.email")}</li>
             </ul>
             <p className="mb-2">{t("governingLaw.description")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("governingLaw.lssi")}</li>
-                <li>{t("governingLaw.gdpr")}</li>
-                <li>{t("governingLaw.regional")}</li>
-                <li>{t("governingLaw.noAffiliation")}</li>
+              <li>{t("governingLaw.lssi")}</li>
+              <li>{t("governingLaw.gdpr")}</li>
+              <li>{t("governingLaw.regional")}</li>
+              <li>{t("governingLaw.noAffiliation")}</li>
             </ul>
 
             {/* 2 */}
             <h2 className="text-xl font-semibold mb-4">2. {t("purpose.title")}</h2>
             <p className="mb-2">{t("purpose.description")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("purpose.register")}</li>
-                <li>{t("purpose.apply")}</li>
-                <li>{t("purpose.upload")}</li>
-                <li>{t("purpose.track")}</li>
-                <li>{t("purpose.payments")}</li>
-                <li>{t("purpose.settings")}</li>
+              <li>{t("purpose.register")}</li>
+              <li>{t("purpose.apply")}</li>
+              <li>{t("purpose.upload")}</li>
+              <li>{t("purpose.track")}</li>
+              <li>{t("purpose.payments")}</li>
+              <li>{t("purpose.settings")}</li>
             </ul>
             <p className="mb-6">{t("portalObjective.description")}</p>
 
@@ -48,20 +50,20 @@ export default function LegalNotice() {
             <h3 className="font-semibold mt-4">3.2 {t("terms.obligations.title")}</h3>
             <p className="mb-1">{t("userObligations.intro")}</p>
             <ul className="list-disc ml-6 mb-4">
-                <li> {t("terms.obligations.accurate")}</li>
-                <li> {t("terms.obligations.validDocs")}</li>
-                <li> {t("terms.obligations.noFraud")}</li>
-                <li> {t("terms.obligations.confidentiality")}</li>
-                <li> {t("terms.obligations.law")}</li>
+              <li> {t("terms.obligations.accurate")}</li>
+              <li> {t("terms.obligations.validDocs")}</li>
+              <li> {t("terms.obligations.noFraud")}</li>
+              <li> {t("terms.obligations.confidentiality")}</li>
+              <li> {t("terms.obligations.law")}</li>
             </ul>
 
             <h3 className="font-semibold mt-4">3.3 {t("terms.prohibited.title")}</h3>
             <p className="mb-1">{t("prohibitedActions.intro")}</p>
             <ul className="list-disc ml-6 mb-4">
-                <li> {t("terms.prohibited.unauthorized")}</li>
-                <li> {t("terms.prohibited.malware")}</li>
-                <li> {t("terms.prohibited.bots")}</li>
-                <li> {t("terms.prohibited.misrepresentation")}</li>
+              <li> {t("terms.prohibited.unauthorized")}</li>
+              <li> {t("terms.prohibited.malware")}</li>
+              <li> {t("terms.prohibited.bots")}</li>
+              <li> {t("terms.prohibited.misrepresentation")}</li>
             </ul>
 
             <h3 className="font-semibold mt-4">3.4 {t("terms.ipr.title")}</h3>
@@ -70,10 +72,10 @@ export default function LegalNotice() {
             <h3 className="font-semibold mt-4">3.5 {t("terms.disclaimer.title")}</h3>
             <p className="mb-1">{t("liability.intro")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li> {t("terms.disclaimer.errors")}</li>
-                <li> {t("terms.disclaimer.interruptions")}</li>
-                <li> {t("terms.disclaimer.thirdparty")}</li>
-                <li> {t("terms.disclaimer.delays")}</li>
+              <li> {t("terms.disclaimer.errors")}</li>
+              <li> {t("terms.disclaimer.interruptions")}</li>
+              <li> {t("terms.disclaimer.thirdparty")}</li>
+              <li> {t("terms.disclaimer.delays")}</li>
             </ul>
             <p className="mb-1">{t("terms.disclaimer.asIs")}</p>
 
@@ -99,47 +101,47 @@ export default function LegalNotice() {
             <h2 className="text-xl font-semibold mb-4 mt-6">1. {t("dataController.title")}</h2>
             <p>{t("dataController.description")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("dataController.address")}</li>
-                <li>{t("dataController.email")}</li>
+              <li>{t("dataController.address")}</li>
+              <li>{t("dataController.email")}</li>
             </ul>
 
             <h2 className="text-xl font-semibold mb-4 mt-6">2. {t("dataCollected.title")}</h2>
 
             <p className="mb-2">2.1 {t("dataCollected.accountInfo")}</p>
             <ul className="list-disc ml-6 mb-4">
-                <li>{t("dataCollected.fullName")}</li>
-                <li>{t("dataCollected.email")}</li>
-                <li>{t("dataCollected.phone")}</li>
-                <li>{t("dataCollected.password")}</li>
+              <li>{t("dataCollected.fullName")}</li>
+              <li>{t("dataCollected.email")}</li>
+              <li>{t("dataCollected.phone")}</li>
+              <li>{t("dataCollected.password")}</li>
             </ul>
 
             <p className="mb-2">2.2 {t("dataCollected.propertyInfo")}</p>
             <ul className="list-disc ml-6 mb-4">
-                <li>{t("dataCollected.propertyAddress")}</li>
-                <li>{t("dataCollected.cadastralRef")}</li>
-                <li>{t("dataCollected.licenseForms")}</li>
-                <li>{t("dataCollected.idCopy")}</li>
+              <li>{t("dataCollected.propertyAddress")}</li>
+              <li>{t("dataCollected.cadastralRef")}</li>
+              <li>{t("dataCollected.licenseForms")}</li>
+              <li>{t("dataCollected.idCopy")}</li>
             </ul>
 
             <p className="mb-2">2.3 {t("dataCollected.uploadedDocs")}</p>
             <ul className="list-disc ml-6 mb-4">
-                <li>{t("dataCollected.idProof")}</li>
-                <li>{t("dataCollected.propertyProof")}</li>
+              <li>{t("dataCollected.idProof")}</li>
+              <li>{t("dataCollected.propertyProof")}</li>
             </ul>
 
             <p className="mb-2">2.4 {t("dataCollected.technicalData")}</p>
             <ul className="list-disc ml-6 mb-4">
-                <li>{t("dataCollected.ipAddress")}</li>
-                <li>{t("dataCollected.browserDevice")}</li>
-                <li>{t("dataCollected.loginActivity")}</li>
-                <li>{t("dataCollected.usageAnalytics")}</li>
+              <li>{t("dataCollected.ipAddress")}</li>
+              <li>{t("dataCollected.browserDevice")}</li>
+              <li>{t("dataCollected.loginActivity")}</li>
+              <li>{t("dataCollected.usageAnalytics")}</li>
             </ul>
 
             <p className="mb-2">2.5 {t("dataCollected.paymentInfo")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("dataCollected.accountHolder")}</li>
-                <li>{t("dataCollected.ibanBic")}</li>
-                <li>{t("dataCollected.paymentProcessor")}</li>
+              <li>{t("dataCollected.accountHolder")}</li>
+              <li>{t("dataCollected.ibanBic")}</li>
+              <li>{t("dataCollected.paymentProcessor")}</li>
             </ul>
             <p className="mb-4">{t("security.paymentInfo")}</p>
 
@@ -147,43 +149,43 @@ export default function LegalNotice() {
             <h2 className="text-xl font-semibold mb-4 mt-6">3. {t("processingPurpose.title")}</h2>
             <p className="mb-2">{t("processingPurpose.description")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("processingPurpose.createAccounts")}</li>
-                <li>{t("processingPurpose.processLicenses")}</li>
-                <li>{t("processingPurpose.verifyIdentity")}</li>
-                <li>{t("processingPurpose.sendNotifications")}</li>
-                <li>{t("processingPurpose.ballotAlgorithm")}</li>
-                <li>{t("processingPurpose.generateReceipts")}</li>
-                <li>{t("processingPurpose.ensureSecurity")}</li>
+              <li>{t("processingPurpose.createAccounts")}</li>
+              <li>{t("processingPurpose.processLicenses")}</li>
+              <li>{t("processingPurpose.verifyIdentity")}</li>
+              <li>{t("processingPurpose.sendNotifications")}</li>
+              <li>{t("processingPurpose.ballotAlgorithm")}</li>
+              <li>{t("processingPurpose.generateReceipts")}</li>
+              <li>{t("processingPurpose.ensureSecurity")}</li>
             </ul>
 
             <p className="mb-2">{t("processingPurpose.basisTitle")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("processingPurpose.gdprContract")}</li>
-                <li>{t("processingPurpose.gdprLegal")}</li>
-                <li>{t("processingPurpose.gdprConsent")}</li>
-                <li>{t("processingPurpose.gdprPublicInterest")}</li>
+              <li>{t("processingPurpose.gdprContract")}</li>
+              <li>{t("processingPurpose.gdprLegal")}</li>
+              <li>{t("processingPurpose.gdprConsent")}</li>
+              <li>{t("processingPurpose.gdprPublicInterest")}</li>
             </ul>
 
             {/* 4. Data Storage Duration */}
             <h2 className="text-xl font-semibold mb-4 mt-6">4. {t("dataStorage.title")}</h2>
             <p className="mb-4">{t("dataStorage.description")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("dataRetention.activeAccounts")}</li>
-                <li>{t("dataRetention.licenseDocs")}</li>
-                <li>{t("dataRetention.paymentReceipts")}</li>
-                <li>{t("dataRetention.logData")}</li>
+              <li>{t("dataRetention.activeAccounts")}</li>
+              <li>{t("dataRetention.licenseDocs")}</li>
+              <li>{t("dataRetention.paymentReceipts")}</li>
+              <li>{t("dataRetention.logData")}</li>
             </ul>
 
             {/* 5. User Rights */}
             <h2 className="text-xl font-semibold mb-4 mt-6">5. {t("userRights.title")}</h2>
             <p className="mb-2">{t("userRights.description")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("userRights.access")}</li>
-                <li>{t("userRights.correction")}</li>
-                <li>{t("userRights.restriction")}</li>
-                <li>{t("userRights.portability")}</li>
-                <li>{t("userRights.objection")}</li>
-                <li>{t("userRights.withdrawal")}</li>
+              <li>{t("userRights.access")}</li>
+              <li>{t("userRights.correction")}</li>
+              <li>{t("userRights.restriction")}</li>
+              <li>{t("userRights.portability")}</li>
+              <li>{t("userRights.objection")}</li>
+              <li>{t("userRights.withdrawal")}</li>
             </ul>
             <p className="mb-4">{t("userRights.contact")}</p>
 
@@ -191,13 +193,12 @@ export default function LegalNotice() {
             <h2 className="text-xl font-semibold mb-4 mt-6">6. {t("security.title")}</h2>
             <p className="mb-2">{t("security.description")}</p>
             <ul className="list-disc ml-6 mb-6">
-                <li>{t("security.accessControl")}</li>
-                <li>{t("security.securityAssessments")}</li>
-                <li>{t("security.cookiesPolicy")}</li>
+              <li>{t("security.accessControl")}</li>
+              <li>{t("security.securityAssessments")}</li>
+              <li>{t("security.cookiesPolicy")}</li>
             </ul>
             <p className="mb-2">{t("securityMeasures.noSystem")}</p>
-
-
+            
             {/*<p className="mb-4">{t("security.dataRetention")}</p>*/}
             {/*<p className="mb-4">{t("security.noSystem")}</p>*/}
 
@@ -213,6 +214,8 @@ export default function LegalNotice() {
 
             <h2 className="text-xl font-semibold mb-4">3. {t("cookies.consentTitle")}</h2>
             <p className="mb-2">{t("cookies.consentText")}</p>
-        </LegalNoticeLayout>
-    );
+          </div>
+        </div>
+      </div>
+  );
 }
