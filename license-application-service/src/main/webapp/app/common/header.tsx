@@ -110,7 +110,7 @@ export default function Header() {
                       <img
                         src={language_title_img_map[i18n.language]?.img}
                         alt={t("app.title")}
-                        className="inline-block h-5 w-10"
+                        className="inline-block h-5 min-w-10"
                       />
                       <div className="text-md text-left h-5 min-w-18">
                         {language_title_img_map[i18n.language]?.language}
@@ -150,7 +150,7 @@ export default function Header() {
                               <img
                                 src={lang?.img}
                                 alt={t("app.title")}
-                                className="inline-block h-5 w-10"
+                                className="inline-block h-5 min-w-10"
                               />
                               <div className="text-left h-5 min-w-22">
                                 {lang?.language}

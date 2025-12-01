@@ -9,13 +9,13 @@ export default function Home() {
   useDocumentTitle(t("home.index.headline"));
 
   return (
-    <main className="relative h-screen w-full overflow-hidden">
+    <main className="relative min-h-screen w-full overflow-x-hidden">
       <div
-        className="absolute inset-0 bg-center bg-cover bg-no-repeat opacity-80 scale-110"
-        style={{
-          backgroundImage: "url('/images/background.png')",
-          backgroundPosition: "center bottom",
-        }}
+          className="absolute inset-0 bg-center bg-cover bg-no-repeat opacity-80 scale-110 -z-10"
+          style={{
+            backgroundImage: "url('/images/background.png')",
+            backgroundPosition: "center bottom",
+          }}
       ></div>
 
       <div className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center">
