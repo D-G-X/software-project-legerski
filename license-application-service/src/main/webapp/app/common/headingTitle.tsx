@@ -1,14 +1,23 @@
 import React from "react";
 
-export function FormHeader(props: { heading: string; subHeading: string }) {
+type FormHeaderProps = {
+  heading: string;
+  subHeading?: string;       // optional
+  className?: string;        // optional
+};
+
+export function FormHeader({ heading, subHeading, className = "" }: FormHeaderProps) {
   return (
-    <>
-      <div className="text-4xl font-bold text-mallorca-purple">
-        {props.heading}
+      <div className={className}>
+        <div className="text-4xl font-bold text-mallorca-purple">
+          {heading}
+        </div>
+
+        {subHeading && (
+            <div className="text-md my-2 text-mallorca-purple/50">
+              {subHeading}
+            </div>
+        )}
       </div>
-      <div className="text-md my-2 text-mallorca-purple/50">
-        {props.subHeading}
-      </div>
-    </>
   );
 }
