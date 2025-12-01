@@ -1,11 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
 import "./paymentConfirm.css";
 import {CircleCheck, CircleX} from "lucide-react";
 import {useLocation, useNavigate} from "react-router";
-
 
 type Props = {
   payment_id: number;
@@ -18,12 +17,12 @@ type Props = {
   payment_status: string;
 };
 
-
 export default function PaymentConfirm() {
   const {t} = useTranslation();
   const navigate = useNavigate();
-  const {state} = useLocation()
-  const state_data: Props = state
+  const {state} = useLocation();
+  const state_data: Props = state;
+
   useDocumentTitle(t("paymentConfirm.title"));
 
   useEffect(() => {
@@ -34,33 +33,26 @@ export default function PaymentConfirm() {
 
   if (!state) return null;
 
-  const [success] = useState(state_data.payment_status === "UNPAID");
+  const success = state_data.payment_status === "UNPAID";
 
-  const formatAmount = (amount: number): string => {
-    return new Intl.NumberFormat(t("locale"), {
-      style: "currency",
-      currency: "EUR",
-      currencyDisplay: "symbol",
-      minimumFractionDigits: 2,
-    }).format(amount);
-  }
+  const formatAmount = (amount: number): string =>
+      new Intl.NumberFormat(t("locale"), {
+        style: "currency",
+        currency: "EUR",
+        minimumFractionDigits: 2,
+      }).format(amount);
 
-  // IBAN format: max 34 characters in groups of 4 separated by spaces (no manual input of spaces)
   const formatIban = (raw: string): string => {
     if (!raw) return "";
     const visibleLength = 2;
-    const clean = raw.replace(/\s+/g, "").toUpperCase()
+    const clean = raw.replace(/\s+/g, "").toUpperCase();
     const visible = clean.slice(-visibleLength);
     const masked = "•".repeat(clean.length - visibleLength);
-    return (masked + visible)
-    .replace(/(.{4})/g, "$1 ")
-    .trim();
+    return (masked + visible).replace(/(.{4})/g, "$1 ").trim();
   };
-  // BIC format: max 11 characters no manual input of spaces
-  const formatBic = (raw: string): string => {
-    if (!raw) return "";
-    return raw.replace(/\s+/g, "").toUpperCase();
-  };
+
+  const formatBic = (raw: string): string =>
+      raw ? raw.replace(/\s+/g, "").toUpperCase() : "";
 
   const formattedDate = new Date(state_data.payment_date).toLocaleString(t("locale"), {
     day: "2-digit",
@@ -71,9 +63,7 @@ export default function PaymentConfirm() {
     second: "2-digit",
   });
 
-  const handleSubmit = () => {
-    navigate(`/`);
-  }
+  const handleSubmit = () => navigate("/");
 
   return (
       <div className="container mx-auto px-4 md:px-6">
