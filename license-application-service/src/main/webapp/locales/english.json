@@ -72,11 +72,20 @@
     "buttonLabel": "Request new licence",
     "title": "Your Applications",
     "licenceStatus": {
-      "accepted": "Accepted",
-      "declined": "Declined",
-      "inProcess": "In Process",
+      "approved": "Approved",
+      "awaitingPayment": "Awaiting Payment",
+      "cancelled": "Cancelled",
+      "documentsSubmitted": "Documents Submitted",
       "draft": "Draft",
-      "expired": "Expired"
+      "expired": "Expired",
+      "inBallot": "In Ballot",
+      "notSelected": "Not Selected",
+      "paymentReceived": "Payment Received",
+      "rejected": "Rejected",
+      "selected": "Selected",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "verificationPending": "Verification Pending"
     },
     "table": {
       "applicationId": "Application ID",

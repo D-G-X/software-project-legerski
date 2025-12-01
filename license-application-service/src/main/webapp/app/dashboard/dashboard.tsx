@@ -15,7 +15,7 @@ export default function Dashboard() {
   const itemsPerPage = 10;
   useDocumentTitle(t("home.index.headline"));
 
-  const { data: response } = useListApplications({
+  const {data: response} = useListApplications({
     user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
   });
 
@@ -31,7 +31,6 @@ export default function Dashboard() {
       (currentPage - 1) * itemsPerPage,
       currentPage * itemsPerPage
   );
-
 
 
   const formatDate = (rawDate: string | undefined) => {
@@ -76,7 +75,7 @@ export default function Dashboard() {
                   </h1>
 
                   <div className="overflow-x-auto">
-                    <table className="mt-8 text-lg dashboard-table">
+                    <table className="mt-8 text-lg dashboard-table text-mallorca-purple">
                       <tr>
                         <th>{t("dashboard.table.applicationId")}</th>
                         <th>{t("dashboard.table.cadastalId")}</th>
@@ -94,63 +93,46 @@ export default function Dashboard() {
                             <td>{item.license_type}</td>
                             <td>
                               <span
-                                  className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[10rem] rounded-md ${
+                                  className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[14rem] rounded-md ${
+                                      // green
                                       item.application_status === "APPROVED"
-                                          ? "text-green-600 bg-green-300"
-                                          : item.application_status === "EXPIRED"
+                                          ? "text-green-800 bg-green-200"
+                                          // red
+                                          : ["EXPIRED", "CANCELLED", "REJECTED"].includes(item.application_status)
                                               ? "text-red-800 bg-red-200"
-                                              : item.application_status === "CANCELLED"
-                                                  ? "text-red-800 bg-red-200"
-                                                  : item.application_status === "REJECTED"
-                                                      ? "text-red-800 bg-red-200"
-                                                      : item.application_status === "DRAFT"
-                                                          ? "text-gray-800 bg-gray-200"
-                                                          : [
-                                                            "DOCUMENTS_SUBMITTED",
-                                                            "VERIFICATION_PENDING",
-                                                            "AWAITING_PAYMENT",
-                                                            "PAYMENT_RECEIVED",
-                                                            "SUBMITTED",
-                                                            "IN_BALLOT",
-                                                            "SELECTED",
-                                                            "NOT_SELECTED",
-                                                            "UNDER_REVIEW",
-                                                          ].includes(item.application_status)
-                                                              ? "text-orange-800 bg-orange-200"
-                                                              : "text-gray-800 bg-gray-200"
+                                              // grey
+                                              : item.application_status === "DRAFT"
+                                                  ? "text-gray-800 bg-gray-200"
+                                                  // orange (all in-process)
+                                                  : [
+                                                    "DOCUMENTS_SUBMITTED",
+                                                    "VERIFICATION_PENDING",
+                                                    "AWAITING_PAYMENT",
+                                                    "PAYMENT_RECEIVED",
+                                                    "SUBMITTED",
+                                                    "IN_BALLOT",
+                                                    "SELECTED",
+                                                    "NOT_SELECTED",
+                                                    "UNDER_REVIEW",
+                                                  ].includes(item.application_status)
+                                                      ? "text-orange-800 bg-orange-200"
+                                                      // fallback
+                                                      : "text-mallorca-purple bg-mallorca-purple/10"
                                   }`}
                               >
-                                {
-                                  item.application_status === "APPROVED"
-                                      ? t("dashboard.licenceStatus.accepted")
-                                      : item.application_status === "EXPIRED"
-                                          ? t("dashboard.licenceStatus.expired")
-                                          : item.application_status === "CANCELLED"
-                                              ? t("dashboard.licenceStatus.cancelled")
-                                              : item.application_status === "REJECTED"
-                                                  ? t("dashboard.licenceStatus.declined")
-                                                  : item.application_status === "DRAFT"
-                                                      ? t("dashboard.licenceStatus.draft")
-                                                      : [
-                                                        "DOCUMENTS_SUBMITTED",
-                                                        "VERIFICATION_PENDING",
-                                                        "AWAITING_PAYMENT",
-                                                        "PAYMENT_RECEIVED",
-                                                        "SUBMITTED",
-                                                        "IN_BALLOT",
-                                                        "SELECTED",
-                                                        "NOT_SELECTED",
-                                                        "UNDER_REVIEW",
-                                                      ].includes(item.application_status)
-                                                          ? t("dashboard.licenceStatus.inProcess")
-                                                          : ""
-                                }
+                                {t(
+                                    "dashboard.licenceStatus." +
+                                    item.application_status
+                                    .toLowerCase()
+                                    .replace(/_([a-z])/g, (_, c) => c.toUpperCase()) // Camel case
+                                )}
+
                               </span>
                             </td>
 
                             <td>
                               <Link
-                                  to="register"
+                                  to={`/applications/${item.id}`}
                                   className="text-mallorca-purple underline"
                               >
                                 {t("dashboard.table.action.value")}
