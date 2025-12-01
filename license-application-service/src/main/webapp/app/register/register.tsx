@@ -145,7 +145,7 @@ export default function Register() {
           break;
 
         default:
-          alert("An unexpected error occurred");
+          alert(t("register.registerUserAlerts.unexpectedErr"));
       }
       return true;
     } catch (error: any) {
@@ -153,19 +153,19 @@ export default function Register() {
 
       switch (status) {
         case 400:
-          alert("Invalid request. Please check your input.");
+          alert(t("register.registerUserAlerts.invalidReq"));
           break;
 
         case 401:
-          alert("Unauthorized request. You do not have permission.");
+          alert(t("register.registerUserAlerts.unAuthReq"));
           break;
 
         case 409:
-          alert("User already exists. Try logging in instead.");
+          alert(t("register.registerUserAlerts.userExists"));
           break;
 
         default:
-          alert("Something went wrong. Please try again.");
+          alert(t("register.registerUserAlerts.serverError"));
           break;
       }
       return false;

@@ -12,11 +12,8 @@ import spanish from "./locales/spanish.json";
 import AppRoutes from "./app/routes";
 import { AuthContext, AuthProvider } from "./app/common/AuthContext";
 import "./index.css";
-
-// ⚠️ Add these imports
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// 🔥 Create QueryClient instance
 const queryClient = new QueryClient();
 
 const AppInitializer = () => {

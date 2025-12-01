@@ -9,6 +9,7 @@ import "./login.css";
 import { useLoginUser } from "app/services/authentication/authentication";
 import { AuthContext } from "app/common/AuthContext";
 import { useNavigate } from "react-router";
+import { Link } from "react-router";
 
 export default function Login() {
   const auth = useContext(AuthContext);
@@ -96,20 +97,20 @@ export default function Login() {
 
         navigate("/"); // redirect to dashboard
       } else {
-        alert("Unexpected response from server");
+        alert(t("login.loginUserAlerts.unexpectedResp"));
       }
     } catch (error: any) {
       const status = error?.response?.status;
 
       switch (status) {
         case 401:
-          alert("Invalid email or password");
+          alert(t("login.loginUserAlerts.invalidEmail"));
           break;
         case 400:
-          alert("Bad request. Please check your input.");
+          alert(t("login.loginUserAlerts.badRequest"));
           break;
         default:
-          alert("Something went wrong. Please try again.");
+          alert(t("login.loginUserAlerts.serverError"));
       }
     }
     return;
@@ -234,9 +235,9 @@ export default function Login() {
               </label>
             </div>
             <div>
-              <a href="/login" className="text-mallorca-purple/50">
+              <Link to="/forgot-password" className="text-mallorca-purple/50">
                 {t("login.index.forgotPassword")}
-              </a>
+              </Link>
             </div>
           </div>
           <div className="my-4">
