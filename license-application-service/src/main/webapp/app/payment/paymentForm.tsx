@@ -181,7 +181,7 @@ export default function PaymentConfirm() {
   return (
       <div className="container mx-auto px-4 md:px-6">
         <div
-            className="relative min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center">
+            className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
           {!loading ?
               <div className="font-inter min-w-96">
                 <FormHeader

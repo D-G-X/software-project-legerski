@@ -69,7 +69,7 @@ export default function PaymentConfirm() {
       <div className="container mx-auto px-4 md:px-6">
 
         <div
-            className="relative min-h-[calc(100vh-4rem)] bg-white flex flex-col items-center justify-center">
+            className="relative min-h-[calc(100vh-8rem)] bg-white flex flex-col items-center justify-center">
           <div className="flex top-8 items-center justify-center">
             {success ?
                 <CircleCheck className="text-green-500" size={72}/>
