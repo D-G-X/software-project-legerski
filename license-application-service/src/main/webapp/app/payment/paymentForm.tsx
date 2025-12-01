@@ -9,7 +9,7 @@ import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
 import {useCreatePayment} from "app/services/payments/payments";
-import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
+import SepaMandateDialog from "../common/modal-dialog";
 import {useNavigate} from "react-router";
 import "./paymentForm.css";
 import {AnimatedDots} from "../common/AnimatedDots";
