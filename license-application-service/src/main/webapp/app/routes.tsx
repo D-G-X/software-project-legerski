@@ -9,6 +9,7 @@ import RequestApplication from "./license/request-application/request-applicatio
 import ForgotPasswordRequest from "./forgot-password/request";
 import ResetPassword from "./forgot-password/reset";
 import Payment from "./payment/payment";
+import ApplicationDocumentUpload from "./license/document-upload/document-upload";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -23,6 +24,10 @@ export default function AppRoutes() {
         {
           path: "license-application-request",
           element: <RequestApplication />,
+        },
+        {
+          path: "license-document-upload",
+          element: <ApplicationDocumentUpload />,
         },
         { path: "payment", element: <Payment /> },
         { path: "error", element: <Error /> },

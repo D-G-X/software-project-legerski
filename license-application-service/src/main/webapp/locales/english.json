@@ -254,22 +254,6 @@
         "errorMissing": "Please specify the expected rental start date."
       },
 
-      "documents": {
-        "label": "Documents",
-        "id": {
-          "description": "Upload a government-issued identification document (e.g., passport, driver's license) for identity verification.",
-          "errorMissing": "ID documents are required"
-        },
-        "address": {
-          "description": "Upload a document showing your current address (e.g., utility bill, bank statement, rental agreement).",
-          "errorMissing": "Address documents are required"
-        },
-        "input": {
-          "buttonLabel": "Browse",
-          "fileSizeLabel": " File with a max size of 10 MB"
-        }
-      },
-
       "comments": {
         "label": "Additional Comments / Remarks",
         "description": "If you have any additional comments or information to provide, please share it here.",
@@ -291,6 +275,26 @@
       "buttons": {
         "submit": "Submit and Upload",
         "draft": "Save as Draft"
+      }
+    },
+    "document_upload": {
+      "error": "Document upload failed",
+      "label": "Documents",
+      "id_doc": {
+        "label": "ID Proof",
+        "description": "Upload a government-issued identification document (e.g., passport, driver's license) for identity verification.",
+        "errorMissing": "ID documents are required"
+      },
+      "address_doc": {
+        "label": "Proof of Address",
+        "description": "Upload a document showing your current address (e.g., utility bill, bank statement, rental agreement).",
+        "errorMissing": "Address documents are required"
+      },
+      "input": {
+        "buttonLabel": "Browse",
+        "fileSizeLabel": "File with a max size of 10 MB — PDF, JPG, PNG only",
+        "fileTypeError": "Only PDF, JPG, or PNG files are allowed",
+        "fileSizeError": "File size must be less than 10 MB"
       }
     }
   },
