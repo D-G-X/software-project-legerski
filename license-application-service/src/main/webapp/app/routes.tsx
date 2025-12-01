@@ -8,7 +8,6 @@ import Register from "./register/register";
 import ForgotPasswordRequest from "./forgot-password/request";
 import ResetPassword from "./forgot-password/reset";
 import Payment from "./payment/payment";
-import Dashboard from "./dashboard/dashboard";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -20,7 +19,6 @@ export default function AppRoutes() {
         { path: "reset-password", element: <ResetPassword /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
-        { path: "applications", element: <Dashboard /> },
         { path: "payment", element: <Payment /> },
         { path: "error", element: <Error /> },
         { path: "*", element: <Error /> },
