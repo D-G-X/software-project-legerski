@@ -9,6 +9,10 @@ import german from "./locales/german.json";
 import hindi from "./locales/hindi.json";
 import indonesian from "./locales/indonesian.json";
 import spanish from "./locales/spanish.json";
+import legalNoticeEnglish from './locales/legalNoticeEnglish.json';
+import legalNoticeSpanish from './locales/legalNoticeSpanish.json';
+import contactEnglish from './locales/contactEnglish.json';
+import contactSpanish from './locales/contactSpanish.json';
 import AppRoutes from "./app/routes";
 import { AuthContext, AuthProvider } from "./app/common/AuthContext";
 import "./index.css";
@@ -32,12 +36,12 @@ const AppInitializer = () => {
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { translation: english },
+    en: { translation: english, legalNotice: legalNoticeEnglish, contact: contactEnglish },
     fr: { translation: french },
     de: { translation: german },
     hi: { translation: hindi },
     id: { translation: indonesian },
-    es: { translation: spanish },
+    es: { translation: spanish, legalNotice: legalNoticeSpanish, contact: contactSpanish },
   },
   lng: localStorage.getItem("language") || "en",
   fallbackLng: "en",

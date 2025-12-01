@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Header from 'app/common/header';
 import { useNavigate } from "react-router-dom";
 
 export default function ContactPage() {
@@ -9,9 +8,6 @@ export default function ContactPage() {
 
     return (
         <div className="min-h-screen bg-white text-gray-800 flex flex-col">
-
-            {/* Header */}
-            <Header />
 
             {/* MAIN CONTENT */}
             <main className="flex-1 max-w-3xl mx-auto px-6 py-10">
@@ -56,7 +52,7 @@ export default function ContactPage() {
 
                 {/* Button LINKS */}
                 <button
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate("/")}
                     // className= "text-white px-3 py-1 rounded-lg shadow hover:bg-purple-300 mb-1"
                     // style={{ backgroundColor: "#351341" }}
                     className="bg-[#351341] text-white px-6 py-3 rounded-lg shadow hover:bg-[#4B1A58] mx-auto block"
