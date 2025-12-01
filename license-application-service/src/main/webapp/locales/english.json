@@ -31,6 +31,7 @@
     "appLogoAlt": "Application logo",
     "contactBtn": "Contact",
     "signInBtn": "Sign in",
+    "signOutBtn": "Sign Out",
     "registerBtn": "Register",
     "languages": {
       "en": {
@@ -145,6 +146,12 @@
       "signInButton": "Sign in",
       "createAccountText": "Need an account?",
       "createAccountLinkLabel": "Create one"
+    },
+    "loginUserAlerts": {
+      "unexpectedResp": "Unexpected response from server",
+      "invalidEmail": "Invalid email or password",
+      "badRequest": "Bad request. Please check your input",
+      "serverError": "Something went wrong. Please try again."
     }
   },
   "register": {
@@ -152,13 +159,21 @@
     "index": {
       "headline": "Register",
       "subheadline": "Online request for administrative services of the Mallorca Office",
-      "nameLabel": "Name",
+      "firstNameLabel": "First Name",
+      "lastNameLabel": " Last Name",
       "emailLabel": "Email",
       "passwordLabel": "Password",
       "confirmPasswordLabel": "Confirm your password",
       "registerButton": "Register",
       "alreadyHaveAccountText": "Already have an account?",
       "signInLinkLabel": "Sign in"
+    },
+    "registerUserAlerts": {
+      "unexpectedErr": "An unexpected error occurred.",
+      "invalidReq": "Invalid Request. Please Check your input",
+      "unAuthReq": "Unauthorized request. You do not have permission.",
+      "userExists": "User already exists. Try logging in instead.",
+      "serverError": "Something went wrong. Please try again."
     }
   },
   "validation": {

@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { LanguageInfo } from "./utils";
 import { Menu } from "lucide-react";
+import { AuthContext } from "./AuthContext";
 
 export default function Header() {
+  const auth = useContext(AuthContext);
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLUListElement>(null);
@@ -165,25 +167,40 @@ export default function Header() {
               </ul>
             </div>
 
-            {/* Signin Button */}
-            <div className="ml-3">
-              <Link
-                to="/login"
-                className="block rounded-lg bg-mallorca-purple/75 border-2 border-mallorca-purple/75 text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
-              >
-                {t("nav.signInBtn")}
-              </Link>
-            </div>
+            {/* Signout Button */}
+            {auth?.accessToken && (
+              <div className="ml-3">
+                <button
+                  onClick={auth?.signOut}
+                  className="rounded-lg block bg-mallorca-purple border-2 border-mallorca-purple text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
+                >
+                  {t("nav.signOutBtn")}
+                </button>
+              </div>
+            )}
 
-            {/* Register Button */}
-            <div className="ml-3">
-              <Link
-                to="/register"
-                className="rounded-lg block bg-mallorca-purple border-2 border-mallorca-purple text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
-              >
-                {t("nav.registerBtn")}
-              </Link>
-            </div>
+            {!auth?.accessToken && (
+              <>
+                {/* Signin Button */}
+                <div className="ml-3">
+                  <Link
+                    to="/login"
+                    className="block rounded-lg bg-mallorca-purple/75 border-2 border-mallorca-purple/75 text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
+                  >
+                    {t("nav.signInBtn")}
+                  </Link>
+                </div>
+                {/* Register Button */}
+                <div className="ml-3">
+                  <Link
+                    to="/register"
+                    className="rounded-lg block bg-mallorca-purple border-2 border-mallorca-purple text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
+                  >
+                    {t("nav.registerBtn")}
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Hamburger Navigation Menu */}
