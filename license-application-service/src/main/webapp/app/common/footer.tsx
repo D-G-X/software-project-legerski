@@ -7,44 +7,40 @@ export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="bg-green-50 h-20 font-inter">
-      <div className="py-4 w-full px-5">
-        <div className="flex justify-between w-full">
-          <div className="hidden lg:flex items-center h-12 ml-auto">
-            {/* Contact Button */}
-            <div className="ml-1 h-full">
-              <Link
-                to="/contact"
-                className="ml-1 rounded-lg min-w-24 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
-              >
-                <div className="flex justify-between items-center gap-2 h-full rounded px-3">
-                  <div className="text-md text-left h-5">
-                    {t("nav.contactBtn")}
-                  </div>
-
-                  <span className="items-baseline inline-flex">
-                    <Users size={20} />
-                  </span>
+    <footer className="flex bg-green-50 h-12 font-inter">
+      <div className="w-full px-5 h-full">
+        <div className="flex justify-end w-full h-full">
+          {/* Contact Button */}
+          <div className="ml-1 h-full py-2">
+            <Link
+              to="/contact"
+              className="ml-1 rounded-lg min-w-24 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
+            >
+              <div className="flex justify-between items-center gap-2 h-full rounded px-3">
+                <div className="text-md text-left h-5">
+                  {t("nav.contactBtn")}
                 </div>
-              </Link>
-            </div>
-            {/* Legal Notice Button */}
-            <div className="ml-1 h-full">
-              <Link
-                to="/legal"
-                className="ml-1 rounded-lg min-w-24 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
-              >
-                <div className="flex justify-between items-center gap-2 h-full rounded px-3">
-                  <div className="text-md text-left h-5">
-                    {t("nav.legalBtn")}
-                  </div>
 
-                  <span className="items-baseline inline-flex">
-                    <Scale size={20} />
-                  </span>
-                </div>
-              </Link>
-            </div>
+                <span className="items-baseline inline-flex">
+                  <Users size={20} />
+                </span>
+              </div>
+            </Link>
+          </div>
+          {/* Legal Notice Button */}
+          <div className="ml-1 h-full py-2">
+            <Link
+              to="/legal"
+              className="ml-1 rounded-lg min-w-24 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
+            >
+              <div className="flex justify-between items-center gap-2 h-full rounded px-3">
+                <div className="text-md text-left h-5">{t("nav.legalBtn")}</div>
+
+                <span className="items-baseline inline-flex">
+                  <Scale size={20} />
+                </span>
+              </div>
+            </Link>
           </div>
         </div>
       </div>
