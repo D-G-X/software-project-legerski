@@ -370,6 +370,46 @@
       "success": "Application was removed successfully."
     }
   },
+  "profile": {
+    "title": "Profile",
+    "accountInformation": "Account Information",
+    "changePassword": "Change Password",
+    "notificationSettings": "Notification Settings",
+    "saveChanges": "Save Changes",
+    "deleteAccount": "Delete Account",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "error": {
+      "currentPasswordRequired": "Current password is required",
+      "newPasswordRequired": "New password is required",
+      "confirmPasswordRequired": "Confirm password is required",
+      "passwordMismatch": "Passwords do not match",
+      "passwordMinLength": "Password must be at least 8 characters long"
+    },
+    "success": {
+      "changesSaved": "Changes have been saved successfully!",
+      "passwordChanged": "Password has been changed successfully!",
+      "accountDeleted": "Your account has been deleted successfully."
+    },
+    "confirmation": {
+      "deleteAccount": {
+        "headline": "Are you sure you want to delete your account?",
+        "subheadline": "This action cannot be undone.",
+        "cancelButton": "Cancel",
+        "confirmButton": "Delete Account"
+      }
+    },
+    "alerts": {
+      "unexpectedError": "An unexpected error occurred. Please try again later.",
+      "emailInvalid": "Invalid email address.",
+      "passwordInvalid": "Password must contain at least one special character, one uppercase letter, and one number."
+    }
+  },
   "license": {
     "list": {
       "headline": "Licenses",
