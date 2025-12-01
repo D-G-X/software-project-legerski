@@ -5,6 +5,8 @@ import Home from "./home/home";
 import Error from "./error/error";
 import Login from "./login/login";
 import Register from "./register/register";
+import ForgotPasswordRequest from "./forgot-password/request";
+import ResetPassword from "./forgot-password/reset";
 import Payment from "./payment/payment";
 import Dashboard from "./dashboard/dashboard";
 
@@ -14,6 +16,8 @@ export default function AppRoutes() {
       element: <App />,
       children: [
         { path: "", element: <Home /> },
+        { path: "forgot-password", element: <ForgotPasswordRequest /> },
+        { path: "reset-password", element: <ResetPassword /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
         { path: "applications", element: <Dashboard /> },

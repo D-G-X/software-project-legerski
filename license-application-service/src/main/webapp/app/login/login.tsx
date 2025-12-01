@@ -6,6 +6,7 @@ import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
 import { OrDivider } from "app/common/orDivider";
 import "./login.css";
+import { Link } from "react-router";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -180,9 +181,9 @@ export default function Login() {
               </label>
             </div>
             <div>
-              <a href="/login" className="text-mallorca-purple/50">
+              <Link to="/forgot-password" className="text-mallorca-purple/50">
                 {t("login.index.forgotPassword")}
-              </a>
+              </Link>
             </div>
           </div>
           <div className="my-4">
