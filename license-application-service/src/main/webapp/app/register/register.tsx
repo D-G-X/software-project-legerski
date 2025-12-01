@@ -141,8 +141,7 @@ export default function Register() {
 
       switch (response.status) {
         case 201:
-          // alert("User created successfully!");
-          navigate("/");
+          navigate("/login");
           break;
 
         default:
