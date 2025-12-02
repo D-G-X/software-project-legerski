@@ -12,8 +12,7 @@ const DeleteProfile = () => {
     const handleDelete = async () => {
         setIsLoading(true);
         try {
-            // Simulate account deletion request
-            // In a real scenario, replace this with an API call to delete the user account
+
             setTimeout(() => {
                 setIsLoading(false);
                 alert("Account deleted successfully!");

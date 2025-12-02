@@ -9,12 +9,12 @@ export default function Profile() {
     return (
         <div className="w-full max-w-5xl mx-auto py-12 px-4">
 
-            {/* ACCOUNT INFORMATION TITLE */}
+
             <h2 className="text-center text-2xl font-semibold mb-8">
                 {t("profile.accountInformation")}
             </h2>
 
-            {/* ACCOUNT INFORMATION CARD */}
+
             <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-8 relative">
 
                 {/* Notification settings button */}
@@ -24,7 +24,7 @@ export default function Profile() {
                     </button>
                 </div>
 
-                {/* First Row */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="flex flex-col">
                         <label className="mb-1 font-medium">
@@ -49,7 +49,7 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Second Row */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="flex flex-col">
                         <label className="mb-1 font-medium">
@@ -74,21 +74,21 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Save Button */}
+
                 <button className="w-full mt-8 py-3 bg-mallorca-purple text-white rounded-md hover:bg-mallorca-purple-dark">
                     {t("profile.saveChanges")}
                 </button>
             </div>
 
-            {/* CHANGE PASSWORD SECTION */}
+
             <h2 className="text-center text-2xl font-semibold mt-16 mb-8">
                 {t("profile.changePassword")}
             </h2>
 
-            {/* PASSWORD SECTION CARD */}
+
             <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-8">
 
-                {/* Current Password */}
+
                 <div className="flex flex-col mb-6">
                     <label className="mb-1 font-medium">
                         {t("profile.currentPassword")} *
@@ -99,7 +99,7 @@ export default function Profile() {
                     />
                 </div>
 
-                {/* New + Confirm Password */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col">
                         <label className="mb-1 font-medium">
@@ -122,12 +122,12 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Change Password Button */}
+
                 <button className="w-full mt-8 py-3 bg-mallorca-purple text-white rounded-md hover:bg-mallorca-purple-dark">
                     {t("profile.changePassword")}
                 </button>
 
-                {/* Delete Account Button */}
+
                 <button className="w-full mt-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-500">
                     {t("profile.deleteAccount")}
                 </button>
