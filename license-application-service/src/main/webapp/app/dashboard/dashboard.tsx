@@ -4,7 +4,6 @@ import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
 import Pagination from "../common/Pagination";
 import { Link, useNavigate } from "react-router";
-import { FormHeader } from "../common/headingTitle";
 import { useListApplications } from "app/services/applications/applications";
 import { ApplicationResource } from "../../types";
 
@@ -46,15 +45,16 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 md:px-6">
-      <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
-        <div className="font-inter flex flex-col items-center w-full">
-          <FormHeader
-            heading={
-              applications.length > 0 ? t("dashboard.headline.getStarted") : ""
-            }
-            className="text-center mt-16"
-          />
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
+          <div className="font-inter flex flex-col items-center w-full">
+            <div className="text-center mt-16 text-xl">
+              <div className="text-3xl font-bold text-mallorca-purple">{
+                  t("dashboard.headline.getStarted") +
+                  (applications.length > 0 ? t("dashboard.headline.manageApplications") : "")
+              }
+              </div>
+            </div>
 
           <button
             type="button"
