@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { validateResults } from "app/common/utils";
-import { validateName, validateIban, validateBic, validateSepaMandateCheck} from "../common/validationRules";
+import {
+  validateName,
+  validateIban,
+  validateBic,
+  validateSepaMandateCheck,
+} from "../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
@@ -15,38 +20,40 @@ export default function Payment() {
   useDocumentTitle(t("payment.title"));
 
   const getFormattedDate = () => {
-      const now = new Date();
-      return now.toLocaleDateString(t("locale"), {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-      });
+    const now = new Date();
+    return now.toLocaleDateString(t("locale"), {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   };
 
   const [showSepaDialog, setShowSepaDialog] = useState(false);
 
-  const formatAmount = (amount: number, locale: string, currency: string): string => {
-      return new Intl.NumberFormat(locale, {
-        style: "currency",
-        currency: currency,
-        currencyDisplay: "symbol",
-        minimumFractionDigits: 2,
-      }).format(amount);
-  }
+  const formatAmount = (
+    amount: number,
+    locale: string,
+    currency: string
+  ): string => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: currency,
+      currencyDisplay: "symbol",
+      minimumFractionDigits: 2,
+    }).format(amount);
+  };
 
   // IBAN format: max 34 characters in groups of 4 separated by spaces (no manual input of spaces)
   const formatIban = (raw: string): string => {
     return raw
-        .replace(/\s+/g, "")
-        .toUpperCase()
-        .replace(/(.{4})/g, "$1 ")
-        .trim();
+      .replace(/\s+/g, "")
+      .toUpperCase()
+      .replace(/(.{4})/g, "$1 ")
+      .trim();
   };
   // BIC format: max 11 characters no manual input of spaces
   const formatBic = (raw: string): string => {
-    return raw
-        .replace(/\s+/g, "")
-        .toUpperCase()
+    return raw.replace(/\s+/g, "").toUpperCase();
   };
 
   const [form, setForm] = useState({
@@ -64,35 +71,36 @@ export default function Payment() {
     pay: "",
   });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { id, value, type, checked } = e.target;
-        let finalValue;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value, type, checked } = e.target;
+    let finalValue;
 
-        if (type === "checkbox") {
-            finalValue = checked;
-        } else if (id === "iban") {
-            finalValue = formatIban(value);
-        } else if (id === "bic") {
-            finalValue = formatBic(value);
-        } else {
-            finalValue = value;
-        }
+    if (type === "checkbox") {
+      finalValue = checked;
+    } else if (id === "iban") {
+      finalValue = formatIban(value);
+    } else if (id === "bic") {
+      finalValue = formatBic(value);
+    } else {
+      finalValue = value;
+    }
 
-        setForm((prev) => ({ ...prev, [id]: finalValue }));
-        setErrors((prev) => ({ ...prev, [id]: "" }));
-    };
+    setForm((prev) => ({ ...prev, [id]: finalValue }));
+    setErrors((prev) => ({ ...prev, [id]: "" }));
+  };
 
   const handleSubmit = () => {
     const nameValidateResult: validateResults = validateName(form.name);
     const ibanValidateResult: validateResults = validateIban(form.iban);
     const bicValidateResult: validateResults = validateBic(form.bic, form.iban);
-    const sepaMandateCheckValidateResult: validateResults = validateSepaMandateCheck(form.sepaMandateChecked);
+    const sepaMandateCheckValidateResult: validateResults =
+      validateSepaMandateCheck(form.sepaMandateChecked);
     let newErrors = {
-        name: "",
-        iban: "",
-        bic: "",
-        sepaMandateCheck: "",
-        pay: "",
+      name: "",
+      iban: "",
+      bic: "",
+      sepaMandateCheck: "",
+      pay: "",
     };
 
     if (!nameValidateResult.isValid) {
@@ -126,30 +134,30 @@ export default function Payment() {
       pay: "",
     });
     // If the IBAN is from Spain and BIC is invalid, clear the BIC field before submission
-    if(form.iban.slice(0,2) === 'ES' && !bicValidateResult.isValid){
-        form.bic = "";
+    if (form.iban.slice(0, 2) === "ES" && !bicValidateResult.isValid) {
+      form.bic = "";
     }
 
-    try{
-        console.log("API has to be implemented yet!");
+    try {
+      console.log("API has to be implemented yet!");
     } catch (error) {
-        setErrors((prev) => ({
-            ...prev,
-            pay: t("payment.response.error"),
-        }));
-        alert(t("payment.response.error"));
-        return false;
+      setErrors((prev) => ({
+        ...prev,
+        pay: t("payment.response.error"),
+      }));
+      alert(t("payment.response.error"));
+      return false;
     }
     alert(t("payment.response.success"));
 
     return true;
-  }
+  };
 
   const [bicFocused, setBicFocused] = useState(false);
 
   return (
     <div className="container mx-auto px-4 md:px-6">
-      <div className="relative min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center">
+      <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
         <div className="font-inter min-w-96">
           <FormHeader
             heading={t("payment.index.headline")}
@@ -158,7 +166,9 @@ export default function Payment() {
 
           <label>
             <span className="text-mallorca-purple text-lg">
-                {t("payment.index.amountLabel", { amount: formatAmount(amount, t("locale"), "EUR") })}
+              {t("payment.index.amountLabel", {
+                amount: formatAmount(amount, t("locale"), "EUR"),
+              })}
             </span>
           </label>
 
@@ -221,96 +231,133 @@ export default function Payment() {
             {/* BIC Field */}
             <div className="relative my-4">
               <input
-                  type="text"
-                  id="bic"
-                  value={form.bic}
-                  placeholder=""
-                  onChange={handleChange}
-                  onFocus={() => setBicFocused(true)}
-                  onBlur={() => setBicFocused(false)}
-                  className="peer border border-mallorca-purple rounded-xl h-12 w-96 px-3 pt-5 pb-2 text-mallorca-purple placeholder-transparent focus:outline-none focus:ring-1 focus:ring-mallorca-purple"
+                type="text"
+                id="bic"
+                value={form.bic}
+                placeholder=""
+                onChange={handleChange}
+                onFocus={() => setBicFocused(true)}
+                onBlur={() => setBicFocused(false)}
+                className="peer border border-mallorca-purple rounded-xl h-12 w-96 px-3 pt-5 pb-2 text-mallorca-purple placeholder-transparent focus:outline-none focus:ring-1 focus:ring-mallorca-purple"
               />
               <label
-                  htmlFor="bic"
-                  className={`absolute left-3 text-mallorca-purple/70 text-sm transition-all duration-200 bg-white z-10 px-1 ${
-                      form.bic
-                          ? "-top-2 text-xs text-mallorca-purple"
-                          : "top-3.5 text-base text-mallorca-purple/50"
-                  } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
+                htmlFor="bic"
+                className={`absolute left-3 text-mallorca-purple/70 text-sm transition-all duration-200 bg-white z-10 px-1 ${
+                  form.bic
+                    ? "-top-2 text-xs text-mallorca-purple"
+                    : "top-3.5 text-base text-mallorca-purple/50"
+                } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
               >
-                  {t("payment.index.bicLabel")}
-                  {(!form.bic && !bicFocused) && (
-                      t("payment.index.bicLabelOptional")
-                  )}
+                {t("payment.index.bicLabel")}
+                {!form.bic &&
+                  !bicFocused &&
+                  t("payment.index.bicLabelOptional")}
               </label>
               {errors.bic && (
                 <div className="text-red-500 mt-1 pl-4 text-xs">
-                    {errors.bic}
+                  {errors.bic}
                 </div>
               )}
             </div>
 
             {/* SEPA Mandate Check Field */}
-              <div className="relative my-4 pt-6">
-                  <div className="flex items-center gap-4">
-                      {/* Label incl. Button */}
-                      <label
-                          htmlFor="sepaMandateChecked"
-                          className="text-mallorca-purple/70 text-lg"
-                      >
-                          {t("payment.index.acceptSepaMandateLabel.plain")}
+            <div className="relative my-4 pt-6">
+              <div className="flex items-center gap-4">
+                {/* Label incl. Button */}
+                <label
+                  htmlFor="sepaMandateChecked"
+                  className="text-mallorca-purple/70 text-lg"
+                >
+                  {t("payment.index.acceptSepaMandateLabel.plain")}
 
-                          <button
-                              type="button"
-                              onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowSepaDialog((prev) => !prev);
-                              }}
-                              className="ml-1 text-mallorca-purple underline hover:text-mallorca-purple/80"
-                          >
-                              {t("payment.index.acceptSepaMandateLabel.button")}
-                          </button>
-                      </label>
-                  </div>
-
-                  {errors.sepaMandateCheck && (
-                      <div className="text-red-500 mt-1 text-xs pl-1">
-                          {errors.sepaMandateCheck}
-                      </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowSepaDialog((prev) => !prev);
+                    }}
+                    className="ml-1 text-mallorca-purple underline hover:text-mallorca-purple/80"
+                  >
+                    {t("payment.index.acceptSepaMandateLabel.button")}
+                  </button>
+                </label>
               </div>
+
+              {errors.sepaMandateCheck && (
+                <div className="text-red-500 mt-1 text-xs pl-1">
+                  {errors.sepaMandateCheck}
+                </div>
+              )}
+            </div>
 
             {/* SEPA Mandate Dialog */}
             <SepaMandateDialog
-                open={showSepaDialog}
-                showDownloadButton={true}
-                acceptButtonLabel={t("payment.index.sepaMandateDialog.acceptButtonLabel")}
-                cancelButtonLabel={t("payment.index.sepaMandateDialog.cancelButtonLabel")}
-                downloadButtonLabel={t("payment.index.sepaMandateDialog.downloadButtonLabel")}
-                downloadFileName={t("payment.index.sepaMandateDialog.downloadFileName", { accountHolder: form.name ? (" " + form.name) : "" })}
-                title={t("payment.index.sepaMandateDialog.title") + "\n\n"}
-                text={(
-                    t("payment.index.sepaMandateDialog.text.line1") + "\n\n" +
-                    t("payment.index.sepaMandateDialog.text.line2") + "\n" +
-                    t("payment.index.sepaMandateDialog.text.line3") + "\n\n" +
-                    t("payment.index.sepaMandateDialog.text.line4") + "\n" +
-                    t("payment.index.sepaMandateDialog.text.line5", { accountHolder: form.name ? form.name : "" }) + "\n" +
-                    t("payment.index.sepaMandateDialog.text.line6", { iban: form.iban ? form.iban : "" }) + (form.bic ? "\n" : "") +
-                    (form.bic ? (t("payment.index.sepaMandateDialog.text.line7", { bic: form.bic })) : "")  + "\n\n" +
-                    t("payment.index.sepaMandateDialog.text.line8") + "\n" +
-                    t("payment.index.sepaMandateDialog.text.line9", { beneficiaryName:  t("app.contact.legalName")}) + "\n" +
-                    t("payment.index.sepaMandateDialog.text.line10", { creditorId: "ES98ZZZ09999999999" }) + "\n" +
-                    t("payment.index.sepaMandateDialog.text.line11", { mandateReference: "ESM-2025-00001" }) + "\n\n" +
-                    t("payment.index.sepaMandateDialog.text.line12") + "\n\n\n" +
-                    t("payment.index.sepaMandateDialog.text.line13", { date: getFormattedDate() ? getFormattedDate() : "" })
-                )}
-                t={t}
-                onAccept={() => {
-                    setShowSepaDialog(false);
-                    setForm(prev => ({...prev, sepaMandateChecked: true}));
-                }}
-                onCancel={() => setShowSepaDialog(false)}
-              />
+              open={showSepaDialog}
+              showDownloadButton={true}
+              acceptButtonLabel={t(
+                "payment.index.sepaMandateDialog.acceptButtonLabel"
+              )}
+              cancelButtonLabel={t(
+                "payment.index.sepaMandateDialog.cancelButtonLabel"
+              )}
+              downloadButtonLabel={t(
+                "payment.index.sepaMandateDialog.downloadButtonLabel"
+              )}
+              downloadFileName={t(
+                "payment.index.sepaMandateDialog.downloadFileName",
+                { accountHolder: form.name ? " " + form.name : "" }
+              )}
+              title={t("payment.index.sepaMandateDialog.title") + "\n\n"}
+              text={
+                t("payment.index.sepaMandateDialog.text.line1") +
+                "\n\n" +
+                t("payment.index.sepaMandateDialog.text.line2") +
+                "\n" +
+                t("payment.index.sepaMandateDialog.text.line3") +
+                "\n\n" +
+                t("payment.index.sepaMandateDialog.text.line4") +
+                "\n" +
+                t("payment.index.sepaMandateDialog.text.line5", {
+                  accountHolder: form.name ? form.name : "",
+                }) +
+                "\n" +
+                t("payment.index.sepaMandateDialog.text.line6", {
+                  iban: form.iban ? form.iban : "",
+                }) +
+                (form.bic ? "\n" : "") +
+                (form.bic
+                  ? t("payment.index.sepaMandateDialog.text.line7", {
+                      bic: form.bic,
+                    })
+                  : "") +
+                "\n\n" +
+                t("payment.index.sepaMandateDialog.text.line8") +
+                "\n" +
+                t("payment.index.sepaMandateDialog.text.line9", {
+                  beneficiaryName: t("app.contact.legalName"),
+                }) +
+                "\n" +
+                t("payment.index.sepaMandateDialog.text.line10", {
+                  creditorId: "ES98ZZZ09999999999",
+                }) +
+                "\n" +
+                t("payment.index.sepaMandateDialog.text.line11", {
+                  mandateReference: "ESM-2025-00001",
+                }) +
+                "\n\n" +
+                t("payment.index.sepaMandateDialog.text.line12") +
+                "\n\n\n" +
+                t("payment.index.sepaMandateDialog.text.line13", {
+                  date: getFormattedDate() ? getFormattedDate() : "",
+                })
+              }
+              t={t}
+              onAccept={() => {
+                setShowSepaDialog(false);
+                setForm((prev) => ({ ...prev, sepaMandateChecked: true }));
+              }}
+              onCancel={() => setShowSepaDialog(false)}
+            />
           </div>
 
           <div className="my-4">
@@ -321,9 +368,8 @@ export default function Payment() {
               // type="submit"
               onClick={handleSubmit}
               className={`mt-4
-              ${errors.pay
-                  ? "bg-mallorca-purple/75"
-                  : "bg-mallorca-purple"
+              ${
+                errors.pay ? "bg-mallorca-purple/75" : "bg-mallorca-purple"
               } text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90`}
             >
               {t("payment.index.payButtonLabel")}
