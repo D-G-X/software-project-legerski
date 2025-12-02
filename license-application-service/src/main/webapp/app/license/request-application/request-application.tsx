@@ -220,7 +220,7 @@ export default function RequestApplication() {
       switch (response.status) {
         case 201:
           console.log(response);
-          navigate("/license-document-upload");
+          navigate("/license-document-upload/" + response.data.id);
           break;
 
         default:

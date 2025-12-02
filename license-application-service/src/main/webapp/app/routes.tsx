@@ -26,7 +26,7 @@ export default function AppRoutes() {
           element: <RequestApplication />,
         },
         {
-          path: "license-document-upload",
+          path: "license-document-upload/:id",
           element: <ApplicationDocumentUpload />,
         },
         { path: "payment", element: <Payment /> },

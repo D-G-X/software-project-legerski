@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import "./document-upload.css";
 import { Upload } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 interface DocUploadForm {
   id_proof: File | null;
@@ -16,6 +16,11 @@ interface DocUploadErrors {
 }
 
 export default function ApplicationDocumentUpload() {
+  const params = useParams();
+  const applicationID = params.id!;
+
+  console.log(applicationID);
+
   const { t } = useTranslation();
   const navigate = useNavigate();
   useDocumentTitle(t("license.request.title"));
