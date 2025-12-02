@@ -1,0 +1,17 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS"
+        logicalFilePath="db/changelog/09-07-changelog.xml">
+
+    <changeSet id="set_verification_status_not_null" author="Florian">
+        <addNotNullConstraint
+                tableName="application"
+                columnName="verification_status"
+                columnDataType="VERIFICATION_STATUS"/>
+    </changeSet>
+    
+</databaseChangeLog>

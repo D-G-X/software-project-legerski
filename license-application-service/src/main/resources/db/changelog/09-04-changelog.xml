@@ -20,9 +20,7 @@
 
     <changeSet id="add_verification_status_to_application" author="Florian">
         <addColumn tableName="application">
-            <column name="verification_status" type="VERIFICATION_STATUS">
-                <constraints nullable="false"/>
-            </column>
+            <column name="verification_status" type="VERIFICATION_STATUS"/>
         </addColumn>
     </changeSet>
 </databaseChangeLog>
