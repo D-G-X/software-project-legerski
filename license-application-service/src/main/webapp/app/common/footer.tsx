@@ -8,43 +8,49 @@ export default function Footer() {
   const {t} = useTranslation();
 
   return (
-      <footer className="flex bg-white h-12 font-inter">
-        <div className="w-full px-5 h-full">
-          <div className="flex justify-end w-full h-full">
+      <footer className="flex bg-white h-12 font-inter px-10">
+        <div className="w-full h-full">
+          <div className="flex justify-between items-center w-full h-full">
 
-            {/* Notification Dropup */}
-            <NotificationDropup/>
+            {/* Left: Notification */}
+            <NotificationDropup
+                className="ml-1 my-2 rounded-full min-w-24
+             h-[calc(100%-1rem)]
+             flex items-center justify-center cursor-pointer
+             text-mallorca-purple/75 hover:bg-mallorca-purple/10"
+            />
 
-            {/* Contact Button */}
-            <div className="ml-1 h-full py-2">
+            {/* Right side */}
+            <div className="flex items-center h-full">
+
+              {/* Contact */}
               <Link
                   to="/contact"
-                  className="ml-1 rounded-lg min-w-24 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
+                  className="ml-1 my-2 rounded-full min-w-24
+             h-[calc(100%-1rem)]
+             flex items-center justify-center cursor-pointer
+             text-mallorca-purple/75 hover:bg-mallorca-purple/10"
               >
-                <div className="flex justify-between items-center gap-2 h-full rounded px-3">
-                  <div className="text-md text-left h-5">
-                    {t("nav.contactBtn")}
-                  </div>
-                  <span className="items-baseline inline-flex">
+                <div className="flex items-center gap-2 h-full px-3">
+                  <span className="text-md">{t("nav.contactBtn")}</span>
                   <Users size={20}/>
-                </span>
                 </div>
               </Link>
-            </div>
 
-            {/* Legal Notice Button */}
-            <div className="ml-1 h-full py-2">
+              {/* Legal */}
               <Link
                   to="/legal"
-                  className="ml-1 rounded-lg min-w-24 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
+                  className="ml-1 my-2 rounded-full min-w-24
+             h-[calc(100%-1rem)]
+             flex items-center justify-center cursor-pointer
+             text-mallorca-purple/75 hover:bg-mallorca-purple/10"
               >
-                <div className="flex justify-between items-center gap-2 h-full rounded px-3">
-                  <div className="text-md text-left h-5">{t("nav.legalBtn")}</div>
-                  <span className="items-baseline inline-flex">
+                <div className="flex items-center gap-2 h-full px-3">
+                  <span className="text-md">{t("nav.legalBtn")}</span>
                   <Scale size={20}/>
-                </span>
                 </div>
               </Link>
+
             </div>
           </div>
         </div>
