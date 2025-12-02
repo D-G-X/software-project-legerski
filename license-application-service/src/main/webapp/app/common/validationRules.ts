@@ -59,11 +59,19 @@ export const validateEmail = (email: string) => {
 
 // Email validation
 export const validateCadastralNumber = (cadastral_number: string) => {
-  if (!cadastral_number)
+  if (!cadastral_number) {
     return {
       isValid: false,
       message: t("validation.cadastral_number.required"),
     };
+  }
+
+  if (cadastral_number.length < 20) {
+    return {
+      isValid: false,
+      message: t("validation.cadastral_number.min_length"),
+    };
+  }
 
   return { isValid: true, message: t("validation.cadastral_number.valid") };
 };

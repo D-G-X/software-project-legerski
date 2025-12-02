@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
@@ -7,22 +7,38 @@ import { Link, useNavigate } from "react-router";
 import { FormHeader } from "../common/headingTitle";
 import { useListApplications } from "app/services/applications/applications";
 import { ApplicationResource } from "../../types";
+import { AuthContext } from "app/common/AuthContext";
+import { getUserIdFromToken } from "app/common/authTokenDecode";
 
 export default function Dashboard() {
+  const auth = useContext(AuthContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   useDocumentTitle(t("home.index.headline"));
 
+  const userID = getUserIdFromToken(auth?.accessToken);
+
   const { data: response } = useListApplications({
-    user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
+    user_id: userID,
   });
 
+  // const { data, error } = useListApplications(
+  //   { user_id: userID }, // <--- this filters by user
+  //   {
+  //     query: {
+  //       enabled: !!userID,
+  //       select: (response) => response.data, // unwrap AxiosResponse
+  //     },
+  //   }
+  // );
+
+  // console.log(data, error);
+  console.log(response);
+
   // response = AxiosResponse
-  const applications: ApplicationResource[] = Array.isArray(response?.data)
-    ? response.data
-    : [];
+  const applications: ApplicationResource[] = [];
   const totalPage = Math.ceil(applications.length / itemsPerPage);
 
   const currentData = applications.slice(

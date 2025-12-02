@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { validateResults } from "app/common/utils";
 import {
   validateCadastralNumber,
@@ -9,11 +9,29 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import "./request-application.css";
 import { Link, useNavigate } from "react-router";
+import { AuthContext } from "app/common/AuthContext";
+import { getUserIdFromToken } from "app/common/authTokenDecode";
+// import { useGetUser } from "app/services/users/users";
+import { useCreateApplication } from "app/services/applications/applications";
+import { LicenseTypeApiEnum } from "types/licenseTypeApiEnum";
 
 export default function RequestApplication() {
+  const auth = useContext(AuthContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
   useDocumentTitle(t("license.request.title"));
+
+  const userID = getUserIdFromToken(auth?.accessToken);
+
+  // const userDetails = useGetUser(userID, {
+  //   query: {
+  //     select: (response) => {
+  //       return response.data;
+  //     },
+  //   },
+  // });
+
+  // console.log(userDetails.data);
 
   const rentalLicenseType = [
     {
@@ -86,7 +104,18 @@ export default function RequestApplication() {
     }));
   };
 
-  const handleSubmit = () => {
+  const createApplication = useCreateApplication({
+    mutation: {
+      onSuccess: (data) => {
+        console.log("Application created successfully:", data.data);
+      },
+      onError: (error) => {
+        console.error("Application creation error:", error);
+      },
+    },
+  });
+
+  const handleSubmit = async () => {
     const firstNameValidateResult: validateResults = validateName(
       form.first_name
     );
@@ -169,9 +198,53 @@ export default function RequestApplication() {
       app_submit: "",
     });
 
+    console.log({
+      user_id: userID,
+      license_type: form.rental_license_type as LicenseTypeApiEnum,
+      cadastral_reference: form.cadastral_number,
+      remarks: form.additional_comments,
+    });
+
     // implement the API call for register;
-    navigate("/license-document-upload");
-    return true;
+
+    try {
+      const response = await createApplication.mutateAsync({
+        data: {
+          user_id: userID,
+          license_type: form.rental_license_type as LicenseTypeApiEnum,
+          cadastral_reference: form.cadastral_number,
+          remarks: form.additional_comments,
+        },
+      });
+
+      switch (response.status) {
+        case 201:
+          console.log(response);
+          navigate("/license-document-upload");
+          break;
+
+        default:
+          alert("Unexpected Error occurred");
+      }
+      return true;
+    } catch (error: any) {
+      const status = error?.response?.status;
+
+      switch (status) {
+        case 400:
+          alert("Bad Request Error");
+          break;
+
+        case 401:
+          alert("Unauthorized Error");
+          break;
+
+        default:
+          alert(t("register.registerUserAlerts.serverError"));
+          break;
+      }
+      return false;
+    }
   };
 
   return (
