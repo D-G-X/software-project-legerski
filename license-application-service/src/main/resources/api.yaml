@@ -850,8 +850,8 @@ components:
       description: OAuth2 with Keycloak JWT Bearer tokens.
       flows:
         authorizationCode:
-          authorizationUrl: https://keycloak.example.com/realms/mallorca/protocol/openid-connect/auth
-          tokenUrl: https://keycloak.example.com/realms/mallorca/protocol/openid-connect/token
+          authorizationUrl: https://localhost:8081/realms/license-realm/protocol/openid-connect/auth
+          tokenUrl: https://localhost:8081/realms/license-realm/protocol/openid-connect/token
           scopes:
             openid: OpenID Connect scope
             profile: Profile information access
