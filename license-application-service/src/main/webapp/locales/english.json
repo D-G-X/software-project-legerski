@@ -29,7 +29,6 @@
     "home": "Home",
     "entities": "Entities",
     "appLogoAlt": "Application logo",
-    "contactBtn": "Contact",
     "signInBtn": "Sign in",
     "signOutBtn": "Sign Out",
     "registerBtn": "Register",
@@ -58,7 +57,9 @@
         "name": "Spanish",
         "iconAlt": "Spanish language icon."
       }
-    }
+    },
+    "contactBtn": "Contact",
+    "legalBtn": "Legal Notice"
   },
   "forgotPassword": {
     "request": {
