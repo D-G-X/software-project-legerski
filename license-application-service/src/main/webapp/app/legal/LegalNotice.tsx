@@ -1,20 +1,23 @@
 import React from "react";
 import {useTranslation} from "react-i18next";
+import {FormHeader} from "../common/headingTitle";
 
 export default function LegalNotice() {
   const {t} = useTranslation("legalNotice");
 
   return (
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="h-screen overflow-y-auto mx-auto px-4 md:px-6">
         <div
             className="relative min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center">
-          <div className="font-inter min-w-96">
+          <div className="font-inter min-w-96 my-8">
             {/* LEGAL NOTICE */}
-            <h1 className="text-3xl font-bold mb-6">{t("legalNoticeTitle")}</h1>
-            <p className="text-sm mb-8">{t("lastUpdated")}</p>
+            <FormHeader
+                heading={t("legalNoticeTitle")}
+                subHeading={t("lastUpdated")}
+            />
 
             {/* 1 */}
-            <h2 className="text-xl font-semibold mb-4">1. {t("owner.title")}</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-4 text-mallorca-purple">1. {t("owner.title")}</h2>
             <p>{t("owner.description")}</p>
             <ul className="list-disc ml-6 mb-6">
               <li>{t("owner.address")}</li>
@@ -29,7 +32,7 @@ export default function LegalNotice() {
             </ul>
 
             {/* 2 */}
-            <h2 className="text-xl font-semibold mb-4">2. {t("purpose.title")}</h2>
+            <h2 className="text-xl font-semibold mb-4 text-mallorca-purple">2. {t("purpose.title")}</h2>
             <p className="mb-2">{t("purpose.description")}</p>
             <ul className="list-disc ml-6 mb-6">
               <li>{t("purpose.register")}</li>
@@ -42,12 +45,12 @@ export default function LegalNotice() {
             <p className="mb-6">{t("portalObjective.description")}</p>
 
             {/* 3 */}
-            <h2 className="text-xl font-semibold mb-4">3. {t("terms.title")}</h2>
+            <h2 className="text-xl font-semibold mb-4 text-mallorca-purple">3. {t("terms.title")}</h2>
 
-            <h3 className="font-semibold mt-4">3.1 {t("terms.acceptance.title")}</h3>
+            <h3 className="font-semibold mt-4 text-mallorca-purple">3.1 {t("terms.acceptance.title")}</h3>
             <p className="mb-4">{t("terms.acceptance.text")}</p>
 
-            <h3 className="font-semibold mt-4">3.2 {t("terms.obligations.title")}</h3>
+            <h3 className="font-semibold mt-4 text-mallorca-purple">3.2 {t("terms.obligations.title")}</h3>
             <p className="mb-1">{t("userObligations.intro")}</p>
             <ul className="list-disc ml-6 mb-4">
               <li> {t("terms.obligations.accurate")}</li>
@@ -57,7 +60,7 @@ export default function LegalNotice() {
               <li> {t("terms.obligations.law")}</li>
             </ul>
 
-            <h3 className="font-semibold mt-4">3.3 {t("terms.prohibited.title")}</h3>
+            <h3 className="font-semibold mt-4 text-mallorca-purple">3.3 {t("terms.prohibited.title")}</h3>
             <p className="mb-1">{t("prohibitedActions.intro")}</p>
             <ul className="list-disc ml-6 mb-4">
               <li> {t("terms.prohibited.unauthorized")}</li>
@@ -66,10 +69,10 @@ export default function LegalNotice() {
               <li> {t("terms.prohibited.misrepresentation")}</li>
             </ul>
 
-            <h3 className="font-semibold mt-4">3.4 {t("terms.ipr.title")}</h3>
+            <h3 className="font-semibold mt-4 text-mallorca-purple">3.4 {t("terms.ipr.title")}</h3>
             <p className="mb-4">{t("terms.ipr.text")}</p>
 
-            <h3 className="font-semibold mt-4">3.5 {t("terms.disclaimer.title")}</h3>
+            <h3 className="font-semibold mt-4 text-mallorca-purple">3.5 {t("terms.disclaimer.title")}</h3>
             <p className="mb-1">{t("liability.intro")}</p>
             <ul className="list-disc ml-6 mb-6">
               <li> {t("terms.disclaimer.errors")}</li>
@@ -198,7 +201,7 @@ export default function LegalNotice() {
               <li>{t("security.cookiesPolicy")}</li>
             </ul>
             <p className="mb-2">{t("securityMeasures.noSystem")}</p>
-            
+
             {/*<p className="mb-4">{t("security.dataRetention")}</p>*/}
             {/*<p className="mb-4">{t("security.noSystem")}</p>*/}
 
@@ -206,13 +209,13 @@ export default function LegalNotice() {
             <h1 className="text-3xl font-bold mb-6 mt-10">{t("cookies.title")}</h1>
             <p className="text-sm mb-6">{t("cookies.lastUpdated")}</p>
 
-            <h2 className="text-xl font-semibold mb-4">1. {t("cookies.whatAreCookies")}</h2>
+            <h2 className="text-xl font-semibold mb-4 text-mallorca-purple">1. {t("cookies.whatAreCookies")}</h2>
             <p className="mb-4">{t("cookies.definition")}</p>
 
-            <h2 className="text-xl font-semibold mb-4">2. {t("cookies.typesTitle")}</h2>
+            <h2 className="text-xl font-semibold mb-4 text-mallorca-purple">2. {t("cookies.typesTitle")}</h2>
             <p className="mb-2">2.1 {t("cookies.essential")}</p>
 
-            <h2 className="text-xl font-semibold mb-4">3. {t("cookies.consentTitle")}</h2>
+            <h2 className="text-xl font-semibold mb-4 text-mallorca-purple">3. {t("cookies.consentTitle")}</h2>
             <p className="mb-2">{t("cookies.consentText")}</p>
           </div>
         </div>
