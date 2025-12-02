@@ -9,7 +9,7 @@ import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
 import {useCreatePayment} from "app/services/payments/payments";
-import SepaMandateDialog from "../common/modal-dialog";
+import ModalDialog from "../common/modal-dialog";
 import {useNavigate} from "react-router";
 import "./paymentForm.css";
 import {AnimatedDots} from "../common/AnimatedDots";
@@ -191,10 +191,7 @@ export default function PaymentConfirm() {
                 {/* Amount Field */}
                 <div className="relative mt-12 bg-gray-50 px-3 pt-5 pb-2 rounded-xl">
                   <div className="flex justify-between items-baseline text-xl font-semibold">
-                    {/* Left: label */}
                     <span>{t("paymentForm.index.amountLabel") + ": "}</span>
-
-                    {/* Right: amount */}
                     <div className="flex flex-col items-end">
                       <span className="text-xl font-semibold leading-none">
                         {formatAmount(applicationData?.id)}
@@ -297,13 +294,11 @@ export default function PaymentConfirm() {
                   {/* SEPA Mandate Check Field */}
                   <div className="relative mt-4 pt-2">
                     <div className="flex items-center gap-4">
-                      {/* Label incl. Button */}
                       <label
                           htmlFor="sepaMandateChecked"
                           className="px-3 text-mallorca-purple/70 text-lg"
                       >
                         {t("paymentForm.index.acceptSepaMandateLabel.plain")}
-
                         <button
                             type="button"
                             onClick={(e) => {
@@ -325,7 +320,7 @@ export default function PaymentConfirm() {
                   </div>
 
                   {/* SEPA Mandate Dialog */}
-                  <SepaMandateDialog
+                  <ModalDialog
                       open={showSepaDialog}
                       showDownloadButton={true}
                       acceptButtonLabel={t("paymentForm.sepaMandateDialog.acceptButtonLabel")}
@@ -356,7 +351,7 @@ export default function PaymentConfirm() {
                       onCancel={() => setShowSepaDialog(false)}
                   />
                 </div>
-
+                {/* Pay Button */}
                 <div>
                   {errors.pay && (
                       <div className="text-red-500 my-2 pl-4">{errors.pay}</div>
@@ -372,6 +367,18 @@ export default function PaymentConfirm() {
                   >
                     {t("paymentForm.index.payButtonLabel")}
                   </button>
+                </div>
+                {/* Finish Later Button */}
+                <div>
+                  <button
+                      type="submit"
+                      onClick={() => navigate(`/`)}
+                      className={"mt-4 bg-white text-mallorca-purple  px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/50 hover:text-white border border-mallorca-purple"}
+                  >
+                    {t("paymentForm.index.cancelButtonLabel")}
+                  </button>
+                  <p className="mt-1 font-inter text-center text-gray-600 text-sm">{t("paymentForm.index.cancelNote.label1")}</p>
+                  <p className="mt-1 font-inter text-center text-gray-600 text-sm">{t("paymentForm.index.cancelNote.label2")}</p>
                 </div>
               </div>
               :

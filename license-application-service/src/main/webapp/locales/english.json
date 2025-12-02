@@ -235,7 +235,12 @@
         "plain": "I have read and accept the",
         "button": "SEPA Mandate"
       },
-      "payButtonLabel": "Pay now"
+      "payButtonLabel": "Pay now",
+      "cancelButtonLabel": "Pay later and return to dashboard",
+      "cancelNote": {
+        "label1": "Your application will be saved as draft",
+        "label2": "you can complete the payment later from your dashboard."
+      }
     },
     "sepaMandateDialog": {
       "title": "SEPA Direct Debit Mandate",
@@ -287,28 +292,6 @@
         "success": "Back to Dashboard",
         "failure": "Try Again"
       }
-    },
-    "sepaMandateDialog": {
-      "title": "SEPA Direct Debit Mandate",
-      "text": {
-        "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
-        "line2": "Note:",
-        "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
-        "line4": "Details of the payer:",
-        "line5": " –  Account holder: {{accountHolder}}",
-        "line6": " –  IBAN: {{iban}}",
-        "line7": " –  BIC: {{bic}}",
-        "line8": "Details of the payee:",
-        "line9": " –  Beneficiary: {{beneficiaryName}}",
-        "line10": " –  Creditor ID: {{creditorId}}",
-        "line11": " –  Mandate reference: {{mandateReference}}",
-        "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
-        "line13": "Issuing date: {{date}}"
-      },
-      "acceptButtonLabel": "Accept",
-      "cancelButtonLabel": "Cancel",
-      "downloadButtonLabel": "Download",
-      "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
     },
     "processing": "Processing payment..."
   },
