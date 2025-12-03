@@ -10,6 +10,8 @@ import ForgotPasswordRequest from "./forgot-password/request";
 import ResetPassword from "./forgot-password/reset";
 import Payment from "./payment/payment";
 import ApplicationDocumentUpload from "./license/document-upload/document-upload";
+import LegalNotice from "./legal/legal";
+import ContactPage from "./contact/contact";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -30,6 +32,8 @@ export default function AppRoutes() {
           element: <ApplicationDocumentUpload />,
         },
         { path: "payment/:id", element: <Payment /> },
+        { path: "legal", element: <LegalNotice /> },
+        { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
         { path: "*", element: <Error /> },
       ],
