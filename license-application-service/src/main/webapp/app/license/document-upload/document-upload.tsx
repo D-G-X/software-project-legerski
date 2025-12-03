@@ -4,6 +4,7 @@ import useDocumentTitle from "app/common/use-document-title";
 import "./document-upload.css";
 import { Upload } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
+import { useGetApplication } from "app/services/applications/applications";
 
 interface DocUploadForm {
   id_proof: File | null;
@@ -36,7 +37,7 @@ export default function ApplicationDocumentUpload() {
   });
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB in bytes
-  const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+  const ALLOWED_TYPES = ["application/pdf"];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, files } = e.target;
@@ -73,7 +74,12 @@ export default function ApplicationDocumentUpload() {
     }));
   };
 
-  // Handle form submission
+  const { data, refetch } = useGetApplication(Number(applicationID), {
+    query: {
+      enabled: false,
+    },
+  });
+
   const handleSubmit = async () => {
     const newErrors: DocUploadErrors = { id_proof: "", address_proof: "" };
     let hasError = false;
@@ -98,34 +104,36 @@ export default function ApplicationDocumentUpload() {
       formData.append("id_file", docUploadForm.id_proof);
     if (docUploadForm.address_proof)
       formData.append("proof_file", docUploadForm.address_proof);
-
     if (applicationID) formData.append("application_id", applicationID);
 
     try {
-      // Replace with your actual API call
-      console.log(formData);
       const response = await fetch("http://localhost:8083/process-document", {
         method: "POST",
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+      if (response.status !== 200) {
+        throw new Error(
+          `Upload failed: ${response.status} ${response.statusText}`
+        );
       }
 
-      const result = await response.json();
-      console.log("Success:", result);
+      // Refetch application details after successful upload
+      await refetch();
 
-      // redirect form on success
-      navigate("/payment/" + applicationID);
+      console.log("data", data);
+
+      // Navigate to payment
+      if (data) navigate("/payment/" + applicationID);
       alert(t("license.document_upload.success_message"));
-    } catch (error) {
+    } catch (err) {
+      console.log(err);
       alert(t("license.document_upload.error"));
     }
   };
 
   return (
-    <div className="mx-5 xl:mx-15 mt-4 mb-10 relative bg-white items-center justify-center">
+    <div className="h-[calc(100vh-8rem)] px-5 xl:px-15 pt-4 bg-white">
       <h1 className="text-mallorca-purple font-semibold tracking-wide text-2xl text-center py-4">
         {t("license.request.title")}
       </h1>
