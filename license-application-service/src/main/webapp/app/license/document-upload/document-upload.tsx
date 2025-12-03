@@ -72,7 +72,7 @@ export default function ApplicationDocumentUpload() {
     }));
   };
 
-  const { data, refetch } = useGetApplication(Number(applicationID), {
+  const { refetch } = useGetApplication(Number(applicationID), {
     query: {
       enabled: false,
     },
@@ -118,15 +118,23 @@ export default function ApplicationDocumentUpload() {
 
       const applcationDetails = await refetch();
 
-      console.log("data", applcationDetails.data?.data.application_status);
-
       // Navigate to payment
-      if (data) {
+      // have to add new status, for now the below if else will always return successful verification of documents
+      if (
+        applcationDetails.data?.data.application_status ||
+        applcationDetails.data?.data.application_status ===
+          "DOCUMENTS_SUBMITTED"
+      ) {
         navigate("/payment/" + applicationID);
         alert(t("license.document_upload.success_message"));
+      } else if (
+        applcationDetails.data?.data.application_status === "REJECTED"
+      ) {
+        alert(t("license.document_upload.reject_message"));
+      } else {
+        alert(t("license.document_upload.error"));
       }
     } catch (err) {
-      console.log(err);
       alert(t("license.document_upload.error"));
     }
   };

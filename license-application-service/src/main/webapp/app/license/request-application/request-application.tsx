@@ -106,9 +106,6 @@ export default function RequestApplication() {
 
   const createApplication = useCreateApplication({
     mutation: {
-      onSuccess: (data) => {
-        console.log("Application created successfully:", data.data);
-      },
       onError: (error) => {
         console.error("Application creation error:", error);
       },
@@ -182,7 +179,6 @@ export default function RequestApplication() {
       newErrors.consent_personal_data
     ) {
       setErrors(newErrors);
-      console.log(newErrors);
       return false;
     }
 
@@ -219,7 +215,6 @@ export default function RequestApplication() {
 
       switch (response.status) {
         case 201:
-          console.log(response);
           navigate("/license-document-upload/" + response.data.id);
           break;
 

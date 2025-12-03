@@ -129,7 +129,6 @@ export default function Payment() {
       newErrors.sepaMandateCheck
     ) {
       setErrors(newErrors);
-      console.log(newErrors);
       return false;
     }
     setErrors({
