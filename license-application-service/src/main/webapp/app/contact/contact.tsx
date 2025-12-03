@@ -33,7 +33,7 @@ export default function ContactPage() {
           <div className="font-semibold flex items-center gap-2 text-mallorca-purple">
             <Phone className="w-5 h-5" />
             {t("phone.title")}
-            <p className="text-gray-700 mt-1">
+            <p className="text-gray-700 ">
               +34 971 123 456{" "}
               <span className="text-sm text-gray-500">
                 ({t("phone.hours")})
