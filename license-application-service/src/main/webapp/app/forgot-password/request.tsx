@@ -30,7 +30,7 @@ export default function ForgotPasswordRequest() {
 
   return (
     <div className="container mx-auto px-4 md:px-6">
-      <div className="relative min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center">
+      <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
         {!showConfirmation ? (
           <>
             <div className="font-inter min-w-96">

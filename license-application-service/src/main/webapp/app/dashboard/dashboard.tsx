@@ -4,7 +4,6 @@ import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
 import Pagination from "../common/Pagination";
 import { Link, useNavigate } from "react-router";
-import { FormHeader } from "../common/headingTitle";
 import { useListApplications } from "app/services/applications/applications";
 import { ApplicationResource } from "../../types";
 
@@ -12,7 +11,7 @@ export default function Dashboard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
   useDocumentTitle(t("home.index.headline"));
 
   const { data: response } = useListApplications({
@@ -46,15 +45,16 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 md:px-6">
-      <div className="relative min-h-[calc(100vh-4rem)] bg-white flex justify-center">
-        <div className="font-inter flex flex-col items-center w-full">
-          <FormHeader
-            heading={
-              applications.length > 0 ? t("dashboard.headline.getStarted") : ""
-            }
-            className="text-center mt-16"
-          />
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
+          <div className="font-inter flex flex-col items-center w-full">
+            <div className="text-center mt-16 text-xl">
+              <div className="text-3xl font-bold text-mallorca-purple">{
+                  t("dashboard.headline.getStarted") +
+                  (applications.length > 0 ? t("dashboard.headline.manageApplications") : "")
+              }
+              </div>
+            </div>
 
           <button
             type="button"
@@ -89,34 +89,34 @@ export default function Dashboard() {
                       <td>{item.license_type}</td>
                       <td>
                         <span
-                          className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[14rem] rounded-md ${
-                            // green
-                            item.application_status === "APPROVED"
-                              ? "text-green-800 bg-green-200"
-                              : // red
-                              ["EXPIRED", "CANCELLED", "REJECTED"].includes(
-                                  item.application_status
+                            className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[14rem] rounded-md ${
+                                // green
+                                ["SELECTED", "PAYMENT_RECEIVED"].includes(
+                                    item.application_status
                                 )
-                              ? "text-red-800 bg-red-200"
-                              : // grey
-                              item.application_status === "DRAFT"
-                              ? "text-gray-800 bg-gray-200"
-                              : // orange (all in-process)
-                              [
-                                  "DOCUMENTS_SUBMITTED",
-                                  "VERIFICATION_PENDING",
-                                  "AWAITING_PAYMENT",
-                                  "PAYMENT_RECEIVED",
-                                  "SUBMITTED",
-                                  "IN_BALLOT",
-                                  "SELECTED",
-                                  "NOT_SELECTED",
-                                  "UNDER_REVIEW",
-                                ].includes(item.application_status)
-                              ? "text-orange-800 bg-orange-200"
-                              : // fallback
-                                "text-mallorca-purple bg-mallorca-purple/10"
-                          }`}
+                                    ? "text-green-800 bg-green-200"
+                                    : // blue
+                                    ["SUBMITTED",
+                                      "UNDER_REVIEW",
+                                      "AWAITING_PAYMENT",
+                                      "APPROVED",
+                                      "IN_BALLOT",]
+                                    .includes(item.application_status)
+                                        ? "text-blue-800 bg-blue-200"
+                                        :
+                                        ["CANCELLED", "REJECTED", "NOT_SELECTED",].includes(
+                                            item.application_status
+                                        )
+                                            ? "text-red-800 bg-red-200"
+                                            : // grey
+                                            ["DRAFT", "EXPIRED",].includes(item.application_status)
+                                                ? "text-gray-800 bg-gray-200"
+                                                : // orange (all in-process)
+                                                ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING",].includes(item.application_status)
+                                                    ? "text-orange-800 bg-orange-200"
+                                                    : // fallback
+                                                    "text-mallorca-purple bg-mallorca-purple/10"
+                            }`}
                         >
                           {t(
                             "dashboard.licenceStatus." +
