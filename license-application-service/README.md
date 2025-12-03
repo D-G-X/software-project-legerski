@@ -13,16 +13,20 @@
 1. Have Docker running.
 2. When prompted: "Maven build script found `license-application-service`", accept by clicking "Load".
 3. Launch the Maven setup config: `Setup Database and API` which performs the following steps:
-    - `docker compose up` to start the database,
-    - `mvn liquibase:update` to apply database changelogs,
-    - `mvn compile` to generate OpenAPI and jOOQ classes.
+
+   - `docker compose up` to start the database,
+   - `mvn liquibase:update` to apply database changelogs,
+   - `mvn compile` to generate OpenAPI and jOOQ classes.
 
    > ⚠️ If this step fails, run `docker compose up` manually in the `license-application-service` directory and re-run the Maven setup config.
+
 4. Open the two freshly auto-generated modules:
-    - `license-application-service/target/generated-sources/jooq`
-    - `license-application-service/target/generated-sources/openapi`
-   
+
+   - `license-application-service/target/generated-sources/jooq`
+   - `license-application-service/target/generated-sources/openapi`
+
    and set their `src` folders as "Generated Sources Root".
+
    > ℹ️ Right-click on the folder in the Project view -> "Mark Directory as" -> "Generated Sources Root".
 
 ### Development
@@ -30,7 +34,7 @@
 1. Launch the Spring Boot configuration: `Dev LicenseApplicationService`.
 2. Launch the npm configuration: `npm dev`.
 
-    > ℹ️ All npm configurations automatically perform `npm install` before building or testing the frontend.
+   > ℹ️ All npm configurations automatically perform `npm install` before building or testing the frontend.
 
 ### Manual Production Build (optional)
 
@@ -60,9 +64,205 @@ The application is now running on [localhost:3000](http://localhost:3000). All c
 
 ## Further readings
 
-- [Maven docs](https://maven.apache.org/guides/index.html)  
-- [Spring Boot reference](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)  
+- [Maven docs](https://maven.apache.org/guides/index.html)
+- [Spring Boot reference](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
 - [Learn React](https://react.dev/learn)
-- [Webpack concepts](https://webpack.js.org/concepts/)  
-- [npm docs](https://docs.npmjs.com/)  
-- [Tailwind CSS](https://tailwindcss.com/)  
+- [Webpack concepts](https://webpack.js.org/concepts/)
+- [npm docs](https://docs.npmjs.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
+---
+
+# Auth Context Documentation
+
+This document explains the implementation and usage of the `AuthContext`
+used for managing authentication state (access token, refresh token,
+logout, and JWT decoding). It also includes examples of extracting user
+information from JWT tokens.
+
+## 🚀 Features
+
+- Global authentication state using **React Context**
+- Persists tokens using **localStorage**
+- Provides `signOut()` for logout + redirect
+- Works with Axios and React Query
+- Includes helper method for decoding JWT tokens
+- Easy consumption via `useContext`
+
+---
+
+# 📌 AuthContext Overview
+
+### **`AuthContext.tsx`**
+
+```tsx
+import React, { createContext, useState, ReactNode } from "react";
+
+interface AuthContextType {
+  accessToken: string | null;
+  refreshToken: string | null;
+  setAccessToken: (token: string | null) => void;
+  setRefreshToken: (token: string | null) => void;
+  signOut: () => void;
+}
+
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+
+  const signOut = () => {
+    setAccessToken(null);
+    setRefreshToken(null);
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/login";
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        accessToken,
+        refreshToken,
+        setAccessToken,
+        setRefreshToken,
+        signOut,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+```
+
+---
+
+# 📌 Initializing Tokens on App Startup
+
+```tsx
+const AppInitializer = () => {
+  const auth = useContext(AuthContext);
+
+  useEffect(() => {
+    const storedAccess = localStorage.getItem("accessToken");
+    const storedRefresh = localStorage.getItem("refreshToken");
+
+    if (storedAccess) auth?.setAccessToken(storedAccess);
+    if (storedRefresh) auth?.setRefreshToken(storedRefresh);
+  }, [auth]);
+
+  return <AppRoutes />;
+};
+```
+
+---
+
+# 🎯 Using AuthContext in a Component
+
+```tsx
+import { useContext } from "react";
+import { AuthContext } from "../common/AuthContext";
+
+const Dashboard = () => {
+  const auth = useContext(AuthContext);
+
+  return (
+    <div>
+      <h2>Dashboard</h2>
+
+      <p>Access Token: {auth?.accessToken}</p>
+
+      <button onClick={auth?.signOut}>Sign Out</button>
+    </div>
+  );
+};
+
+export default Dashboard;
+```
+
+---
+
+# 🔐 Decoding JWT Token
+
+### **`authTokenDecode.ts`**
+
+```ts
+import { jwtDecode } from "jwt-decode";
+
+export function getUserIdFromToken(token?: string | null) {
+  if (!token) return null;
+
+  try {
+    const decoded: any = jwtDecode(token);
+    return decoded.sub ?? null;
+  } catch {
+    return null;
+  }
+}
+```
+
+---
+
+# 🧪 Example: Getting User ID After Login
+
+```tsx
+const handleLogin = async () => {
+  const response = await axios.post("/auth/login", {
+    email,
+    password,
+  });
+
+  const accessToken = response.data.accessToken;
+  const refreshToken = response.data.refreshToken;
+
+  auth?.setAccessToken(accessToken);
+  auth?.setRefreshToken(refreshToken);
+
+  localStorage.setItem("accessToken", accessToken);
+  localStorage.setItem("refreshToken", refreshToken);
+
+  const userId = getUserIdFromToken(accessToken);
+  console.log("Logged-in user ID:", userId);
+};
+```
+
+---
+
+# 🧩 Example: Reading User ID Anywhere in App
+
+```tsx
+import { useContext } from "react";
+import { AuthContext } from "../common/AuthContext";
+import { getUserIdFromToken } from "../../utils/authTokenDecode";
+
+const RequestApplication = () => {
+  const auth = useContext(AuthContext);
+
+  const userID = getUserIdFromToken(auth?.accessToken);
+
+  return (
+    <div>
+      <p>User ID: {userID}</p>
+    </div>
+  );
+};
+
+export default RequestApplication;
+```
+
+---
+
+# ✔️ Summary
+
+Your Auth system now:
+
+- Stores tokens globally\
+- Syncs tokens with localStorage\
+- Decodes JWT to extract user information\
+- Provides a clean, centralized auth structure\
+- Works well with React Query & Axios
+
+---
