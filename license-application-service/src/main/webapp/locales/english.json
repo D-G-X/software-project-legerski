@@ -281,6 +281,8 @@
     "document_upload": {
       "error": "Document upload failed",
       "label": "Documents",
+      "success_message": "Documents Verified successfully",
+      "reject_message": "Documents are invalid",
       "id_doc": {
         "label": "ID Proof",
         "description": "Upload a government-issued identification document (e.g., passport, driver's license) for identity verification.",

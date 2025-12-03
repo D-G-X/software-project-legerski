@@ -95,16 +95,29 @@ export default function ApplicationDocumentUpload() {
     // Prepare FormData
     const formData = new FormData();
     if (docUploadForm.id_proof)
-      formData.append("id_proof", docUploadForm.id_proof);
+      formData.append("id_file", docUploadForm.id_proof);
     if (docUploadForm.address_proof)
-      formData.append("address_proof", docUploadForm.address_proof);
+      formData.append("proof_file", docUploadForm.address_proof);
+
+    if (applicationID) formData.append("application_id", applicationID);
 
     try {
       // Replace with your actual API call
-      console.log("Submitting documents:", docUploadForm);
+      console.log(formData);
+      const response = await fetch("http://localhost:8083/process-document", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log("Success:", result);
 
       // redirect form on success
-      navigate("/payment");
+      navigate("/payment/" + applicationID);
       alert(t("license.document_upload.success_message"));
     } catch (error) {
       alert(t("license.document_upload.error"));

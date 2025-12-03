@@ -29,7 +29,7 @@ export default function AppRoutes() {
           path: "license-document-upload/:id",
           element: <ApplicationDocumentUpload />,
         },
-        { path: "payment", element: <Payment /> },
+        { path: "payment/:id", element: <Payment /> },
         { path: "error", element: <Error /> },
         { path: "*", element: <Error /> },
       ],
