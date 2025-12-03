@@ -20,8 +20,6 @@ export default function ApplicationDocumentUpload() {
   const params = useParams();
   const applicationID = params.id!;
 
-  console.log(applicationID);
-
   const { t } = useTranslation();
   const navigate = useNavigate();
   useDocumentTitle(t("license.request.title"));
@@ -118,14 +116,15 @@ export default function ApplicationDocumentUpload() {
         );
       }
 
-      // Refetch application details after successful upload
-      await refetch();
+      const applcationDetails = await refetch();
 
-      console.log("data", data);
+      console.log("data", applcationDetails.data?.data.application_status);
 
       // Navigate to payment
-      if (data) navigate("/payment/" + applicationID);
-      alert(t("license.document_upload.success_message"));
+      if (data) {
+        navigate("/payment/" + applicationID);
+        alert(t("license.document_upload.success_message"));
+      }
     } catch (err) {
       console.log(err);
       alert(t("license.document_upload.error"));
@@ -179,7 +178,7 @@ export default function ApplicationDocumentUpload() {
                 type="file"
                 className="hidden"
                 onChange={handleFileChange}
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept=".pdf"
               />
             </label>
             {errors.id_proof && (
@@ -220,7 +219,7 @@ export default function ApplicationDocumentUpload() {
                 type="file"
                 className="hidden"
                 onChange={handleFileChange}
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept=".pdf"
               />
             </label>
             {errors.address_proof && (

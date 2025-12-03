@@ -296,8 +296,8 @@
       },
       "input": {
         "buttonLabel": "Browse",
-        "fileSizeLabel": "File with a max size of 10 MB — PDF, JPG, PNG only",
-        "fileTypeError": "Only PDF, JPG, or PNG files are allowed",
+        "fileSizeLabel": "File with a max size of 10 MB — PDF only",
+        "fileTypeError": "Only PDF files are allowed",
         "fileSizeError": "File size must be less than 10 MB"
       }
     }
