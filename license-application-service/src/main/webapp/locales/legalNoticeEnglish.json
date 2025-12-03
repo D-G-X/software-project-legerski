@@ -92,6 +92,7 @@
     "whatAreCookies": "What Are Cookies?",
     "definition": "Cookies are small text files stored on your device to enhance your browsing experience. They may store preferences, login status, or analytics information.",
     "typesTitle": "Types of Cookies We Use",
+    "essentialTitle": "Essential cookies",
     "essential": "Essential cookies are required for basic functionality such as login, security sessions, and form submissions.",
     "consentTitle": "Cookie Consent",
     "consentText": "On your first visit, you accept all essential cookies. Essential cookies cannot be disabled because the Portal will not function without them."
@@ -218,5 +219,4 @@
   "securityMeasures": {
     "noSystem": "No system is 100% secure, but best-practice security measures are applied."
   }
-
 }
