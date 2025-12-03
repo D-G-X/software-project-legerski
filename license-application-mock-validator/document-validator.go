@@ -15,12 +15,9 @@ import (
 )
 
 const verifiedProbability = 50 // percentage chance of VERIFIED status
-
-const maxFileSize = 10 // per file in MB
-
-const maxPollRequests = 2 // max polling requests per second per client
-
-const timeout = 5 // seconds
+const maxFileSize = 10          // per file in MB
+const maxPollRequests = 2       // max polling requests per second per client
+const timeout = 5               // seconds
 
 var processDuration = []time.Duration{
 	2 * time.Second,
@@ -86,11 +83,30 @@ var rateStore = make(map[int]*RateInfo)
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	http.HandleFunc("/process-document", startProcessingHandler)
-	http.HandleFunc("/process-document/status/", statusHandler)
+	// Wrap handlers with CORS middleware
+	http.HandleFunc("/process-document", corsMiddleware(startProcessingHandler))
+	http.HandleFunc("/process-document/status/", corsMiddleware(statusHandler))
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+// corsMiddleware ensures CORS headers are sent for all responses, including errors
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Always set CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000") // React frontend
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		// Handle preflight requests
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
+	}
 }
 
 func isPdf(data []byte) bool {
@@ -102,13 +118,13 @@ func isPdf(data []byte) bool {
 
 func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "only POST allowed", http.StatusMethodNotAllowed)
+		writeError(w, http.StatusMethodNotAllowed, "only POST allowed")
 		return
 	}
 
 	err := r.ParseMultipartForm(maxFileSize << 20)
 	if err != nil {
-		http.Error(w, "invalid multipart request", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "invalid multipart request")
 		return
 	}
 
@@ -175,8 +191,7 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		Status:        "PENDING",
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	writeJSON(w, http.StatusOK, resp)
 }
 
 func runBackgroundJob(applicationId int, idFile, proofFile string) {
@@ -242,39 +257,40 @@ func sendCallback(p CallbackPayload) error {
 	return nil
 }
 
-func sendErr(err error, w http.ResponseWriter) {
-	log.Printf("internal error: %v", err)
-	http.Error(w, "internal server error: "+err.Error(), http.StatusInternalServerError)
+// writeError ensures CORS headers are included for error responses
+func writeError(w http.ResponseWriter, status int, msg string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	resp := map[string]string{"error": msg}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func reject(w http.ResponseWriter, msg string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
-
 	resp := ProcessDocumentResponse{
 		Status:          "REJECTED",
 		RejectionReason: &msg,
 	}
-
 	json.NewEncoder(w).Encode(resp)
 }
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "only GET allowed", http.StatusMethodNotAllowed)
+		writeError(w, http.StatusMethodNotAllowed, "only GET allowed")
 		return
 	}
 
 	base := "/process-document/status/"
 	if !strings.HasPrefix(r.URL.Path, base) {
-		http.NotFound(w, r)
+		writeError(w, http.StatusNotFound, "not found")
 		return
 	}
 
 	raw := strings.TrimPrefix(r.URL.Path, base)
 	applicationId, err := strconv.Atoi(raw)
 	if err != nil {
-		http.Error(w, "invalid application ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "invalid application ID")
 		return
 	}
 
@@ -288,12 +304,12 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	mu.Unlock()
 
 	if !exists {
-		http.Error(w, "unknown application ID", http.StatusNotFound)
+		writeError(w, http.StatusNotFound, "unknown application ID")
 		return
 	}
 
 	if !checkRateLimit(applicationId) {
-		http.Error(w, "rate limit exceeded for: "+strconv.Itoa(applicationId), http.StatusTooManyRequests)
+		writeError(w, http.StatusTooManyRequests, "rate limit exceeded")
 		return
 	}
 
@@ -303,8 +319,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		RejectionReason: reasonPtr,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	writeJSON(w, http.StatusOK, resp)
 }
 
 func checkRateLimit(applicationId int) bool {
@@ -335,4 +350,11 @@ func getRandomStatus() string {
 		return "VERIFIED"
 	}
 	return "REJECTED"
+}
+
+// writeJSON helper function
+func writeJSON(w http.ResponseWriter, status int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(data)
 }
