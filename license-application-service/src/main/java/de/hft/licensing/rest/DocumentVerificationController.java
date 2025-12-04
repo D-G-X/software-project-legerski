@@ -5,7 +5,6 @@ import de.hft.licensing.db.enums.VerificationStatus;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.model.DocumentValidationCallbackRequest;
-import de.hft.licensing.services.auth.ApplicationAuthorizationService;
 import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,11 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class DocumentVerificationController implements DocumentVerificationApi {
 
     private final DSLContext dsl;
-    private final ApplicationAuthorizationService applicationAuthorization;
 
-    public DocumentVerificationController(DSLContext dsl, ApplicationAuthorizationService applicationAuthorization) {
+    public DocumentVerificationController(DSLContext dsl) {
         this.dsl = dsl;
-        this.applicationAuthorization = applicationAuthorization;
     }
 
     @Override
