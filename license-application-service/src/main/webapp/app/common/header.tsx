@@ -14,32 +14,32 @@ export default function Header() {
   const language_title_img_map: Record<string, LanguageInfo> = {
     en: {
       language: t("nav.languages.en.name"),
-      img: "/images/languages/english.png",
+      img: "/images/languages/english.webp",
       imgAlt: t("nav.languages.en.iconAlt"),
     },
     fr: {
       language: t("nav.languages.fr.name"),
-      img: "/images/languages/french.png",
+      img: "/images/languages/french.webp",
       imgAlt: t("nav.languages.fr.iconAlt"),
     },
     de: {
       language: t("nav.languages.de.name"),
-      img: "/images/languages/german.png",
+      img: "/images/languages/german.webp",
       imgAlt: t("nav.languages.de.iconAlt"),
     },
     hi: {
       language: t("nav.languages.hi.name"),
-      img: "/images/languages/hindi.png",
+      img: "/images/languages/hindi.webp",
       imgAlt: t("nav.languages.hi.iconAlt"),
     },
     id: {
       language: t("nav.languages.id.name"),
-      img: "/images/languages/indonesian.png",
+      img: "/images/languages/indonesian.webp",
       imgAlt: t("nav.languages.id.iconAlt"),
     },
     es: {
       language: t("nav.languages.es.name"),
-      img: "/images/languages/spanish.png",
+      img: "/images/languages/spanish.webp",
       imgAlt: t("nav.languages.es.iconAlt"),
     },
   };
