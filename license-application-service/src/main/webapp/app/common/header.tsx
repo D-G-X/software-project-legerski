@@ -85,7 +85,7 @@ export default function Header() {
               className="flex justify-center items-center py-1.5 mr-4"
             >
               <img
-                src="/images/logo.svg"
+                src="/images/logo.webp"
                 alt={t("nav.appLogoAlt")}
                 width="80"
                 height="80"
