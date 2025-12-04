@@ -47,14 +47,12 @@ var httpClient = &http.Client{
 	Timeout: timeout * time.Second,
 }
 
-// ProcessDocumentResponse Outgoing response (to client)
 type ProcessDocumentResponse struct {
 	ApplicationId   int     `json:"application_id"`
 	Status          string  `json:"status"`
 	RejectionReason *string `json:"rejection_reason,omitempty"`
 }
 
-// CallbackPayload Outgoing callback payload (to backend)
 type CallbackPayload struct {
 	ApplicationId    int     `json:"application_id"`
 	IdFilename       string  `json:"id_filename"`
@@ -63,7 +61,6 @@ type CallbackPayload struct {
 	RejectionReason  *string `json:"rejection_reason,omitempty"`
 }
 
-// JobInfo internal job storage
 type JobInfo struct {
 	ApplicationId    int
 	IdFilename       string
@@ -77,7 +74,6 @@ var (
 	mu          sync.Mutex
 )
 
-// RateInfo for limiting the number of polling requests per client
 type RateInfo struct {
 	Count     int
 	ResetTime time.Time
@@ -85,15 +81,17 @@ type RateInfo struct {
 
 var rateStore = make(map[int]*RateInfo)
 
-// LoginRequest / LoginResponse für den Login-Call
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type LoginResponse struct {
-	AccessToken string `json:"access_token"`
-	// weitere Felder ignorieren wir
+	AccessToken      string `json:"access_token"`
+	RefreshToken     string `json:"refresh_token"`
+	ExpiresIn        int    `json:"expires_in"`
+	RefreshExpiresIn int    `json:"refresh_expires_in"`
+	TokenType        string `json:"token_type"`
 }
 
 func main() {
@@ -191,7 +189,6 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// *** NEU: vor dem Anlegen des Jobs versuchen wir, einen Access Token zu holen ***
 	token, err := getAccessToken()
 	if err != nil {
 		log.Printf("failed to obtain access token: %v", err)
@@ -208,7 +205,6 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	mu.Unlock()
 
-	// Token an den Background-Job übergeben
 	go runBackgroundJob(applicationId, idHeader.Filename, proofHeader.Filename, token)
 
 	resp := ProcessDocumentResponse{
@@ -255,7 +251,6 @@ func runBackgroundJob(applicationId int, idFile, proofFile, token string) {
 	}
 }
 
-// holt sich einen Access Token vom Backend-Login
 func getAccessToken() (string, error) {
 	reqBody := LoginRequest{
 		Email:    loginEmail,
@@ -296,7 +291,6 @@ func getAccessToken() (string, error) {
 	return loginResp.AccessToken, nil
 }
 
-// sendCallback bekommt jetzt den Token übergeben und loggt sich nicht mehr selbst ein
 func sendCallback(p CallbackPayload, token string) error {
 	body, err := json.Marshal(p)
 	if err != nil {
@@ -343,7 +337,6 @@ func reject(w http.ResponseWriter, msg string) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-// *** NEU: spezielle Antwort, wenn der Validator nicht verfügbar ist ***
 func validatorOutOfService(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusServiceUnavailable)
