@@ -4,7 +4,6 @@ import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import org.jooq.DSLContext;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -18,34 +17,16 @@ public class ApplicationAuthorizationService {
         this.dsl = dsl;
     }
 
-    private boolean isAdmin(Authentication authentication) {
-        if (!(authentication instanceof JwtAuthenticationToken jwt) || !authentication.isAuthenticated()) {
-            return false;
-        }
-        return jwt.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("admin"));
-    }
-
-    private UUID getCurrentUserId(Authentication authentication) {
-        if (!(authentication instanceof JwtAuthenticationToken jwt)) {
-            return null;
-        }
-        try {
-            return UUID.fromString(jwt.getToken().getSubject());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
 
     /**
      * admin can do anything, normal uset may only request their own userId (or null which means myself)
      */
     public boolean canListApplications(Authentication authentication, UUID requestedUserId) {
-        if (isAdmin(authentication)) {
+        if (CommonAuthorizationService.isAdmin(authentication)) {
             return true;
         }
 
-        UUID currentUserId = getCurrentUserId(authentication);
+        UUID currentUserId = CommonAuthorizationService.getCurrentUserId(authentication);
         if (currentUserId == null) {
             return false;
         }
@@ -64,11 +45,11 @@ public class ApplicationAuthorizationService {
             return false;
         }
 
-        if (isAdmin(authentication)) {
+        if (CommonAuthorizationService.isAdmin(authentication)) {
             return true;
         }
 
-        UUID currentUserId = getCurrentUserId(authentication);
+        UUID currentUserId = CommonAuthorizationService.getCurrentUserId(authentication);
         if (currentUserId == null) {
             return false;
         }
@@ -90,10 +71,10 @@ public class ApplicationAuthorizationService {
      * allow normal user only if they create for themselves, admin can create for anyone.
      */
     public boolean canCreateApplication(Authentication authentication, UUID bodyUserId) {
-        if (isAdmin(authentication)) {
+        if (CommonAuthorizationService.isAdmin(authentication)) {
             return true;
         }
-        UUID currentUserId = getCurrentUserId(authentication);
+        UUID currentUserId = CommonAuthorizationService.getCurrentUserId(authentication);
         return currentUserId != null && currentUserId.equals(bodyUserId);
     }
 }
