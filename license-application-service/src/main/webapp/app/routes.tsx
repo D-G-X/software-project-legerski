@@ -10,6 +10,8 @@ import ResetPassword from "./forgot-password/reset";
 import Payment from "./payment/payment";
 import Profile from "./profile/profile";
 import DeleteProfile from "./delete-profile/deleteProfile";
+import LegalNotice from "./legal/legal";
+import ContactPage from "./contact/contact";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -22,10 +24,12 @@ export default function AppRoutes() {
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
         { path: "payment", element: <Payment /> },
+        { path: "legal", element: <LegalNotice /> },
+        { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
         { path: "*", element: <Error /> },
-          { path: "profile", element: <Profile />},
-          { path: "deleteProfile", element: <DeleteProfile /> }
+        { path: "profile", element: <Profile /> },
+        { path: "deleteProfile", element: <DeleteProfile /> },
       ],
     },
   ]);

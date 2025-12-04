@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const verifiedProbability = 50 // percentage chance of VERIFIED status
+const verifiedProbability = 90 // percentage chance of VERIFIED status
 
 const maxFileSize = 10 // per file in MB
 
