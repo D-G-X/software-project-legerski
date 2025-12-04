@@ -37,7 +37,7 @@ public class ApplicationsController implements ApplicationsApi {
     }
 
     @Override
-    @PreAuthorize("@applicationAuthorization.canListApplications(authentication, #applicationCreate.userId)")
+    @PreAuthorize("@applicationAuthorization.canCreateApplication(authentication, #applicationCreate.userId)")
     public ResponseEntity<ApplicationResource> createApplication(ApplicationCreate applicationCreate) {
         if (applicationCreate == null || applicationCreate.getUserId() == null || applicationCreate.getLicenseType() == null) {
             return ResponseEntity.badRequest().build();
