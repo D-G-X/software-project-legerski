@@ -317,7 +317,7 @@
     "cadastral_number": {
       "required": "Cadastral Number is required.",
       "valid": "Cadastral Number is valid.",
-      "min_length": "Enter Valid Cadastral number, must be atleast 20 characters."
+      "min_length": "Enter Valid Cadastral number, must be 20 characters."
     },
     "password": {
       "required": "Password is required",

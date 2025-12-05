@@ -355,6 +355,8 @@ export default function RequestApplication() {
             </label>
             <div className="mt-1">
               <input
+                maxLength={20}
+                minLength={20}
                 type="text"
                 id="cadastral_number"
                 value={form.cadastral_number}

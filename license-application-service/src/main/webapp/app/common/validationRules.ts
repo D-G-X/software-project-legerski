@@ -66,7 +66,7 @@ export const validateCadastralNumber = (cadastral_number: string) => {
     };
   }
 
-  if (cadastral_number.length == 20) {
+  if (cadastral_number.length != 20) {
     return {
       isValid: false,
       message: t("validation.cadastral_number.min_length"),
