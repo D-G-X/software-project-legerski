@@ -248,7 +248,7 @@ export default function RequestApplication() {
   };
 
   return (
-    <div className="mx-15 mt-4 mb-10 relative bg-white items-center justify-center h-[calc(100vh-8rem)]">
+    <div className="mx-15 bg-white items-center justify-center min-h-[calc(100vh-8rem)]">
       <h1 className="text-mallorca-purple font-semibold tracking-wide text-2xl text-center py-4">
         {t("license.request.title")}
       </h1>
