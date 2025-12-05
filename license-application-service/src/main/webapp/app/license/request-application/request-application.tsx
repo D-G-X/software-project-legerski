@@ -112,13 +112,14 @@ export default function RequestApplication() {
     },
   });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (btn: string) => {
     const firstNameValidateResult: validateResults = validateName(
       form.first_name
     );
     const lastNameValidateResult: validateResults = validateName(
       form.last_name
     );
+
     const emailValidateResult: validateResults = validateEmail(form.email);
     const cadastralNumValidateResult: validateResults = validateCadastralNumber(
       form.cadastral_number
@@ -215,6 +216,10 @@ export default function RequestApplication() {
 
       switch (response.status) {
         case 201:
+          if (btn == "draft") {
+            navigate("/");
+            break;
+          }
           navigate("/license-document-upload/" + response.data.id);
           break;
 
@@ -243,7 +248,7 @@ export default function RequestApplication() {
   };
 
   return (
-    <div className="mx-15 mt-4 mb-10 relative bg-white items-center justify-center">
+    <div className="mx-15 mt-4 mb-10 relative bg-white items-center justify-center h-[calc(100vh-8rem)]">
       <h1 className="text-mallorca-purple font-semibold tracking-wide text-2xl text-center py-4">
         {t("license.request.title")}
       </h1>
@@ -490,14 +495,14 @@ export default function RequestApplication() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                onClick={handleSubmit}
+                onClick={() => handleSubmit("submit")}
                 className="bg-mallorca-purple border-2 border-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg hover:bg-mallorca-red/75 hover:border-mallorca-red"
               >
                 {t("license.request.buttons.submit")}
               </button>
               <button
                 type="submit"
-                onClick={handleSubmit}
+                onClick={() => handleSubmit("draft")}
                 className="block bg-mallorca-purple/75 border-2 border-mallorca-purple hover:bg-mallorca-red/75 hover:border-mallorca-red text-white px-10 py-2 rounded-md w-full font-medium text-lg"
               >
                 {t("license.request.buttons.draft")}
