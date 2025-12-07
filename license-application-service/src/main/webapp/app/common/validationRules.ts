@@ -2,19 +2,19 @@ import { t } from "i18next";
 
 // Regular expressions for validation rules (positive checks only, test with !regexName.test(value))
 const nameRegex = new RegExp(
-    "^[\\p{L}\\p{M}'’\\-–]+(?: [\\p{L}\\p{M}'’\\-–]+)*$",
-    "u"
+  "^[\\p{L}\\p{M}'’\\-–]+(?: [\\p{L}\\p{M}'’\\-–]+)*$",
+  "u"
 );
 
 const emailRegex = new RegExp(
-    "^(?:[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+" +
+  "^(?:[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+" +
     "(?:\\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*" +
     "|" +
-    "\"(?:[\\x21-\\x7E]|\\\\[\\x21-\\x7E])+\"" +
+    '"(?:[\\x21-\\x7E]|\\\\[\\x21-\\x7E])+"' +
     ")" +
     "@" +
     "(?:(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)\\.)+" +
-    "(?:[A-Za-z]{2,})$",
+    "(?:[A-Za-z]{2,})$"
 );
 
 const ibanRegex = new RegExp("^[A-Z]{2}[0-9A-Z]{13,32}$", "i");
@@ -48,12 +48,31 @@ export const validateEmail = (email: string) => {
     return { isValid: false, message: t("validation.email.required") };
 
   if (!emailRegex.test(email))
-    return{
-        isValid: false,
-        message: t("validation.email.invalid")
+    return {
+      isValid: false,
+      message: t("validation.email.invalid"),
     };
 
   return { isValid: true, message: t("validation.email.valid") };
+};
+
+// Email validation
+export const validateCadastralNumber = (cadastral_number: string) => {
+  if (!cadastral_number) {
+    return {
+      isValid: false,
+      message: t("validation.cadastral_number.required"),
+    };
+  }
+
+  if (cadastral_number.length != 20) {
+    return {
+      isValid: false,
+      message: t("validation.cadastral_number.min_length"),
+    };
+  }
+
+  return { isValid: true, message: t("validation.cadastral_number.valid") };
 };
 
 // Password validation: min. 8 and max. 255 characters long and at least one special character
@@ -85,39 +104,124 @@ export const validatePassword = (password: string) => {
 
 // Confirm Password validation
 export const validateConfirmPassword = (
-    password: string,
-    confirmPassword: string
+  password: string,
+  confirmPassword: string
 ) => {
-    if (!confirmPassword)
-        return {
-            isValid: false,
-            message: t("validation.confirmPassword.required"),
-        };
+  if (!confirmPassword)
+    return {
+      isValid: false,
+      message: t("validation.confirmPassword.required"),
+    };
 
-    if (password !== confirmPassword)
-        return {
-            isValid: false,
-            message: t("validation.confirmPassword.mismatch"),
-        };
+  if (password !== confirmPassword)
+    return {
+      isValid: false,
+      message: t("validation.confirmPassword.mismatch"),
+    };
 
-    return { isValid: true, message: t("validation.confirmPassword.valid") };
+  return { isValid: true, message: t("validation.confirmPassword.valid") };
+};
+
+export const validatePhoneNumber = (value: string) => {
+  if (!value)
+    return { isValid: false, message: t("validation.phone.required") };
+
+  const phoneRegex = new RegExp("^[+]?[(]?[0-9]{1,4}[)]?[-\\s0-9]{5,15}$");
+
+  if (!phoneRegex.test(value))
+    return {
+      isValid: false,
+      message: t("validation.phone.invalid"),
+    };
+
+  return { isValid: true, message: t("validation.phone.valid") };
+};
+
+export const validateReason = (value: string) => {
+  if (!value)
+    return { isValid: false, message: t("validation.reason.required") };
+
+  if (value.length < 3)
+    return {
+      isValid: false,
+      message: t("validation.reason.minLength"),
+    };
+
+  if (value.length > 500)
+    return {
+      isValid: false,
+      message: t("validation.reason.maxLength"),
+    };
+
+  return { isValid: true, message: t("validation.reason.valid") };
+};
+
+export const validateAddress = (value: string) => {
+  if (!value)
+    return { isValid: false, message: t("validation.address.required") };
+
+  // Letters, numbers, spaces, punctuation
+  const addressRegex = new RegExp("^[\\p{L}\\p{N}\\p{M}'’.,\\-–/ ]+$", "u");
+
+  if (value.length < 3)
+    return {
+      isValid: false,
+      message: t("validation.address.minLength"),
+    };
+
+  if (!addressRegex.test(value))
+    return {
+      isValid: false,
+      message: t("validation.address.invalid"),
+    };
+
+  return { isValid: true, message: t("validation.address.valid") };
+};
+
+export const validatePostalCode = (value: string) => {
+  if (!value)
+    return { isValid: false, message: t("validation.postalCode.required") };
+
+  const postalRegex = new RegExp("^[A-Za-z0-9\\s-]{3,12}$");
+
+  if (!postalRegex.test(value))
+    return {
+      isValid: false,
+      message: t("validation.postalCode.invalid"),
+    };
+
+  return { isValid: true, message: t("validation.postalCode.valid") };
+};
+
+export const validateCity = (value: string) => {
+  if (!value) return { isValid: false, message: t("validation.city.required") };
+
+  const cityRegex = new RegExp("^[\\p{L}\\p{M}'’\\-– ]+$", "u");
+
+  if (!cityRegex.test(value))
+    return {
+      isValid: false,
+      message: t("validation.city.invalid"),
+    };
+
+  return { isValid: true, message: t("validation.city.valid") };
 };
 
 export const validateIban = (iban: string) => {
     if (!iban)
         return { isValid: false, message: t("validation.iban.required") };
 
-    if (iban.length < 15)
-        return {
-            isValid: false,
-            message: t("validation.iban.minLength"),
-        };
+  if (iban.length < 15)
+    return {
+      isValid: false,
+      message: t("validation.iban.minLength"),
+    };
 
-    if (iban.length > 35)
-        return {
-            isValid: false,
-            message: t("validation.iban.maxLength"),
-        };
+  if (iban.length > 35)
+    return {
+      isValid: false,
+      message: t("validation.iban.maxLength"),
+    };
 
     if (!ibanRegex.test(iban))
         return {
@@ -125,7 +229,7 @@ export const validateIban = (iban: string) => {
             message: t("validation.iban.specialChar"),
         };
 
-    return { isValid: true, message: t("validation.iban.valid") };
+  return { isValid: true, message: t("validation.iban.valid") };
 };
 
 export const validateBic = (bic: string, iban: string) => {
@@ -141,21 +245,21 @@ export const validateBic = (bic: string, iban: string) => {
             message: t("validation.bic.length"),
         };
 
-    if (!bicRegex.test(bic))
-        return {
-            isValid: false,
-            message: t("validation.bic.specialChar.general"),
-        };
+  if (!bicRegex.test(bic))
+    return {
+      isValid: false,
+      message: t("validation.bic.specialChar.general"),
+    };
 
     return { isValid: true, message: t("validation.iban.valid") };
 };
 
 export const validateSepaMandateCheck = (value: boolean) => {
-    if (!value)
-        return {
-            isValid: false,
-            message: t("validation.sepaMandate.required"),
-        };
+  if (!value)
+    return {
+      isValid: false,
+      message: t("validation.sepaMandate.required"),
+    };
 
-    return { isValid: true, message: t("validation.sepaMandate.valid") };
+  return { isValid: true, message: t("validation.sepaMandate.valid") };
 };

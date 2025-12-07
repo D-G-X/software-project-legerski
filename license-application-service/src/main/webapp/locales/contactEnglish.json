@@ -1,0 +1,24 @@
+{
+  "header": {
+    "english": "English",
+    "contact": "Contact",
+    "account": "Account",
+    "notifications": "Notifications",
+    "signout": "Sign out"
+  },
+  "title": "Contact Support",
+  "subtitle": "Need help with your license or ballot application? We’re here to assist.",
+  "email": {
+    "title": "Email Support:"
+  },
+  "phone": {
+    "title": "Phone Support:",
+    "hours": "Mon–Fri, 9:00–17:00 CET"
+  },
+  "address": {
+    "title": "Office Address:"
+  },
+  "contactButton": "Contact Support",
+  "back": "Back",
+  "legalNotice": "Legal Notice"
+}

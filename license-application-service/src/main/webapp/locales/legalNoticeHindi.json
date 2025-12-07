@@ -1,0 +1,222 @@
+{
+  "legalNoticeTitle": "Legal Notice",
+  "lastUpdated": "Last Updated: 27/11/2025",
+
+  "owner": {
+    "title": "Website Owner / Controller Identification",
+    "description": "This portal is operated by:",
+    "address": "Dirección Insular de Licencias Turísticas, Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain",
+    "email": "Email: avisio.legal@palma.es",
+    "laws": "This Portal is governed by Spanish Law 34/2002 on Information Society Services (LSSI-CE), GDPR (EU Regulation 2016/679), and other applicable Balearic regulations."
+  },
+
+  "purpose": {
+    "title": "Purpose of the Portal",
+    "description": "The Portal provides users and property owners in Mallorca with digital services for:",
+    "register": "Registering and maintaining user accounts",
+    "apply": "Applying for holiday rental licenses",
+    "upload": "Uploading documents for verification",
+    "track": "Tracking application status",
+    "payments": "Completing payments for administrative fees",
+    "settings": "Managing notifications and personal settings"
+  },
+
+  "terms": {
+    "title": "Terms and Conditions of Use",
+
+    "acceptance": {
+      "title": "Acceptance of Terms",
+      "text": "By accessing or using this Portal, the user agrees to comply with this Legal Notice, Privacy Policy, and Cookies Policy."
+    },
+
+    "obligations": {
+      "title": "User Obligations",
+      "accurate": "Provide accurate and true information",
+      "validDocs": "Upload only valid documents belonging to them",
+      "noFraud": "Refrain from fraudulent, malicious, or illegal activities",
+      "confidentiality": "Maintain confidentiality of their login credentials",
+      "law": "Comply with all applicable local, state, and EU laws"
+    },
+
+    "prohibited": {
+      "title": "Prohibited Actions",
+      "unauthorized": "Attempt unauthorized access or interfere with security",
+      "malware": "Upload viruses, malware, or harmful content",
+      "bots": "Use automated scripts (bots) to overload or manipulate the system",
+      "misrepresentation": "Misrepresent property ownership or personal data"
+    },
+
+    "ipr": {
+      "title": "Intellectual Property Rights",
+      "text": "All content on the Portal—including design, text, graphics, logos, icons, and software—is owned by the Portal operator or licensed from third parties. Reproduction or distribution is prohibited without prior written consent."
+    },
+
+    "disclaimer": {
+      "title": "Liability Disclaimer",
+      "errors": "Errors in documents submitted by users",
+      "interruptions": "Temporary service interruptions",
+      "thirdparty": "Issues related to third-party integrations (e.g., payment gateways, document verification)",
+      "delays": "Delays in administrative processing",
+      "asIs": "The Portal is provided 'as is' without guarantees of uninterrupted or error-free operation"
+    }
+  },
+
+  "privacy": {
+    "title": "Data Protection & Privacy",
+    "text": "Personal data is processed according to GDPR. A full explanation appears in the Privacy Policy below."
+  },
+
+  "links": {
+    "title": "External Links",
+    "text": "The Portal may contain links to third-party websites or services. The operator is not responsible for their content, policies, or availability."
+  },
+
+  "modifications": {
+    "title": "Modifications",
+    "text": "The operator reserves the right to modify the Legal Notice, Privacy Policy, or Cookies Policy at any time. Updates will be posted on this page."
+  },
+
+  "jurisdiction": {
+    "title": "Applicable Law & Jurisdiction",
+    "text": "This Legal Notice is governed by Spanish law. Any disputes shall be resolved in the courts of Illes Balears, unless otherwise required by consumer protection legislation."
+  },
+
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated: 27/11/2025"
+  },
+
+  "cookies": {
+    "title": "Cookies Policy",
+    "lastUpdated": "Last Updated: 27/11/2025",
+    "whatAreCookies": "What Are Cookies?",
+    "definition": "Cookies are small text files stored on your device to enhance your browsing experience. They may store preferences, login status, or analytics information.",
+    "typesTitle": "Types of Cookies We Use",
+    "essential": "Essential cookies are required for basic functionality such as login, security sessions, and form submissions.",
+    "consentTitle": "Cookie Consent",
+    "consentText": "On your first visit, you accept all essential cookies. Essential cookies cannot be disabled because the Portal will not function without them."
+  },
+  "dataController": {
+    "title": "Data Controller",
+    "description": "The entity responsible for processing personal data on this Portal is: Dirección Insular de Licencias Turísticas",
+    "address": "Address: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain",
+    "email": "Email: avisio.legal@palma.es"
+  },
+  "dataCollected": {
+    "title": "Data We Collect",
+    "accountInfo": "Account & Identity Information",
+    "fullName": "Full name",
+    "email": "Email address",
+    "phone": "Phone number",
+    "password": "Password (encrypted)",
+    "propertyInfo": "Property & License Application Information",
+    "propertyAddress": "Property address / Ownership documents",
+    "cadastralRef": "Cadastral reference",
+    "licenseForms": "License-related forms",
+    "idCopy": "Passport / Personal ID copy",
+    "uploadedDocs": "Uploaded Documents",
+    "idProof": "ID proof",
+    "propertyProof": "Property ownership proof",
+    "technicalData": "Technical Data",
+    "ipAddress": "IP address",
+    "browserDevice": "Browser and device details",
+    "loginActivity": "Login activity",
+    "usageAnalytics": "Usage analytics",
+    "paymentInfo": "Payment Information",
+    "accountHolder": "Account holder name",
+    "ibanBic": "IBAN / BIC (if account is non-domestic)",
+    "paymentProcessor": "Payment Information is securely handled by a third-party payment processor (Banco Santander, S.A.). The Portal does not store bank account details."
+  },
+  "processingPurpose": {
+    "title": "Purpose of Processing",
+    "description": "Your data is processed for the following purposes:",
+    "createAccounts": "Creating and managing user accounts",
+    "processLicenses": "Processing holiday rental license applications",
+    "verifyIdentity": "Identity and document verification",
+    "sendNotifications": "Sending notifications and updates",
+    "ballotAlgorithm": "Running the ballot allocation algorithm",
+    "generateReceipts": "Generating receipts and payment confirmations",
+    "ensureSecurity": "Ensuring platform security",
+    "basisTitle": "Processing is based on:",
+    "gdprContract": "GDPR Art. 6(1)(b): Contract performance",
+    "gdprLegal": "GDPR Art. 6(1)(c): Legal obligations",
+    "gdprConsent": "GDPR Art. 6(1)(a): User consent",
+    "gdprPublicInterest": "GDPR Art. 6(1)(e): Public interest tasks (if applicable)"
+  },
+  "dataStorage": {
+    "title": "Data Storage Duration",
+    "description": "Data is stored only as long as necessary:"
+  },
+  "userRights": {
+    "title": "User Rights (GDPR Chapter III)",
+    "description": "You may request:",
+    "access": "Access to your data",
+    "correction": "Correction or deletion",
+    "restriction": "Restriction of processing",
+    "portability": "Data portability",
+    "objection": "Objection to certain processing",
+    "withdrawal": "Withdrawal of consent",
+    "contact": "Requests can be sent to: avisio.legal@palma.es"
+  },
+  "security": {
+    "title": "Security Measures",
+    "description": "We implement:",
+    "accessControl": "Access control with JWT + Keycloak",
+    "securityAssessments": "Regular security assessments",
+    "cookiesPolicy": "Cookies Policy Last Updated: 27/11/2025",
+    "paymentInfo": "Payment Information is securely handled by a third-party payment processor (Banco Santander, S.A.). The Portal does not store bank account details.",
+    "dataRetention": "Active user accounts: retained while account is active\nLicense application documents: retained during review + legally required archival period\nPayment receipts: stored for mandatory tax/record-keeping periods\nLog data: short-term retention for security monitoring",
+    "noSystem": "No system is 100% secure, but best-practice security measures are applied."
+  },
+  "governingLaw": {
+    "title": "Governing Law",
+    "description": "For the purposes of applicable legislation, this Portal is governed by:",
+    "lssi": "Spanish Law 34/2002 on Information Society Services and E-Commerce (LSSI-CE)",
+    "gdpr": "General Data Protection Regulation (GDPR) – EU Regulation 2016/679",
+    "regional": "Any other relevant regional or national regulations of the Balearic Islands.",
+    "noAffiliation": "No official governmental affiliation is claimed unless explicitly stated."
+  },
+  "portalObjective": {
+    "title": "Portal Objective",
+    "description": "The Portal aims to improve transparency, accessibility, and efficiency of the rental license application process."
+  },
+  "userObligations": {
+    "title": "User Obligations",
+    "intro": "The user agrees to:",
+    "accurateInfo": "Provide accurate and true information",
+    "validDocs": "Upload only valid documents belonging to them",
+    "noFraud": "Refrain from fraudulent, malicious, or illegal activities",
+    "confidentiality": "Maintain confidentiality of their login credentials",
+    "lawCompliance": "Comply with all applicable local, state and EU laws"
+  },
+
+  "prohibitedActions": {
+    "title": "Prohibited Actions",
+    "intro": "Users must not:",
+    "unauthorizedAccess": "Attempt unauthorized access or interfere with security",
+    "malware": "Upload viruses, malware, or harmful content",
+    "bots": "Use automated scripts (bots) to overload or manipulate the system",
+    "misrepresentation": "Misrepresent property ownership or personal data"
+  },
+
+  "liability": {
+    "title": "Liability Disclaimer",
+    "intro": "The Portal operator is not responsible for:",
+    "errors": "Errors in documents submitted by users",
+    "interruptions": "Temporary service interruptions",
+    "thirdParty": "Third-party integration (payment gateways, document verification services)",
+    "delays": "Delays in administrative processing by authorities",
+    "asIs": "The Portal is provided “as is,” without guarantee of uninterrupted or error-free operation"
+  },
+  "dataRetention": {
+    "title": "Data Retention Periods",
+    "activeAccounts": "Active user accounts: retained while the account is active",
+    "licenseDocs": "License application documents: retained during review and for the legally required archival period",
+    "paymentReceipts": "Payment receipts: stored for mandatory tax and record-keeping periods",
+    "logData": "Log data: retained short-term for security monitoring"
+  },
+  "securityMeasures": {
+    "noSystem": "No system is 100% secure, but best-practice security measures are applied."
+  }
+
+}
