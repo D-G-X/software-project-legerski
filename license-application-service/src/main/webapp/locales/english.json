@@ -178,6 +178,130 @@
       "serverError": "Something went wrong. Please try again."
     }
   },
+  "license": {
+    "request": {
+      "title": "Property Rental License Request Form",
+      "noteRequired": {
+        "beforeStar": "Fields marked with",
+        "afterStar": "are required"
+      },
+
+      "fullName": {
+        "label": "Full Name",
+        "description": "Please enter your full name as it appears on your official documents",
+        "firstNamePlaceholder": "First Name",
+        "lastNamePlaceholder": "Last Name"
+      },
+
+      "email": {
+        "label": "Email Address",
+        "description": "Provide a valid email address where we can contact you regarding your application",
+        "placeholder": "Email Address"
+      },
+
+      "cadastraNumber": {
+        "label": "Cadastral Number",
+        "description": "Enter the cadastral number of the property for which you are requesting a rental license.",
+        "placeholder": "GDC"
+      },
+
+      "phone": {
+        "label": "Phone Number",
+        "description": "Please enter a phone number where you can be reached for any follow-up questions",
+        "placeholder": "Phone Number"
+      },
+
+      "reason": {
+        "label": "Reason for Rental License Request",
+        "description": "Please explain why you are applying for a rental license for this property.",
+        "placeholder": "Reason for License"
+      },
+
+      "address": {
+        "label": "Property Address",
+        "description": "Enter the complete address of the property for which you are requesting a rental license.",
+        "street1Placeholder": "Street Address 1",
+        "street2Placeholder": "Street Address 2",
+        "postalPlaceholder": "Postal Code",
+        "cityPlaceholder": "City",
+        "countryLabel": "Spain"
+      },
+
+      "rentalType": {
+        "label": "Rental License Type",
+        "description": "Please select the type of rental you are interested in.",
+        "types": {
+          "ETV": {
+            "value": "ETV",
+            "label": "ETV",
+            "description": "Standard license for single family homes or villas"
+          },
+          "ETVPL": {
+            "value": "ETVPL",
+            "label": "ETVPL",
+            "description": "For multi - unit buildings like apartments or townhouses"
+          },
+          "ETV60": {
+            "value": "ETV60",
+            "label": "ETV60",
+            "description": "Limited license allowing up to 60 rental days per year"
+          }
+        },
+        "errorMissing": "Please select a rental license type."
+      },
+
+      "rentalStart": {
+        "label": "Expected Rental Start Date",
+        "description": "Please specify the date you plan to start renting the property.",
+        "errorMissing": "Please specify the expected rental start date."
+      },
+
+      "comments": {
+        "label": "Additional Comments / Remarks",
+        "description": "If you have any additional comments or information to provide, please share it here.",
+        "placeholder": "Add your comments here"
+      },
+
+      "personal_consent": {
+        "label": "I understand that my personal data will be securely stored in the database for the purpose of processing my request.",
+        "errorMissing": "Personal data consent is required to continue."
+      },
+
+      "legal_consent": {
+        "label_before_redirect": "I agree to the legal terms and conditions in the",
+        "legal_redirect": "Legal Notice",
+        "label_after_redirect": "page.",
+        "errorMissing": "Legal consent is required to continue."
+      },
+
+      "buttons": {
+        "submit": "Submit and Upload",
+        "draft": "Save as Draft"
+      }
+    },
+    "document_upload": {
+      "error": "Document upload failed",
+      "label": "Documents",
+      "success_message": "Documents Verified successfully",
+      "reject_message": "Documents are invalid",
+      "id_doc": {
+        "label": "ID Proof",
+        "description": "Upload a government-issued identification document (e.g., passport, driver's license) for identity verification.",
+        "errorMissing": "ID documents are required"
+      },
+      "address_doc": {
+        "label": "Proof of Address",
+        "description": "Upload a document showing your current address (e.g., utility bill, bank statement, rental agreement).",
+        "errorMissing": "Address documents are required"
+      },
+      "input": {
+        "buttonLabel": "Browse",
+        "fileSizeLabel": "File with a max size of 10 MB — PDF only",
+        "fileTypeError": "Only PDF files are allowed",
+        "fileSizeError": "File size must be less than 10 MB"
+      }
+    }
+  },
   "validation": {
     "name": {
       "required": "Name is required",
@@ -190,6 +314,11 @@
       "invalid": "Invalid email format",
       "valid": "Email format is valid"
     },
+    "cadastral_number": {
+      "required": "Cadastral Number is required.",
+      "valid": "Cadastral Number is valid.",
+      "min_length": "Enter Valid Cadastral number, must be 20 characters."
+    },
     "password": {
       "required": "Password is required",
       "minLength": "Password must be at least 8 characters long",
@@ -201,6 +330,33 @@
       "required": "Please confirm your password",
       "mismatch": "Passwords do not match",
       "valid": "Passwords match"
+    },
+    "phone": {
+      "required": "Phone number is required.",
+      "invalid": "Please enter a valid phone number.",
+      "valid": "Phone number looks good."
+    },
+    "reason": {
+      "required": "Reason is required.",
+      "minLength": "Reason must be at least 3 characters long.",
+      "maxLength": "Reason cannot exceed 500 characters.",
+      "valid": "Reason looks good."
+    },
+    "address": {
+      "required": "Street address is required.",
+      "minLength": "Street address must be at least 3 characters long.",
+      "invalid": "Please enter a valid street address.",
+      "valid": "Street address looks good."
+    },
+    "city": {
+      "required": "City is required.",
+      "invalid": "Please enter a valid city name.",
+      "valid": "City looks good."
+    },
+    "postalCode": {
+      "required": "Postal code is required.",
+      "invalid": "Please enter a valid postal code.",
+      "valid": "Postal code looks good."
     },
     "iban": {
       "required": "IBAN is required",
@@ -526,4 +682,3 @@
     }
   }
 }
-
