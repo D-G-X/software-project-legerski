@@ -35,4 +35,6 @@ keycloak:
   url: http://localhost:8081
   realm: license-realm
   client-id: backend-api
-  client-secret: p1zWiUxB4FldVHmhEE2qWW5wA3CE2CPe
+  client-secret: jDBuAYcrAqwnMQj5z13SFBeuUG6yGnRs
+
+

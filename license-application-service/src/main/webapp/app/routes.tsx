@@ -10,6 +10,7 @@ import ResetPassword from "./forgot-password/reset";
 import Payment from "./payment/payment";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
+import AdminDashboard from "./admin-dashboard/admin-dashboard";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -22,6 +23,7 @@ export default function AppRoutes() {
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
         { path: "payment", element: <Payment /> },
+        { path: "admin-dashboard", element: <AdminDashboard /> },
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
