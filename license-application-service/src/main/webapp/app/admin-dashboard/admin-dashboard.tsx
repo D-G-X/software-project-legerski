@@ -4,8 +4,8 @@ import useDocumentTitle from "../common/use-document-title";
 import "./admin-dashboard.css";
 import Pagination from "../common/Pagination";
 import { Link, useNavigate } from "react-router";
-import { useListApplications } from "app/services/applications/applications";
-import { ApplicationResource } from "../../types";
+// import { useListApplications } from "app/services/applications/applications";
+// import { ApplicationResource } from "../../types";
 
 export default function AdminDashboard() {
 
@@ -15,19 +15,16 @@ export default function AdminDashboard() {
     const itemsPerPage = 5;
     useDocumentTitle(t("home.index.headline"));
 
-    const { data: response } = useListApplications({
-        user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-    });
+    // const { data: response } = useListApplications({
+    //     user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
+    // });
 
-    const applications: ApplicationResource[] = Array.isArray(response?.data)
-        ? response.data
-        : [];
-    const totalPage = Math.ceil(applications.length / itemsPerPage);
+    // const applications: ApplicationResource[] = Array.isArray(response?.data)
+    //     ? response.data
+    //     : [];
 
-    // const currentData = applications.slice(
-    //     (currentPage - 1) * itemsPerPage,
-    //     currentPage * itemsPerPage
-    // );
+
+
 
     const formatDate = (rawDate: string | undefined) => {
         if (!rawDate) return "";
@@ -50,138 +47,128 @@ export default function AdminDashboard() {
             "name": "Ahmed",
             "address": "Home",
             "phone_number": "111",
-            "email": "me@email.com",
+            "email": "ahmed@email.com",
             "country": "Australia",
             "application_status": "SUBMITTED"
         },
         {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
+            "id": 2,
+            "name": "Sarah",
+            "address": "Work",
+            "phone_number": "222",
+            "email": "sarah@email.com",
+            "country": "USA",
             "application_status": "SUBMITTED"
         },
         {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
+            "id": 3,
+            "name": "Kenji",
+            "address": "Apartment 1B",
+            "phone_number": "333",
+            "email": "kenji@email.com",
+            "country": "Japan",
+            "application_status": "APPROVED"
+        },
+        {
+            "id": 4,
+            "name": "Maria",
+            "address": "Unit 20",
+            "phone_number": "444",
+            "email": "maria@email.com",
+            "country": "Mexico",
             "application_status": "SUBMITTED"
         },
         {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
+            "id": 5,
+            "name": "David",
+            "address": "Cottage",
+            "phone_number": "555",
+            "email": "david@email.com",
+            "country": "Canada",
+            "application_status": "REJECTED"
+        },
+        {
+            "id": 6,
+            "name": "Fatima",
+            "address": "Farmhouse",
+            "phone_number": "666",
+            "email": "fatima@email.com",
+            "country": "UAE",
             "application_status": "SUBMITTED"
         },
         {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
+            "id": 7,
+            "name": "Liam",
+            "address": "Dorm 3A",
+            "phone_number": "777",
+            "email": "liam@email.com",
+            "country": "Ireland",
+            "application_status": "APPROVED"
+        },
+        {
+            "id": 8,
+            "name": "Sofia",
+            "address": "City Tower",
+            "phone_number": "888",
+            "email": "sofia@email.com",
+            "country": "Brazil",
             "application_status": "SUBMITTED"
         },
         {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
+            "id": 9,
+            "name": "Javier",
+            "address": "Suburbia",
+            "phone_number": "999",
+            "email": "javier@email.com",
+            "country": "Spain",
+            "application_status": "REJECTED"
+        },
+        {
+            "id": 10,
+            "name": "Chloe",
+            "address": "Penthouse",
+            "phone_number": "000",
+            "email": "chloe@email.com",
+            "country": "France",
+            "application_status": "APPROVED"
+        },
+        {
+            "id": 11,
+            "name": "Wei",
+            "address": "No. 1 Street",
+            "phone_number": "101",
+            "email": "wei@email.com",
+            "country": "China",
             "application_status": "SUBMITTED"
         },
         {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
-            "application_status": "SUBMITTED"
+            "id": 12,
+            "name": "Hans",
+            "address": "Main Road 5",
+            "phone_number": "102",
+            "email": "hans@email.com",
+            "country": "Germany",
+            "application_status": "PENDING"
         },
         {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
-            "application_status": "SUBMITTED"
-        },
-        {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
-            "application_status": "SUBMITTED"
-        },
-        {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
-            "application_status": "SUBMITTED"
-        },
-        {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
-            "application_status": "SUBMITTED"
-        },
-        {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
-            "application_status": "SUBMITTED"
-        },
-        {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
-            "application_status": "SUBMITTED"
-        },
-        {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
-            "application_status": "SUBMITTED"
-        },
-        {
-            "id": 1,
-            "name": "Ahmed",
-            "address": "Home",
-            "phone_number": "111",
-            "email": "me@email.com",
-            "country": "Australia",
-            "application_status": "SUBMITTED"
-        },
-
+            "id": 13,
+            "name": "Aisha",
+            "address": "The Coast",
+            "phone_number": "103",
+            "email": "aisha@email.com",
+            "country": "Nigeria",
+            "application_status": "APPROVED"
+        }
     ];
+
+    console.log("Local Data Length:" + localData.length);
+
+    const totalPage = Math.ceil(localData.length / itemsPerPage);
+
+    const currentData = localData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
 
     return (
@@ -202,7 +189,7 @@ export default function AdminDashboard() {
                     {/*    {t("dashboard.buttonLabel")}*/}
                     {/*</button>*/}
 
-                    {localData.length > 0 && (
+                    {currentData.length > 0 && (
                         <div className="mt-16 w-full">
                             <h1 className="font-bold text-xl text-mallorca-purple">
                                 {t("dashboard.title")}
@@ -219,7 +206,7 @@ export default function AdminDashboard() {
                                         <th>{t("admin-dashboard.table.status")}</th>
                                     </tr>
 
-                                    {localData.map((item) => (
+                                    {currentData.map((item) => (
                                         <tr key={item.id}>
                                             <td>{item.name}</td>
                                             <td>{item.address}</td>
