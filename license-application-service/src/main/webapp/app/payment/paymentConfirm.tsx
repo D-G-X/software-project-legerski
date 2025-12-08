@@ -92,7 +92,7 @@ export default function PaymentConfirm() {
                       t("paymentConfirm.index.subHeadline.failure")
                 }
             />
-            {/* 3. Response fields */}
+            {/* Response fields */}
             <div className="bg-gray-50 rounded-lg p-6 mt-8 shadow">
               <div className="flex justify-between text-xl font-semibold">
                 <span className="">{t("paymentConfirm.index.amountLabel") + ": "}</span>
