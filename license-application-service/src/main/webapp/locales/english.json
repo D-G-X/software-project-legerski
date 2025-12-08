@@ -435,7 +435,7 @@
         "failure": "Your payment data could not be stored. Please try again."
       },
       "amountLabel": "Total amount",
-      "taxLabel": "no vat applies",
+      "taxLabel": "no VAT applies",
       "paymentIdLabel": "Payment ID",
       "applicationIdLabel": "Application ID",
       "nameLabel": "Account holder",
