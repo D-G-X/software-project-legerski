@@ -133,6 +133,19 @@
       "next": "Next"
     }
   },
+  "applicationDetails": {
+    "index": {
+      "headline": "Application Details",
+      "applicationId": "Application ID",
+      "cadastralReference": "Cadastral Reference",
+      "licenseType": "License Type",
+      "status": "Status",
+      "paymentStatus": "Payment Status",
+      "appliedAt": "Applied At",
+      "changedAt": "Changed At",
+      "user": "User"
+    }
+  },
   "common": {
     "orDivider": "or"
   },

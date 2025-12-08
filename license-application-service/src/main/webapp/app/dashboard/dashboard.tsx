@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
 import Pagination from "../common/Pagination";
-import { Link, useNavigate } from "react-router";
 import { useListApplications } from "app/services/applications/applications";
 import { ApplicationResource } from "../../types";
 
