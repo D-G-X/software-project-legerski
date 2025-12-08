@@ -10,10 +10,13 @@ import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
 import {useCreatePayment} from "app/services/payments/payments";
 import ModalDialog from "../common/modal-dialog";
-import {useNavigate} from "react-router";
+import {useNavigate, useParams} from "react-router";
 import "./paymentForm.css";
 import {AnimatedDots} from "../common/AnimatedDots";
 import {useGetApplication} from "app/services/applications/applications";
+import { useContext } from "react";
+import { AuthContext } from "../common/AuthContext";
+import {getUserIdFromToken} from "../common/authTokenDecode";
 
 type Props = {
   payment_id?: number;
@@ -30,9 +33,11 @@ export default function PaymentConfirm() {
   const {t} = useTranslation();
   const navigate = useNavigate();
   const mutation = useCreatePayment();
-
-  // TODO: Replace with state from useLocation()
-  const applicationId = 123;
+  const { id } = useParams<{ id: string }>();
+  const applicationId = id ? parseInt(id, 10) : 0;
+  const auth = useContext(AuthContext);
+  const userId: string = getUserIdFromToken(auth?.accessToken);
+  console.log("userId: " + userId);
 
   useDocumentTitle(t("payment.title"));
 
@@ -151,11 +156,17 @@ export default function PaymentConfirm() {
         data: postData,
       });
 
-      const isEqual = Object.keys(postData).every(
-          (key) => (response.data as any)[key] === (postData as any)[key]
-      );
+      let isEqual =
+          response.data.application_id === postData.application_id &&
+          response.data.name === postData.name &&
+          response.data.iban === postData.iban &&
+          response.data.bic === postData.bic;
 
       if (!isEqual) {
+        console.error("Response data does not match submitted data:", {
+          submitted: postData,
+          received: response.data,
+        });
         throw new Error("Response data mismatch");
       }
 
@@ -167,7 +178,7 @@ export default function PaymentConfirm() {
         payment_status: response.data.payment_status,
       };
 
-      navigate(`/license-application-request/payment/done`, {state: stateData});
+      navigate(`/payment/${applicationId}/done`, {state: stateData});
     } catch (err) {
       console.error("Payment submission error:", err);
       setErrors((prev) => ({...prev, pay: "Payment failed"}));
