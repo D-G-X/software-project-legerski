@@ -38,6 +38,7 @@ export default function PaymentConfirm() {
   const auth = useContext(AuthContext);
   const userId: string = getUserIdFromToken(auth?.accessToken);
   console.log("userId: " + userId);
+  const amount = 100; // TODO: Fetch amount based on applicationId
 
   useDocumentTitle(t("payment.title"));
 
@@ -205,7 +206,7 @@ export default function PaymentConfirm() {
                     <span>{t("paymentForm.index.amountLabel") + ": "}</span>
                     <div className="flex flex-col items-end">
                       <span className="text-xl font-semibold leading-none">
-                        {formatAmount(applicationData?.id)}
+                        {formatAmount(amount)}
                       </span>
                       <span className="text-xs font-light italic mt-1 leading-none">
                         {t("paymentConfirm.index.taxLabel")}
