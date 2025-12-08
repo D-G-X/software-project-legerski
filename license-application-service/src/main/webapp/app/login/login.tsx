@@ -29,7 +29,6 @@ export default function Login() {
   });
 
   useEffect(() => {
-    console.log(auth?.accessToken);
     if (auth?.accessToken) {
       navigate("/");
     }
