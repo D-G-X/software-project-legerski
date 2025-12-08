@@ -58,16 +58,17 @@ export default function Dashboard() {
   }
 
   return (
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
-          <div className="font-inter flex flex-col items-center w-full">
-            <div className="text-center mt-16 text-xl">
-              <div className="text-3xl font-bold text-mallorca-purple">{
-                  t("dashboard.headline.getStarted") +
-                  (applications.length > 0 ? t("dashboard.headline.manageApplications") : "")
-              }
-              </div>
+    <div className="container mx-auto px-4 md:px-6">
+      <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
+        <div className="font-inter flex flex-col items-center w-full">
+          <div className="text-center mt-16 text-xl">
+            <div className="text-3xl font-bold text-mallorca-purple">
+              {t("dashboard.headline.getStarted") +
+                (applications.length > 0
+                  ? t("dashboard.headline.manageApplications")
+                  : "")}
             </div>
+          </div>
 
             <button
                 type="button"
