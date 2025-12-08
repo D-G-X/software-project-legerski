@@ -10,6 +10,8 @@ import de.hft.licensing.model.UpdateLicenseStatusRequest;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,6 +27,7 @@ import java.util.UUID;
 public class LicensesController implements LicensesApi {
 
     private final DSLContext dsl;
+    private static final Logger log = LoggerFactory.getLogger(LicensesController.class);
 
     public LicensesController(DSLContext dsl) {
         this.dsl = dsl;
@@ -41,8 +44,10 @@ public class LicensesController implements LicensesApi {
                 .execute();
 
         if(deletedRows > 0){
+            log.info("Deleted license with ID: {}", licenseId);
             return ResponseEntity.noContent().build();
         } else {
+            log.warn("Attempted to delete non-existing license with ID: {}", licenseId);
             return ResponseEntity.notFound().build();
         }
     }
@@ -115,6 +120,12 @@ public class LicensesController implements LicensesApi {
         if(licenseId == null || licenseId <= 0 || updateLicenseStatusRequest == null){
             return ResponseEntity.badRequest().build();
         }
+
+        var oldStatus = dsl.select(License.LICENSE.LICENSE_STATUS)
+                .from(License.LICENSE)
+                .where(License.LICENSE.ID.eq(licenseId))
+                .fetchOneInto(License.LICENSE.LICENSE_STATUS.getType());
+
         var dbLicense = dsl.update(License.LICENSE)
                 .set(License.LICENSE.LICENSE_STATUS, (LicenseStatus) EnumMapperUtil.getPendantFromEnum(updateLicenseStatusRequest.getLicenseStatus()))
                 .where(License.LICENSE.ID.eq(licenseId))
@@ -122,6 +133,14 @@ public class LicensesController implements LicensesApi {
                 .fetchOneInto(LicenseRecord.class);
 
         if(dbLicense != null){
+            // Logger
+            var logs = String.format("Updated license with ID %d:", licenseId);
+            if (oldStatus != dbLicense.getLicenseStatus()){
+                var oldStatusName = oldStatus != null ? oldStatus.name() : "null";
+                logs += String.format(" license status changed from %s to %s.", oldStatusName, dbLicense.getLicenseStatus().name());
+            }
+            log.info(logs);
+
             LicenseResource apiLicense = new LicenseResource();
             RecordToResourceMapperUtil.mapLicenseRecordToResource(dbLicense, apiLicense);
             return ResponseEntity.ok(apiLicense);
