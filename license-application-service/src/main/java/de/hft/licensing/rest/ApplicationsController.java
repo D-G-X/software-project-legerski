@@ -7,7 +7,10 @@ import de.hft.licensing.db.enums.VerificationStatus;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
-import de.hft.licensing.model.*;
+import de.hft.licensing.model.ApplicationCreate;
+import de.hft.licensing.model.ApplicationResource;
+import de.hft.licensing.model.ApplicationStatusApiEnum;
+import de.hft.licensing.model.ApplicationUpdate;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
@@ -15,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -37,6 +41,7 @@ public class ApplicationsController implements ApplicationsApi {
     }
 
     @Override
+    @PreAuthorize("@applicationAuthorization.canCreateApplication(authentication, #applicationCreate.userId)")
     public ResponseEntity<ApplicationResource> createApplication(ApplicationCreate applicationCreate) {
         if (applicationCreate == null || applicationCreate.getUserId() == null || applicationCreate.getLicenseType() == null) {
             return ResponseEntity.badRequest().build();
@@ -84,6 +89,7 @@ public class ApplicationsController implements ApplicationsApi {
     }
 
     @Override
+    @PreAuthorize("@applicationAuthorization.canAccessApplication(authentication, #applicationId)")
     public ResponseEntity<Void> deleteApplication(Integer applicationId) {
         int deleted = dsl.deleteFrom(Application.APPLICATION)
             .where(Application.APPLICATION.ID.eq(applicationId))
@@ -102,6 +108,7 @@ public class ApplicationsController implements ApplicationsApi {
     }
 
     @Override
+    @PreAuthorize("@applicationAuthorization.canAccessApplication(authentication, #applicationId)")
     public ResponseEntity<ApplicationResource> getApplication(Integer applicationId) {
         var result = dsl.select()
             .from(Application.APPLICATION)
@@ -116,8 +123,8 @@ public class ApplicationsController implements ApplicationsApi {
                 : ResponseEntity.notFound().build();
     }
 
-    //TODO: finish implementation as Parameter Types clash
     @Override
+    @PreAuthorize("@applicationAuthorization.canListApplications(authentication, #userId)")
     public ResponseEntity<List<ApplicationResource>> listApplications(UUID userId, ApplicationStatusApiEnum applicationStatus) {
         // Get current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -175,6 +182,7 @@ public class ApplicationsController implements ApplicationsApi {
 
 
     @Override
+    @PreAuthorize("@applicationAuthorization.canAccessApplication(authentication, #applicationId)")
     public ResponseEntity<ApplicationResource> updateApplication(Integer applicationId, ApplicationUpdate applicationUpdate) {
         if (applicationId == null || applicationUpdate == null || applicationUpdate.getApplicationStatus() == null || applicationUpdate.getRemarks() == null) {
             return ResponseEntity.badRequest().build();

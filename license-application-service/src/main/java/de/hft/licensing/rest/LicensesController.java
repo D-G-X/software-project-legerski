@@ -14,9 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -34,6 +32,7 @@ public class LicensesController implements LicensesApi {
     }
 
     @Override
+    @PreAuthorize("@licenseAuthorization.canAccessLicense(authentication, #licenseId)")
     public ResponseEntity<Void> deleteLicense(Integer licenseId) {
         if(licenseId == null || licenseId <= 0){
             return ResponseEntity.badRequest().build();
@@ -53,6 +52,7 @@ public class LicensesController implements LicensesApi {
     }
 
     @Override
+    @PreAuthorize("@licenseAuthorization.canAccessLicense(authentication, #licenseId)")
     public ResponseEntity<LicenseResource> getLicense(Integer licenseId) {
         if(licenseId == null || licenseId <= 0){
             return ResponseEntity.badRequest().build();
@@ -72,6 +72,7 @@ public class LicensesController implements LicensesApi {
     }
 
     @Override
+    @PreAuthorize("@licenseAuthorization.canListLicenses(authentication, #userId)")
     public ResponseEntity<List<LicenseResource>> listLicenses(UUID userId) {
         // Get current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -116,6 +117,7 @@ public class LicensesController implements LicensesApi {
     }
 
     @Override
+    @PreAuthorize("@licenseAuthorization.canAccessLicense(authentication, #licenseId)")
     public ResponseEntity<LicenseResource> updateLicenseStatus(Integer licenseId, UpdateLicenseStatusRequest updateLicenseStatusRequest) {
         if(licenseId == null || licenseId <= 0 || updateLicenseStatusRequest == null){
             return ResponseEntity.badRequest().build();
