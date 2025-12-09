@@ -15,6 +15,7 @@ import {useListPayments} from "../services/payments/payments";
 import {useGetUser} from "../services/users/users";
 import {useGetLicense} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
+import {formatAmount, formatBic, formatDate, formatIban} from "../common/format";
 
 interface ApplicationDetailsProps {
   open: boolean;
@@ -61,42 +62,6 @@ export default function ApplicationDetails({open, entry, onClose}: ApplicationDe
   const documentData = getDocumentData(entry.id);
 
   const paymentData = getPaymentData(201);//entry.id);
-
-  const formatAmount = (raw: number | undefined): string => {
-    if (raw === undefined) return "";
-    return new Intl.NumberFormat(t("locale"), {
-      style: "currency",
-      currency: "EUR",
-      minimumFractionDigits: 2,
-    }).format(raw);
-  }
-
-  const formatIban = (raw: string | undefined): string => {
-    if (raw === undefined || raw === "") return "";
-    const visibleLength = 2;
-    const clean = raw.replace(/\s+/g, "").toUpperCase();
-    const visible = clean.slice(-visibleLength);
-    const masked = "•".repeat(clean.length - visibleLength);
-    return (masked + visible).replace(/(.{4})/g, "$1 ").trim();
-  };
-
-  const formatBic = (raw: string | undefined): string => {
-    if (raw === undefined || raw === "") return "";
-    return raw.replace(/\s+/g, "").toUpperCase();
-  }
-
-  const formatDate = (raw: string | undefined): string => {
-    if (raw === undefined || raw === "") return "";
-    return new Date(raw).toLocaleString(t("locale"), {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  }
-
 
   return (
       <div
