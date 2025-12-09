@@ -140,9 +140,9 @@ public class BallotPeriodsController implements BallotPeriodsApi {
             return resource;
         }).toList();
 
-        RunLotteryForBallotPeriod200Response body = new RunLotteryForBallotPeriod200Response()
-                .selectedApplications(selectedResources)
-                .notSelectedApplications(notSelectedResources);
+        RunLotteryForBallotPeriod200Response body = new RunLotteryForBallotPeriod200Response();
+        body.setSelectedApplications(selectedResources);
+        body.setNotSelectedApplications(notSelectedResources);
 
         return ResponseEntity.ok(body);
     }
