@@ -22,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -42,6 +43,7 @@ public class ApplicationsController implements ApplicationsApi {
 
     @Override
     @PreAuthorize("@applicationAuthorization.canCreateApplication(authentication, #applicationCreate.userId)")
+    @Transactional
     public ResponseEntity<ApplicationResource> createApplication(ApplicationCreate applicationCreate) {
         if (applicationCreate == null || applicationCreate.getUserId() == null || applicationCreate.getLicenseType() == null) {
             return ResponseEntity.badRequest().build();
@@ -90,6 +92,7 @@ public class ApplicationsController implements ApplicationsApi {
 
     @Override
     @PreAuthorize("@applicationAuthorization.canAccessApplication(authentication, #applicationId)")
+    @Transactional
     public ResponseEntity<Void> deleteApplication(Integer applicationId) {
         int deleted = dsl.deleteFrom(Application.APPLICATION)
             .where(Application.APPLICATION.ID.eq(applicationId))
@@ -183,6 +186,7 @@ public class ApplicationsController implements ApplicationsApi {
 
     @Override
     @PreAuthorize("@applicationAuthorization.canAccessApplication(authentication, #applicationId)")
+    @Transactional
     public ResponseEntity<ApplicationResource> updateApplication(Integer applicationId, ApplicationUpdate applicationUpdate) {
         if (applicationId == null || applicationUpdate == null || applicationUpdate.getApplicationStatus() == null || applicationUpdate.getRemarks() == null) {
             return ResponseEntity.badRequest().build();

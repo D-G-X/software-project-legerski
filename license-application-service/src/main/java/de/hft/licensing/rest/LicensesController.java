@@ -36,6 +36,7 @@ public class LicensesController implements LicensesApi {
 
     @Override
     @PreAuthorize("@licenseAuthorization.canAccessLicense(authentication, #licenseId)")
+    @Transactional
     public ResponseEntity<Void> deleteLicense(Integer licenseId) {
         if(licenseId == null || licenseId <= 0){
             return ResponseEntity.badRequest().build();
@@ -121,6 +122,7 @@ public class LicensesController implements LicensesApi {
 
     @Override
     @PreAuthorize("@licenseAuthorization.canAccessLicense(authentication, #licenseId)")
+    @Transactional
     public ResponseEntity<LicenseResource> updateLicenseStatus(Integer licenseId, UpdateLicenseStatusRequest updateLicenseStatusRequest) {
         if(licenseId == null || licenseId <= 0 || updateLicenseStatusRequest == null){
             return ResponseEntity.badRequest().build();

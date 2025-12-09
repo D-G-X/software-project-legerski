@@ -7,10 +7,12 @@ import de.hft.licensing.db.tables.BallotPeriod;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.*;
+import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.ZoneId;
@@ -26,6 +28,8 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     }
 
     @Override
+    @AdminOnly
+    @Transactional
     public ResponseEntity<BallotPeriodResource> createBallotPeriod(CreateBallotPeriodRequest createBallotPeriodRequest) {
         if(createBallotPeriodRequest == null || createBallotPeriodRequest.getStartDate() == null || createBallotPeriodRequest.getEndDate() == null
                 || createBallotPeriodRequest.getStartDate().isAfter(createBallotPeriodRequest.getEndDate())) {
@@ -49,6 +53,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<BallotPeriodResource> getBallotPeriodDetails(Integer periodId) {
         if (periodId == null || periodId <= 0) {
             return ResponseEntity.badRequest().build();
@@ -65,6 +70,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<List<ApplicationResource>> getBallotPeriodEntries(Integer periodId) {
 
         List<ApplicationRecord> applicationRecords= dslContext.select()
@@ -90,6 +96,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<RunLotteryForBallotPeriod200Response> runLotteryForBallotPeriod(Integer periodId, RunLotteryForBallotPeriodRequest runLotteryForBallotPeriodRequest) {
         // implement lottery logic
         // create ballot
