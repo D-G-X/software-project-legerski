@@ -11,7 +11,7 @@ export async function downloadPdfOfficialDocument({downloadFileName, title, text
     const doc = new jsPDF("p", "mm", "a4");
     const logo = new Image();
     const logoWidth = 20;
-    logo.src = '/images/logo.png';
+    logo.src = '/images/logo.webp';
     await new Promise((resolve) => {
         logo.onload = resolve
     });
