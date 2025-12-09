@@ -5,6 +5,7 @@ import {FormHeader} from "app/common/headingTitle";
 import "./paymentConfirm.css";
 import {CircleCheck, CircleX} from "lucide-react";
 import {useLocation, useNavigate} from "react-router";
+import {formatAmount, formatBic, formatDate, formatIban} from "../common/format";
 
 type Props = {
   payment_id: number;
@@ -34,34 +35,6 @@ export default function PaymentConfirm() {
   if (!state) return null;
 
   const success = state_data.payment_status === "UNPAID";
-
-  const formatAmount = (amount: number): string =>
-      new Intl.NumberFormat(t("locale"), {
-        style: "currency",
-        currency: "EUR",
-        minimumFractionDigits: 2,
-      }).format(amount);
-
-  const formatIban = (raw: string): string => {
-    if (!raw) return "";
-    const visibleLength = 2;
-    const clean = raw.replace(/\s+/g, "").toUpperCase();
-    const visible = clean.slice(-visibleLength);
-    const masked = "•".repeat(clean.length - visibleLength);
-    return (masked + visible).replace(/(.{4})/g, "$1 ").trim();
-  };
-
-  const formatBic = (raw: string): string =>
-      raw ? raw.replace(/\s+/g, "").toUpperCase() : "";
-
-  const formattedDate = new Date(state_data.payment_date).toLocaleString(t("locale"), {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
 
   const handleSubmit = () => navigate("/");
 
@@ -143,7 +116,7 @@ export default function PaymentConfirm() {
                 <div className="flex justify-between">
                   <span
                       className="font-semibold">{t("paymentConfirm.index.dateLabel") + ": "}</span>
-                  <span>{formattedDate}</span>
+                  <span>{formatDate(Date.now().toString())}</span>
                 </div>
 
               </div>

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
   validateBic,
   validateIban,
@@ -8,79 +8,77 @@ import {
 import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
-import {useCreatePayment} from "app/services/payments/payments";
+import {getApplicationFee, useCreatePayment} from "app/services/payments/payments";
 import ModalDialog from "../common/modal-dialog";
 import {useNavigate, useParams} from "react-router";
 import "./paymentForm.css";
 import {AnimatedDots} from "../common/AnimatedDots";
 import {useGetApplication} from "app/services/applications/applications";
-import { useContext } from "react";
-import { AuthContext } from "../common/AuthContext";
-import {getUserIdFromToken} from "../common/authTokenDecode";
+import {formatAmount, formatBic, formatDate, formatIban} from "../common/format";
+import {ApplicationPaymentCreate} from "../../types";
 
 type Props = {
   payment_id?: number;
   application_id: number;
-  amount?: number;
-  name: string;
-  iban: string;
-  bic: string;
+  amount: number;
+  name?: string;
+  iban?: string;
+  bic?: string;
   payment_date?: string;
   payment_status?: string;
 };
 
-export default function PaymentConfirm() {
+export default async function PaymentConfirm() {
   const {t} = useTranslation();
   const navigate = useNavigate();
   const mutation = useCreatePayment();
+
+  async function getAmount(applicationId: number): Promise<number | null> {
+    try {
+      const res = await getApplicationFee(applicationId);
+      const amount = res?.data?.fee_amount;
+      return amount != null ? amount : null;
+    } catch {
+      return null;
+    }
+  }
+
   const { id } = useParams<{ id: string }>();
-  const applicationId = id ? parseInt(id, 10) : 0;
-  const auth = useContext(AuthContext);
-  const userId: string = getUserIdFromToken(auth?.accessToken);
-  console.log("userId: " + userId);
-  const amount = 100; // TODO: Fetch amount based on applicationId
+
+  if (!id) {
+    alert("Invalid application data received. Redirecting to dashboard.");
+    navigate("/");
+    return null;
+  }
+
+  const amount = await getAmount(parseInt(id, 10));
+  if (amount === null) {
+    alert("Invalid application data received. Redirecting to dashboard.");
+    navigate("/");
+    return null;
+  }
+
+  const stateData: Props = {
+    application_id: parseInt(id, 10),
+    amount,
+  };
 
   useDocumentTitle(t("payment.title"));
 
-  const {data: applicationResponse} = useGetApplication(applicationId);
+  const {data: applicationResponse} = useGetApplication(stateData.application_id);
   const applicationData = applicationResponse?.data;
 
   useEffect(() => {
     if (!applicationResponse) return;
 
     if (!applicationData || applicationData.id === undefined) {
-      alert("Invalid application data received. Redirecting to application request page.");
-      navigate(`/license-application-request`);
+      alert("Invalid application data received. Redirecting to dashboard.");
+      navigate(`/`);
     }
   }, [applicationResponse, applicationData, navigate]);
 
-  const getFormattedDate = () => {
-    return new Date().toLocaleDateString(t("locale"), {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
   const [showSepaDialog, setShowSepaDialog] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const formatAmount = useCallback(
-      (amount?: number) => {
-        if (amount === undefined) return "N/A";
-        return new Intl.NumberFormat(t("locale"), {
-          style: "currency",
-          currency: "EUR",
-          minimumFractionDigits: 2,
-        }).format(amount);
-      },
-      [t]
-  );
-
-  const formatIban = (raw: string) =>
-      raw.replace(/\s+/g, "").toUpperCase().replace(/(.{4})/g, "$1 ").trim();
-
-  const formatBic = (raw: string) => raw.replace(/\s+/g, "").toUpperCase();
 
   const [form, setForm] = useState({
     name: "",
@@ -114,13 +112,13 @@ export default function PaymentConfirm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const trimmedName = form.name.trim();
-    const ibanClean = form.iban.replace(/\s+/g, "");
-    const bicClean = form.bic.replace(/\s+/g, "");
+    stateData.name = form.name.trim();
+    stateData.iban = form.iban.replace(/\s+/g, "");
+    stateData.bic = form.bic.replace(/\s+/g, "");
 
-    const nameVal = validateName(trimmedName);
-    const ibanVal = validateIban(ibanClean);
-    const bicVal = validateBic(bicClean, ibanClean);
+    const nameVal = validateName(stateData.name);
+    const ibanVal = validateIban(stateData.iban);
+    const bicVal = validateBic(stateData.bic, stateData.iban);
     const sepaVal = validateSepaMandateCheck(form.sepaMandateChecked);
 
     const newErrors = {
@@ -138,30 +136,31 @@ export default function PaymentConfirm() {
 
     setErrors({name: "", iban: "", bic: "", sepaMandateCheck: "", pay: ""});
 
-    if (ibanClean.startsWith("ES") && !bicVal.isValid) {
+    if (stateData.iban.startsWith("ES") && !bicVal.isValid) {
       setForm((prev) => ({...prev, bic: ""}));
     }
 
-    const postData = {
-      application_id: applicationId,
-      name: trimmedName,
-      iban: ibanClean,
-      bic: bicClean,
+    const postData:ApplicationPaymentCreate  = {
+      application_id: stateData.application_id,
+      name: stateData.name ?? "",
+      iban: stateData.iban ?? "",
+      bic: stateData.bic ?? "",
     };
 
     try {
       setLoading(true);
-
+      const applicationId = stateData.application_id;
       const response = await mutation.mutateAsync({
         applicationId,
         data: postData,
       });
 
       let isEqual =
-          response.data.application_id === postData.application_id &&
-          response.data.name === postData.name &&
-          response.data.iban === postData.iban &&
-          response.data.bic === postData.bic;
+          response.data.application_id === stateData.application_id &&
+          response.data.amount === stateData.amount &&
+          response.data.name === stateData.name &&
+          response.data.iban === stateData.iban &&
+          response.data.bic === stateData.bic;
 
       if (!isEqual) {
         console.error("Response data does not match submitted data:", {
@@ -171,15 +170,11 @@ export default function PaymentConfirm() {
         throw new Error("Response data mismatch");
       }
 
-      const stateData: Props = {
-        ...postData,
-        payment_id: response.data.id,
-        amount: response.data.amount,
-        payment_date: response.data.payment_date,
-        payment_status: response.data.payment_status,
-      };
+      stateData.payment_id = response.data.id;
+      stateData.payment_date = response.data.payment_date || Date.now().toString();
+      stateData.payment_status = response.data.payment_status;
 
-      navigate(`/payment/${applicationId}/done`, {state: stateData});
+      navigate(`/payment/${stateData.application_id}/done`, {state: stateData});
     } catch (err) {
       console.error("Payment submission error:", err);
       setErrors((prev) => ({...prev, pay: "Payment failed"}));
@@ -206,7 +201,7 @@ export default function PaymentConfirm() {
                     <span>{t("paymentForm.index.amountLabel") + ": "}</span>
                     <div className="flex flex-col items-end">
                       <span className="text-xl font-semibold leading-none">
-                        {formatAmount(amount)}
+                        {formatAmount(stateData.amount)}
                       </span>
                       <span className="text-xs font-light italic mt-1 leading-none">
                         {t("paymentConfirm.index.taxLabel")}
@@ -353,7 +348,7 @@ export default function PaymentConfirm() {
                           t("paymentForm.sepaMandateDialog.text.line10", {creditorId: "ES98ZZZ09999999999"}) + "\n" +
                           t("paymentForm.sepaMandateDialog.text.line11", {mandateReference: "ESM-2025-00001"}) + "\n\n" +
                           t("paymentForm.sepaMandateDialog.text.line12") + "\n\n\n" +
-                          t("paymentForm.sepaMandateDialog.text.line13", {date: getFormattedDate() ? getFormattedDate() : ""})
+                          t("paymentForm.sepaMandateDialog.text.line13", {date: formatDate(Date.now().toString())}) + "\n\n"
                       )}
                       t={t}
                       onAccept={() => {
