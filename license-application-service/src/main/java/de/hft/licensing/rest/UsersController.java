@@ -6,6 +6,7 @@ import de.hft.licensing.db.tables.records.UserRecord;
 import de.hft.licensing.model.CreateUserRequest;
 import de.hft.licensing.model.UpdateUserRequest;
 import de.hft.licensing.model.UserResource;
+import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,11 +26,8 @@ public class UsersController implements UsersApi {
         this.dsl = dsl;
     }
 
-    /*
-    TODO: Integrate with Keycloak for user management
-     */
-
     @Override
+    @AdminOnly
     public ResponseEntity<Void> createUser(CreateUserRequest createUserRequest) {
         if (createUserRequest == null || createUserRequest.getSchema() == null || createUserRequest.getSchema().getUsername() == null) {
             return ResponseEntity.badRequest().build();
@@ -54,6 +52,7 @@ public class UsersController implements UsersApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<Void> deleteUser(UUID userId) {
         if (userId == null) {
             return ResponseEntity.badRequest().build();
@@ -67,6 +66,7 @@ public class UsersController implements UsersApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<UserResource> getUser(UUID userId) {
         if (userId == null) {
             return ResponseEntity.badRequest().build();
@@ -87,6 +87,7 @@ public class UsersController implements UsersApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<List<UserResource>> listUsers(String username, String email, Integer first, Integer max) {
         // only column is id, so ignore filters for now
         int offset = (first == null || first < 0) ? 0 : first;
@@ -108,6 +109,7 @@ public class UsersController implements UsersApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<Void> updateUser(String userId, UpdateUserRequest updateUserRequest) {
         if (userId == null || updateUserRequest == null) {
             return ResponseEntity.badRequest().build();
