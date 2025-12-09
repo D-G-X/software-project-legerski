@@ -11,6 +11,7 @@ import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class LicensesController implements LicensesApi {
     }
 
     @Override
+    @PreAuthorize("@licenseAuthorization.canAccessLicense(authentication, #licenseId)")
     public ResponseEntity<Void> deleteLicense(Integer licenseId) {
         if(licenseId == null || licenseId <= 0){
             return ResponseEntity.badRequest().build();
@@ -44,6 +46,7 @@ public class LicensesController implements LicensesApi {
     }
 
     @Override
+    @PreAuthorize("@licenseAuthorization.canAccessLicense(authentication, #licenseId)")
     public ResponseEntity<LicenseResource> getLicense(Integer licenseId) {
         if(licenseId == null || licenseId <= 0){
             return ResponseEntity.badRequest().build();
@@ -63,6 +66,7 @@ public class LicensesController implements LicensesApi {
     }
 
     @Override
+    @PreAuthorize("@licenseAuthorization.canListLicenses(authentication, #userId)")
     public ResponseEntity<List<LicenseResource>> listLicenses(UUID userId) {
         List<LicenseRecord> dbLicenses = new ArrayList<>();
         List<LicenseResource> apiLicenses = new ArrayList<>();
@@ -89,6 +93,7 @@ public class LicensesController implements LicensesApi {
     }
 
     @Override
+    @PreAuthorize("@licenseAuthorization.canAccessLicense(authentication, #licenseId)")
     public ResponseEntity<LicenseResource> updateLicenseStatus(Integer licenseId, UpdateLicenseStatusRequest updateLicenseStatusRequest) {
         if(licenseId == null || licenseId <= 0 || updateLicenseStatusRequest == null){
             return ResponseEntity.badRequest().build();

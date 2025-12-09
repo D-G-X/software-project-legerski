@@ -1,10 +1,7 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.AuthenticationApi;
-import de.hft.licensing.model.LoginRequest;
-import de.hft.licensing.model.LoginResource;
-import de.hft.licensing.model.RegisterRequest;
-import de.hft.licensing.model.RegisterResource;
+import de.hft.licensing.model.*;
 import de.hft.licensing.services.KeycloakAuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
