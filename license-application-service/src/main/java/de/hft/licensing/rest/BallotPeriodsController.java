@@ -7,6 +7,7 @@ import de.hft.licensing.db.tables.BallotPeriod;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.*;
+import de.hft.licensing.services.DistributionAlgorithmService;
 import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.impl.DefaultDSLContext;
@@ -22,9 +23,11 @@ import java.util.List;
 @PreAuthorize("hasRole('admin')")
 public class BallotPeriodsController implements BallotPeriodsApi {
     private final DefaultDSLContext dslContext;
+    private final DistributionAlgorithmService distributionAlgorithmService;
 
-    public BallotPeriodsController(DefaultDSLContext dslContext) {
+    public BallotPeriodsController(DefaultDSLContext dslContext, DistributionAlgorithmService distributionAlgorithmService) {
         this.dslContext = dslContext;
+        this.distributionAlgorithmService = distributionAlgorithmService;
     }
 
     @Override
@@ -97,13 +100,50 @@ public class BallotPeriodsController implements BallotPeriodsApi {
 
     @Override
     @AdminOnly
-    public ResponseEntity<RunLotteryForBallotPeriod200Response> runLotteryForBallotPeriod(Integer periodId, RunLotteryForBallotPeriodRequest runLotteryForBallotPeriodRequest) {
-        // implement lottery logic
-        // create ballot
-        // check if active period
-        // select applications in period
+    public ResponseEntity<RunLotteryForBallotPeriod200Response> runLotteryForBallotPeriod(
+            Integer periodId,
+            RunLotteryForBallotPeriodRequest runLotteryForBallotPeriodRequest) {
 
+        if (periodId == null || periodId <= 0) {
+            return ResponseEntity.badRequest().build();
+        }
 
-        return null;
+        LicenseTypeApiEnum licenseType = runLotteryForBallotPeriodRequest != null
+                ? runLotteryForBallotPeriodRequest.getLicenseType()
+                : null;
+
+        // to be added to api.yaml to override default
+        Integer maxAccepted = null;
+
+        DistributionAlgorithmService.LotteryResult result;
+        try {
+            result = distributionAlgorithmService.runLotteryForBallotPeriod(
+                    periodId,
+                    licenseType,
+                    maxAccepted
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<ApplicationResource> selectedResources = result.selectedApplications().stream().map(record -> {
+            ApplicationResource resource = new ApplicationResource();
+            RecordToResourceMapperUtil.mapApplicationRecordToResource(record, resource);
+            return resource;
+        }).toList();
+
+        List<ApplicationResource> notSelectedResources = result.notSelectedApplications().stream().map(record -> {
+            ApplicationResource resource = new ApplicationResource();
+            RecordToResourceMapperUtil.mapApplicationRecordToResource(record, resource);
+            return resource;
+        }).toList();
+
+        RunLotteryForBallotPeriod200Response body = new RunLotteryForBallotPeriod200Response()
+                .selectedApplications(selectedResources)
+                .notSelectedApplications(notSelectedResources);
+
+        return ResponseEntity.ok(body);
     }
 }
