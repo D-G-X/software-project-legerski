@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
 import {
   validateConfirmPassword,
@@ -11,20 +11,33 @@ import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
 import "./register.css";
 import { OrDivider } from "app/common/orDivider";
+import { useRegisterUser } from "../services/authentication/authentication";
+import { useNavigate } from "react-router";
+import { AuthContext } from "app/common/AuthContext";
 
 export default function Register() {
+  const auth = useContext(AuthContext);
+  const navigate = useNavigate();
   const { t } = useTranslation();
   useDocumentTitle(t("register.title"));
 
+  useEffect(() => {
+    if (auth?.accessToken) {
+      navigate("/");
+    }
+  }, [navigate, auth?.accessToken]);
+
   const [form, setForm] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirm_password: "",
   });
 
   const [errors, setErrors] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirm_password: "",
@@ -46,8 +59,24 @@ export default function Register() {
     }));
   };
 
-  const handleSubmit = () => {
-    const nameValidateResult: validateResults = validateName(form.name);
+  const registerUser = useRegisterUser({
+    mutation: {
+      onSuccess: (data) => {
+        console.log("Registered successfully:", data.data);
+        alert("Account created successfully!");
+      },
+      onError: (error) => {
+        console.error("Registration error:", error);
+        alert("Registration failed");
+      },
+    },
+  });
+
+  const handleSubmit = async () => {
+    const fristNameValidateResult: validateResults = validateName(
+      form.firstName
+    );
+    const lastNameValidateResult: validateResults = validateName(form.lastName);
     const emailValidateResult: validateResults = validateEmail(form.email);
     const passwordValidateResult: validateResults = validatePassword(
       form.password
@@ -55,15 +84,19 @@ export default function Register() {
     const confirmPasswordValidateResult: validateResults =
       validateConfirmPassword(form.password, form.confirm_password);
     let newErrors = {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirm_password: "",
       register: "",
     };
 
-    if (!nameValidateResult.isValid) {
-      newErrors.name = nameValidateResult.message;
+    if (!fristNameValidateResult.isValid) {
+      newErrors.firstName = fristNameValidateResult.message;
+    }
+    if (!lastNameValidateResult.isValid) {
+      newErrors.lastName = lastNameValidateResult.message;
     }
     if (!emailValidateResult.isValid) {
       newErrors.email = emailValidateResult.message;
@@ -76,7 +109,8 @@ export default function Register() {
     }
 
     if (
-      newErrors.name ||
+      newErrors.firstName ||
+      newErrors.lastName ||
       newErrors.email ||
       newErrors.password ||
       newErrors.confirm_password
@@ -86,21 +120,61 @@ export default function Register() {
       return false;
     }
     setErrors({
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirm_password: "",
       register: "",
     });
 
-    // implement the API call for register;
-    alert("API has to be integrated yet!!");
-    return true;
+    // API call for register;
+    try {
+      const response = await registerUser.mutateAsync({
+        data: {
+          firstname: form.firstName,
+          lastname: form.lastName,
+          email: form.email,
+          password: form.password,
+        },
+      });
+
+      switch (response.status) {
+        case 201:
+          navigate("/login");
+          break;
+
+        default:
+          alert(t("register.registerUserAlerts.unexpectedErr"));
+      }
+      return true;
+    } catch (error: any) {
+      const status = error?.response?.status;
+
+      switch (status) {
+        case 400:
+          alert(t("register.registerUserAlerts.invalidReq"));
+          break;
+
+        case 401:
+          alert(t("register.registerUserAlerts.unAuthReq"));
+          break;
+
+        case 409:
+          alert(t("register.registerUserAlerts.userExists"));
+          break;
+
+        default:
+          alert(t("register.registerUserAlerts.serverError"));
+          break;
+      }
+      return false;
+    }
   };
 
   return (
     <div className="container mx-auto px-4 md:px-6">
-      <div className="relative min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center">
+      <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
         <div className="font-inter min-w-96">
           <FormHeader
             heading={t("register.index.headline")}
@@ -108,12 +182,12 @@ export default function Register() {
           />
           {/* Register Form */}
           <div>
-            {/* Name Field */}
+            {/* First Name Field */}
             <div className="relative mb-4 mt-8">
               <input
                 type="text"
-                id="name"
-                value={form.name}
+                id="firstName"
+                value={form.firstName}
                 placeholder=""
                 onChange={handleChange}
                 className="peer border border-mallorca-purple rounded-xl h-12 w-full px-3 pt-5 pb-2 text-mallorca-purple placeholder-transparent focus:outline-none focus:ring-1 focus:ring-mallorca-purple"
@@ -121,16 +195,43 @@ export default function Register() {
               <label
                 htmlFor="name"
                 className={`absolute left-3 text-mallorca-purple/70 text-sm transition-all duration-200 bg-white z-10 px-1 ${
-                  form.name
+                  form.firstName
                     ? "-top-2 text-xs text-mallorca-purple"
                     : "top-3.5 text-base text-mallorca-purple/50"
                 } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
               >
-                {t("register.index.nameLabel")}
+                {t("register.index.firstNameLabel")}
               </label>
-              {errors.name && (
+              {errors.firstName && (
                 <div className="text-red-500 mt-1 pl-4 text-xs">
-                  {errors.name}
+                  {errors.firstName}
+                </div>
+              )}
+            </div>
+
+            {/* Last Name Field */}
+            <div className="relative mb-4">
+              <input
+                type="text"
+                id="lastName"
+                value={form.lastName}
+                placeholder=""
+                onChange={handleChange}
+                className="peer border border-mallorca-purple rounded-xl h-12 w-full px-3 pt-5 pb-2 text-mallorca-purple placeholder-transparent focus:outline-none focus:ring-1 focus:ring-mallorca-purple"
+              />
+              <label
+                htmlFor="name"
+                className={`absolute left-3 text-mallorca-purple/70 text-sm transition-all duration-200 bg-white z-10 px-1 ${
+                  form.lastName
+                    ? "-top-2 text-xs text-mallorca-purple"
+                    : "top-3.5 text-base text-mallorca-purple/50"
+                } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
+              >
+                {t("register.index.lastNameLabel")}
+              </label>
+              {errors.lastName && (
+                <div className="text-red-500 mt-1 pl-4 text-xs">
+                  {errors.lastName}
                 </div>
               )}
             </div>

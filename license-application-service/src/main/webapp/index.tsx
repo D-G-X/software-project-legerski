@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { initReactI18next } from "react-i18next";
 import i18n from "i18next";
@@ -9,17 +9,71 @@ import german from "./locales/german.json";
 import hindi from "./locales/hindi.json";
 import indonesian from "./locales/indonesian.json";
 import spanish from "./locales/spanish.json";
+import legalNoticeEnglish from './locales/legalNoticeEnglish.json';
+import legalNoticeFrench from './locales/legalNoticeFrench.json';
+import legalNoticeGerman from './locales/legalNoticeGerman.json';
+import legalNoticeHindi from './locales/legalNoticeHindi.json';
+import legalNoticeIndonesian from './locales/legalNoticeIndonesian.json';
+import legalNoticeSpanish from './locales/legalNoticeSpanish.json';
+import contactEnglish from './locales/contactEnglish.json';
+import contactFrench from './locales/contactFrench.json';
+import contactGerman from './locales/contactGerman.json';
+import contactHindi from './locales/contactHindi.json';
+import contactIndonesian from './locales/contactIndonesian.json';
+import contactSpanish from './locales/contactSpanish.json';
 import AppRoutes from "./app/routes";
+import { AuthContext, AuthProvider } from "./app/common/AuthContext";
 import "./index.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
+const AppInitializer = () => {
+  const auth = useContext(AuthContext);
+
+  useEffect(() => {
+    const storedAccess = localStorage.getItem("accessToken");
+    const storedRefresh = localStorage.getItem("refreshToken");
+
+    if (storedAccess) auth?.setAccessToken(storedAccess);
+    if (storedRefresh) auth?.setRefreshToken(storedRefresh);
+  }, [auth]);
+
+  return <AppRoutes />;
+};
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { translation: english },
-    fr: { translation: french },
-    de: { translation: german },
-    hi: { translation: hindi },
-    id: { translation: indonesian },
-    es: { translation: spanish },
+    en: {
+      translation: english,
+      legalNotice: legalNoticeEnglish,
+      contact: contactEnglish
+    },
+    fr: {
+      translation: french,
+      legalNotice: legalNoticeFrench,
+      contact: contactFrench
+    },
+    de: {
+      translation: german,
+      legalNotice: legalNoticeGerman,
+      contact: contactGerman
+    },
+    hi: {
+      translation: hindi,
+      legalNotice: legalNoticeHindi,
+      contact: contactHindi
+    },
+    id: {
+      translation: indonesian,
+      legalNotice: legalNoticeIndonesian,
+      contact: contactIndonesian
+    },
+    es: {
+      translation: spanish,
+      legalNotice: legalNoticeSpanish,
+      contact: contactSpanish
+    },
   },
   lng: localStorage.getItem("language") || "en",
   fallbackLng: "en",
@@ -31,4 +85,13 @@ i18n.use(initReactI18next).init({
 axios.defaults.baseURL = process.env.API_PATH;
 
 const root = document.getElementById("root")!!;
-ReactDOM.createRoot(root).render(<AppRoutes />);
+
+ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppInitializer/>
+        </AuthProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+);

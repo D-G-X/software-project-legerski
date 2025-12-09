@@ -22,7 +22,11 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/login/**").permitAll()
+                        .requestMatchers("/users/**").permitAll()
+                        .requestMatchers("/register/**").permitAll()
+                        .requestMatchers("/validation-callback/**").permitAll()
+                        .requestMatchers("/applications/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",

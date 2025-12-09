@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router";
 import Header from "app/common/header";
+import Footer from "./common/footer";
 import ErrorBoundary from "app/error/error-boundary";
 import "./app.css";
 
@@ -16,6 +17,7 @@ export default function App() {
   return (
     <>
       <Header />
+
       <div>
         {msgSuccess && (
           <p
@@ -45,6 +47,7 @@ export default function App() {
           <Outlet />
         </ErrorBoundary>
       </div>
+      <Footer />
     </>
   );
 }

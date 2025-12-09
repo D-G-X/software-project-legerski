@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
-// import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageInfo } from "./utils";
-import { Menu, Users } from "lucide-react";
+import { Menu } from "lucide-react";
+import { AuthContext } from "./AuthContext";
 
 export default function Header() {
+  const auth = useContext(AuthContext);
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLUListElement>(null);
@@ -13,32 +14,32 @@ export default function Header() {
   const language_title_img_map: Record<string, LanguageInfo> = {
     en: {
       language: t("nav.languages.en.name"),
-      img: "/images/languages/english.png",
+      img: "/images/languages/english.webp",
       imgAlt: t("nav.languages.en.iconAlt"),
     },
     fr: {
       language: t("nav.languages.fr.name"),
-      img: "/images/languages/french.png",
+      img: "/images/languages/french.webp",
       imgAlt: t("nav.languages.fr.iconAlt"),
     },
     de: {
       language: t("nav.languages.de.name"),
-      img: "/images/languages/german.png",
+      img: "/images/languages/german.webp",
       imgAlt: t("nav.languages.de.iconAlt"),
     },
     hi: {
       language: t("nav.languages.hi.name"),
-      img: "/images/languages/hindi.png",
+      img: "/images/languages/hindi.webp",
       imgAlt: t("nav.languages.hi.iconAlt"),
     },
     id: {
       language: t("nav.languages.id.name"),
-      img: "/images/languages/indonesian.png",
+      img: "/images/languages/indonesian.webp",
       imgAlt: t("nav.languages.id.iconAlt"),
     },
     es: {
       language: t("nav.languages.es.name"),
-      img: "/images/languages/spanish.png",
+      img: "/images/languages/spanish.webp",
       imgAlt: t("nav.languages.es.iconAlt"),
     },
   };
@@ -73,39 +74,8 @@ export default function Header() {
     };
   }, []);
 
-  // const headerRef = useRef<HTMLElement | null>(null);
-
-  // const handleClick = (event: Event) => {
-  //   // close any open dropdown
-  //   const $clickedDropdown = (event.target as HTMLElement).closest(
-  //     ".js-dropdown"
-  //   );
-  //   const $dropdowns = headerRef.current!.querySelectorAll(".js-dropdown");
-  //   $dropdowns.forEach(($dropdown: Element) => {
-  //     if (
-  //       $clickedDropdown !== $dropdown &&
-  //       $dropdown.getAttribute("data-dropdown-keepopen") !== "true"
-  //     ) {
-  //       $dropdown.ariaExpanded = "false";
-  //       $dropdown.nextElementSibling!.classList.add("hidden");
-  //     }
-  //   });
-
-  //   // toggle selected if applicable
-  //   if ($clickedDropdown) {
-  //     $clickedDropdown.ariaExpanded =
-  //       "" + ($clickedDropdown.ariaExpanded !== "true");
-  //     $clickedDropdown.nextElementSibling!.classList.toggle("hidden");
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   document.body.addEventListener("click", handleClick);
-  //   return () => document.body.removeEventListener("click", handleClick);
-  // }, []);
-
   return (
-    <header className="bg-gray-5 max-h-20 font-inter">
+    <header className="bg-gray-5 h-20 font-inter">
       <nav className="py-4 w-full px-5">
         <div className="flex justify-between w-full">
           {/* Title and Logo */}
@@ -115,7 +85,7 @@ export default function Header() {
               className="flex justify-center items-center py-1.5 mr-4"
             >
               <img
-                src="/images/logo.svg"
+                src="/images/logo.webp"
                 alt={t("nav.appLogoAlt")}
                 width="80"
                 height="80"
@@ -142,7 +112,7 @@ export default function Header() {
                       <img
                         src={language_title_img_map[i18n.language]?.img}
                         alt={t("app.title")}
-                        className="inline-block h-5 w-10"
+                        className="inline-block h-5 min-w-10"
                       />
                       <div className="text-md text-left h-5 min-w-18">
                         {language_title_img_map[i18n.language]?.language}
@@ -182,7 +152,7 @@ export default function Header() {
                               <img
                                 src={lang?.img}
                                 alt={t("app.title")}
-                                className="inline-block h-5 w-10"
+                                className="inline-block h-5 min-w-10"
                               />
                               <div className="text-left h-5 min-w-22">
                                 {lang?.language}
@@ -197,43 +167,40 @@ export default function Header() {
               </ul>
             </div>
 
-            {/* Contact Button */}
-            <div className="ml-1 h-full">
-              <Link
-                to="/contact"
-                className="ml-1 rounded-lg w-28 h-full flex items-center justify-center cursor-pointer text-mallorca-purple/75 hover:bg-mallorca-purple/10 text-center"
-              >
-                <div className="flex justify-between items-center gap-2 h-full rounded px-3">
-                  <div className="text-md text-left h-5">
-                    {t("nav.contactBtn")}
-                  </div>
+            {/* Signout Button */}
+            {auth?.accessToken && (
+              <div className="ml-3">
+                <button
+                  onClick={auth?.signOut}
+                  className="rounded-lg block bg-mallorca-purple border-2 border-mallorca-purple text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
+                >
+                  {t("nav.signOutBtn")}
+                </button>
+              </div>
+            )}
 
-                  <span className="items-baseline inline-flex">
-                    <Users size={20} />
-                  </span>
+            {!auth?.accessToken && (
+              <>
+                {/* Signin Button */}
+                <div className="ml-3">
+                  <Link
+                    to="/login"
+                    className="block rounded-lg bg-mallorca-purple/75 border-2 border-mallorca-purple/75 text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
+                  >
+                    {t("nav.signInBtn")}
+                  </Link>
                 </div>
-              </Link>
-            </div>
-
-            {/* Signin Button */}
-            <div className="ml-3">
-              <Link
-                to="/login"
-                className="block rounded-lg bg-mallorca-purple/75 border-2 border-mallorca-purple/75 text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
-              >
-                {t("nav.signInBtn")}
-              </Link>
-            </div>
-
-            {/* Register Button */}
-            <div className="ml-3">
-              <Link
-                to="/register"
-                className="rounded-lg block bg-mallorca-purple border-2 border-mallorca-purple text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
-              >
-                {t("nav.registerBtn")}
-              </Link>
-            </div>
+                {/* Register Button */}
+                <div className="ml-3">
+                  <Link
+                    to="/register"
+                    className="rounded-lg block bg-mallorca-purple border-2 border-mallorca-purple text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
+                  >
+                    {t("nav.registerBtn")}
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Hamburger Navigation Menu */}

@@ -7,9 +7,11 @@ info:
     Supports GDPR-compliant user management through Keycloak integration and ensures transparent, fair allocation of ETV licenses.
 
 servers:
-  - url: https://localhost
+  - url: https://localhost:8080/
 
 tags:
+  - name: Authentication
+    description: Endpoints for user authentication and token management via Keycloak.
   - name: Users
     description: Operations related to user management including account creation, updates, and authentication.
   - name: Applications
@@ -22,12 +24,60 @@ tags:
     description: Processing and tracking payments related to license applications and renewals.
   - name: Consent
     description: Managing user consents for data processing and compliance with regulatory requirements.
+  - name: Ballot Periods
+    description: Managing ballot periods for fair allocation of holiday rental licenses.
 
 
 security:
   - KeycloakOAuth2: [openid, profile, email]
 
 paths:
+  /login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate a user and obtain JWT access and refresh tokens.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResource"
+        "401":
+          description: Unauthorized - invalid credentials
+
+  /register:
+    post:
+      tags: [Authentication]
+      summary: User registration
+      description: Register a new user account in the system.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResource"
+        "400":
+          description: Bad request - invalid input data
+        "409":
+            description: Conflict - user already exists
+
   /users:
     get:
       tags: [Users]
@@ -194,9 +244,9 @@ paths:
             type: string
             format: uuid
       responses:
-        "201":
+        "401":
           description: Unauthorized
-        "203":
+        "403":
           description: Forbidden
         "204":
           description: User deleted
@@ -325,103 +375,81 @@ paths:
         '403':
           description: Forbidden - insufficient permissions
 
-
-  /applications/{applicationId}/documents:
+  /validation-callback:
     post:
       tags: [Document Verification]
-      summary: Upload a document for an application
-      description: Upload a supporting document for an application.
-      operationId: uploadDocument
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                document_type:
-                  type: string
-                  example: "proof_of_ownership"
-      responses:
-        "201":
-          description: Document uploaded
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApplicationDocumentResource"
-
-    get:
-      tags: [Document Verification]
-      summary: List documents for an application
-      description: List all uploaded documents belonging to a specific application.
-      operationId: listDocuments
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: List of documents
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ApplicationDocumentResource"
-
-  /applications/{applicationId}/documents/{documentId}/verification:
-    post:
-      tags: [Document Verification]
-      summary: Verify or reject a submitted document
-      description: Update the verification status of a submitted document, marking it as pending, verified, or rejected.
-      operationId: verifyDocument
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: documentId
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Endpoint for mock to send document validation results
+      description: Endpoint for mock to send document validation results
+      operationId: documentValidationCallback
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - application_id
+                - status
               properties:
-                verification_status:
+                application_id:
+                  type: integer
+                  description: ID of the application being validated
+                  example: 1
+                status:
                   type: string
-                  enum: [pending, verified, rejected]
-                remarks:
+                  description: Validation result
+                  enum:
+                    - VERIFIED
+                    - REJECTED
+                rejection_reason:
                   type: string
+                  nullable: true
+                  description: Reason for rejection (only present if status = REJECTED)
+      responses:
+        default:
+          description: No response expected
+
+  /applications/{applicationId}/documents:
+    get:
+      tags: [Document Verification]
+      summary: Get document validation status for an application
+      description: Returns the validation result of the documents belonging to an application
+      operationId: getApplicationDocuments
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the application
       responses:
         "200":
-          description: Document verification status updated
+          description: Document validation result found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApplicationDocumentResource"
+                type: object
+                required:
+                  - application_id
+                  - status
+                properties:
+                  application_id:
+                    type: integer
+                    description: ID of the application being validated
+                    example: 1
+                  status:
+                    type: string
+                    description: Validation result
+                    enum:
+                      - VERIFIED
+                      - REJECTED
+                  rejection_reason:
+                    type: string
+                    nullable: true
+                    description: Reason for rejection (only present if status = REJECTED)
+        "404":
+          description: Application not found
+
 
   /applications/{applicationId}/payments:
     get:
@@ -468,39 +496,6 @@ paths:
       responses:
         "201":
           description: Payment recorded
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApplicationPaymentResource"
-
-  /applications/{applicationId}/payments/{paymentId}:
-    patch:
-      tags: [Payments]
-      summary: Update a payment for an application
-      description: Update the details of an existing direct debit payment related to a holiday rental license application.
-      operationId: updatePayment
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: applicationId
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: paymentId
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ApplicationPaymentCreate"
-      responses:
-        "200":
-          description: Payment details updated
           content:
             application/json:
               schema:
@@ -863,6 +858,94 @@ components:
             email: Email access
 
   schemas:
+    LoginRequest:
+        type: object
+        description: Request payload for user login.
+        properties:
+          email:
+            type: string
+            format: email
+            description: User's username.
+            example: johndoe@email.com
+          password:
+            type: string
+            format: password
+            description: User's password.
+            example: securepassword123
+        required:
+            - username
+            - password
+    LoginResource:
+        type: object
+        description: Response payload containing authentication tokens.
+        properties:
+          access_token:
+            type: string
+            description: JWT access token for authenticated requests.
+            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..
+            x-field-extra-annotation: '@JsonProperty("access_token")'
+          refresh_token:
+            type: string
+            description: Token used to obtain a new access token.
+            example: dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...
+            x-field-extra-annotation: '@JsonProperty("refresh_token")'
+          expires_in:
+            type: integer
+            description: Time in seconds until the access token expires.
+            example: 3600
+            x-field-extra-annotation: '@JsonProperty("expires_in")'
+          refresh_expires_in:
+            type: integer
+            description: Time in seconds until the refresh token expires.
+            example: 86400
+            x-field-extra-annotation: '@JsonProperty("refresh_expires_in")'
+          token_type:
+            type: string
+            description: Type of the token issued.
+            example: Bearer
+            x-field-extra-annotation: '@JsonProperty("token_type")'
+        required:
+            - access_token
+            - refresh_token
+            - expires_in
+            - token_type
+    RegisterRequest:
+      type: object
+      description: Request payload for user registration.
+      properties:
+        firstname:
+          type: string
+          description: User's first name.
+          example: John
+        lastname:
+          type: string
+          description: User's last name.
+          example: Doe
+        email:
+          type: string
+          format: email
+          description: User's email address.
+          example: johndoe@email.com
+        password:
+          type: string
+          format: password
+          description: User's desired password.
+          example: securepassword123
+
+    RegisterResource:
+      type: object
+      description: Response payload after successful user registration.
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: Unique identifier of the newly created user.
+          example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
+        message:
+          type: string
+          description: Confirmation message.
+          example: User registered successfully. Please verify your email to activate the account.
+
     UserResource:
       type: object
       description: Represents a user of the holiday rental licensing portal, typically sourced from a Keycloak identity provider.
