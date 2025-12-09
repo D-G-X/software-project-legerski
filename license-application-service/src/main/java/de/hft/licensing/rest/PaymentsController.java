@@ -35,12 +35,12 @@ public class PaymentsController implements PaymentsApi {
         }
         LocalDateTime now = LocalDateTime.now();
         var dbPayment = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
-            .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
-            .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, new BigDecimal("99.99")) //TODO: add amount to model and DB
-            .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
-            .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
-            .returning()
-            .fetchOneInto(ApplicationPaymentRecord.class);
+                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
+                .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, new BigDecimal("99.99")) //TODO: add amount to model and DB
+                .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
+                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
+                .returning()
+                .fetchOneInto(ApplicationPaymentRecord.class);
 
         if(dbPayment == null) {
             return ResponseEntity.status(500).build();
@@ -59,16 +59,16 @@ public class PaymentsController implements PaymentsApi {
             return ResponseEntity.badRequest().build();
         }
         if(!dsl.fetchExists(
-            dsl.selectOne()
-                .from(Application.APPLICATION)
-                .where(Application.APPLICATION.ID.eq(applicationId))
+                dsl.selectOne()
+                        .from(Application.APPLICATION)
+                        .where(Application.APPLICATION.ID.eq(applicationId))
         )) {
             return ResponseEntity.notFound().build();
         }
         var payments = dsl.select()
-            .from(ApplicationPayment.APPLICATION_PAYMENT)
-            .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(applicationId))
-            .fetchInto(ApplicationPaymentRecord.class);
+                .from(ApplicationPayment.APPLICATION_PAYMENT)
+                .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(applicationId))
+                .fetchInto(ApplicationPaymentRecord.class);
 
         List<ApplicationPaymentResource> mappedPayments = payments.stream().map(record -> {
             ApplicationPaymentResource resource = new ApplicationPaymentResource();

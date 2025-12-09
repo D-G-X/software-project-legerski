@@ -35,8 +35,8 @@ public class LicensesController implements LicensesApi {
         }
 
         int deletedRows = dsl.deleteFrom(License.LICENSE)
-            .where(License.LICENSE.ID.eq(licenseId))
-            .execute();
+                .where(License.LICENSE.ID.eq(licenseId))
+                .execute();
 
         if(deletedRows > 0){
             return ResponseEntity.noContent().build();
@@ -53,9 +53,9 @@ public class LicensesController implements LicensesApi {
         }
 
         var dbLicense = dsl.select()
-            .from(License.LICENSE)
-            .where(License.LICENSE.ID.eq(licenseId))
-            .fetchOneInto(LicenseRecord.class);
+                .from(License.LICENSE)
+                .where(License.LICENSE.ID.eq(licenseId))
+                .fetchOneInto(LicenseRecord.class);
 
         if (dbLicense != null){
             LicenseResource apiLicense = new LicenseResource();
@@ -72,13 +72,13 @@ public class LicensesController implements LicensesApi {
         List<LicenseResource> apiLicenses = new ArrayList<>();
         if(userId != null) {
             dbLicenses = dsl.select()
-                .from(License.LICENSE)
-                .where(License.LICENSE.USER_ID.eq(userId.toString()))
-                .fetchInto(LicenseRecord.class);
+                    .from(License.LICENSE)
+                    .where(License.LICENSE.USER_ID.eq(userId.toString()))
+                    .fetchInto(LicenseRecord.class);
         } else {
             dbLicenses = dsl.select()
-                .from(License.LICENSE)
-                .fetchInto(LicenseRecord.class);
+                    .from(License.LICENSE)
+                    .fetchInto(LicenseRecord.class);
         }
 
         for(LicenseRecord dbLicense : dbLicenses){
@@ -88,8 +88,8 @@ public class LicensesController implements LicensesApi {
         }
 
         return !apiLicenses.isEmpty()
-            ? ResponseEntity.ok(apiLicenses)
-            : ResponseEntity.notFound().build();
+                ? ResponseEntity.ok(apiLicenses)
+                : ResponseEntity.notFound().build();
     }
 
     @Override
@@ -99,10 +99,10 @@ public class LicensesController implements LicensesApi {
             return ResponseEntity.badRequest().build();
         }
         var dbLicense = dsl.update(License.LICENSE)
-            .set(License.LICENSE.LICENSE_STATUS, (LicenseStatus) EnumMapperUtil.getPendantFromEnum(updateLicenseStatusRequest.getLicenseStatus()))
-            .where(License.LICENSE.ID.eq(licenseId))
-            .returning()
-            .fetchOneInto(LicenseRecord.class);
+                .set(License.LICENSE.LICENSE_STATUS, (LicenseStatus) EnumMapperUtil.getPendantFromEnum(updateLicenseStatusRequest.getLicenseStatus()))
+                .where(License.LICENSE.ID.eq(licenseId))
+                .returning()
+                .fetchOneInto(LicenseRecord.class);
 
         if(dbLicense != null){
             LicenseResource apiLicense = new LicenseResource();
