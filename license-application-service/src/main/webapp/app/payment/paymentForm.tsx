@@ -28,38 +28,48 @@ type Props = {
   payment_status?: string;
 };
 
-export default async function PaymentConfirm() {
+export default function PaymentConfirm() {
   const {t} = useTranslation();
   const navigate = useNavigate();
   const mutation = useCreatePayment();
+  const { id } = useParams<{ id: string }>();
+
+  const [amount, setAmount] = useState<number | null>(null);
 
   async function getAmount(applicationId: number): Promise<number | null> {
     try {
       const res = await getApplicationFee(applicationId);
-      const amount = res?.data?.fee_amount;
-      return amount != null ? amount : null;
+      return res?.data?.fee_amount ?? null;
     } catch {
       return null;
     }
   }
 
-  const { id } = useParams<{ id: string }>();
+  useEffect(() => {
+    if (!id) {
+      alert("Invalid application data received. Redirecting to dashboard.");
+      navigate("/");
+      return;
+    }
 
-  if (!id) {
-    alert("Invalid application data received. Redirecting to dashboard.");
-    navigate("/");
-    return null;
-  }
+    const applicationId = parseInt(id, 10);
 
-  const amount = await getAmount(parseInt(id, 10));
+    getAmount(applicationId).then((fee) => {
+      if (fee === null) {
+        alert("Invalid application data received. Redirecting to dashboard.");
+        navigate("/");
+        return;
+      }
+      setAmount(fee);
+    });
+  }, [id, navigate]);
+
   if (amount === null) {
-    alert("Invalid application data received. Redirecting to dashboard.");
-    navigate("/");
     return null;
   }
 
   const stateData: Props = {
-    application_id: parseInt(id, 10),
+    application_id: parseInt(id!, 10),
     amount,
   };
 
@@ -70,10 +80,9 @@ export default async function PaymentConfirm() {
 
   useEffect(() => {
     if (!applicationResponse) return;
-
     if (!applicationData || applicationData.id === undefined) {
       alert("Invalid application data received. Redirecting to dashboard.");
-      navigate(`/`);
+      navigate("/");
     }
   }, [applicationResponse, applicationData, navigate]);
 
@@ -163,10 +172,6 @@ export default async function PaymentConfirm() {
           response.data.bic === stateData.bic;
 
       if (!isEqual) {
-        console.error("Response data does not match submitted data:", {
-          submitted: postData,
-          received: response.data,
-        });
         throw new Error("Response data mismatch");
       }
 
@@ -176,7 +181,6 @@ export default async function PaymentConfirm() {
 
       navigate(`/payment/${stateData.application_id}/done`, {state: stateData});
     } catch (err) {
-      console.error("Payment submission error:", err);
       setErrors((prev) => ({...prev, pay: "Payment failed"}));
     } finally {
       setLoading(false);
@@ -187,15 +191,13 @@ export default async function PaymentConfirm() {
 
   return (
       <div className="container mx-auto px-4 md:px-6">
-        <div
-            className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
+        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
           {!loading ?
               <div className="font-inter min-w-96">
                 <FormHeader
                     heading={t("paymentForm.index.headline")}
                     subHeading={t("paymentForm.index.subHeadline")}
                 />
-                {/* Amount Field */}
                 <div className="relative mt-12 bg-gray-50 px-3 pt-5 pb-2 rounded-xl">
                   <div className="flex justify-between items-baseline text-xl font-semibold">
                     <span>{t("paymentForm.index.amountLabel") + ": "}</span>
@@ -210,9 +212,7 @@ export default async function PaymentConfirm() {
                   </div>
                 </div>
 
-                {/* PaymentForm Form */}
                 <div>
-                  {/* Name Field */}
                   <div className="relative mt-8 mb-4">
                     <input
                         type="text"
@@ -239,7 +239,6 @@ export default async function PaymentConfirm() {
                     )}
                   </div>
 
-                  {/* IBAN Field */}
                   <div className="relative my-4">
                     <input
                         type="text"
@@ -266,7 +265,6 @@ export default async function PaymentConfirm() {
                     )}
                   </div>
 
-                  {/* BIC Field */}
                   <div className="relative my-4">
                     <input
                         type="text"
@@ -298,7 +296,6 @@ export default async function PaymentConfirm() {
                     )}
                   </div>
 
-                  {/* SEPA Mandate Check Field */}
                   <div className="relative mt-4 pt-2">
                     <div className="flex items-center gap-4">
                       <label
@@ -366,11 +363,9 @@ export default async function PaymentConfirm() {
                   <button
                       type="submit"
                       onClick={handleSubmit}
-                      className={`mt-8
-                ${errors.pay
-                          ? "bg-mallorca-purple/75"
-                          : "bg-mallorca-purple"
-                      } text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90`}
+                      className={`mt-8 ${
+                          errors.pay ? "bg-mallorca-purple/75" : "bg-mallorca-purple"
+                      } text-white px-10 py-2 rounded-md w-96 font-medium text-lg`}
                   >
                     {t("paymentForm.index.payButtonLabel")}
                   </button>
@@ -384,19 +379,23 @@ export default async function PaymentConfirm() {
                   >
                     {t("paymentForm.index.cancelButtonLabel")}
                   </button>
-                  <p className="mt-1 font-inter text-center text-gray-600 text-sm">{t("paymentForm.index.cancelNote.label1")}</p>
-                  <p className="mt-1 font-inter text-center text-gray-600 text-sm">{t("paymentForm.index.cancelNote.label2")}</p>
+                  <p className="mt-1 font-inter text-center text-gray-600 text-sm">
+                    {t("paymentForm.index.cancelNote.label1")}
+                  </p>
+                  <p className="mt-1 font-inter text-center text-gray-600 text-sm">
+                    {t("paymentForm.index.cancelNote.label2")}
+                  </p>
                 </div>
               </div>
               :
               <div className="font-inter text-center">
                 {/* Loading Screen */}
-                <div
-                    className="w-16 h-16 border-6 border-gray-200 border-t-mallorca-purple rounded-full animate-spin mx-auto"/>
-                <p className="mt-6 font-light text-xl text-gray-600 relative inline-block">{t("paymentForm.processing")}
+                <div className="w-16 h-16 border-6 border-gray-200 border-t-mallorca-purple rounded-full animate-spin mx-auto"/>
+                <p className="mt-6 font-light text-xl text-gray-600 relative inline-block">
+                  {t("paymentForm.processing")}
                   <span className="absolute left-full">
-                <AnimatedDots speed={400}/>
-              </span>
+                    <AnimatedDots speed={400}/>
+                  </span>
                 </p>
               </div>
           }
