@@ -518,7 +518,7 @@ export default function RequestApplication() {
           <div
             className="min-w-100 min-h-full inset-0 bg-center bg-cover bg-no-repeat rounded-4xl"
             style={{
-              backgroundImage: "url('/images/request_form_image.png')",
+              backgroundImage: "url('/images/request_form_image.webp')",
               backgroundPosition: "center bottom",
             }}
           ></div>
