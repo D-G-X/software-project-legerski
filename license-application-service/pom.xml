@@ -233,4 +233,39 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>reset-db</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>sql-maven-plugin</artifactId>
+                        <version>1.5</version>
+                        <configuration>
+                            <driver>org.postgresql.Driver</driver>
+                            <url>${db.url}</url>
+                            <username>${db.username}</username>
+                            <password>${db.password}</password>
+                            <autocommit>true</autocommit>
+                            <encoding>UTF-8</encoding>
+                            <sqlCommand>
+                                DROP SCHEMA IF EXISTS licensing CASCADE;
+                                CREATE SCHEMA licensing;
+                                DROP TABLE IF EXISTS public.databasechangelog CASCADE;
+                                DROP TABLE IF EXISTS public.databasechangeloglock CASCADE;
+                            </sqlCommand>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
+                                <version>${postgresql.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
