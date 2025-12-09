@@ -684,6 +684,12 @@ paths:
           required: true
           schema:
             type: integer
+        - name: licensesCount
+          description: Number of licenses to allocate in this lottery round
+          in: query
+          schema:
+            type: integer
+            minimum: 1
       requestBody:
         required: false
         content:
