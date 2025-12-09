@@ -27,7 +27,7 @@ The mock bank service listens on port `8082` and exposes the following endpoint:
     "amount": "number",
     "name": "string",
     "iban": "string",
-    "bic": "string" // optional for Spanis IBANs
+    "bic": "string" // optional for Spanish IBANs
 }
 ```
 > Rate limiting may apply to this endpoint.
