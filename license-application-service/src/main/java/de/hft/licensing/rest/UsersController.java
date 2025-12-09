@@ -6,11 +6,14 @@ import de.hft.licensing.db.tables.records.UserRecord;
 import de.hft.licensing.model.CreateUserRequest;
 import de.hft.licensing.model.UpdateUserRequest;
 import de.hft.licensing.model.UserResource;
+import de.hft.licensing.services.KeycloakAuthService;
+import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.net.URI;
 import java.util.List;
@@ -20,22 +23,21 @@ import java.util.UUID;
 public class UsersController implements UsersApi {
 
     private final DSLContext dsl;
+    private final KeycloakAuthService keycloakAuthService;
 
-    public UsersController(DSLContext dsl) {
+    public UsersController(DSLContext dsl, KeycloakAuthService keycloakAuthService) {
+        this.keycloakAuthService = keycloakAuthService;
         this.dsl = dsl;
+
     }
 
-    /*
-    TODO: Integrate with Keycloak for user management
-     */
-
     @Override
+    @AdminOnly
     public ResponseEntity<Void> createUser(CreateUserRequest createUserRequest) {
         if (createUserRequest == null || createUserRequest.getSchema() == null || createUserRequest.getSchema().getUsername() == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        // no keycloal integration yet, just create a local user id
         String id = UUID.randomUUID().toString();
 
         try {
@@ -54,19 +56,45 @@ public class UsersController implements UsersApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<Void> deleteUser(UUID userId) {
         if (userId == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        int deleted = dsl.deleteFrom(User.USER)
+        boolean exists = dsl.fetchExists(
+                dsl.selectOne()
+                        .from(User.USER)
+                        .where(User.USER.ID.eq(userId.toString()))
+        );
+        if (!exists) {
+            return ResponseEntity.notFound().build();
+        }
+
+        boolean deletedInKeycloak;
+        try {
+            deletedInKeycloak = keycloakAuthService.deleteUserInKeycloak(userId);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(502).build();
+        }
+
+        if (!deletedInKeycloak) {
+            return ResponseEntity.notFound().build();
+        }
+
+        int deletedRows = dsl.deleteFrom(User.USER)
                 .where(User.USER.ID.eq(userId.toString()))
                 .execute();
 
-        return deleted > 0 ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        if (deletedRows == 0) {
+            return ResponseEntity.status(500).build();
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<UserResource> getUser(UUID userId) {
         if (userId == null) {
             return ResponseEntity.badRequest().build();
@@ -80,27 +108,51 @@ public class UsersController implements UsersApi {
             return ResponseEntity.notFound().build();
         }
 
-        // only id column, other attributes are managed by Keycloak??
         UserResource user = new UserResource();
+        KeycloakAuthService.KeycloakUserRecord kcUser = keycloakAuthService.getUserById(userId);
+        if (kcUser != null) {
+            user.setUsername(kcUser.username());
+            user.setEmail(kcUser.email());
+            user.setFirstName(kcUser.firstName());
+            user.setLastName(kcUser.lastName());
+            user.setEnabled(kcUser.enabled());
+            user.setEmailVerified(kcUser.emailVerified());
+            user.setCreatedTimestamp(kcUser.createdTimestamp());
+        }
         user.setId(userId);
         return ResponseEntity.ok(user);
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<List<UserResource>> listUsers(String username, String email, Integer first, Integer max) {
         // only column is id, so ignore filters for now
         int offset = (first == null || first < 0) ? 0 : first;
         int limit = (max == null || max <= 0) ? 100 : Math.min(max, 100);
 
-        var idsList = dsl.select()
+        var userRecords = dsl.select()
                 .from(User.USER)
                 .offset(offset)
                 .limit(limit)
                 .fetchInto(UserRecord.class);
 
-        List<UserResource> result = idsList.stream().map(record -> {
+        List<UserResource> result = userRecords.stream().map(record -> {
             UserResource user = new UserResource();
             RecordToResourceMapperUtil.mapUserRecordToResource(record, user);
+
+            UUID userId = UUID.fromString(record.getId());
+
+            KeycloakAuthService.KeycloakUserRecord kcUser = keycloakAuthService.getUserById(userId);
+
+            if (kcUser != null) {
+                user.setUsername(kcUser.username());
+                user.setEmail(kcUser.email());
+                user.setFirstName(kcUser.firstName());
+                user.setLastName(kcUser.lastName());
+                user.setEnabled(kcUser.enabled());
+                user.setEmailVerified(kcUser.emailVerified());
+                user.setCreatedTimestamp(kcUser.createdTimestamp());
+            }
             return user;
         }).toList();
 
@@ -108,6 +160,7 @@ public class UsersController implements UsersApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<Void> updateUser(String userId, UpdateUserRequest updateUserRequest) {
         if (userId == null || updateUserRequest == null) {
             return ResponseEntity.badRequest().build();
@@ -128,8 +181,13 @@ public class UsersController implements UsersApi {
             return ResponseEntity.notFound().build();
         }
 
-        // No local columns to update in this schema; user attributes are managed by Keycloak.
-        // integrate with Keycloak, perform that call here
+        // Keycloak-Update
+        try {
+            keycloakAuthService.updateUser(id, updateUserRequest);
+        } catch (RestClientResponseException e) {
+            return ResponseEntity.status(e.getRawStatusCode()).build();
+        }
+
         return ResponseEntity.noContent().build();
     }
 }
