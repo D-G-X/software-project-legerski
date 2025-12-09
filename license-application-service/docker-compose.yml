@@ -51,6 +51,18 @@ services:
       - "8083:8080"
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: .                
+      dockerfile: Dockerfile.frontend 
+    container_name: react-frontend
+    ports:
+      - "80:80"   
+    depends_on:
+      - nginx     
+    networks:
+      - app-network
+
   # THE ACTUAL BACKENDS
   backend1:
     image: license-application-service-backend
