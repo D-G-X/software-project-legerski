@@ -1,5 +1,3 @@
-import {useTranslation} from "react-i18next";
-
 export const formatAmount = (raw: number | undefined, t: (k:string)=>string): string => {
   if (raw === undefined) return "";
   return new Intl.NumberFormat(t("locale"), {
