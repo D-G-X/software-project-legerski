@@ -13,6 +13,7 @@ import RequestApplication from "./license/request-application/request-applicatio
 import ApplicationDocumentUpload from "./license/document-upload/document-upload";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
+import NotificationSettings from "./notification-setting/notification-setting";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -26,6 +27,7 @@ export default function AppRoutes() {
         { path: "register", element: <Register /> },
         { path: "/payment/:id", element: <PaymentForm /> },
         { path: "/payment/:id/done", element: <PaymentConfirm /> },
+        { path: "notification-setting", element: <NotificationSettings /> },
         {
           path: "license-application-request",
           element: <RequestApplication />,

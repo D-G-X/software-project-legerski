@@ -95,6 +95,7 @@
       "getStarted": "Get started with a new Holiday Rental Licence",
       "manageApplications": " or manage your application in one place!"
     },
+    "noApplications": "You haven’t submitted any license applications yet",
     "buttonLabel": "Request new licence",
     "title": "Your Applications",
     "licenceStatus": {

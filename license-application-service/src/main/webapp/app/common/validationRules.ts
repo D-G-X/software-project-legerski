@@ -24,7 +24,7 @@ const bicRegex = new RegExp("^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$", "i");
 const passwordRegex = new RegExp("[\\p{P}\\p{S}]", "u");
 
 // Name Validation
-export const validateName = (name: string) => {
+export const validateName = (name: string | undefined | null) => {
   if (!name) return { isValid: false, message: t("validation.name.required") };
 
   if (name.length < 2)
@@ -43,7 +43,7 @@ export const validateName = (name: string) => {
 };
 
 // Email validation
-export const validateEmail = (email: string) => {
+export const validateEmail = (email: string | undefined | null) => {
   if (!email)
     return { isValid: false, message: t("validation.email.required") };
 

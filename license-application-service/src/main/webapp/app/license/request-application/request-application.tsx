@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
 import {
   validateCadastralNumber,
@@ -14,6 +14,7 @@ import { getUserIdFromToken } from "app/common/authTokenDecode";
 // import { useGetUser } from "app/services/users/users";
 import { useCreateApplication } from "app/services/applications/applications";
 import { LicenseTypeApiEnum } from "types/licenseTypeApiEnum";
+import { useGetUser } from "app/services/users/users";
 
 export default function RequestApplication() {
   const auth = useContext(AuthContext);
@@ -23,33 +24,17 @@ export default function RequestApplication() {
 
   const userID = getUserIdFromToken(auth?.accessToken);
 
-  // const userDetails = useGetUser(userID, {
-  //   query: {
-  //     select: (response) => {
-  //       return response.data;
-  //     },
-  //   },
-  // });
-
-  // console.log(userDetails.data);
-
-  const rentalLicenseType = [
-    {
-      value: t("license.request.rentalType.types.ETV.value"),
-      label: t("license.request.rentalType.types.ETV.label"),
-      description: t("license.request.rentalType.types.ETV.description"),
+  const userDetails = useGetUser(userID, {
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
     },
-    {
-      value: t("license.request.rentalType.types.ETVPL.value"),
-      label: t("license.request.rentalType.types.ETVPL.label"),
-      description: t("license.request.rentalType.types.ETVPL.description"),
+    query: {
+      select: (res) => res.data,
+      enabled: !!userID,
     },
-    {
-      value: t("license.request.rentalType.types.ETV60.value"),
-      label: t("license.request.rentalType.types.ETV60.label"),
-      description: t("license.request.rentalType.types.ETV60.description"),
-    },
-  ];
+  });
 
   const [form, setForm] = useState({
     first_name: "",
@@ -73,6 +58,37 @@ export default function RequestApplication() {
     consent_personal_data: "",
     consent_legal_data: "",
   });
+
+  // ...existing code...
+  useEffect(() => {
+    if (!userDetails.data) return;
+
+    setForm((prev) => ({
+      ...prev,
+      first_name: userDetails.data.firstName ?? prev.first_name,
+      last_name: userDetails.data.lastName ?? prev.last_name,
+      email: userDetails.data.email ?? prev.email,
+    }));
+  }, [userDetails.data]);
+  // ...existing code...
+
+  const rentalLicenseType = [
+    {
+      value: t("license.request.rentalType.types.ETV.value"),
+      label: t("license.request.rentalType.types.ETV.label"),
+      description: t("license.request.rentalType.types.ETV.description"),
+    },
+    {
+      value: t("license.request.rentalType.types.ETVPL.value"),
+      label: t("license.request.rentalType.types.ETVPL.label"),
+      description: t("license.request.rentalType.types.ETVPL.description"),
+    },
+    {
+      value: t("license.request.rentalType.types.ETV60.value"),
+      label: t("license.request.rentalType.types.ETV60.label"),
+      description: t("license.request.rentalType.types.ETV60.description"),
+    },
+  ];
 
   const handleChange = (
     e:
@@ -110,21 +126,14 @@ export default function RequestApplication() {
         console.error("Application creation error:", error);
       },
     },
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+    },
   });
 
   const handleSubmit = async (btn: string) => {
-    const firstNameValidateResult: validateResults = validateName(
-      form.first_name
-    );
-    const lastNameValidateResult: validateResults = validateName(
-      form.last_name
-    );
-
-    const emailValidateResult: validateResults = validateEmail(form.email);
-    const cadastralNumValidateResult: validateResults = validateCadastralNumber(
-      form.cadastral_number
-    );
-
     let newErrors = {
       first_name: "",
       last_name: "",
@@ -137,6 +146,17 @@ export default function RequestApplication() {
       consent_legal_data: "",
     };
 
+    const firstNameValidateResult: validateResults = validateName(
+      form.first_name
+    );
+    const lastNameValidateResult: validateResults = validateName(
+      form.last_name
+    );
+
+    const emailValidateResult: validateResults = validateEmail(form.email);
+    const cadastralNumValidateResult: validateResults = validateCadastralNumber(
+      form.cadastral_number
+    );
     if (!firstNameValidateResult.isValid) {
       newErrors.first_name = firstNameValidateResult.message;
     }
@@ -281,8 +301,9 @@ export default function RequestApplication() {
                   placeholder={t(
                     "license.request.fullName.firstNamePlaceholder"
                   )}
+                  disabled
                   onChange={handleChange}
-                  className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
+                  className="border border-mallorca-purple disabled:border-gray-300 rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full disabled:bg-gray-300 disabled:text-mallorca-purple/50"
                 />
                 {errors.first_name && (
                   <div className="text-red-500 mt-1 pl-4 text-xs">
@@ -301,8 +322,9 @@ export default function RequestApplication() {
                     placeholder={t(
                       "license.request.fullName.lastNamePlaceholder"
                     )}
+                    disabled
                     onChange={handleChange}
-                    className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
+                    className="border border-mallorca-purple disabled:border-gray-300 rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full disabled:bg-gray-300 disabled:text-mallorca-purple/50"
                   />
                   {errors.last_name && (
                     <div className="text-red-500 mt-1 pl-4 text-xs">
@@ -330,9 +352,10 @@ export default function RequestApplication() {
                 type="email"
                 id="email"
                 value={form.email}
+                disabled
                 placeholder={t("license.request.email.placeholder")}
                 onChange={handleChange}
-                className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
+                className="border border-mallorca-purple disabled:border-gray-300 rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full disabled:bg-gray-300 disabled:text-mallorca-purple/50"
               />
               {errors.email && (
                 <div className="text-red-500 mt-1 pl-4 text-xs">
