@@ -25,6 +25,17 @@
    and set their `src` folders as "Generated Sources Root".
    > ℹ️ Right-click on the folder in the Project view -> "Mark Directory as" -> "Generated Sources Root".
 
+#### Keycloak launching
+Keycloak service is required for authentication. It is launched automatically with the database using `docker compose up` command.
+
+The Keycloak admin console is accessible at [http://localhost:8081](http://localhost:8081) with the following credentials:
+- Username: `admin`
+- Password: `admin`
+
+Then, select the realm `license-realm` from the dropdown menu in the top-left corner, instead of `master`.
+
+Check that the `client-secret` is properly set in `application.yml` file, under `keycloak:client-secret`. The client secret can be found in the Keycloak admin console under "**Clients**" -> `backend-api` -> "**Credentials**" tab.
+
 ### Development
 
 1. Launch the Spring Boot configuration: `Dev LicenseApplicationService`.
