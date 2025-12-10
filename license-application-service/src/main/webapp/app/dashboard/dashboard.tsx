@@ -1,20 +1,25 @@
-import React, {useState} from "react";
-import {useTranslation} from "react-i18next";
+import React, { useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
 import Pagination from "../common/Pagination";
-import {useNavigate} from "react-router";
-import {useListApplications} from "app/services/applications/applications";
-import {ApplicationResource} from "../../types";
+import { useNavigate } from "react-router";
 import ApplicationDetails from "./applicationDetails";
+import { useListApplications } from "app/services/applications/applications";
+import { ApplicationResource } from "../../types";
+import { AuthContext } from "app/common/AuthContext";
+import { getUserIdFromToken } from "app/common/authTokenDecode";
 
 export default function Dashboard() {
-  const {t} = useTranslation();
+  const auth = useContext(AuthContext);
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const userID = getUserIdFromToken(auth?.accessToken);
   useDocumentTitle(t("home.index.headline"));
 
   const openDetails = (entry: ApplicationResource) => {
@@ -27,9 +32,18 @@ export default function Dashboard() {
     setSelectedEntry(null);
   };
 
-  const {data: response} = useListApplications({
-    user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-  });
+  const { data: response } = useListApplications(
+    {
+      user_id: userID,
+    },
+    {
+      axios: {
+        headers: {
+          Authorization: `Bearer ${auth?.accessToken}`,
+        },
+      },
+    }
+  );
 
   // response = AxiosResponse
   const applications: ApplicationResource[] = Array.isArray(response?.data)

@@ -12,6 +12,7 @@ import Payment from "./payment/payment";
 import ApplicationDocumentUpload from "./license/document-upload/document-upload";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
+import NotificationSettings from "./notification-setting/notification-setting";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -23,6 +24,7 @@ export default function AppRoutes() {
         { path: "reset-password", element: <ResetPassword /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
+        { path: "notification-setting", element: <NotificationSettings /> },
         {
           path: "license-application-request",
           element: <RequestApplication />,
