@@ -2,66 +2,153 @@ import React from "react";
 import {useTranslation} from "react-i18next";
 import {FormHeader} from "app/common/headingTitle";
 import {
-  GetApplicationDocuments200,
   ApplicationPaymentResource,
   ApplicationResource,
+  GetApplicationDocuments200,
   LicenseResource,
   UserResource
 } from "../../types";
 import {Minimize2} from "lucide-react";
 import "./applicationDetails.css";
-import {useGetApplication} from "../services/applications/applications";
 import {useListPayments} from "../services/payments/payments";
 import {useGetUser} from "../services/users/users";
-import {useGetLicense} from "../services/licenses/licenses";
+import {useGetLicense, useListLicenses} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
 import {formatAmount, formatBic, formatDate, formatIban} from "../common/format";
+import {AxiosError} from "axios";
+import {AnimatedDots} from "../common/AnimatedDots";
 
 interface ApplicationDetailsProps {
   open: boolean;
-  entry: ApplicationResource | null;
+  applicationData: ApplicationResource | null;
   onClose: () => void;
 }
 
-function getUserData(userId: string): UserResource | null {
-  const {data} = useGetUser(userId);
-  return data?.data ?? null;
+type UserDataResult = {
+  data: UserResource | null;
+  isFound: boolean;
+  isLoading: boolean;
+};
+
+type LicenseDataResult = {
+  data: LicenseResource | null;
+  isFound: boolean;
+  isLoading: boolean;
+};
+
+type DocumentDataResult = {
+  data: GetApplicationDocuments200 | null;
+  isFound: boolean;
+  isLoading: boolean;
+};
+
+type PaymentDataResult = {
+  data: ApplicationPaymentResource | null;
+  isFound: boolean;
+  isLoading: boolean;
 }
 
-function getApplicationData(applicationId: number): ApplicationResource | null {
-  const {data} = useGetApplication(applicationId);
-  return data?.data ?? null;
+function useGetUserData(userId: string): UserDataResult {
+  const {
+    data: response,
+    error,
+    isLoading
+  } = useGetUser(userId);
+
+  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  return {
+    data: response?.data ?? null,
+    isFound,
+    isLoading
+  };
 }
 
-function getLicenseData(applicationId: number): LicenseResource | null {
-  const {data} = useGetLicense(applicationId);
-  return data?.data ?? null;
+function useGetLicenseData(userId: string, applicationId: number): LicenseDataResult {
+  const {data: listResponse} = useListLicenses({user_id: userId});
+  const licenses = listResponse?.data ?? [];
+  // find license matching the application_id
+  const matching = licenses.find(lic => lic.application_id === applicationId);
+
+  const {
+    data: licenseResponse,
+    error,
+    isLoading
+  } = useGetLicense(matching?.id ?? 0, {query: {enabled: !!matching?.id},});
+
+  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  return {
+    data: licenseResponse?.data ?? null,
+    isFound,
+    isLoading
+  };
 }
 
-function getDocumentData(applicationId: number): GetApplicationDocuments200 | null {
-  const {data} = useGetApplicationDocuments(applicationId);
-  return data?.data ?? null;
+function useGetDocumentData(applicationId: number): DocumentDataResult {
+  const {
+    data: response,
+    error,
+    isLoading
+  } = useGetApplicationDocuments(applicationId);
+
+  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  return {
+    data: response?.data ?? null,
+    isFound,
+    isLoading
+  };
 }
 
-function getPaymentData(applicationId: number): ApplicationPaymentResource | null {
-  const {data} = useListPayments(applicationId);
-  return data?.data?.[0] ?? null;
+function useGetPaymentData(applicationId: number): PaymentDataResult {
+  const {
+    data: response,
+    error,
+    isLoading
+  } = useListPayments(applicationId);
+
+  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  return {
+    data: response?.data?.[0] ?? null,
+    isFound,
+    isLoading
+  };
 }
 
-export default function ApplicationDetails({open, entry, onClose}: ApplicationDetailsProps) {
-  if (!open || !entry) return null;
-
+export default function ApplicationDetails({
+                                             open,
+                                             applicationData,
+                                             onClose
+                                           }: ApplicationDetailsProps) {
+  if (!open || !applicationData) {
+    console.log("ApplicationDetails: not open");
+    return null;
+  } else {
+    console.log("ApplicationDetails: open");
+  }
   const {t} = useTranslation();
 
-  const userData = getUserData("f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3");//entry.user_id);
+  const {
+    data: userData,
+    isFound: foundUser,
+    isLoading: isLoadingUser
+  } = useGetUserData(applicationData?.user_id);
 
-  const applicationData = getApplicationData(201);//entry.id);
+  const {
+    data: licenseData,
+    isFound: foundLicense,
+    isLoading: isLoadingLicense
+  } = useGetLicenseData(userData?.id ?? "", applicationData.id);
 
-  const licenseData = getLicenseData(101);//entry.id);
+  const {
+    data: documentData,
+    isFound: foundDocument,
+    isLoading: isLoadingDocument
+  } = useGetDocumentData(applicationData.id);
 
-  const documentData = getDocumentData(entry.id);
-
-  const paymentData = getPaymentData(201);//entry.id);
+  const {
+    data: paymentData,
+    isFound: foundPayment,
+    isLoading: isLoadingPayment
+  } = useGetPaymentData(applicationData.id);
 
   return (
       <div
@@ -88,178 +175,241 @@ export default function ApplicationDetails({open, entry, onClose}: ApplicationDe
              text-mallorca-purple/75 hover:bg-mallorca-purple/10"
             ><Minimize2/>
             </button>
-            <div className="font-inter max-w-[calc(100vb-8rem)]">
-
-              <FormHeader
-                  heading={t("applicationDetails.index.headline")}
-                  subHeading={t("")}
-                  className="my-8"
-              />
-
-              {/* Application fields */}
-              <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                <div className="flex justify-between min-w-128 font-semibold">
-                  <span>{t("applicationDetails.index.applicationIdLabel") + ": "}</span>
-                  <span>{applicationData?.id}</span>
+            {(isLoadingUser || isLoadingLicense || isLoadingDocument || isLoadingPayment) ?
+                <div className="font-inter text-center">
+                  {/* Loading Screen */}
+                  <div
+                      className="w-16 h-16 border-6 border-gray-200 border-t-mallorca-purple rounded-full animate-spin mx-auto"/>
+                  <p className="mt-6 font-light text-xl text-gray-600 relative inline-block">
+                    {t("applicationDetails.loading")}
+                    <span className="absolute left-full">
+                      <AnimatedDots speed={400}/>
+                    </span>
+                  </p>
                 </div>
+                :
+                <div className="font-inter max-w-[calc(100vb-8rem)]">
 
-                <hr className="my-2 border-gray-300"/>
+                  <FormHeader
+                      heading={t("applicationDetails.index.headline")}
+                      subHeading={t("")}
+                      className="my-8"
+                  />
 
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.licenseTypeLabel") + ": "}</span>
-                  <span>{applicationData?.license_type}</span>
-                </div>
+                  {/* Application fields */}
+                  <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
 
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.cadastralIdLabel") + ": "}</span>
-                  <span>{applicationData?.cadastral_reference}</span>
-                </div>
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.statusLabel") + ": "}</span>
-                  <span>{applicationData?.application_status}</span>
-                </div>
-
-                {applicationData?.remarks && (
-                    <div className="flex justify-between min-w-128">
-                      <span>{t("applicationDetails.index.remarksLabel") + ": "}</span>
-                      <span>{applicationData?.remarks}</span>
+                    <div className="flex justify-between min-w-lg font-semibold">
+                      <span>{t("applicationDetails.index.applicationIdLabel") + ": "}</span>
+                      <span>{applicationData?.id}</span>
                     </div>
-                )}
 
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.appliedOnLabel") + ": "}</span>
-                  <span>{formatDate(applicationData?.applied_at)}</span>
-                </div>
+                    <hr className="my-2 border-gray-300"/>
 
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.lastUpdatedLabel") + ": "}</span>
-                  <span>{formatDate(applicationData?.changed_at)}</span>
-                </div>
-
-              </div>
-
-              {/* User fields */}
-              <div className="text-lg mt-4 text-mallorca-purple/70">
-                {t("applicationDetails.index.user.label")}
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.user.nameLabel") + ": "}</span>
-                  <span>{userData?.firstName + " " + userData?.lastName}</span>
-                </div>
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.user.emailLabel") + ": "}</span>
-                  <span>{userData?.email}</span>
-                </div>
-
-              </div>
-
-              {/* License fields */}
-              <div className="text-lg mt-4 text-mallorca-purple/70">
-                {t("applicationDetails.index.license.label")}
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.license.idLabel") + ": "}</span>
-                  <span>{licenseData?.id}</span>
-                </div>
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.license.statusLabel") + ": "}</span>
-                  <span>{licenseData?.license_status}</span>
-                </div>
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.license.issuedOnLabel") + ": "}</span>
-                  <span>{formatDate(licenseData?.issued_at)}</span>
-                </div>
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.license.expiresOnLabel") + ": "}</span>
-                  <span>{formatDate(licenseData?.expires_at)}</span>
-                </div>
-
-              </div>
-
-              {/* Document fields */}
-              <div className="text-lg mt-4 text-mallorca-purple/70">
-                {t("applicationDetails.index.documents.label")}
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.documents.statusLabel") + ": "}</span>
-                  <span>{documentData?.status}</span>
-                </div>
-
-                {documentData?.rejection_reason && (
-                    <div className="flex justify-between min-w-128">
-                      <span>{t("applicationDetails.index.documents.rejectionReasonLabel") + ": "}</span>
-                      <span>{documentData?.rejection_reason}</span>
+                    <div className="flex justify-between min-w-lg">
+                      <span>{t("applicationDetails.index.licenseTypeLabel") + ": "}</span>
+                      <span>{applicationData?.license_type}</span>
                     </div>
-                )}
-              </div>
 
-              {/* Payment fields */}
-              <div className="text-lg mt-4 text-mallorca-purple/70">
-                {t("applicationDetails.index.payment.label")}
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.payment.idLabel") + ": "}</span>
-                  <span>{paymentData?.id}</span>
-                </div>
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.payment.amountLabel") + ": "}</span>
-                  <span>{formatAmount(paymentData?.amount) + "*"}</span>
-                </div>
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.payment.nameLabel") + ": "}</span>
-                  <span>{paymentData?.name}</span>
-                </div>
-
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.payment.ibanLabel") + ": "}</span>
-                  <span>{formatIban(paymentData?.iban)}</span>
-                </div>
-
-                {paymentData?.bic && (
-                    <div className="flex justify-between min-w-128">
-                      <span>{t("applicationDetails.index.payment.bicLabel") + ": "}</span>
-                      <span>{formatBic(paymentData?.bic)}</span>
+                    <div className="flex justify-between min-w-lg">
+                      <span>{t("applicationDetails.index.cadastralIdLabel") + ": "}</span>
+                      <span>{applicationData?.cadastral_reference}</span>
                     </div>
-                )}
 
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.payment.dateLabel") + ": "}</span>
-                  <span>{formatDate(paymentData?.payment_date)}</span>
-                </div>
+                    <div className="flex justify-between min-w-lg">
+                      <span>{t("applicationDetails.index.statusLabel") + ": "}</span>
+                      <span
+                          className={`${
+                              // green
+                              ["SELECTED", "PAYMENT_RECEIVED"].includes(
+                                  applicationData?.application_status
+                              )
+                                  ? "text-green-800"
+                                  : // blue
+                                  ["SUBMITTED",
+                                    "UNDER_REVIEW",
+                                    "AWAITING_PAYMENT",
+                                    "APPROVED",
+                                    "IN_BALLOT",]
+                                  .includes(applicationData?.application_status)
+                                      ? "text-blue-800"
+                                      :
+                                      ["CANCELLED", "REJECTED", "NOT_SELECTED",].includes(
+                                          applicationData?.application_status
+                                      )
+                                          ? "text-red-800"
+                                          : // grey
+                                          ["DRAFT", "EXPIRED",].includes(applicationData?.application_status)
+                                              ? "text-gray-800 "
+                                              : // orange (all in-process)
+                                              ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING",].includes(applicationData?.application_status)
+                                                  ? "text-orange-800"
+                                                  : // fallback
+                                                  "text-mallorca-purple"
+                          }`}
+                      >{applicationData?.application_status}</span>
+                    </div>
 
-                <div className="flex justify-between min-w-128">
-                  <span>{t("applicationDetails.index.payment.statusLabel") + ": "}</span>
-                  <span>{paymentData?.payment_status}</span>
-                </div>
+                    {applicationData?.remarks && (
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.remarksLabel") + ": "}</span>
+                          <span>{applicationData?.remarks}</span>
+                        </div>
+                    )}
 
-              </div>
-              <div className="px-6 mt-1">
-                <span
-                    className="text-xs font-light italic">{"*" + t("applicationDetails.index.payment.taxLabel")}
+                    <div className="flex justify-between min-w-lg">
+                      <span>{t("applicationDetails.index.appliedOnLabel") + ": "}</span>
+                      <span>{formatDate(applicationData?.applied_at, t)}</span>
+                    </div>
+
+                    <div className="flex justify-between min-w-lg">
+                      <span>{t("applicationDetails.index.lastUpdatedLabel") + ": "}</span>
+                      <span>{formatDate(applicationData?.changed_at, t)}</span>
+                    </div>
+
+                  </div>
+
+                  {/* User fields */}
+                  {foundUser && (
+                      <>
+                        <div className="text-lg mt-4 text-mallorca-purple/70">
+                          {t("applicationDetails.index.user.label")}
+                        </div>
+                        <div
+                            className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.user.nameLabel") + ": "}</span>
+                            <span>{userData?.firstName + " " + userData?.lastName}</span>
+                          </div>
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.user.emailLabel") + ": "}</span>
+                            <span>{userData?.email}</span>
+                          </div>
+
+                        </div>
+                      </>
+                  )}
+
+                  {/* License fields */}
+                  {foundLicense && (
+                      <>
+                        <div className="text-lg mt-4 text-mallorca-purple/70">
+                          {t("applicationDetails.index.license.label")}
+                        </div>
+
+                        <div
+                            className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.license.idLabel") + ": "}</span>
+                            <span>{licenseData?.id}</span>
+                          </div>
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.license.statusLabel") + ": "}</span>
+                            <span>{licenseData?.license_status}</span>
+                          </div>
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.license.issuedOnLabel") + ": "}</span>
+                            <span>{formatDate(licenseData?.issued_at, t)}</span>
+                          </div>
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.license.expiresOnLabel") + ": "}</span>
+                            <span>{formatDate(licenseData?.expires_at, t)}</span>
+                          </div>
+
+                        </div>
+                      </>
+                  )}
+
+                  {/* Document fields */}
+                  {foundDocument && (
+                      <>
+                        <div className="text-lg mt-4 text-mallorca-purple/70">
+                          {t("applicationDetails.index.documents.label")}
+                        </div>
+
+                        <div
+                            className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.documents.statusLabel") + ": "}</span>
+                            <span>{documentData?.status}</span>
+                          </div>
+
+                          {documentData?.rejection_reason && (
+                              <div className="flex justify-between min-w-lg">
+                                <span>{t("applicationDetails.index.documents.rejectionReasonLabel") + ": "}</span>
+                                <span>{documentData?.rejection_reason}</span>
+                              </div>
+                          )}
+                        </div>
+                      </>
+                  )}
+
+                  {/* Payment fields */}
+                  {foundPayment && (
+                      <>
+                        <div className="text-lg mt-4 text-mallorca-purple/70">
+                          {t("applicationDetails.index.payment.label")}
+                        </div>
+
+                        <div
+                            className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.payment.idLabel") + ": "}</span>
+                            <span>{paymentData?.id}</span>
+                          </div>
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.payment.amountLabel") + ": "}</span>
+                            <span>{formatAmount(paymentData?.amount, t) + "*"}</span>
+                          </div>
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.payment.nameLabel") + ": "}</span>
+                            <span>{paymentData?.name}</span>
+                          </div>
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.payment.ibanLabel") + ": "}</span>
+                            <span>{formatIban(paymentData?.iban)}</span>
+                          </div>
+
+                          {paymentData?.bic && (
+                              <div className="flex justify-between min-w-lg">
+                                <span>{t("applicationDetails.index.payment.bicLabel") + ": "}</span>
+                                <span>{formatBic(paymentData?.bic)}</span>
+                              </div>
+                          )}
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.payment.dateLabel") + ": "}</span>
+                            <span>{formatDate(paymentData?.payment_date, t)}</span>
+                          </div>
+
+                          <div className="flex justify-between min-w-lg">
+                            <span>{t("applicationDetails.index.payment.statusLabel") + ": "}</span>
+                            <span>{paymentData?.payment_status}</span>
+                          </div>
+
+                        </div>
+                      </>
+                  )}
+                  <div className="px-6 mt-1">
+                    {foundPayment && (
+                        <span
+                            className="text-xs font-light italic">{"*" + t("applicationDetails.index.payment.taxLabel")}
                 </span>
-              </div>
-
-            </div>
+                    )}
+                  </div>
+                </div>
+            }
           </div>
         </div>
         {/* Spacer to push content above the footer */}

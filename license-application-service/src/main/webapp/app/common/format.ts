@@ -1,8 +1,7 @@
 import {useTranslation} from "react-i18next";
 
-export const formatAmount = (raw: number | undefined): string => {
+export const formatAmount = (raw: number | undefined, t: (k:string)=>string): string => {
   if (raw === undefined) return "";
-  const {t} = useTranslation();
   return new Intl.NumberFormat(t("locale"), {
     style: "currency",
     currency: "EUR",
@@ -24,9 +23,8 @@ export const formatBic = (raw: string | undefined): string => {
   return raw.replace(/\s+/g, "").toUpperCase();
 }
 
-export const formatDate = (raw: string | undefined): string => {
+export const formatDate = (raw: string | undefined, t: (k:string)=>string): string => {
   if (raw === undefined || raw === "") return "";
-  const {t} = useTranslation();
   return new Date(raw).toLocaleString(t("locale"), {
     day: "2-digit",
     month: "2-digit",

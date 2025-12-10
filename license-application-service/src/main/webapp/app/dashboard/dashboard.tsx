@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, {useState} from "react";
+import {useTranslation} from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
 import Pagination from "../common/Pagination";
-import { useNavigate } from "react-router";
-import { useListApplications } from "app/services/applications/applications";
-import { ApplicationResource } from "../../types";
+import {useNavigate} from "react-router";
+import {useListApplications} from "app/services/applications/applications";
+import {ApplicationResource} from "../../types";
 import ApplicationDetails from "./applicationDetails";
 
 export default function Dashboard() {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const navigate = useNavigate();
   const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -33,13 +33,13 @@ export default function Dashboard() {
 
   // response = AxiosResponse
   const applications: ApplicationResource[] = Array.isArray(response?.data)
-    ? response.data
-    : [];
+      ? response.data
+      : [];
   const totalPage = Math.ceil(applications.length / itemsPerPage);
 
   const currentData = applications.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
   );
 
   const formatDate = (rawDate: string | undefined) => {
@@ -58,17 +58,17 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 md:px-6">
-      <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
-        <div className="font-inter flex flex-col items-center w-full">
-          <div className="text-center mt-16 text-xl">
-            <div className="text-3xl font-bold text-mallorca-purple">
-              {t("dashboard.headline.getStarted") +
-                (applications.length > 0
-                  ? t("dashboard.headline.manageApplications")
-                  : "")}
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
+          <div className="font-inter flex flex-col items-center w-full">
+            <div className="text-center mt-16 text-xl">
+              <div className="text-3xl font-bold text-mallorca-purple">
+                {t("dashboard.headline.getStarted") +
+                    (applications.length > 0
+                        ? t("dashboard.headline.manageApplications")
+                        : "")}
+              </div>
             </div>
-          </div>
 
             <button
                 type="button"
@@ -86,6 +86,7 @@ export default function Dashboard() {
 
                   <div className="overflow-x-auto">
                     <table className="mt-8 text-lg dashboard-table text-mallorca-purple">
+                      <thead>
                       <tr>
                         <th>{t("dashboard.table.applicationId")}</th>
                         <th>{t("dashboard.table.cadastalId")}</th>
@@ -94,7 +95,9 @@ export default function Dashboard() {
                         <th>{t("dashboard.table.status")}</th>
                         <th>{t("dashboard.table.action.title")}</th>
                       </tr>
+                      </thead>
 
+                      <tbody>
                       {currentData.map((item) => (
                           <tr key={item.id}>
                             <td>{item.id}</td>
@@ -103,7 +106,7 @@ export default function Dashboard() {
                             <td>{item.license_type}</td>
                             <td>
                           <span
-                              className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[14rem] rounded-md ${
+                              className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-56 rounded-md ${
                                   // green
                                   ["SELECTED", "PAYMENT_RECEIVED"].includes(
                                       item.application_status
@@ -152,6 +155,7 @@ export default function Dashboard() {
                             </td>
                           </tr>
                       ))}
+                      </tbody>
                     </table>
 
                     <div className="my-8"/>
@@ -169,11 +173,13 @@ export default function Dashboard() {
             )}
           </div>
           {/* Application Details Modal */}
-          <ApplicationDetails
-              open={isDetailsOpen}
-              entry={selectedEntry}
-              onClose={closeDetails}
-          />
+          {isDetailsOpen && (
+            <ApplicationDetails
+                open={isDetailsOpen}
+                applicationData={selectedEntry}
+                onClose={closeDetails}
+            />
+          )}
         </div>
       </div>
   );
