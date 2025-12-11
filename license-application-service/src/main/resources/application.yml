@@ -32,7 +32,7 @@ error:
       5xx: ERROR
 
 keycloak:
-  url: http://localhost:8081
+  url: ${KEYCLOAK_AUTH_SERVER_URL}
   realm: license-realm
   client-id: backend-api
-  client-secret: CLIENT_SECRET_PLACEHOLDER
+  client-secret: "**********"

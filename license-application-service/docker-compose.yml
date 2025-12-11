@@ -75,8 +75,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/government
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=P4ssword!
-      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
-      - KEYCLOAK_AUTH-SERVER-URL=http://keycloak:8080
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
     depends_on:
       - postgres
       - keycloak
@@ -92,8 +92,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/government
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=P4ssword!
-      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
-      - KEYCLOAK_AUTH-SERVER-URL=http://keycloak:8080
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
     depends_on:
       - postgres
       - keycloak
