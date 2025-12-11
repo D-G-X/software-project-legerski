@@ -14,13 +14,10 @@ import (
 	"time"
 )
 
-const verifiedProbability = 50 // percentage chance of VERIFIED status
-
-const maxFileSize = 10 // per file in MB
-
-const maxPollRequests = 2 // max polling requests per second per client
-
-const timeout = 5 // seconds
+const verifiedProbability = 90 // percentage chance of VERIFIED status
+const maxFileSize = 10          // per file in MB
+const maxPollRequests = 2       // max polling requests per second per client
+const timeout = 5               // seconds
 
 var processDuration = []time.Duration{
 	2 * time.Second,
@@ -41,18 +38,21 @@ var rejectionReasons = []string{
 
 const callbackURL = "http://host.docker.internal:8080/validation-callback" // backend callback endpoint
 
+// Login-Konfiguration
+const loginURL = "http://localhost:8080/login"
+const loginEmail = "documentvalidator@xx.xx"
+const loginPassword = "securepassword123"
+
 var httpClient = &http.Client{
 	Timeout: timeout * time.Second,
 }
 
-// ProcessDocumentResponse Outgoing response (to client)
 type ProcessDocumentResponse struct {
 	ApplicationId   int     `json:"application_id"`
 	Status          string  `json:"status"`
 	RejectionReason *string `json:"rejection_reason,omitempty"`
 }
 
-// CallbackPayload Outgoing callback payload (to backend)
 type CallbackPayload struct {
 	ApplicationId    int     `json:"application_id"`
 	IdFilename       string  `json:"id_filename"`
@@ -61,7 +61,6 @@ type CallbackPayload struct {
 	RejectionReason  *string `json:"rejection_reason,omitempty"`
 }
 
-// JobInfo internal job storage
 type JobInfo struct {
 	ApplicationId    int
 	IdFilename       string
@@ -75,7 +74,6 @@ var (
 	mu          sync.Mutex
 )
 
-// RateInfo for limiting the number of polling requests per client
 type RateInfo struct {
 	Count     int
 	ResetTime time.Time
@@ -83,14 +81,46 @@ type RateInfo struct {
 
 var rateStore = make(map[int]*RateInfo)
 
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	AccessToken      string `json:"access_token"`
+	RefreshToken     string `json:"refresh_token"`
+	ExpiresIn        int    `json:"expires_in"`
+	RefreshExpiresIn int    `json:"refresh_expires_in"`
+	TokenType        string `json:"token_type"`
+}
+
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	http.HandleFunc("/process-document", startProcessingHandler)
-	http.HandleFunc("/process-document/status/", statusHandler)
+	// Wrap handlers with CORS middleware
+	http.HandleFunc("/process-document", corsMiddleware(startProcessingHandler))
+	http.HandleFunc("/process-document/status/", corsMiddleware(statusHandler))
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+// corsMiddleware ensures CORS headers are sent for all responses, including errors
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Always set CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000") // React frontend
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		// Handle preflight requests
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
+	}
 }
 
 func isPdf(data []byte) bool {
@@ -102,13 +132,13 @@ func isPdf(data []byte) bool {
 
 func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "only POST allowed", http.StatusMethodNotAllowed)
+		writeError(w, http.StatusMethodNotAllowed, "only POST allowed")
 		return
 	}
 
 	err := r.ParseMultipartForm(maxFileSize << 20)
 	if err != nil {
-		http.Error(w, "invalid multipart request", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "invalid multipart request")
 		return
 	}
 
@@ -159,6 +189,13 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := getAccessToken()
+	if err != nil {
+		log.Printf("failed to obtain access token: %v", err)
+		validatorOutOfService(w)
+		return
+	}
+
 	mu.Lock()
 	jobStore[applicationId] = JobInfo{
 		ApplicationId:    applicationId,
@@ -168,18 +205,17 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	mu.Unlock()
 
-	go runBackgroundJob(applicationId, idHeader.Filename, proofHeader.Filename)
+	go runBackgroundJob(applicationId, idHeader.Filename, proofHeader.Filename, token)
 
 	resp := ProcessDocumentResponse{
 		ApplicationId: applicationId,
 		Status:        "PENDING",
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	writeJSON(w, http.StatusOK, resp)
 }
 
-func runBackgroundJob(applicationId int, idFile, proofFile string) {
+func runBackgroundJob(applicationId int, idFile, proofFile, token string) {
 	time.Sleep(processDuration[rand.Intn(len(processDuration))])
 
 	status := getRandomStatus()
@@ -210,12 +246,52 @@ func runBackgroundJob(applicationId int, idFile, proofFile string) {
 		RejectionReason:  rejectionReason,
 	}
 
-	if err := sendCallback(payload); err != nil {
+	if err := sendCallback(payload, token); err != nil {
 		log.Printf("callback error for application_id=%d: %v", applicationId, err)
 	}
 }
 
-func sendCallback(p CallbackPayload) error {
+func getAccessToken() (string, error) {
+	reqBody := LoginRequest{
+		Email:    loginEmail,
+		Password: loginPassword,
+	}
+
+	bodyBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("marshal login request: %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, loginURL, bytes.NewReader(bodyBytes))
+	if err != nil {
+		return "", fmt.Errorf("create login request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("execute login request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		b, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("login returned status %s: %s", resp.Status, string(b))
+	}
+
+	var loginResp LoginResponse
+	if err := json.NewDecoder(resp.Body).Decode(&loginResp); err != nil {
+		return "", fmt.Errorf("decode login response: %w", err)
+	}
+
+	if loginResp.AccessToken == "" {
+		return "", fmt.Errorf("login response did not contain access_token")
+	}
+
+	return loginResp.AccessToken, nil
+}
+
+func sendCallback(p CallbackPayload, token string) error {
 	body, err := json.Marshal(p)
 	if err != nil {
 		return fmt.Errorf("marshal callback payload: %w", err)
@@ -227,6 +303,7 @@ func sendCallback(p CallbackPayload) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -242,15 +319,29 @@ func sendCallback(p CallbackPayload) error {
 	return nil
 }
 
-func sendErr(err error, w http.ResponseWriter) {
-	log.Printf("internal error: %v", err)
-	http.Error(w, "internal server error: "+err.Error(), http.StatusInternalServerError)
+// writeError ensures CORS headers are included for error responses
+func writeError(w http.ResponseWriter, status int, msg string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	resp := map[string]string{"error": msg}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func reject(w http.ResponseWriter, msg string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
+	resp := ProcessDocumentResponse{
+		Status:          "REJECTED",
+		RejectionReason: &msg,
+	}
+	json.NewEncoder(w).Encode(resp)
+}
 
+func validatorOutOfService(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusServiceUnavailable)
+
+	msg := "Validator is currently out of service"
 	resp := ProcessDocumentResponse{
 		Status:          "REJECTED",
 		RejectionReason: &msg,
@@ -261,20 +352,20 @@ func reject(w http.ResponseWriter, msg string) {
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "only GET allowed", http.StatusMethodNotAllowed)
+		writeError(w, http.StatusMethodNotAllowed, "only GET allowed")
 		return
 	}
 
 	base := "/process-document/status/"
 	if !strings.HasPrefix(r.URL.Path, base) {
-		http.NotFound(w, r)
+		writeError(w, http.StatusNotFound, "not found")
 		return
 	}
 
 	raw := strings.TrimPrefix(r.URL.Path, base)
 	applicationId, err := strconv.Atoi(raw)
 	if err != nil {
-		http.Error(w, "invalid application ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "invalid application ID")
 		return
 	}
 
@@ -288,12 +379,12 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	mu.Unlock()
 
 	if !exists {
-		http.Error(w, "unknown application ID", http.StatusNotFound)
+		writeError(w, http.StatusNotFound, "unknown application ID")
 		return
 	}
 
 	if !checkRateLimit(applicationId) {
-		http.Error(w, "rate limit exceeded for: "+strconv.Itoa(applicationId), http.StatusTooManyRequests)
+		writeError(w, http.StatusTooManyRequests, "rate limit exceeded")
 		return
 	}
 
@@ -303,8 +394,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		RejectionReason: reasonPtr,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	writeJSON(w, http.StatusOK, resp)
 }
 
 func checkRateLimit(applicationId int) bool {
@@ -335,4 +425,11 @@ func getRandomStatus() string {
 		return "VERIFIED"
 	}
 	return "REJECTED"
+}
+
+// writeJSON helper function
+func writeJSON(w http.ResponseWriter, status int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(data)
 }

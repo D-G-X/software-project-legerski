@@ -29,7 +29,6 @@ export default function Login() {
   });
 
   useEffect(() => {
-    console.log(auth?.accessToken);
     if (auth?.accessToken) {
       navigate("/");
     }
@@ -87,13 +86,28 @@ export default function Login() {
 
       // Check if login was successful
       if (response.status === 200) {
-        const { access_token, refresh_token } = response.data;
+        const {
+          access_token,
+          refresh_token,
+          expires_in,
+          refresh_expires_in,
+          token_type,
+        } = response.data;
 
         localStorage.setItem("accessToken", access_token);
         localStorage.setItem("refreshToken", refresh_token);
+        localStorage.setItem("accessTokenExpiry", expires_in.toString());
+        localStorage.setItem(
+          "refreshTokenExpiry",
+          refresh_expires_in ? refresh_expires_in?.toString() : ""
+        );
+        localStorage.setItem("tokenType", token_type);
 
         auth?.setAccessToken(access_token);
         auth?.setRefreshToken(refresh_token);
+        auth?.setAccessTokenExpiry(expires_in);
+        auth?.setRefreshTokenExpiry(refresh_expires_in);
+        auth?.setTokenType(refresh_token);
 
         navigate("/"); // redirect to dashboard
       } else {

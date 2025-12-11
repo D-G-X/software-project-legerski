@@ -1,23 +1,20 @@
 package de.hft.licensing.services;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.hft.licensing.db.tables.User;
-import de.hft.licensing.model.LoginRequest;
-import de.hft.licensing.model.LoginResource;
-import de.hft.licensing.model.RegisterRequest;
-import de.hft.licensing.model.RegisterResource;
+import de.hft.licensing.model.*;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -155,4 +152,116 @@ public class KeycloakAuthService {
         Map responseBody = response.getBody();
         return responseBody != null ? (String) responseBody.get("access_token") : null;
     }
+
+    public KeycloakUserRecord getUserById(UUID userId) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            return null;
+        }
+
+        String url = String.format("%s/admin/realms/%s/users/%s", keycloakUrl, realm, userId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<KeycloakUserRecord> response =
+                restTemplate.exchange(url, HttpMethod.GET, entity, KeycloakUserRecord.class);
+
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            return null;
+        }
+
+        return response.getBody();
+    }
+    public void updateUser(UUID userId, UpdateUserRequest request) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        String url = String.format("%s/admin/realms/%s/users/%s", keycloakUrl, realm, userId);
+
+        String firstName  = request.getFirstName();
+        String lastName   = request.getLastName();
+        String email      = request.getEmail();
+        Boolean enabled   = request.getEnabled();
+
+        List<KeycloakCredentialRecord> credentials = null;
+        if (request.getCredentials() != null && !request.getCredentials().isEmpty()) {
+            credentials = request.getCredentials().stream()
+                    .map(this::mapCredential)
+                    .toList();
+        }
+
+        KeycloakUserUpdateRecord payload =
+                new KeycloakUserUpdateRecord(firstName, lastName, email, enabled, credentials);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<KeycloakUserUpdateRecord> entity = new HttpEntity<>(payload, headers);
+
+        restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
+    }
+
+    public boolean deleteUserInKeycloak(UUID userId) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        String url = String.format("%s/admin/realms/%s/users/%s", keycloakUrl, realm, userId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
+            return true;
+        } catch (RestClientResponseException e) {
+            if (e.getRawStatusCode() == 404) {
+                return false;
+            }
+            throw new RuntimeException("Failed to delete user in Keycloak: " + e.getMessage(), e);
+        }
+    }
+
+    private KeycloakCredentialRecord mapCredential(UpdateUserRequestCredentialsInner src) {
+        return new KeycloakCredentialRecord(
+                src.getType().getValue(),
+                src.getValue(),
+                Boolean.TRUE.equals(src.getTemporary())
+        );
+    }
+
+    public record KeycloakUserRecord(
+            String id,
+            String username,
+            String email,
+            String firstName,
+            String lastName,
+            boolean enabled,
+            @JsonProperty("emailVerified") boolean emailVerified,
+            @JsonProperty("createdTimestamp") Long createdTimestamp
+    ) {}
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record KeycloakUserUpdateRecord(
+            String firstName,
+            String lastName,
+            String email,
+            Boolean enabled,
+            List<KeycloakCredentialRecord> credentials
+    ) {}
+
+    public record KeycloakCredentialRecord(
+            String type,
+            String value,
+            boolean temporary
+    ) {}
 }

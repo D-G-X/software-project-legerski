@@ -7,6 +7,7 @@ import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.model.DocumentValidationCallbackRequest;
 import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,6 +20,7 @@ public class DocumentVerificationController implements DocumentVerificationApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('mock_validator')")
     public ResponseEntity<Void> documentValidationCallback(DocumentValidationCallbackRequest documentValidationCallbackRequest) {
         if (documentValidationCallbackRequest.getStatus() == DocumentValidationCallbackRequest.StatusEnum.VERIFIED) {
             var updated = dsl.update(Application.APPLICATION)
@@ -46,6 +48,7 @@ public class DocumentVerificationController implements DocumentVerificationApi {
     }
 
     @Override
+    @PreAuthorize("@applicationAuthorization.canAccessApplication(authentication, #applicationId)")
     public ResponseEntity<DocumentValidationCallbackRequest> getApplicationDocuments(Integer applicationId) {
         ApplicationRecord record = dsl.selectFrom(Application.APPLICATION)
                 .where(Application.APPLICATION.ID.eq(applicationId))
