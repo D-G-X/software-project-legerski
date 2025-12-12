@@ -44,6 +44,7 @@ test-frontend:
   before_script:
     - cd license-application-service
     - npm ci --cache .npm --prefer-offline
+    - npm run generate:api
   script:
     - npm test
   cache:
