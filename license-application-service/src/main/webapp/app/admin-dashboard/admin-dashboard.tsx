@@ -158,10 +158,91 @@ export default function AdminDashboard() {
             "email": "aisha@email.com",
             "country": "Nigeria",
             "application_status": "APPROVED"
+        },
+        {
+            "id": 5,
+            "name": "David",
+            "address": "Cottage",
+            "phone_number": "555",
+            "email": "david@email.com",
+            "country": "Canada",
+            "application_status": "REJECTED"
+        },
+        {
+            "id": 6,
+            "name": "Fatima",
+            "address": "Farmhouse",
+            "phone_number": "666",
+            "email": "fatima@email.com",
+            "country": "UAE",
+            "application_status": "SUBMITTED"
+        },
+        {
+            "id": 7,
+            "name": "Liam",
+            "address": "Dorm 3A",
+            "phone_number": "777",
+            "email": "liam@email.com",
+            "country": "Ireland",
+            "application_status": "APPROVED"
+        },
+        {
+            "id": 8,
+            "name": "Sofia",
+            "address": "City Tower",
+            "phone_number": "888",
+            "email": "sofia@email.com",
+            "country": "Brazil",
+            "application_status": "SUBMITTED"
+        },
+        {
+            "id": 9,
+            "name": "Javier",
+            "address": "Suburbia",
+            "phone_number": "999",
+            "email": "javier@email.com",
+            "country": "Spain",
+            "application_status": "REJECTED"
+        },
+        {
+            "id": 10,
+            "name": "Chloe",
+            "address": "Penthouse",
+            "phone_number": "000",
+            "email": "chloe@email.com",
+            "country": "France",
+            "application_status": "APPROVED"
+        },
+        {
+            "id": 11,
+            "name": "Wei",
+            "address": "No. 1 Street",
+            "phone_number": "101",
+            "email": "wei@email.com",
+            "country": "China",
+            "application_status": "SUBMITTED"
+        },
+        {
+            "id": 12,
+            "name": "Hans",
+            "address": "Main Road 5",
+            "phone_number": "102",
+            "email": "hans@email.com",
+            "country": "Germany",
+            "application_status": "PENDING"
+        },
+        {
+            "id": 13,
+            "name": "Aisha",
+            "address": "The Coast",
+            "phone_number": "103",
+            "email": "aisha@email.com",
+            "country": "Nigeria",
+            "application_status": "APPROVED"
         }
     ];
 
-    console.log("Local Data Length:" + localData.length);
+
 
     const totalPage = Math.ceil(localData.length / itemsPerPage);
 

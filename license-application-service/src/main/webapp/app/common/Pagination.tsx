@@ -25,11 +25,11 @@ const Pagination: React.FC<PaginationProps> = ({
   const pages = Array.from({length: totalPage}, (_, i) => i + 1);
 
   return (
-      <div className={"flex justify-between mt-4 items-center"}>
-        <div className={"text-xs text-gray-500"}>
+      <div className={"flex flex-col md:flex-row justify-between mt-4 items-center"}>
+        <div className={"text-xs text-gray-500 my-3"}>
           {t("dashboard.pagination.showingFrom")} {start} {t("dashboard.pagination.to")} {end > numberOfItems ? numberOfItems : end} {t("dashboard.pagination.of")} {numberOfItems} {t("dashboard.pagination.entries")}
         </div>
-        <div>
+        <div className={"flex justify-end"}>
           <button
               className="mx-1 px-3 py-1 bg-gray-200 text-mallorca-purple rounded-sm disabled:opacity-50"
               onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
