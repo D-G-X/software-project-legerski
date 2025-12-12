@@ -8,7 +8,7 @@ import {
 import {useTranslation} from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import {FormHeader} from "app/common/headingTitle";
-import {/*getApplicationFee,*/ useCreatePayment} from "app/services/payments/payments";
+import {getApplicationFee, useCreatePayment} from "app/services/payments/payments";
 import ModalDialog from "../common/modal-dialog";
 import {useNavigate, useParams} from "react-router";
 import "./paymentForm.css";
@@ -38,8 +38,8 @@ export default function PaymentConfirm() {
 
   async function getAmount(applicationId: number): Promise<number | null> {
     try {
-      //const res = await getApplicationFee(applicationId);
-      return applicationId//TODO:res?.data?.fee_amount ?? null;
+      const res = await getApplicationFee(applicationId);
+      return res?.data?.fee_amount ?? null;
     } catch {
       return null;
     }
@@ -163,6 +163,15 @@ export default function PaymentConfirm() {
         applicationId,
         data: postData,
       });
+
+      switch (response.status){
+        case 201:
+          break;
+        default:
+          alert("Unexpected response from server. Redirecting to dashboard.");
+          navigate("/");
+          return;
+      }
 
       let isEqual =
           response.data.application_id === stateData.application_id &&
