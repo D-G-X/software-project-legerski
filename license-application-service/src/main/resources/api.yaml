@@ -504,6 +504,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApplicationPaymentResource"
 
+  /fees/{applicationId}:
+    get:
+      tags: [Payments]
+      summary: Get application fee amount
+      description: Retrieve the fee amount for a specific holiday rental license application.
+      operationId: getApplicationFee
+      security:
+        - KeycloakOAuth2: [openid]
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Application fee amount
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationFeeResource"
+        "404":
+          description: Application not found
+
   /ballot-periods:
     post:
       tags: [Ballot Periods]
@@ -1228,6 +1252,23 @@ components:
         - application_id
         - name
         - iban
+
+    ApplicationFeeResource:
+      type: object
+      description: Represents the fee amount for an application.
+      properties:
+        application_id:
+          type: integer
+          description: Associated application ID.
+          example: 201
+        fee_amount:
+          type: number
+          format: decimal
+          description: Fee amount in EUR.
+          example: 150.00
+      required:
+        - application_id
+        - fee_amount
 
     ConsentResource:
       type: object

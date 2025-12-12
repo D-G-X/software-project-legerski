@@ -14,6 +14,8 @@ import de.hft.licensing.model.ApplicationUpdate;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,12 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
 public class ApplicationsController implements ApplicationsApi {
 
     private final DSLContext dsl;
+    private static final Logger log = LoggerFactory.getLogger(ApplicationsController.class);
 
     public ApplicationsController(DSLContext dsl) {
         this.dsl = dsl;
@@ -78,6 +82,9 @@ public class ApplicationsController implements ApplicationsApi {
         ApplicationResource apiResource = new ApplicationResource();
         RecordToResourceMapperUtil.mapApplicationRecordToResource(dbRecord, apiResource);
 
+        // Logger
+        log.info("Created new application with ID {} for user ID {}", apiResource.getId(), apiResource.getUserId());
+
         return ResponseEntity.created(URI.create("/applications/" + apiResource.getId())).body(apiResource);
     }
 
@@ -87,6 +94,13 @@ public class ApplicationsController implements ApplicationsApi {
         int deleted = dsl.deleteFrom(Application.APPLICATION)
             .where(Application.APPLICATION.ID.eq(applicationId))
             .execute();
+
+        // Logger
+        if (deleted > 0) {
+            log.info("Deleted application with ID {}", applicationId);
+        } else {
+            log.warn("Attempted to delete non-existing application with ID {}", applicationId);
+        }
 
         return deleted > 0
                 ? ResponseEntity.noContent().build()
@@ -173,6 +187,16 @@ public class ApplicationsController implements ApplicationsApi {
         if (applicationId == null || applicationUpdate == null || applicationUpdate.getApplicationStatus() == null || applicationUpdate.getRemarks() == null) {
             return ResponseEntity.badRequest().build();
         }
+
+        var oldStatus = dsl.select(Application.APPLICATION.APPLICATION_STATUS)
+                .from(Application.APPLICATION)
+                .where(Application.APPLICATION.ID.eq(applicationId))
+                .fetchOneInto(ApplicationStatus.class);
+        var oldRemarks = dsl.select(Application.APPLICATION.REMARKS)
+                .from(Application.APPLICATION)
+                .where(Application.APPLICATION.ID.eq(applicationId))
+                .fetchOneInto(String.class);
+
         var updatedApplicationRecord = dsl.update(Application.APPLICATION)
                 .set(Application.APPLICATION.APPLICATION_STATUS, (ApplicationStatus) EnumMapperUtil.getPendantFromEnum(applicationUpdate.getApplicationStatus()))
                 .set(Application.APPLICATION.REMARKS, applicationUpdate.getRemarks())
@@ -187,6 +211,18 @@ public class ApplicationsController implements ApplicationsApi {
         if(updatedApplicationRecord != null){
             ApplicationResource updatedApplicationResource = new ApplicationResource();
             RecordToResourceMapperUtil.mapApplicationRecordToResource(updatedApplicationRecord, updatedApplicationResource);
+
+            // Logger
+            var logs = String.format("Updated application with ID %d:", updatedApplicationRecord.getId());
+            if (oldStatus != updatedApplicationRecord.getApplicationStatus()) {
+                var oldStatusName = oldStatus != null ? oldStatus.name() : "null";
+                logs += String.format(" status updated from %s to %s;", oldStatusName, updatedApplicationRecord.getApplicationStatus().name());
+            }
+            if (!Objects.equals(oldRemarks, updatedApplicationRecord.getRemarks())) {
+                logs += String.format(" remarks updated from '%s' to '%s';", oldRemarks, updatedApplicationRecord.getRemarks());
+            }
+            log.info(logs);
+
             return ResponseEntity.ok(updatedApplicationResource);
         }
         return ResponseEntity.notFound().build();
