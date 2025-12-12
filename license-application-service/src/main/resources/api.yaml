@@ -79,7 +79,7 @@ paths:
         "400":
           description: Bad request - invalid input data
         "409":
-            description: Conflict - user already exists
+          description: Conflict - user already exists
 
   /users:
     get:
@@ -498,11 +498,35 @@ paths:
               $ref: "#/components/schemas/ApplicationPaymentCreate"
       responses:
         "201":
-          description: PaymentForm recorded
+          description: Payment recorded
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApplicationPaymentResource"
+
+  /fees/{applicationId}:
+    get:
+      tags: [Payments]
+      summary: Get application fee amount
+      description: Retrieve the fee amount for a specific holiday rental license application.
+      operationId: getApplicationFee
+      security:
+        - KeycloakOAuth2: [openid]
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Application fee amount
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationFeeResource"
+        "404":
+          description: Application not found
 
   /ballot-periods:
     post:
@@ -862,56 +886,56 @@ components:
 
   schemas:
     LoginRequest:
-        type: object
-        description: Request payload for user login.
-        properties:
-          email:
-            type: string
-            format: email
-            description: User's username.
-            example: johndoe@email.com
-          password:
-            type: string
-            format: password
-            description: User's password.
-            example: securepassword123
-        required:
-            - username
-            - password
+      type: object
+      description: Request payload for user login.
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's username.
+          example: johndoe@email.com
+        password:
+          type: string
+          format: password
+          description: User's password.
+          example: securepassword123
+      required:
+        - username
+        - password
     LoginResource:
-        type: object
-        description: Response payload containing authentication tokens.
-        properties:
-          access_token:
-            type: string
-            description: JWT access token for authenticated requests.
-            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..
-            x-field-extra-annotation: '@JsonProperty("access_token")'
-          refresh_token:
-            type: string
-            description: Token used to obtain a new access token.
-            example: dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...
-            x-field-extra-annotation: '@JsonProperty("refresh_token")'
-          expires_in:
-            type: integer
-            description: Time in seconds until the access token expires.
-            example: 3600
-            x-field-extra-annotation: '@JsonProperty("expires_in")'
-          refresh_expires_in:
-            type: integer
-            description: Time in seconds until the refresh token expires.
-            example: 86400
-            x-field-extra-annotation: '@JsonProperty("refresh_expires_in")'
-          token_type:
-            type: string
-            description: Type of the token issued.
-            example: Bearer
-            x-field-extra-annotation: '@JsonProperty("token_type")'
-        required:
-            - access_token
-            - refresh_token
-            - expires_in
-            - token_type
+      type: object
+      description: Response payload containing authentication tokens.
+      properties:
+        access_token:
+          type: string
+          description: JWT access token for authenticated requests.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..
+          x-field-extra-annotation: '@JsonProperty("access_token")'
+        refresh_token:
+          type: string
+          description: Token used to obtain a new access token.
+          example: dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...
+          x-field-extra-annotation: '@JsonProperty("refresh_token")'
+        expires_in:
+          type: integer
+          description: Time in seconds until the access token expires.
+          example: 3600
+          x-field-extra-annotation: '@JsonProperty("expires_in")'
+        refresh_expires_in:
+          type: integer
+          description: Time in seconds until the refresh token expires.
+          example: 86400
+          x-field-extra-annotation: '@JsonProperty("refresh_expires_in")'
+        token_type:
+          type: string
+          description: Type of the token issued.
+          example: Bearer
+          x-field-extra-annotation: '@JsonProperty("token_type")'
+      required:
+        - access_token
+        - refresh_token
+        - expires_in
+        - token_type
     RegisterRequest:
       type: object
       description: Request payload for user registration.
@@ -1175,7 +1199,7 @@ components:
         amount:
           type: number
           format: decimal
-          description: PaymentForm amount in EUR.
+          description: Payment amount in EUR.
           example: 123.45
         name:
           type: string
@@ -1228,6 +1252,23 @@ components:
         - application_id
         - name
         - iban
+
+    ApplicationFeeResource:
+      type: object
+      description: Represents the fee amount for an application.
+      properties:
+        application_id:
+          type: integer
+          description: Associated application ID.
+          example: 201
+        fee_amount:
+          type: number
+          format: decimal
+          description: Fee amount in EUR.
+          example: 150.00
+      required:
+        - application_id
+        - fee_amount
 
     ConsentResource:
       type: object
@@ -1289,7 +1330,7 @@ components:
         - DOCUMENTS_SUBMITTED # Documents uploaded
         - VERIFICATION_PENDING # Awaiting verification
         - AWAITING_PAYMENT # Waiting for user payment
-        - PAYMENT_RECEIVED # PaymentForm completed
+        - PAYMENT_RECEIVED # Payment completed
         - SUBMITTED # Application formally submitted
         - IN_BALLOT # Entered into selection/ballot
         - SELECTED # Chosen/approved via ballot
@@ -1304,8 +1345,8 @@ components:
       type: string
       description: Status for any payment attempt.
       enum:
-        - UNPAID # PaymentForm is pending
-        - PAID # PaymentForm completed
+        - UNPAID # Payment is pending
+        - PAID # Payment completed
 
     LicenseStatusApiEnum:
       type: string

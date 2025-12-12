@@ -1,10 +1,13 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.PaymentsApi;
+import de.hft.licensing.db.enums.LicenseType;
 import de.hft.licensing.db.enums.PaymentStatus;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.ApplicationPayment;
 import de.hft.licensing.db.tables.records.ApplicationPaymentRecord;
+import de.hft.licensing.db.tables.records.ApplicationRecord;
+import de.hft.licensing.model.ApplicationFeeResource;
 import de.hft.licensing.model.ApplicationPaymentCreate;
 import de.hft.licensing.model.ApplicationPaymentResource;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
@@ -35,12 +38,12 @@ public class PaymentsController implements PaymentsApi {
         }
         LocalDateTime now = LocalDateTime.now();
         var dbPayment = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, new BigDecimal("99.99")) //TODO: add amount to model and DB
-                .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
-                .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
-                .returning()
-                .fetchOneInto(ApplicationPaymentRecord.class);
+            .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
+            .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT, new BigDecimal("99.99")) //TODO: add amount to model and DB
+            .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
+            .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
+            .returning()
+            .fetchOneInto(ApplicationPaymentRecord.class);
 
         if(dbPayment == null) {
             return ResponseEntity.status(500).build();
@@ -59,16 +62,16 @@ public class PaymentsController implements PaymentsApi {
             return ResponseEntity.badRequest().build();
         }
         if(!dsl.fetchExists(
-                dsl.selectOne()
-                        .from(Application.APPLICATION)
-                        .where(Application.APPLICATION.ID.eq(applicationId))
+            dsl.selectOne()
+                .from(Application.APPLICATION)
+                .where(Application.APPLICATION.ID.eq(applicationId))
         )) {
             return ResponseEntity.notFound().build();
         }
         var payments = dsl.select()
-                .from(ApplicationPayment.APPLICATION_PAYMENT)
-                .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(applicationId))
-                .fetchInto(ApplicationPaymentRecord.class);
+            .from(ApplicationPayment.APPLICATION_PAYMENT)
+            .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(applicationId))
+            .fetchInto(ApplicationPaymentRecord.class);
 
         List<ApplicationPaymentResource> mappedPayments = payments.stream().map(record -> {
             ApplicationPaymentResource resource = new ApplicationPaymentResource();
@@ -77,5 +80,37 @@ public class PaymentsController implements PaymentsApi {
         }).toList();
 
         return ResponseEntity.ok(mappedPayments);
+    }
+
+    @Override
+    public ResponseEntity<ApplicationFeeResource> getApplicationFee(Integer applicationId) {
+        final int ETV_amount = 3500;
+        final int ETVPL_amount = 875;
+        final int ETV60_amount = 290;
+
+        if (applicationId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        ApplicationRecord appRecord = dsl.select()
+            .from(Application.APPLICATION)
+            .where(Application.APPLICATION.ID.eq(applicationId))
+            .fetchOneInto(ApplicationRecord.class);
+        if (appRecord == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ApplicationFeeResource feeResource = new ApplicationFeeResource();
+        feeResource.setApplicationId(applicationId);
+
+        LicenseType applicationLicenseType = appRecord.getLicenseType();
+        switch (applicationLicenseType) {
+            case etv -> feeResource.setFeeAmount(new BigDecimal(ETV_amount));
+            case etvpl -> feeResource.setFeeAmount(new BigDecimal(ETVPL_amount));
+            case etv60 -> feeResource.setFeeAmount(new BigDecimal(ETV60_amount));
+            default -> feeResource.setFeeAmount(BigDecimal.ZERO);
+        }
+
+        return ResponseEntity.ok(feeResource);
     }
 }
