@@ -1,0 +1,51 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS"
+        logicalFilePath="db/changelog/09-08-changelog.xml">
+
+    <changeSet id="create_notification_way_enum" author="Vahan">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM pg_type WHERE typname = 'notification_way';
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            CREATE TYPE notification_way AS ENUM (
+              'email',
+              'sms',
+              'none'
+            );
+        </sql>
+    </changeSet>
+    <changeSet id="add_notification_preferences" author="Vahan">
+        <createTable tableName="notification_preferences">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="char(36)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_notification_preferences_user_id"/>
+            </column>
+            <column name="notification_way" type="notification_way">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_updates_notification" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="license_renewal_notification" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="notification_preferences"
+                baseColumnNames="user_id"
+                constraintName="fk_notification_preferences_user"
+                referencedTableName="user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>
