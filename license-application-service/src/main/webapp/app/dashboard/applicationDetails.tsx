@@ -180,6 +180,8 @@ export default function ApplicationDetails({
 
     useDeleteCurrentLicense(licenseData?.id);
 
+    //TODO: Refresh the data after deletion
+
     closePopup();
   }
 
