@@ -192,6 +192,7 @@ export default function Dashboard() {
                 open={isDetailsOpen}
                 applicationData={selectedEntry}
                 onClose={closeDetails}
+                onRenew={handleNewApplicationClick}
             />
           )}
         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {useTranslation} from "react-i18next";
 import {FormHeader} from "app/common/headingTitle";
 import {
@@ -12,16 +12,18 @@ import {Minimize2} from "lucide-react";
 import "./applicationDetails.css";
 import {useListPayments} from "../services/payments/payments";
 import {useGetUser} from "../services/users/users";
-import {useGetLicense, useListLicenses} from "../services/licenses/licenses";
+import {useDeleteLicense, useGetLicense, useListLicenses} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
 import {formatAmount, formatBic, formatDate, formatIban} from "../common/format";
 import {AxiosError} from "axios";
 import {AnimatedDots} from "../common/AnimatedDots";
+import ConfirmPopup from "../common/confirmPopup";
 
 interface ApplicationDetailsProps {
   open: boolean;
   applicationData: ApplicationResource | null;
   onClose: () => void;
+  onRenew: () => void;
 }
 
 type UserDataResult = {
@@ -76,6 +78,7 @@ function useGetLicenseData(userId: string, applicationId: number): LicenseDataRe
   } = useGetLicense(matching?.id ?? 0, {query: {enabled: !!matching?.id},});
 
   const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+
   return {
     data: licenseResponse?.data ?? null,
     isFound,
@@ -113,10 +116,30 @@ function useGetPaymentData(applicationId: number): PaymentDataResult {
   };
 }
 
+function useDeleteCurrentLicense(id: number | undefined) {
+  if (!id) {
+    alert("License could not be released");
+    return
+  }
+  const {mutate: deleteLicense} = useDeleteLicense({
+    mutation: {
+      onSuccess: () => {
+        alert("License released successfully.");
+      },
+      onError: (err) => {
+        console.error(err);
+        alert(`Error ${err} occurred while releasing the license.`);
+      },
+    },
+  });
+  deleteLicense({licenseId: id});
+}
+
 export default function ApplicationDetails({
                                              open,
                                              applicationData,
-                                             onClose
+                                             onClose,
+                                             onRenew,
                                            }: ApplicationDetailsProps) {
   if (!open || !applicationData) {
     console.log("ApplicationDetails: not open");
@@ -125,6 +148,9 @@ export default function ApplicationDetails({
     console.log("ApplicationDetails: open");
   }
   const {t} = useTranslation();
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const openPopup = () => setIsPopupOpen(true);
+  const closePopup = () => setIsPopupOpen(false);
 
   const {
     data: userData,
@@ -149,6 +175,17 @@ export default function ApplicationDetails({
     isFound: foundPayment,
     isLoading: isLoadingPayment
   } = useGetPaymentData(applicationData.id);
+
+  function handleReleaseLicense() {
+
+    useDeleteCurrentLicense(licenseData?.id);
+
+    closePopup();
+  }
+
+  function handleDownload() {
+
+  }
 
   return (
       <div
@@ -193,11 +230,11 @@ export default function ApplicationDetails({
                   <FormHeader
                       heading={t("applicationDetails.index.headline")}
                       subHeading={t("")}
-                      className="my-8"
+                      className="mt-16"
                   />
 
                   {/* Application fields */}
-                  <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
+                  <div className="bg-gray-50 rounded-lg p-6 mt-12 shadow space-y-2.5 text-gray-700">
 
                     <div className="flex justify-between min-w-lg font-semibold">
                       <span>{t("applicationDetails.index.applicationIdLabel") + ": "}</span>
@@ -408,12 +445,62 @@ export default function ApplicationDetails({
                 </span>
                     )}
                   </div>
+
+                  <div className="my-12 flex flex-line items-center jusify-center gap-4">
+                    {licenseData?.id && (
+                        <>
+                          {/* Renew License Button */}
+                          <button
+                              type="submit"
+                              onClick={onRenew}
+                              className={`bg-mallorca-purple text-white px-10 py-2 rounded-md ${licenseData?.id ? "w-64" : "w-96" } font-medium text-lg`}
+                          >
+                            {t("applicationDetails.buttons.renewLicenseLabel")}
+                          </button>
+                          {/* Release License Button */}
+                          <button
+                              type="submit"
+                              onClick={openPopup}
+                              className={`bg-red-500 text-white  px-10 py-2 rounded-md ${licenseData?.id ? "w-64" : "w-96" } font-medium text-lg hover:bg-red-700  border-red-950`}
+                          >
+                            {t("applicationDetails.buttons.releaseLicenseLabel")}
+                          </button>
+                        </>
+                    )}
+                    {/* Download Button */}
+                    <button
+                        type="submit"
+                        onClick={handleDownload}
+                        className={`bg-white text-mallorca-purple  px-10 py-2 rounded-md ${licenseData?.id ? "w-64" : "w-96" } font-medium text-lg hover:bg-mallorca-purple/20 hover:text-white border border-mallorca-purple`}
+                    >
+                      {t("applicationDetails.buttons.downloadLabel")}
+                    </button>
+                  </div>
+
+                  {isPopupOpen && (
+                      <ConfirmPopup
+                          open={isPopupOpen}
+                          onCancel={() => setIsPopupOpen(false)}
+                          onConfirm={handleReleaseLicense}
+                          headingLabel={t("applicationDetails.confirmPopup.headingLabel")}
+                          subHeadingLabel={t("applicationDetails.confirmPopup.subHeadingLabel")}
+                          quoteTitle={t("applicationDetails.confirmPopup.quoteTitle")}
+                          quoteText={[t("applicationDetails.confirmPopup.quoteText1"), t("applicationDetails.confirmPopup.quoteText2")]}
+                          cancelLabel={t("applicationDetails.confirmPopup.cancelButtonLabel")}
+                          confirmLabel={t("applicationDetails.confirmPopup.confirmButtonLabel")}
+                      />
+                  )}
+
                 </div>
+
             }
+
           </div>
         </div>
-        {/* Spacer to push content above the footer */}
+        {/* Spacer to push content above the footer */
+        }
         <div className="mb-12"></div>
       </div>
-  );
+  )
+      ;
 }

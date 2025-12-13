@@ -173,6 +173,20 @@
         "statusLabel": "Payment status"
       }
     },
+    "buttons": {
+      "renewLicenseLabel": "Renew License",
+      "releaseLicenseLabel": "Release License",
+      "downloadLabel": "Download"
+    },
+    "confirmPopup": {
+      "headingLabel": "Release License",
+      "subHeadingLabel": "Are you sure you want to release your current license?",
+      "quoteTitle": "Warning",
+      "quoteText1": "Releasing your rental license will remove it permanently from your account.",
+      "quoteText2": "You will need to submit a new application if you wish to obtain a license again in the future.",
+      "cancelButtonLabel": "Cancel",
+      "confirmButtonLabel": "Confirm"
+    },
     "loading": "Loading"
   },
   "common": {
