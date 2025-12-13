@@ -286,6 +286,29 @@ paths:
           "404":
             description: User not found
 
+      patch:
+        tags: [Users]
+        summary: Update status of a notification.
+        description: Update the read status of a specific notification for a user.
+        operationId: updateNotifications
+        security:
+          - KeycloakOAuth2: [openid]
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          "200":
+            description: Updated notification status.
+          "401":
+            description: Unauthorized
+          "403":
+            description: Forbidden
+          "404":
+            description: User not found
+
   /applications:
     get:
       tags: [Applications]
