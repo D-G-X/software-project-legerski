@@ -11,6 +11,7 @@ import Payment from "./payment/payment";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
+import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -24,6 +25,7 @@ export default function AppRoutes() {
         { path: "register", element: <Register /> },
         { path: "payment", element: <Payment /> },
         { path: "admin-dashboard", element: <AdminDashboard /> },
+        { path: "ballot-dashboard", element: <BallotDashboard /> },
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },

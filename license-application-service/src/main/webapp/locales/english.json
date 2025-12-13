@@ -148,6 +148,18 @@
       "status": "Status"
     }
   },
+  "ballot-dashboard": {
+    "headline": "Ballot Information",
+    "createNewBallot": "Create New Ballot",
+    "table": {
+      "ballotName": "Ballot Name",
+      "status": "Status",
+      "applicationPeriod": "Application Period (DD/MM/YYYY)",
+      "drawingDate": "Drawing Date (DD/MM/YYYY)",
+      "totalApplication": "Total Application",
+      "action": "Action"
+    }
+  },
   "common": {
     "orDivider": "or"
   },
