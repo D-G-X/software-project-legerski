@@ -286,6 +286,7 @@ paths:
           "404":
             description: User not found
 
+  /users/notifications/{id}:
       patch:
         tags: [Users]
         summary: Update status of a notification.
