@@ -50,4 +50,4 @@ keycloak:
   url: http://localhost:8081
   realm: license-realm
   client-id: backend-api
-  client-secret: ${CLIENT_SECRET_PLACEHOLDER}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
