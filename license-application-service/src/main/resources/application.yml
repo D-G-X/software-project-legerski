@@ -29,6 +29,8 @@ spring:
       mail.smtp.starttls.enable: true
       mail.smtp.starttls.required: true
       mail.smtp.ssl.trust: smtp.gmail.com
+  config:
+    import: file:license-application-service/.env[.properties]
 
 logging.level.org.jooq.Constants: off
 
@@ -48,4 +50,4 @@ keycloak:
   url: http://localhost:8081
   realm: license-realm
   client-id: backend-api
-  client-secret: CLIENT_SECRET_PLACEHOLDER
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}

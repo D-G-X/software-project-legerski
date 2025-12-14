@@ -291,7 +291,7 @@ paths:
         tags: [Users]
         summary: Update status of a notification.
         description: Update the read status of a specific notification for a user.
-        operationId: updateNotifications
+        operationId: updateNotification
         security:
           - KeycloakOAuth2: [openid]
         parameters:
@@ -308,7 +308,7 @@ paths:
           "403":
             description: Forbidden
           "404":
-            description: User not found
+            description: Notification not found
 
   /applications:
     get:
