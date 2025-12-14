@@ -9,7 +9,7 @@
 
     <changeSet id="notification_table" author="Alexander">
         <createTable tableName="notification">
-            <column defaultValueComputed="gen_random_uuid()" name="id" type="UUID">
+            <column defaultValueComputed="uuidv7()" name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="notification_pkey"/>
             </column>
             <column name="user_id" type="char(36)">
