@@ -3,42 +3,69 @@ import {useTranslation} from "react-i18next";
 import {Dot, MessageSquare, MessageSquareDashed, MessageSquareOff, Settings} from "lucide-react";
 import {useNavigate} from "react-router";
 import {formatDate, formatRelativeDate} from "./format";
+import {UserNotificationResource} from "../../types";
+import {useGetNotifications} from "../services/users/users";
+import {AxiosError} from "axios";
 
-type Notification = {
-  applicationId: number;
-  date: string;
-  message: string;
-  read: boolean;
-};
+type NotificationsResult = {
+  data: UserNotificationResource[] | null;
+  isFound: boolean;
+  isLoading: boolean;
+}
+
+export function useGetNotificationsData(userId: string): NotificationsResult {
+  const {
+    data: response,
+    error,
+    isLoading,
+  } = useGetNotifications(userId);
+
+  console.log(response)
+  const isFound =
+      (error as AxiosError | undefined)?.response?.status !== 404;
+  if(error && !isFound) {
+    console.error("Error fetching notifications:", error);
+  }
+  return {
+    data: response?.data ?? null,
+    isFound,
+    isLoading,
+  };
+}
 
 export default function NotificationDropup({className = ""}) {
+  console.log("Rendering NotificationDropup");
   const {t} = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {applicationId: 1, date: "2025-02-12T10:15:00Z", message: "New message received", read: false},
-    {applicationId: 2, date: "2025-12-12T10:15:00Z", message: "Application approved", read: false},
-    {
-      applicationId: 3,
-      date: "2025-12-13T19:05:00Z",
-      message: "Reminder: Upload missing document",
-      read: true
-    },
-  ]);
+  const userId = "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3"; // TODO: replace with actual user ID
+  const { data } = useGetNotificationsData(userId);
+  const [notifications, setNotifications] = useState<UserNotificationResource[]>([]);
+
+  useEffect(() => {
+    if (data) {
+      setNotifications(data);
+    }
+  }, [data]);
 
   const dropupRef = useRef<HTMLDivElement>(null); // render null first
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications?.filter((n) => !n.is_read).length || 0;
 
-  const markAsRead = (id: number) => {
-    setNotifications((prev) =>
-        prev.map((n) => (n.applicationId === id ? {...n, read: true} : n))
+  const markAsRead = (id?: number) => {
+    if (!id) return;
+    setNotifications(prev =>
+        prev ? prev.map(n =>
+            n.application_id === id ? { ...n, is_read: true } : n
+        ) : prev
     );
   };
 
   const markAllAsRead = () => {
     setNotifications(prev =>
-        prev.map(n => n.read ? n : {...n, read: true})
+        prev ? prev.map(n =>
+            n.is_read ? n : { ...n, is_read: true }
+        ) : prev
     );
   };
 
@@ -47,10 +74,10 @@ export default function NotificationDropup({className = ""}) {
     setOpen(false)
   }
 
-  const [openNotification, setOpenNotification] = useState<Notification | null>(null);
+  const [currentNotification, setcurrentNotification] = useState<UserNotificationResource | null>(null);
 
-  const openModal = (n: Notification) => {
-    setOpenNotification(n);
+  const openModal = (n: UserNotificationResource) => {
+    setcurrentNotification(n);
   };
 
   // Close on outside click
@@ -142,11 +169,11 @@ export default function NotificationDropup({className = ""}) {
                 <hr className="mt-4 border-gray-800"/>
 
                 <ul className="max-h-lg mt-1 my-3 overflow-y-auto divide-y">
-                  {notifications.map((n) => (
+                  {notifications?.map((n) => (
                       <li
-                          key={n.applicationId}
+                          key={n.application_id}
                           onClick={(e) => {
-                            markAsRead(n.applicationId)
+                            markAsRead(n.application_id);
                             e.stopPropagation();
                             openModal(n);
                           }}
@@ -157,14 +184,14 @@ export default function NotificationDropup({className = ""}) {
                           {/* Message */}
                           <div
                               className={`flex items-center gap-2 ${
-                                  n.read
+                                  n.is_read
                                       ? "text-gray-400 font-normal"
                                       : "text-mallorca-purple font-bold"
                               }`}
                           >
-                            {!n.read && <Dot className="w-5 h-5 shrink-0"/>}
+                            {!n.is_read && <Dot className="w-5 h-5 shrink-0"/>}
                             <span className="text-sm">
-                              {t("notifications.messageLabel")} {n.applicationId}
+                              {t("notifications.messageLabel")} {n.application_id}
                             </span>
                           </div>
 
@@ -179,7 +206,7 @@ export default function NotificationDropup({className = ""}) {
               </div>
           )}
         </div>
-        {openNotification && (
+        {currentNotification && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
               <div className="bg-white rounded-xl p-6 w-full max-w-md">
                 <h2 className="text-lg font-bold text-mallorca-purple text-center mb-4">
@@ -188,25 +215,25 @@ export default function NotificationDropup({className = ""}) {
 
                 <div className="space-y-2 text-sm">
                   <div>
-                    <span className="font-medium">{t("notifications.popup.id") + ": "}</span>{openNotification.applicationId}
+                    <span className="font-medium">{t("notifications.popup.id") + ": "}</span>{currentNotification.application_id}
                   </div>
 
                   <div>
                     <span className="font-medium">
                       {t("notifications.messageLabel")}:
                     </span>{" "}
-                    {openNotification.message}
+                    {currentNotification.message}
                   </div>
 
                   <div>
                     <span className="font-medium">{t("notifications.date")}:</span>{" "}
-                    {formatDate(openNotification.date)}
+                    {formatDate(currentNotification.date)}
                   </div>
                 </div>
 
                 <div className="mt-6 flex justify-end">
                   <button
-                      onClick={() => setOpenNotification(null)}
+                      onClick={() => setcurrentNotification(null)}
                       className="px-4 py-2 rounded-md bg-mallorca-purple text-white"
                   >
                     {t("notifications.popup.close")}
