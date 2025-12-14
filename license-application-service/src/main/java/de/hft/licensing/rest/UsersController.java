@@ -1,13 +1,17 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.UsersApi;
+import de.hft.licensing.db.enums.NotificationWay;
+import de.hft.licensing.db.tables.NotificationPreferences;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.UserRecord;
 import de.hft.licensing.model.CreateUserRequest;
+import de.hft.licensing.model.NotificationWayApiEnum;
 import de.hft.licensing.model.UpdateUserRequest;
 import de.hft.licensing.model.UserResource;
 import de.hft.licensing.services.KeycloakAuthService;
 import de.hft.licensing.services.auth.AdminOnly;
+import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,11 +45,25 @@ public class UsersController implements UsersApi {
         String id = UUID.randomUUID().toString();
 
         try {
-            int inserted = dsl.insertInto(User.USER)
+            // Create User record
+            int insertedUser = dsl.insertInto(User.USER)
                     .set(User.USER.ID, id)
                     .execute();
 
-            if (inserted > 0) {
+            // Create user's Notification Preferences record with default values
+            int insertedPreferences = dsl.insertInto(NotificationPreferences.NOTIFICATION_PREFERENCES)
+                    .set(NotificationPreferences.NOTIFICATION_PREFERENCES.USER_ID, id)
+                    .set(NotificationPreferences.NOTIFICATION_PREFERENCES.NOTIFICATION_WAY, (NotificationWay) EnumMapperUtil.getPendantFromEnum(NotificationWayApiEnum.NONE))
+                    .set(NotificationPreferences.NOTIFICATION_PREFERENCES.APPLICATION_UPDATES_NOTIFICATION, true)
+                    .set(NotificationPreferences.NOTIFICATION_PREFERENCES.LICENSE_RENEWAL_NOTIFICATION, true)
+                    .execute();
+            if (insertedPreferences == 0) {
+                System.out.println("[WARNING] - Failed to insert notification preferences for user ID " + id + " into the local database.");
+            } else {
+                System.out.println("[INFO] - Notification preferences for user ID " + id + " created successfully in the local database.");
+            }
+
+            if (insertedUser > 0) {
                 return ResponseEntity.created(URI.create("/users/" + id)).build();
             } else {
                 return ResponseEntity.status(500).build();

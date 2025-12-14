@@ -27,7 +27,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="char(36)">
-                <constraints nullable="false" unique="true" uniqueConstraintName="uk_notification_preferences_user_id"/>
+                <constraints nullable="false"/>
             </column>
             <column name="notification_way" type="notification_way">
                 <constraints nullable="false"/>
@@ -43,7 +43,7 @@
         <addForeignKeyConstraint
                 baseTableName="notification_preferences"
                 baseColumnNames="user_id"
-                constraintName="fk_notification_preferences_user"
+                constraintName="notification_preferences_user_id_fkey"
                 referencedTableName="user"
                 referencedColumnNames="id"
                 onDelete="CASCADE"/>
