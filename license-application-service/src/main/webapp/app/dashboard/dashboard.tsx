@@ -92,7 +92,7 @@ export default function Dashboard() {
               {t("dashboard.buttonLabel")}
             </button>
 
-            {currentData.length > 0 && (
+            {currentData.length > 0 ? (
                 <div className="mt-16 w-full">
                   <h1 className="font-bold text-xl text-mallorca-purple">
                     {t("dashboard.title")}
@@ -184,7 +184,12 @@ export default function Dashboard() {
                     />
                   </div>
                 </div>
+            ) : (
+                <div className="mt-16 w-full text-mallorca-purple/25 text-5xl flex justify-center items-center h-full">
+                  {t("dashboard.noApplications")}
+                </div>
             )}
+
           </div>
           {/* Application Details Modal */}
           {isDetailsOpen && (
