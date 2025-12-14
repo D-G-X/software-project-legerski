@@ -12,6 +12,9 @@ import Payment from "./payment/payment";
 import ApplicationDocumentUpload from "./license/document-upload/document-upload";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
+import BallotDetails from "./ballotDetails/ballotDetails";
+import RenewForm from "./renewForm/renewForm";
+
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -35,6 +38,8 @@ export default function AppRoutes() {
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
+        { path: "ballotDetails", element: <BallotDetails />},
+        { path: "renew-form", element: <RenewForm />},
         { path: "*", element: <Error /> },
       ],
     },

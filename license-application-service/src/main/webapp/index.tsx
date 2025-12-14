@@ -25,6 +25,8 @@ import AppRoutes from "./app/routes";
 import { AuthContext, AuthProvider } from "./app/common/AuthContext";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ballotDetailsEnglish from './locales/ballotDetailsEnglish.json';
+import ballotDetailsSpanish from './locales/ballotDetailsSpanish.json';
 
 const queryClient = new QueryClient();
 
@@ -47,7 +49,8 @@ i18n.use(initReactI18next).init({
     en: {
       translation: english,
       legalNotice: legalNoticeEnglish,
-      contact: contactEnglish
+      contact: contactEnglish,
+      ballotDetails: ballotDetailsEnglish
     },
     fr: {
       translation: french,
@@ -72,7 +75,8 @@ i18n.use(initReactI18next).init({
     es: {
       translation: spanish,
       legalNotice: legalNoticeSpanish,
-      contact: contactSpanish
+      contact: contactSpanish,
+      ballotDetails: ballotDetailsSpanish
     },
   },
   lng: localStorage.getItem("language") || "en",
