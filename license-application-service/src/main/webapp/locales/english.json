@@ -62,6 +62,19 @@
     "contactBtn": "Contact",
     "legalBtn": "Legal Notice"
   },
+  "notifications": {
+    "title": "Your Notifications",
+    "settingsBtn": "Notification settings",
+    "markAllAsReadBtn": "Mark all as read",
+    "deleteAllBtn": "Delete all",
+    "noNotifications": "No notifications",
+    "messageLabel": "You have an update on your application",
+    "popup": {
+      "title": "New Notification",
+      "id": "Application ID",
+      "close": "Close"
+    }
+  },
   "forgotPassword": {
     "request": {
       "headline": "Forgot Password",
