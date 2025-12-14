@@ -1,11 +1,13 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
-import {Dot, MessageSquare, MessageSquareDashed, MessageSquareOff, Settings} from "lucide-react";
+import {Dot, MessageSquare, MessageSquareDashed, Settings} from "lucide-react";
 import {useNavigate} from "react-router";
 import {formatDate, formatRelativeDate} from "./format";
 import {UserNotificationResource} from "../../types";
-import {useGetNotifications} from "../services/users/users";
+import {useGetNotifications, useUpdateNotifications} from "../services/users/users";
 import {AxiosError} from "axios";
+import {getUserIdFromToken} from "./authTokenDecode";
+import {AuthContext} from "./AuthContext";
 
 type NotificationsResult = {
   data: UserNotificationResource[] | null;
@@ -13,7 +15,12 @@ type NotificationsResult = {
   isLoading: boolean;
 }
 
-export function useGetNotificationsData(userId: string): NotificationsResult {
+type UpdateNotificationResult = {
+  updateNotification: (id: number) => void;
+  isLoading: boolean;
+}
+
+function useGetNotificationsData(userId: string): NotificationsResult {
   const {
     data: response,
     error,
@@ -23,7 +30,7 @@ export function useGetNotificationsData(userId: string): NotificationsResult {
   console.log(response)
   const isFound =
       (error as AxiosError | undefined)?.response?.status !== 404;
-  if(error && !isFound) {
+  if (error && !isFound) {
     console.error("Error fetching notifications:", error);
   }
   return {
@@ -33,14 +40,25 @@ export function useGetNotificationsData(userId: string): NotificationsResult {
   };
 }
 
-export default function NotificationDropup({className = ""}) {
-  console.log("Rendering NotificationDropup");
+function useUpdateNotificationStatus(): UpdateNotificationResult {
+  const {mutate, isPending} = useUpdateNotifications();
+
+  return {
+    updateNotification: (id: number) => mutate({id}),
+    isLoading: isPending,
+  };
+}
+
+export default function NotificationPopup({className = ""}) {
+  console.log("Rendering NotificationPopup");
   const {t} = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const userId = "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3"; // TODO: replace with actual user ID
-  const { data } = useGetNotificationsData(userId);
+  const auth = useContext(AuthContext);
+  const userId = getUserIdFromToken(auth?.accessToken);
+  const {data} = useGetNotificationsData(userId);
   const [notifications, setNotifications] = useState<UserNotificationResource[]>([]);
+  const {updateNotification} = useUpdateNotificationStatus();
 
   useEffect(() => {
     if (data) {
@@ -48,7 +66,7 @@ export default function NotificationDropup({className = ""}) {
     }
   }, [data]);
 
-  const dropupRef = useRef<HTMLDivElement>(null); // render null first
+  const popupRef = useRef<HTMLDivElement>(null); // render null first
 
   const unreadCount = notifications?.filter((n) => !n.is_read).length || 0;
 
@@ -56,17 +74,26 @@ export default function NotificationDropup({className = ""}) {
     if (!id) return;
     setNotifications(prev =>
         prev ? prev.map(n =>
-            n.application_id === id ? { ...n, is_read: true } : n
+            n.id === id ? {...n, is_read: true} : n
         ) : prev
     );
+    updateNotification(id)
   };
 
   const markAllAsRead = () => {
+    const idsToUpdate = notifications?.filter(n => !n.is_read).map(n => n.id).filter((id): id is number => typeof id === "number");
+
     setNotifications(prev =>
-        prev ? prev.map(n =>
-            n.is_read ? n : { ...n, is_read: true }
-        ) : prev
+        prev ? prev.map(n => (n.is_read ? n : {...n, is_read: true})) : prev
     );
+
+    if (!idsToUpdate?.length) return;
+
+    (async () => {
+      for (const id of idsToUpdate) {
+        updateNotification(id);
+      }
+    })();
   };
 
   function handleSettingsClick() {
@@ -74,16 +101,16 @@ export default function NotificationDropup({className = ""}) {
     setOpen(false)
   }
 
-  const [currentNotification, setcurrentNotification] = useState<UserNotificationResource | null>(null);
+  const [currentNotification, setCurrentNotification] = useState<UserNotificationResource>({} as UserNotificationResource);
 
   const openModal = (n: UserNotificationResource) => {
-    setcurrentNotification(n);
+    setCurrentNotification(n);
   };
 
   // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (dropupRef.current && !dropupRef.current.contains(e.target as Node)) {
+      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
@@ -112,13 +139,13 @@ export default function NotificationDropup({className = ""}) {
             )}
           </button>
 
-          {/* Dropup */}
+          {/* Popup */}
           {open && (
               <div
-                  ref={dropupRef}
-                  className="absolute bottom-full mb-4 left-0 px-2 w-lg bg-white shadow-xl rounded-lg border border-gray-200 z-50"
+                  ref={popupRef}
+                  className="absolute bottom-full mb-2 left-0 px-2 w-lg bg-white shadow-xl rounded-lg border border-gray-200 z-50"
               >
-                <div className="mt-2 flex items-center justify-between px-2">
+                <div className="mt-4 flex items-center justify-between px-2">
                   {/* Title – left */}
                   <span className="text-xl font-bold text-mallorca-purple">
                   {t("notifications.title")}
@@ -151,45 +178,34 @@ export default function NotificationDropup({className = ""}) {
                       {t("notifications.markAllAsReadBtn")}
                     </span>
                     </button>
-
-                    <button
-                        type="button"
-                        className="relative inline-flex items-center group"
-                    >
-                      <MessageSquareOff size={20}/>
-                      <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2
-                         mb-2 whitespace-nowrap rounded bg-black px-2 py-1 text-xs text-white
-                         opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition z-50">
-                      {t("notifications.deleteAllBtn")}
-                    </span>
-                    </button>
                   </div>
                 </div>
 
-                <hr className="mt-4 border-gray-800"/>
+                <hr className="mt-2 border-gray-800"/>
 
                 <ul className="max-h-lg mt-1 my-3 overflow-y-auto divide-y">
                   {notifications?.map((n) => (
                       <li
-                          key={n.application_id}
+                          key={n.id}
                           onClick={(e) => {
-                            markAsRead(n.application_id);
+                            markAsRead(n.id);
                             e.stopPropagation();
                             openModal(n);
                           }}
 
-                          className="cursor-pointer px-4 py-2 hover:bg-gray-100 transition rounded-xl"
+                          className="cursor-pointer px-2 py-2 hover:bg-gray-100 transition rounded-xl"
                       >
-                        <div className="flex flex-col">
+                        <div className="flex justify-between items-center">
                           {/* Message */}
                           <div
-                              className={`flex items-center gap-2 ${
+                              className={`flex items-center gap-2 font-bold ${
                                   n.is_read
-                                      ? "text-gray-400 font-normal"
-                                      : "text-mallorca-purple font-bold"
+                                      ? "text-gray-400"
+                                      : "text-mallorca-purple"
                               }`}
                           >
-                            {!n.is_read && <Dot className="w-5 h-5 shrink-0"/>}
+                            <Dot color={`${n.is_read ? "#ffffff50" : "#351341"}`}
+                                 className="w-5 h-5 shrink-0"/>
                             <span className="text-sm">
                               {t("notifications.messageLabel")} {n.application_id}
                             </span>
@@ -206,38 +222,39 @@ export default function NotificationDropup({className = ""}) {
               </div>
           )}
         </div>
-        {currentNotification && (
+        {currentNotification.id && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
               <div className="bg-white rounded-xl p-6 w-full max-w-md">
-                <h2 className="text-lg font-bold text-mallorca-purple text-center mb-4">
+                <h2 className="text-xl font-bold text-mallorca-purple text-center mt-2">
                   {t("notifications.popup.title")}
                 </h2>
 
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-md font-semibold mt-6">
                   <div>
-                    <span className="font-medium">{t("notifications.popup.id") + ": "}</span>{currentNotification.application_id}
+                    <span
+                        className="font-medium">{t("notifications.popup.id") + ": "}</span>{currentNotification.application_id}
                   </div>
 
-                  <div>
+                  <div className="mt-2">
                     <span className="font-medium">
-                      {t("notifications.messageLabel")}:
-                    </span>{" "}
-                    {currentNotification.message}
+                      {currentNotification.message}
+                    </span>
                   </div>
 
-                  <div>
-                    <span className="font-medium">{t("notifications.date")}:</span>{" "}
-                    {formatDate(currentNotification.date)}
-                  </div>
-                </div>
+                  <div className="flex justify-between items-center mt-6">
 
-                <div className="mt-6 flex justify-end">
-                  <button
-                      onClick={() => setcurrentNotification(null)}
-                      className="px-4 py-2 rounded-md bg-mallorca-purple text-white"
-                  >
-                    {t("notifications.popup.close")}
-                  </button>
+                    <span className="font-medium text-gray-500 text-sm">
+                      {formatDate(currentNotification.date, t)}
+                    </span>
+
+                    <button
+                        onClick={() => setCurrentNotification({} as UserNotificationResource)}
+                        className="px-4 py-2 rounded-md bg-mallorca-purple text-white"
+                    >
+                      {t("notifications.popup.close")}
+                    </button>
+
+                  </div>
                 </div>
               </div>
             </div>

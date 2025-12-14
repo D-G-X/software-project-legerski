@@ -2,7 +2,7 @@ import React from "react";
 import {useTranslation} from "react-i18next";
 import {Link} from "react-router";
 import {Scale, Users} from "lucide-react";
-import NotificationDropup from "./NotificationDropup";
+import NotificationDropup from "./NotificationPopup";
 
 export default function Footer() {
   const {t} = useTranslation();
