@@ -23,8 +23,8 @@
     </changeSet>
     <changeSet id="add_notification_preferences" author="Vahan">
         <createTable tableName="notification_preferences">
-            <column name="id" type="SERIAL">
-                <constraints primaryKey="true" nullable="false"/>
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="notification_preferences_pkey"/>
             </column>
             <column name="user_id" type="char(36)">
                 <constraints nullable="false"/>
