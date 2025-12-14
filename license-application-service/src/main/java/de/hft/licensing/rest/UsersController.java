@@ -1,21 +1,25 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.UsersApi;
+import de.hft.licensing.db.tables.Notification;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.UserRecord;
 import de.hft.licensing.model.CreateUserRequest;
 import de.hft.licensing.model.UpdateUserRequest;
+import de.hft.licensing.model.UserNotificationResource;
 import de.hft.licensing.model.UserResource;
 import de.hft.licensing.services.KeycloakAuthService;
 import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.jooq.impl.QOM.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -189,5 +193,49 @@ public class UsersController implements UsersApi {
         }
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<List<UserNotificationResource>> getNotifications(UUID userId) {
+        boolean userIdExists = dsl.fetchExists(
+                dsl.selectOne().from(User.USER).where(User.USER.ID.eq(userId.toString()))
+        );
+
+        if (!userIdExists) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var notifications = dsl
+                .select(
+                        Notification.NOTIFICATION.ID,
+                        Notification.NOTIFICATION.APPLICATION_ID,
+                        Notification.NOTIFICATION.USER_ID,
+                        Notification.NOTIFICATION.DATE,
+                        Notification.NOTIFICATION.MESSAGE,
+                        Notification.NOTIFICATION.READ_AT.isNotNull().as("isRead")
+                )
+                .from(Notification.NOTIFICATION)
+                .where(Notification.NOTIFICATION.USER_ID.eq(userId.toString()))
+                .fetchInto(UserNotificationResource.class);
+
+        return ResponseEntity.ok(notifications);
+    }
+
+    @Override
+    public ResponseEntity<Void> updateNotification(UUID id) {
+        boolean notificationExists = dsl.fetchExists(
+                dsl.selectOne().from(Notification.NOTIFICATION).where(Notification.NOTIFICATION.ID.eq(id))
+        );
+
+        if (!notificationExists) {
+            return ResponseEntity.notFound().build();
+        }
+
+        dsl.update(Notification.NOTIFICATION)
+                .set(Notification.NOTIFICATION.READ_AT, LocalDateTime.now())
+                .where(Notification.NOTIFICATION.ID.eq(id))
+                .execute();
+
+        return ResponseEntity.ok().build();
     }
 }

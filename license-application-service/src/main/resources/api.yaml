@@ -256,6 +256,61 @@ paths:
         "404":
           description: User not found
 
+  /users/{userId}/notifications:
+      get:
+        tags: [Users]
+        summary: Return all notifications for a user.
+        operationId: getNotifications
+        security:
+          - KeycloakOAuth2: [openid]
+        parameters:
+          - name: userId
+            in: path
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          "200":
+            description: List of notifications for a user.
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/UserNotificationResource"
+          "401":
+            description: Unauthorized
+          "403":
+            description: Forbidden
+          "404":
+            description: User not found
+
+  /users/notifications/{id}:
+      patch:
+        tags: [Users]
+        summary: Update status of a notification.
+        description: Update the read status of a specific notification for a user.
+        operationId: updateNotification
+        security:
+          - KeycloakOAuth2: [openid]
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          "200":
+            description: Updated notification status.
+          "401":
+            description: Unauthorized
+          "403":
+            description: Forbidden
+          "404":
+            description: Notification not found
+
   /applications:
     get:
       tags: [Applications]
@@ -1064,6 +1119,43 @@ components:
       required:
         - username
         - enabled
+
+    UserNotificationResource:
+      type: object
+      description: A notification for a user
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique message identifier.
+          example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
+        application_id:
+          type: integer
+          description: Unique application identifier.
+          example: 201
+        user_id:
+          type: string
+          format: uuid
+          description: ID of the applicant user.
+          example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
+        date:
+          type: string
+          format: date-time
+          description: Event time of the notification.
+          example: 2025-05-20T08:00:00Z
+        message:
+          type: string
+          description: The message of the notification.
+          example: "Your application has been approved."
+        is_read:
+          type: boolean
+          description: Status if the message has been read by the user.
+      required:
+        - id
+        - user_id
+        - date
+        - message
+        - read
 
     LicenseResource:
       type: object

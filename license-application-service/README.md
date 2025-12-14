@@ -76,8 +76,7 @@ To retrieve your client secret follow these steps:
 1. Go to the [Keycloak admin console](http://localhost:8081/realms/master/protocol/openid-connect/auth?client_id=security-admin-console&redirect_uri=http%3A%2F%2Flocalhost%3A8081%2Fadmin%2Fmaster%2Fconsole%2F&state=5a67f871-4955-446e-b7a4-dcf04d1510fa&response_mode=query&response_type=code&scope=openid&nonce=bdd6a9a4-aaa7-40fa-a6dd-bd0c842c0789&code_challenge=1dG9jQi6II2K35M8kujnMSicF6yUOZfMQmZx-8BAIUI&code_challenge_method=S256) and log in using the credentials username: "admin" and password: "admin".
 2. Select the `license-realm` realm from the dropdown and navigate to the `Clients` tab
 3. Select the `backend-api` client, go to the "Credentials" tab and copy the `Client Secret` value. If the secret is not visible, click on the `Regenerate` button to create a new one
-4. Paste it to the keycloak:client-secret field in the `applications.yaml` file (do not push this change to the dev!).
-5. Restart the backend application.
+4. Paste it to the `KEYCLOAK_CLIENT_SECRET` key in an .env file (copy and rename .env.example, if necessary)
 
 > Note that the keycloak dashboard doesn't work on Safari!
 
