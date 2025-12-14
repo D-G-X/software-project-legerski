@@ -17,6 +17,19 @@ spring:
       file: license-application-service/docker-compose.yml
   jooq:
     sql-dialect: postgres
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: projectlegerski@gmail.com
+    password: earm afra dnfn vnpp
+    debug: true
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.ssl.trust: smtp.gmail.com
+
 logging.level.org.jooq.Constants: off
 
 springdoc:

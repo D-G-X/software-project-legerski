@@ -8,6 +8,7 @@ import de.hft.licensing.db.tables.records.UserRecord;
 import de.hft.licensing.model.CreateUserRequest;
 import de.hft.licensing.model.NotificationWayApiEnum;
 import de.hft.licensing.model.UpdateUserRequest;
+import de.hft.licensing.model.UserNotificationResource;
 import de.hft.licensing.model.UserResource;
 import de.hft.licensing.services.KeycloakAuthService;
 import de.hft.licensing.services.auth.AdminOnly;
@@ -207,5 +208,15 @@ public class UsersController implements UsersApi {
         }
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<List<UserNotificationResource>> getNotifications(UUID userId) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Void> updateNotifications(Integer id) {
+        return null;
     }
 }
