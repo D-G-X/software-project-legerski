@@ -1,10 +1,12 @@
-import React from "react";
+import React, {useContext} from "react";
 import {useTranslation} from "react-i18next";
 import {Link} from "react-router";
 import {Scale, Users} from "lucide-react";
-import NotificationDropup from "./NotificationPopup";
+import NotificationPopup from "./NotificationPopup";
+import {AuthContext} from "./AuthContext";
 
 export default function Footer() {
+  const auth = useContext(AuthContext);
   const {t} = useTranslation();
 
   return (
@@ -12,15 +14,7 @@ export default function Footer() {
         <div className="w-full h-full">
           <div className="flex justify-between items-center w-full h-full">
 
-            {/* Left: Notification */}
-            <NotificationDropup
-                className="ml-1 my-2 rounded-full min-w-24
-             h-[calc(100%-1rem)]
-             flex items-center justify-center cursor-pointer
-             text-mallorca-purple/75 hover:bg-mallorca-purple/10"
-            />
-
-            {/* Right side */}
+            {/* Left side */}
             <div className="flex items-center h-full">
 
               {/* Contact */}
@@ -51,6 +45,15 @@ export default function Footer() {
                 </div>
               </Link>
 
+              {/* Right: Notification */}
+              {auth?.accessToken && (
+                  <NotificationPopup
+                      className="ml-1 my-2 rounded-full min-w-24
+               h-[calc(100%-1rem)]
+               flex items-center justify-center cursor-pointer
+               text-mallorca-purple/75 hover:bg-mallorca-purple/10"
+                  />
+              )}
             </div>
           </div>
         </div>
