@@ -16,7 +16,7 @@ type NotificationsResult = {
 }
 
 type UpdateNotificationResult = {
-  updateNotification: (id: number) => void;
+  updateNotification: (id: string) => void;
   isLoading: boolean;
 }
 
@@ -44,7 +44,7 @@ function useUpdateNotificationStatus(): UpdateNotificationResult {
   const {mutate, isPending} = useUpdateNotification();
 
   return {
-    updateNotification: (id: number) => mutate({id}),
+    updateNotification: (id: string) => mutate({id}),
     isLoading: isPending,
   };
 }
@@ -70,7 +70,7 @@ export default function NotificationPopup({className = ""}) {
 
   const unreadCount = notifications?.filter((n) => !n.is_read).length || 0;
 
-  const markAsRead = (id?: number) => {
+  const markAsRead = (id?: string) => {
     if (!id) return;
     setNotifications(prev =>
         prev ? prev.map(n =>
@@ -81,7 +81,8 @@ export default function NotificationPopup({className = ""}) {
   };
 
   const markAllAsRead = () => {
-    const idsToUpdate = notifications?.filter(n => !n.is_read).map(n => n.id).filter((id): id is number => typeof id === "number");
+    const idsToUpdate = (notifications ?? [])
+    .filter(n => !n.is_read && typeof n.id === "string");
 
     setNotifications(prev =>
         prev ? prev.map(n => (n.is_read ? n : {...n, is_read: true})) : prev
@@ -91,7 +92,7 @@ export default function NotificationPopup({className = ""}) {
 
     (async () => {
       for (const id of idsToUpdate) {
-        updateNotification(id);
+        updateNotification(id.toString());
       }
     })();
   };
