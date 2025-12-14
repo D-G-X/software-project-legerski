@@ -37,7 +37,7 @@ export default function AppRoutes() {
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
-        { path: "ballotDetails", element: <BallotDetails />},
+        { path: "ballot-details", element: <BallotDetails />},
         { path: "*", element: <Error /> },
       ],
     },
