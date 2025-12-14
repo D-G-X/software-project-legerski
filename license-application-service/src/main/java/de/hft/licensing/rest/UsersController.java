@@ -12,6 +12,7 @@ import de.hft.licensing.services.KeycloakAuthService;
 import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.jooq.impl.QOM.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -221,7 +222,7 @@ public class UsersController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<Void> updateNotification(Integer id) {
+    public ResponseEntity<Void> updateNotification(UUID id) {
         boolean notificationExists = dsl.fetchExists(
                 dsl.selectOne().from(Notification.NOTIFICATION).where(Notification.NOTIFICATION.ID.eq(id))
         );
