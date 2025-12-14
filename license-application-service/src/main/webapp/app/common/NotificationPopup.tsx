@@ -4,7 +4,7 @@ import {Dot, MessageSquare, MessageSquareDashed, Settings} from "lucide-react";
 import {useNavigate} from "react-router";
 import {formatDate, formatRelativeDate} from "./format";
 import {UserNotificationResource} from "../../types";
-import {useGetNotifications, useUpdateNotifications} from "../services/users/users";
+import {useGetNotifications, useUpdateNotification} from "../services/users/users";
 import {AxiosError} from "axios";
 import {getUserIdFromToken} from "./authTokenDecode";
 import {AuthContext} from "./AuthContext";
@@ -41,7 +41,7 @@ function useGetNotificationsData(userId: string): NotificationsResult {
 }
 
 function useUpdateNotificationStatus(): UpdateNotificationResult {
-  const {mutate, isPending} = useUpdateNotifications();
+  const {mutate, isPending} = useUpdateNotification();
 
   return {
     updateNotification: (id: number) => mutate({id}),
