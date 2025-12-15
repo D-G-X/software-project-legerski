@@ -15,66 +15,55 @@
 
 ### Usage
 
-#### Client call to the mock bank service
-
 The mock bank service listens on port `8082` and exposes the following endpoint:
 
 - `POST /process-payment`: Simulates processing a payment. Expects a JSON payload with the following structure:
 
 ```json
 {
-    "application_id": "string",
-    "amount": "number",
+    "amount": "float",
     "name": "string",
     "iban": "string",
-    "bic": "string" // optional for Spanish IBANs
+    "bic": "string", // optional
+    "payment_date": "string"
 }
 ```
-> Rate limiting may apply to this endpoint.
 
-The service responds with a JSON object with the result of the payment processing (VERIFIED or REJECTED):
+The service responds with a JSON object indicating the success or failure of the payment processing:
 
 ```json
 {
-    "application_id": "string",
-    "payment_id": "string",
-    "status": "string", // only "VERIFIED" or "REJECTED"
-    "rejection_reason": "*string" // only present if status is "REJECTED"
+    "status": "string", // only "SUCCESS"
+    "payment_id": "string"
 }
 ```
-
-#### Callback to the License Application Service
-
-The mock bank service also performs a callback to the License Application Service once the payment verification is complete. The callback is sent to the `/payment-callback` endpoint of the License Application Service.
-
-The callback payload has the following structure:
-
-```json
-{
-    "application_id": "string",
-    "payment_id": "string",
-    "status": "string", // only "VERIFIED" or "REJECTED"
-    "rejection_reason": "*string" // only present if status is "REJECTED"
-}
-```
-
-Rejection probability, delay and max file size (per file) can be configured in `bank.go`.
 
 ### Testing the Service
 
-You can test the mock bank service using `curl` or any API testing tool like Postman or simply the terminal.
+You can test the mock document validator service using `curl` or any API testing tool like Postman or simply the terminal.
 
-Here’s an example `curl` command:
+Here are two example `curl` commands:
 
 ```bash
 curl -X POST http://localhost:8082/process-payment \
   -H "Content-Type: application/json" \
   -d '{
-    "application_id": "123",
     "amount": 123.45,
     "name": "John Doe",
-    "iban": "DE01010101010101010101",
-    "bic": "ABCDDEFFXXX"
+    "iban": "ES01234567890123456789",           
+    "payment_date": "2025-05-22T15:10:00Z"
+  }'
+```
+
+```bash
+curl -X POST http://localhost:8082/process-payment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 678.90,
+    "name": "Jane Doe",
+    "iban": "DE09876543210987654321",
+    "bic": "DEUTDEXX",
+    "payment_date": "2025-06-15T09:30:00Z"
   }'
 ```
 
@@ -82,40 +71,7 @@ This should return a response similar to:
 
 ```json
 {
-    "application_id": "123",
-    "payment_id": "PAY-1764173117-648016",
-    "status": "VERIFIED"
-}
-```
-
-or, if the document was rejected:
-
-```json
-{
-    "application_id": "123",
-    "payment_id": "PAY-1764173117-648016",
-    "status": "REJECTED",
-    "rejection_reason": "Insufficient funds"
-}
-```
-
-the callback will also be sent to the License Application Service at this point with the following payload:
-
-```json
-{
-    "application_id": "123",
-    "payment_id": "PAY-1764173117-648016",
-    "status": "VERIFIED"
-}
-```
-
-or, if the document was rejected:
-
-```json
-{
-    "application_id": "123",
-    "payment_id": "PAY-1764173117-648016",
-    "status": "REJECTED",
-    "rejection_reason": "Insufficient funds"
+  "status":"SUCCESS",
+  "payment_id":"SEPA-1764173549-896471"
 }
 ```
