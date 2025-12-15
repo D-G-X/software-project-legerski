@@ -26,8 +26,6 @@ tags:
     description: Managing user consents for data processing and compliance with regulatory requirements.
   - name: Ballot Periods
     description: Managing ballot periods for fair allocation of holiday rental licenses.
-  - name: Preferences
-    description: User preferences management, including notification settings.
 
 
 security:
@@ -311,6 +309,58 @@ paths:
             description: Forbidden
           "404":
             description: User not found
+
+  /users/{userId}/notification-preferences:
+      get:
+        tags: [Users]
+        summary: Get notification preferences for a user
+        description: Retrieve the notification preferences for a specific user.
+        operationId: getNotificationPreferences
+        security:
+          - KeycloakOAuth2: [ openid ]
+        parameters:
+          - name: userId
+            in: path
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          "200":
+            description: User notification preferences
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/NotificationPreferencesResource"
+      patch:
+        tags: [Users]
+        summary: Update notification preferences for a user
+        description: Update the notification preferences for a specific user.
+        operationId: updateNotificationPreferences
+        security:
+          - KeycloakOAuth2: [ openid ]
+        parameters:
+          - name: userId
+            in: path
+            required: true
+            schema:
+              type: string
+              format: uuid
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationPreferencesUpdate"
+        responses:
+          "200":
+            description: Updated notification preferences
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/NotificationPreferencesResource"
+
+
 
   /applications:
     get:
@@ -924,58 +974,6 @@ paths:
           description: Invalid request
         '401':
           description: Unauthorized
-
-  /preferences/notifications/{userId}:
-    get:
-      tags: [Preferences]
-      summary: Get notification preferences for a user
-      description: Retrieve the notification preferences for a specific user.
-      operationId: getNotificationPreferences
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: User notification preferences
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotificationPreferencesResource"
-    patch:
-      tags: [Preferences]
-      summary: Update notification preferences for a user
-      description: Update the notification preferences for a specific user.
-      operationId: updateNotificationPreferences
-      security:
-        - KeycloakOAuth2: [openid]
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NotificationPreferencesUpdate"
-      responses:
-        "200":
-          description: Updated notification preferences
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotificationPreferencesResource"
-
-
 
 components:
   securitySchemes:
