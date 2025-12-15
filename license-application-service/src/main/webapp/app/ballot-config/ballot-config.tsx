@@ -1,10 +1,13 @@
+import { AuthContext } from "app/common/AuthContext";
 import { getDateWithDelta } from "app/common/utils";
 import { isValidDateString } from "app/common/validationRules";
-import React, { useState } from "react";
+import { useCreateBallotPeriod } from "app/services/ballot-periods/ballot-periods";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
 
 export default function BallotConfig() {
   const navigate = useNavigate();
+  const auth = useContext(AuthContext);
 
   const [form, setForm] = useState({
     ballot_start_date: getDateWithDelta(1),
@@ -25,7 +28,15 @@ export default function BallotConfig() {
     navigate(`/ballot-dashboard`);
   };
 
-  const handleSubmit = () => {
+  const { mutateAsync: createBallotPeriod, isPending } = useCreateBallotPeriod({
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+    },
+  });
+
+  const handleSubmit = async () => {
     const { ballot_start_date, ballot_end_date } = form;
 
     if (!ballot_start_date || !ballot_end_date) {
@@ -68,7 +79,23 @@ export default function BallotConfig() {
       return;
     }
 
-    alert("API call has to be implemented!");
+    try {
+      const response = await createBallotPeriod({
+        data: {
+          start_date: ballot_start_date,
+          end_date: ballot_end_date,
+        },
+      });
+
+      console.log(response);
+
+      alert("Ballot period created successfully!");
+      navigate("/ballot-dashboard");
+    } catch (error: any) {
+      alert(
+        error?.response?.data?.message ?? "Failed to create ballot period."
+      );
+    }
   };
   return (
     <div className="container mx-auto px-4 md:px-6">
@@ -121,9 +148,10 @@ export default function BallotConfig() {
           <div className={`pt-5 flex justify-between px-5 gap-10`}>
             <button
               onClick={handleSubmit}
-              className="px-15 py-1 border-2 border-mallorca-purple bg-mallorca-purple rounded-lg text-white"
+              disabled={isPending}
+              className="px-15 py-1 border-2 border-mallorca-purple bg-mallorca-purple rounded-lg text-white disabled:opacity-50"
             >
-              Publish Ballot
+              {isPending ? "Publishing..." : "Publish Ballot"}
             </button>
             <button
               onClick={cancelChanges}
