@@ -83,7 +83,6 @@ export default function Profile() {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                // enabled: true/false if you allow toggling status
             },
         });
     };
