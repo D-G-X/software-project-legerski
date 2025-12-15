@@ -18,6 +18,9 @@ const emailRegex = new RegExp(
     "(?:[A-Za-z]{2,})$"
 );
 
+// Matches YYYY-MM-DD
+const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
 const ibanRegex = new RegExp("^[A-Z]{2}[0-9A-Z]{13,32}$", "i");
 
 const bicRegex = new RegExp("^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$", "i");
@@ -298,4 +301,13 @@ export const validateSepaMandateCheck = (value: boolean) => {
     };
 
   return { isValid: true, message: t("validation.sepaMandate.valid") };
+};
+
+export const isValidDateString = (value: string): boolean => {
+  if (!dateRegex.test(value)) return false;
+
+  const date = new Date(value);
+
+  // Check that date is valid and not auto-corrected by JS
+  return !isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 };

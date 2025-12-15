@@ -72,6 +72,13 @@ function emptyToNull(val: any, inputVal: any) {
   return (val && typeof val === "string" ? val.trim() : val) || null;
 }
 
+export const getDateWithDelta = (deltaInDays: number): string => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + deltaInDays);
+  return date.toISOString().slice(0, 10);
+};
+
 /**
  * Extends the yup namespace with the "emptyToNull" method and define default validation error messages.
  */
