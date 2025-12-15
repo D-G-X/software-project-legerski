@@ -147,6 +147,33 @@
       "next": "Next"
     }
   },
+  "admin-dashboard": {
+    "headline": "All Requests",
+    "links": {
+      "active_requests": "Active Requests",
+      "ballot_management": "Ballot Management"
+    },
+    "table": {
+      "requester_name": "Requester Name",
+      "address": "Address",
+      "phone_number": "Phone Number",
+      "email": "Email",
+      "country": "Country",
+      "status": "Status"
+    }
+  },
+  "ballot-dashboard": {
+    "headline": "Ballot Information",
+    "createNewBallot": "Create New Ballot",
+    "table": {
+      "ballotName": "Ballot Name",
+      "status": "Status",
+      "applicationPeriod": "Application Period (DD/MM/YYYY)",
+      "drawingDate": "Drawing Date (DD/MM/YYYY)",
+      "totalApplication": "Total Application",
+      "action": "Action"
+    }
+  },
   "applicationDetails": {
     "index": {
       "headline": "Application Details",
