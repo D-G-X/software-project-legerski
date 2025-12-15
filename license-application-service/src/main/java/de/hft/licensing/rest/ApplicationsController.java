@@ -210,8 +210,6 @@ public class ApplicationsController implements ApplicationsApi {
                 .fetchOneInto(ApplicationRecord.class);
 
 
-        // TODO: if active ballot period add SUBMITTED to ballotperiod
-
         if(updatedApplicationRecord != null){
             ApplicationResource updatedApplicationResource = new ApplicationResource();
             RecordToResourceMapperUtil.mapApplicationRecordToResource(updatedApplicationRecord, updatedApplicationResource);

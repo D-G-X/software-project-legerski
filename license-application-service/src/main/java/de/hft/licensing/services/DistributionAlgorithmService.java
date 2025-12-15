@@ -11,6 +11,7 @@ import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.LicenseTypeApiEnum;
 import de.hft.licensing.utils.EnumMapperUtil;
+import org.jooq.Condition;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -58,10 +59,15 @@ public class DistributionAlgorithmService {
 
         LocalDateTime endDate = period.getEndDate();
 
-        // all applications with status SUBMITTED and applied before period end date
+        // all applications with status SUBMITTED and applied before period end date, if type != null filter by type
+        Condition condition = Application.APPLICATION.APPLICATION_STATUS.eq(STATUS_SUBMITTED)
+                .and(Application.APPLICATION.APPLIED_AT.le(endDate));
+        if (licenseType != null) {
+            condition = condition.and(Application.APPLICATION.LICENSE_TYPE.eq((LicenseType) EnumMapperUtil.getPendantFromEnum(licenseType)));
+        }
+
         List<ApplicationRecord> candidates = dsl.selectFrom(Application.APPLICATION)
-                .where(Application.APPLICATION.APPLICATION_STATUS.eq(STATUS_SUBMITTED)
-                        .and(Application.APPLICATION.APPLIED_AT.le(endDate)))
+                .where(condition)
                 .fetchInto(ApplicationRecord.class);
 
         if (candidates.isEmpty()) {
@@ -97,9 +103,9 @@ public class DistributionAlgorithmService {
                     continue;
                 }
 
-                Integer userId = Integer.valueOf(applicationRecord.getUserId());
+                String userId = applicationRecord.getUserId();
                 long alreadyForUser = selected.stream()
-                        .filter(a -> Objects.equals(Integer.valueOf(a.getUserId()), userId))
+                        .filter(a -> a.getUserId().equals(userId))
                         .count();
 
                 if (alreadyForUser >= perUserQuota) {

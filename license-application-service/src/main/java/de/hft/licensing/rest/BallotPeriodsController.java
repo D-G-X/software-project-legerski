@@ -1,6 +1,7 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.BallotPeriodsApi;
+import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.Ballot;
 import de.hft.licensing.db.tables.BallotPeriod;
@@ -10,6 +11,7 @@ import de.hft.licensing.model.*;
 import de.hft.licensing.services.DistributionAlgorithmService;
 import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -83,6 +85,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                 .join(Application.APPLICATION)
                     .on(Ballot.BALLOT.APPLICATION_ID.eq(Application.APPLICATION.ID))
                 .where(BallotPeriod.BALLOT_PERIOD.ID.eq(periodId))
+                .and(Application.APPLICATION.APPLICATION_STATUS.eq(ApplicationStatus.submitted))
                 .fetchInto(ApplicationRecord.class);
 
         if (applicationRecords.isEmpty()) {
@@ -102,6 +105,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     @AdminOnly
     public ResponseEntity<RunLotteryForBallotPeriod200Response> runLotteryForBallotPeriod(
             Integer periodId,
+            @Parameter(name = "licenses_to_distribute") Integer licensesToDistribute,
             RunLotteryForBallotPeriodRequest runLotteryForBallotPeriodRequest) {
 
         if (periodId == null || periodId <= 0) {
@@ -112,15 +116,12 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                 ? runLotteryForBallotPeriodRequest.getLicenseType()
                 : null;
 
-        // to be added to api.yaml to override default
-        Integer maxAccepted = null;
-
         DistributionAlgorithmService.LotteryResult result;
         try {
             result = distributionAlgorithmService.runLotteryForBallotPeriod(
                     periodId,
                     licenseType,
-                    maxAccepted
+                    licensesToDistribute
             );
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
