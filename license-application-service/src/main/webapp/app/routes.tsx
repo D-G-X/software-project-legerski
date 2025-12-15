@@ -14,6 +14,7 @@ import Profile from "./profile/profile";
 import DeleteProfile from "./delete-profile/deleteProfile";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
+import BallotDetails from "./ballot-details/ballot-details";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
@@ -43,6 +44,7 @@ export default function AppRoutes() {
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
+        { path: "ballot-details", element: <BallotDetails /> },
         { path: "*", element: <Error /> },
         { path: "profile", element: <Profile /> },
         { path: "deleteProfile", element: <DeleteProfile /> },
