@@ -42,8 +42,8 @@ public class LicensesController implements LicensesApi {
         }
 
         int deletedRows = dsl.deleteFrom(License.LICENSE)
-            .where(License.LICENSE.ID.eq(licenseId))
-            .execute();
+                .where(License.LICENSE.ID.eq(licenseId))
+                .execute();
 
         if(deletedRows > 0){
             log.info("Deleted license with ID: {}", licenseId);
@@ -62,9 +62,9 @@ public class LicensesController implements LicensesApi {
         }
 
         var dbLicense = dsl.select()
-            .from(License.LICENSE)
-            .where(License.LICENSE.ID.eq(licenseId))
-            .fetchOneInto(LicenseRecord.class);
+                .from(License.LICENSE)
+                .where(License.LICENSE.ID.eq(licenseId))
+                .fetchOneInto(LicenseRecord.class);
 
         if (dbLicense != null){
             LicenseResource apiLicense = new LicenseResource();
@@ -84,7 +84,7 @@ public class LicensesController implements LicensesApi {
         }
         // Maps roles from JWT token
         boolean isAdmin = jwt.getAuthorities().stream()
-            .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
         // Extract the user ID from Keycloak token: "sub" claim
         UUID currentUserId = UUID.fromString(jwt.getToken().getSubject());
         // Enforce: normal users can only see their own applications
@@ -99,13 +99,13 @@ public class LicensesController implements LicensesApi {
 
         if(userId != null) {
             dbLicenses = dsl.select()
-                .from(License.LICENSE)
-                .where(License.LICENSE.USER_ID.eq(userId.toString()))
-                .fetchInto(LicenseRecord.class);
+                    .from(License.LICENSE)
+                    .where(License.LICENSE.USER_ID.eq(userId.toString()))
+                    .fetchInto(LicenseRecord.class);
         } else {
             dbLicenses = dsl.select()
-                .from(License.LICENSE)
-                .fetchInto(LicenseRecord.class);
+                    .from(License.LICENSE)
+                    .fetchInto(LicenseRecord.class);
         }
 
         for(LicenseRecord dbLicense : dbLicenses){
@@ -115,8 +115,8 @@ public class LicensesController implements LicensesApi {
         }
 
         return !apiLicenses.isEmpty()
-            ? ResponseEntity.ok(apiLicenses)
-            : ResponseEntity.notFound().build();
+                ? ResponseEntity.ok(apiLicenses)
+                : ResponseEntity.notFound().build();
     }
 
     @Override
@@ -127,15 +127,15 @@ public class LicensesController implements LicensesApi {
         }
 
         var oldStatus = dsl.select(License.LICENSE.LICENSE_STATUS)
-            .from(License.LICENSE)
-            .where(License.LICENSE.ID.eq(licenseId))
-            .fetchOneInto(License.LICENSE.LICENSE_STATUS.getType());
+                .from(License.LICENSE)
+                .where(License.LICENSE.ID.eq(licenseId))
+                .fetchOneInto(License.LICENSE.LICENSE_STATUS.getType());
 
         var dbLicense = dsl.update(License.LICENSE)
-            .set(License.LICENSE.LICENSE_STATUS, (LicenseStatus) EnumMapperUtil.getPendantFromEnum(updateLicenseStatusRequest.getLicenseStatus()))
-            .where(License.LICENSE.ID.eq(licenseId))
-            .returning()
-            .fetchOneInto(LicenseRecord.class);
+                .set(License.LICENSE.LICENSE_STATUS, (LicenseStatus) EnumMapperUtil.getPendantFromEnum(updateLicenseStatusRequest.getLicenseStatus()))
+                .where(License.LICENSE.ID.eq(licenseId))
+                .returning()
+                .fetchOneInto(LicenseRecord.class);
 
         if(dbLicense != null){
             // Logger
