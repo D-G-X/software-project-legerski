@@ -212,7 +212,7 @@ export default function PaymentConfirm() {
                     <span>{t("paymentForm.index.amountLabel") + ": "}</span>
                     <div className="flex flex-col items-end">
                       <span className="text-xl font-semibold leading-none">
-                        {formatAmount(stateData.amount)}
+                        {formatAmount(stateData.amount, t)}
                       </span>
                       <span className="text-xs font-light italic mt-1 leading-none">
                         {t("paymentConfirm.index.taxLabel")}
@@ -354,7 +354,7 @@ export default function PaymentConfirm() {
                           t("paymentForm.sepaMandateDialog.text.line10", {creditorId: "ES98ZZZ09999999999"}) + "\n" +
                           t("paymentForm.sepaMandateDialog.text.line11", {mandateReference: "ESM-2025-00001"}) + "\n\n" +
                           t("paymentForm.sepaMandateDialog.text.line12") + "\n\n\n" +
-                          t("paymentForm.sepaMandateDialog.text.line13", {date: formatDate(Date.now().toString())}) + "\n\n"
+                          t("paymentForm.sepaMandateDialog.text.line13", {date: formatDate(Date.now().toString(), t)}) + "\n\n"
                       )}
                       t={t}
                       onAccept={() => {

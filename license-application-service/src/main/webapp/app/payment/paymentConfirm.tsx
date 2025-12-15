@@ -62,7 +62,7 @@ export default function PaymentConfirm() {
               <div className="flex justify-between text-xl font-semibold">
                 <span>{t("paymentConfirm.index.amountLabel") + ": "}</span>
                 <div className="flex flex-col items-end leading-tight">
-                  <span>{formatAmount(data.amount)}</span>
+                  <span>{formatAmount(data.amount, t)}</span>
                   <span className="text-xs font-light italic">
                     {t("paymentConfirm.index.taxLabel")}
                   </span>
@@ -113,7 +113,7 @@ export default function PaymentConfirm() {
                   <span className="font-semibold">
                     {t("paymentConfirm.index.dateLabel") + ": "}
                   </span>
-                  <span>{formatDate(Date.now().toString())}</span>
+                  <span>{formatDate(Date.now().toString(), t)}</span>
                 </div>
               </div>
             </div>
