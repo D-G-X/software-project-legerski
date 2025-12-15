@@ -22,7 +22,6 @@ interface ApplicationDetailsProps {
   open: boolean;
   applicationData: ApplicationResource | null;
   onClose: () => void;
-  onRenew: () => void;
 }
 
 type UserDataResult = {
