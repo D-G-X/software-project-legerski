@@ -234,5 +234,36 @@
   "maxlength": "Your value must have a length of less then ${max} characters.",
   "valid": {
     "offsetDateTime": "Please provide a valid date with offset, for example \"2026-01-23T14:55:00+01:00\"."
+  },
+  "ballotDetails": {
+    "overview": {
+      "title": "Resumen del Sorteo",
+      "ballotId": "ID del Sorteo",
+      "licenseType": "Tipo de Licencia",
+      "status": "Estado",
+      "ballotYear": "Año del Sorteo",
+      "approvedCap": "Cupo Máximo Aprobado"
+    },
+    "license": {
+      "etv": "ETV",
+      "etvpl": "ETVPL",
+      "etv60": "ETV60"
+    },
+    "status": {
+      "completed": "Completado"
+    },
+    "timeline": {
+      "title": "Cronograma del Sorteo",
+      "applicationPeriod": "Periodo de Solicitud",
+      "drawingDate": "Fecha del Sorteo"
+    },
+    "documents": {
+      "title": "Documentos del Sorteo",
+      "download": "Descargar documento"
+    },
+    "actions": {
+      "viewApplications": "Ver solicitudes",
+      "cancel": "Cancelar"
+    }
   }
 }
