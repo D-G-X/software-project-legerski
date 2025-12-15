@@ -32,6 +32,7 @@
     "signInBtn": "Sign in",
     "signOutBtn": "Sign Out",
     "registerBtn": "Register",
+    "noNotification": "No notifications to display.",
     "languages": {
       "en": {
         "name": "English",
