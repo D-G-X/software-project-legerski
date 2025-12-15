@@ -668,5 +668,36 @@
       "consentTitle": "Cookie Consent",
       "consentText": "On your first visit, you accept all essential cookies. These cannot be disabled."
     }
-  }
+  },
+  "ballotDetails":{
+    "overview": {
+      "title": "Ballot Overview",
+      "ballotId": "Ballot Id",
+      "licenseType": "License Type",
+      "status": "Status",
+      "ballotYear": "Ballot year",
+      "approvedCap": "Approved License Cap"
+    },
+    "license": {
+      "etv": "ETV",
+      "etvpl": "ETVPL",
+      "etv60": "ETV60"
+    },
+    "status": {
+      "completed": "Completed"
+    },
+    "timeline": {
+      "title": "Ballot Timeline",
+      "applicationPeriod": "Application Period",
+      "drawingDate": "Drawing Date"
+    },
+    "documents": {
+      "title": "Ballot Documents",
+      "download": "Download document"
+    },
+    "actions": {
+      "viewApplications": "View Applications",
+      "cancel": "Cancel"
+    }
+}
 }
