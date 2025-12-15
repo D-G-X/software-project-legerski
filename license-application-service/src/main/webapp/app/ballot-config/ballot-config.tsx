@@ -1,5 +1,5 @@
 import { AuthContext } from "app/common/AuthContext";
-import { getDateWithDelta } from "app/common/utils";
+import { getDateWithDelta, toISOStringFromDateInput } from "app/common/utils";
 import { isValidDateString } from "app/common/validationRules";
 import { useCreateBallotPeriod } from "app/services/ballot-periods/ballot-periods";
 import React, { useContext, useState } from "react";
@@ -80,21 +80,26 @@ export default function BallotConfig() {
     }
 
     try {
-      const response = await createBallotPeriod({
+      await createBallotPeriod({
         data: {
-          start_date: ballot_start_date,
-          end_date: ballot_end_date,
+          start_date: toISOStringFromDateInput(ballot_start_date),
+          end_date: toISOStringFromDateInput(ballot_end_date),
         },
       });
-
-      console.log(response);
 
       alert("Ballot period created successfully!");
       navigate("/ballot-dashboard");
     } catch (error: any) {
-      alert(
-        error?.response?.data?.message ?? "Failed to create ballot period."
-      );
+      // Check for overlapping period error and handle specifically
+      if (error?.response?.data?.error_code === "OVERLAPPING_PERIOD") {
+        alert(
+          "The specified start and end dates overlap with an existing ballot period."
+        );
+      } else {
+        alert(
+          error?.response?.data?.message ?? "Failed to create ballot period."
+        );
+      }
     }
   };
   return (
