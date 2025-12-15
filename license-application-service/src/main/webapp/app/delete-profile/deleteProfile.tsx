@@ -1,13 +1,13 @@
-import React, { useState, useContext } from "react";
-import { useTranslation } from "react-i18next";
+import React, {useState, useContext} from "react";
+import {useTranslation} from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
-import { AuthContext } from "app/common/AuthContext";
-import { getUserIdFromToken } from "app/common/authTokenDecode";
-import { useDeleteUser, DeleteUserMutationError } from "app/services/users/users";
-import { useNavigate } from "react-router";
+import {AuthContext} from "app/common/AuthContext";
+import {getUserIdFromToken} from "app/common/authTokenDecode";
+import {useDeleteUser, DeleteUserMutationError} from "app/services/users/users";
+import {useNavigate} from "react-router";
 
 const DeleteProfile = () => {
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const navigate = useNavigate();
     const auth = useContext(AuthContext);
     const userId = getUserIdFromToken(auth?.accessToken);
@@ -16,7 +16,7 @@ const DeleteProfile = () => {
     useDocumentTitle(t("deleteProfile.deleteAccount"));
 
     const deleteUserMutation = useDeleteUser({
-        axios: { headers: { Authorization: `Bearer ${auth?.accessToken}` } },
+        axios: {headers: {Authorization: `Bearer ${auth?.accessToken}`}},
         mutation: {
             onSuccess: () => {
                 alert("Account deleted successfully!");
@@ -35,7 +35,7 @@ const DeleteProfile = () => {
         if (!userId) return;
         if (!window.confirm(t("deleteProfile.areYouSureDelete"))) return;
         setIsLoading(true);
-        deleteUserMutation.mutate({ userId });
+        deleteUserMutation.mutate({userId});
     };
 
 
