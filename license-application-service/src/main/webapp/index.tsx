@@ -9,18 +9,18 @@ import german from "./locales/german.json";
 import hindi from "./locales/hindi.json";
 import indonesian from "./locales/indonesian.json";
 import spanish from "./locales/spanish.json";
-import legalNoticeEnglish from './locales/legalNoticeEnglish.json';
-import legalNoticeFrench from './locales/legalNoticeFrench.json';
-import legalNoticeGerman from './locales/legalNoticeGerman.json';
-import legalNoticeHindi from './locales/legalNoticeHindi.json';
-import legalNoticeIndonesian from './locales/legalNoticeIndonesian.json';
-import legalNoticeSpanish from './locales/legalNoticeSpanish.json';
-import contactEnglish from './locales/contactEnglish.json';
-import contactFrench from './locales/contactFrench.json';
-import contactGerman from './locales/contactGerman.json';
-import contactHindi from './locales/contactHindi.json';
-import contactIndonesian from './locales/contactIndonesian.json';
-import contactSpanish from './locales/contactSpanish.json';
+import legalNoticeEnglish from "./locales/legalNoticeEnglish.json";
+import legalNoticeFrench from "./locales/legalNoticeFrench.json";
+import legalNoticeGerman from "./locales/legalNoticeGerman.json";
+import legalNoticeHindi from "./locales/legalNoticeHindi.json";
+import legalNoticeIndonesian from "./locales/legalNoticeIndonesian.json";
+import legalNoticeSpanish from "./locales/legalNoticeSpanish.json";
+import contactEnglish from "./locales/contactEnglish.json";
+import contactFrench from "./locales/contactFrench.json";
+import contactGerman from "./locales/contactGerman.json";
+import contactHindi from "./locales/contactHindi.json";
+import contactIndonesian from "./locales/contactIndonesian.json";
+import contactSpanish from "./locales/contactSpanish.json";
 import AppRoutes from "./app/routes";
 import { AuthContext, AuthProvider } from "./app/common/AuthContext";
 import "./index.css";
@@ -36,9 +36,16 @@ const AppInitializer = () => {
   useEffect(() => {
     const storedAccess = localStorage.getItem("accessToken");
     const storedRefresh = localStorage.getItem("refreshToken");
+    const storedAccessRefreshToken = localStorage.getItem("accessTokenExpiry");
+    const storedRefreshToken = localStorage.getItem("refreshTokenExpiry");
+    const storedTokenType = localStorage.getItem("tokenType");
 
     if (storedAccess) auth?.setAccessToken(storedAccess);
     if (storedRefresh) auth?.setRefreshToken(storedRefresh);
+    if (storedRefresh)
+      auth?.setAccessTokenExpiry(Number(storedAccessRefreshToken));
+    if (storedRefresh) auth?.setRefreshTokenExpiry(Number(storedRefreshToken));
+    if (storedRefresh) auth?.setTokenType(storedTokenType);
   }, [auth]);
 
   return <AppRoutes />;
@@ -50,33 +57,35 @@ i18n.use(initReactI18next).init({
       translation: english,
       legalNotice: legalNoticeEnglish,
       contact: contactEnglish,
-      ballotDetails: ballotDetailsEnglish
     },
     fr: {
       translation: french,
       legalNotice: legalNoticeFrench,
-      contact: contactFrench
+      contact: contactFrench,
     },
     de: {
       translation: german,
       legalNotice: legalNoticeGerman,
-      contact: contactGerman
+      contact: contactGerman,
     },
     hi: {
       translation: hindi,
       legalNotice: legalNoticeHindi,
-      contact: contactHindi
+      contact: contactHindi,
     },
     id: {
       translation: indonesian,
       legalNotice: legalNoticeIndonesian,
-      contact: contactIndonesian
+      contact: contactIndonesian,
     },
     es: {
       translation: spanish,
       legalNotice: legalNoticeSpanish,
       contact: contactSpanish,
+<<<<<<< HEAD
       ballotDetails: ballotDetailsSpanish
+=======
+>>>>>>> dev
     },
   },
   lng: localStorage.getItem("language") || "en",
@@ -91,11 +100,11 @@ axios.defaults.baseURL = process.env.API_PATH;
 const root = document.getElementById("root")!!;
 
 ReactDOM.createRoot(root).render(
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AppInitializer/>
-        </AuthProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppInitializer />
+      </AuthProvider>
+    </QueryClientProvider>
+  </React.StrictMode>
 );

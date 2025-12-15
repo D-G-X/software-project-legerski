@@ -38,18 +38,21 @@ var rejectionReasons = []string{
 
 const callbackURL = "http://host.docker.internal:8080/validation-callback" // backend callback endpoint
 
+// Login-Konfiguration
+const loginURL = "http://localhost:8080/login"
+const loginEmail = "documentvalidator@xx.xx"
+const loginPassword = "securepassword123"
+
 var httpClient = &http.Client{
 	Timeout: timeout * time.Second,
 }
 
-// ProcessDocumentResponse Outgoing response (to client)
 type ProcessDocumentResponse struct {
 	ApplicationId   int     `json:"application_id"`
 	Status          string  `json:"status"`
 	RejectionReason *string `json:"rejection_reason,omitempty"`
 }
 
-// CallbackPayload Outgoing callback payload (to backend)
 type CallbackPayload struct {
 	ApplicationId    int     `json:"application_id"`
 	IdFilename       string  `json:"id_filename"`
@@ -58,7 +61,6 @@ type CallbackPayload struct {
 	RejectionReason  *string `json:"rejection_reason,omitempty"`
 }
 
-// JobInfo internal job storage
 type JobInfo struct {
 	ApplicationId    int
 	IdFilename       string
@@ -72,13 +74,25 @@ var (
 	mu          sync.Mutex
 )
 
-// RateInfo for limiting the number of polling requests per client
 type RateInfo struct {
 	Count     int
 	ResetTime time.Time
 }
 
 var rateStore = make(map[int]*RateInfo)
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	AccessToken      string `json:"access_token"`
+	RefreshToken     string `json:"refresh_token"`
+	ExpiresIn        int    `json:"expires_in"`
+	RefreshExpiresIn int    `json:"refresh_expires_in"`
+	TokenType        string `json:"token_type"`
+}
 
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -175,6 +189,13 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := getAccessToken()
+	if err != nil {
+		log.Printf("failed to obtain access token: %v", err)
+		validatorOutOfService(w)
+		return
+	}
+
 	mu.Lock()
 	jobStore[applicationId] = JobInfo{
 		ApplicationId:    applicationId,
@@ -184,7 +205,7 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	mu.Unlock()
 
-	go runBackgroundJob(applicationId, idHeader.Filename, proofHeader.Filename)
+	go runBackgroundJob(applicationId, idHeader.Filename, proofHeader.Filename, token)
 
 	resp := ProcessDocumentResponse{
 		ApplicationId: applicationId,
@@ -194,7 +215,7 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, resp)
 }
 
-func runBackgroundJob(applicationId int, idFile, proofFile string) {
+func runBackgroundJob(applicationId int, idFile, proofFile, token string) {
 	time.Sleep(processDuration[rand.Intn(len(processDuration))])
 
 	status := getRandomStatus()
@@ -225,12 +246,52 @@ func runBackgroundJob(applicationId int, idFile, proofFile string) {
 		RejectionReason:  rejectionReason,
 	}
 
-	if err := sendCallback(payload); err != nil {
+	if err := sendCallback(payload, token); err != nil {
 		log.Printf("callback error for application_id=%d: %v", applicationId, err)
 	}
 }
 
-func sendCallback(p CallbackPayload) error {
+func getAccessToken() (string, error) {
+	reqBody := LoginRequest{
+		Email:    loginEmail,
+		Password: loginPassword,
+	}
+
+	bodyBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("marshal login request: %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, loginURL, bytes.NewReader(bodyBytes))
+	if err != nil {
+		return "", fmt.Errorf("create login request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("execute login request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		b, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("login returned status %s: %s", resp.Status, string(b))
+	}
+
+	var loginResp LoginResponse
+	if err := json.NewDecoder(resp.Body).Decode(&loginResp); err != nil {
+		return "", fmt.Errorf("decode login response: %w", err)
+	}
+
+	if loginResp.AccessToken == "" {
+		return "", fmt.Errorf("login response did not contain access_token")
+	}
+
+	return loginResp.AccessToken, nil
+}
+
+func sendCallback(p CallbackPayload, token string) error {
 	body, err := json.Marshal(p)
 	if err != nil {
 		return fmt.Errorf("marshal callback payload: %w", err)
@@ -242,6 +303,7 @@ func sendCallback(p CallbackPayload) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -272,6 +334,19 @@ func reject(w http.ResponseWriter, msg string) {
 		Status:          "REJECTED",
 		RejectionReason: &msg,
 	}
+	json.NewEncoder(w).Encode(resp)
+}
+
+func validatorOutOfService(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusServiceUnavailable)
+
+	msg := "Validator is currently out of service"
+	resp := ProcessDocumentResponse{
+		Status:          "REJECTED",
+		RejectionReason: &msg,
+	}
+
 	json.NewEncoder(w).Encode(resp)
 }
 

@@ -13,7 +13,9 @@ import ApplicationDocumentUpload from "./license/document-upload/document-upload
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
 import BallotDetails from "./ballotDetails/ballotDetails";
-
+import AdminDashboard from "./admin-dashboard/admin-dashboard";
+import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
+import NotificationSettings from "./notification-setting/notification-setting";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -25,6 +27,9 @@ export default function AppRoutes() {
         { path: "reset-password", element: <ResetPassword /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
+        { path: "admin-dashboard", element: <AdminDashboard /> },
+        { path: "ballot-dashboard", element: <BallotDashboard /> },
+        { path: "notification-settings", element: <NotificationSettings /> },
         {
           path: "license-application-request",
           element: <RequestApplication />,
@@ -37,7 +42,7 @@ export default function AppRoutes() {
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
-        { path: "ballot-details", element: <BallotDetails />},
+        { path: "ballot-details", element: <BallotDetails /> },
         { path: "*", element: <Error /> },
       ],
     },
