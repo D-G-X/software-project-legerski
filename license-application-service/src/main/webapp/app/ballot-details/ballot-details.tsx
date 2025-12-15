@@ -2,18 +2,19 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Download } from "lucide-react";
 
+import Row from "app/common/ballot-details-ui/Row";
+import Pill from "app/common/ballot-details-ui/Pill";
+import ValuePill from "app/common/ballot-details-ui/ValuePill";
 
 const BallotDetails: React.FC = () => {
-  const { t } = useTranslation("ballotDetails");
+  const { t } = useTranslation(undefined, {
+    keyPrefix: "ballotDetails",
+  });
 
   return (
     <div className="min-h-screen bg-white font-inter flex flex-col">
-
-
-      {/* PAGE CONTENT */}
       <main className="flex-1">
         <div className="max-w-5xl mx-auto px-6 py-6">
-
 
           {/* BALLOT OVERVIEW */}
           <h2 className="text-lg font-semibold mb-3">
@@ -103,33 +104,8 @@ const BallotDetails: React.FC = () => {
 
         </div>
       </main>
-
     </div>
   );
 };
 
 export default BallotDetails;
-
-/* ---------- Reusable UI Pieces ---------- */
-
-const Row: React.FC<{ label: string; children: React.ReactNode }> = ({
-  label,
-  children,
-}) => (
-  <div className="flex items-center justify-between px-4 py-3">
-    <span className="text-gray-600">{label}</span>
-    <div className="flex items-center gap-2">{children}</div>
-  </div>
-);
-
-const Pill: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span className="border border-gray-300 rounded-full px-3 py-1 text-sm bg-white">
-    {children}
-  </span>
-);
-
-const ValuePill: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span className="border border-gray-300 rounded-md px-3 py-1 bg-white font-medium">
-    {children}
-  </span>
-);

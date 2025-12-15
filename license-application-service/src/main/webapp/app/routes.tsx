@@ -12,7 +12,7 @@ import Payment from "./payment/payment";
 import ApplicationDocumentUpload from "./license/document-upload/document-upload";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
-import BallotDetails from "./ballotDetails/ballotDetails";
+import BallotDetails from "./ballot-details/ballot-details";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
