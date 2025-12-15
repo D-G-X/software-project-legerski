@@ -28,7 +28,7 @@ export default function AppRoutes() {
         { path: "register", element: <Register /> },
         { path: "admin-dashboard", element: <AdminDashboard /> },
         { path: "ballot-dashboard", element: <BallotDashboard /> },
-        { path: "notification-setting", element: <NotificationSettings /> },
+        { path: "notification-settings", element: <NotificationSettings /> },
         {
           path: "license-application-request",
           element: <RequestApplication />,
