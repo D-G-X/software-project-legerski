@@ -13,6 +13,7 @@ import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -95,7 +96,7 @@ public class UsersController implements UsersApi {
     }
 
     @Override
-    @AdminOnly
+    @PreAuthorize("@userAuthorization.canAccessUser(authentication, #userId)")
     public ResponseEntity<UserResource> getUser(UUID userId) {
         if (userId == null) {
             return ResponseEntity.badRequest().build();
