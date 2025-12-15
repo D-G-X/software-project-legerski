@@ -1,31 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
+import { AuthContext } from "app/common/AuthContext";
+import { getUserIdFromToken } from "app/common/authTokenDecode";
+import { useDeleteUser, DeleteUserMutationError } from "app/services/users/users";
+import { useNavigate } from "react-router";
 
 const DeleteProfile = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
+    const auth = useContext(AuthContext);
+    const userId = getUserIdFromToken(auth?.accessToken);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Set page title
     useDocumentTitle(t("deleteProfile.deleteAccount"));
 
-    const handleDelete = async () => {
-        setIsLoading(true);
-        try {
-
-            setTimeout(() => {
-                setIsLoading(false);
+    const deleteUserMutation = useDeleteUser({
+        axios: { headers: { Authorization: `Bearer ${auth?.accessToken}` } },
+        mutation: {
+            onSuccess: () => {
                 alert("Account deleted successfully!");
-                window.location.href = "/logout";  // Redirect to logout page (or another page)
-            }, 2000);
-        } catch (error) {
-            setIsLoading(false);
-            alert("An error occurred. Please try again later.");
-        }
+                navigate("/login");
+            },
+            onError: (err: DeleteUserMutationError) => {
+                console.error(err);
+                alert("Failed to delete account.");
+                setIsLoading(false);
+            },
+        },
+    });
+
+    const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        if (!userId) return;
+        if (!window.confirm(t("deleteProfile.areYouSureDelete"))) return;
+        setIsLoading(true);
+        deleteUserMutation.mutate({ userId });
     };
 
+
     const handleCancel = () => {
-        window.location.href = "/profile";  // Redirect back to profile page
+        navigate("/profile");
     };
 
     return (

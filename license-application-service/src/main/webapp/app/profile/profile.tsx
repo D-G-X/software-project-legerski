@@ -1,71 +1,133 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
-import axios from "axios";
-import { useGetUser } from "app/services/users/users";
+import {
+    UpdateUserMutationError,
+    useGetUser,
+    useUpdateUser
+} from "app/services/users/users";
 import { AuthContext } from "app/common/AuthContext";
+import { getUserIdFromToken } from "app/common/authTokenDecode";
 
 export default function Profile() {
   const auth = useContext(AuthContext);
+  const userId = getUserIdFromToken(auth?.accessToken);
+  const navigate = useNavigate();
   console.log(auth?.accessToken);
   const { t } = useTranslation();
-  const userID = "96824920-d149-4fb7-a127-4b5cc5c41af8";
   useDocumentTitle(t("profile.title"));
-
-  const userId = localStorage.getItem("userId");
 
   const [user, setUser] = useState({
     firstName: "",
     lastName: "",
-    email: "",
-    phoneNumber: "",
+    email: ""
   });
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+
   // -----------------------------
   // FETCH USER DETAILS
   // -----------------------------
 
-  const response = useGetUser(userID);
+    const response = useGetUser(userId ?? "", {
+        axios: {
+            headers: {
+                Authorization: `Bearer ${auth?.accessToken}`,
+            },
+        },
+        query: {
+            enabled: !!userId,
+            select: (res) => res.data,
+        },
+    });
 
-  console.log(response.data?.data);
+    useEffect(() => {
+        if (!response.data) return;
 
-  const handleUpdateDetails = async () => {
-    // implement Update User Details API
-  };
+        setUser({
+            firstName: response.data.firstName ?? "",
+            lastName: response.data.lastName ?? "",
+            email: response.data.email ?? ""
+        });
+    }, [response.data]);
+
+
+    console.log(response);
+
+    const updateUserMutation = useUpdateUser({
+        axios: { headers: { Authorization: `Bearer ${auth?.accessToken}` } },
+        mutation: {
+            onSuccess: () => {
+                alert("User details updated successfully!");
+            },
+            onError: (err: UpdateUserMutationError) => {
+                console.error(err);
+                alert("Failed to update user details.");
+            },
+        },
+    });
+
+    const handleUpdateDetails = () => {
+        if (!user.firstName || !user.lastName || !user.email) {
+            alert('All fields are required!');
+            return;
+        }
+
+        updateUserMutation.mutate({
+            userId,
+            data: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                // enabled: true/false if you allow toggling status
+            },
+        });
+    };
 
   // --------------------------------
   // PATCH: UPDATE PASSWORD
   // --------------------------------
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      alert("New passwords do not match!");
-      return;
-    }
+    const handleChangePassword = () => {
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            alert("Please fill in all password fields!");
+            return;
+        }
 
-    try {
-      await axios.patch(`/users/${userId}`, {
-        credentials: [
-          {
-            type: "password",
-            value: newPassword,
-            temporary: false,
-          },
-        ],
-      });
+        if (newPassword !== confirmPassword) {
+            alert("New passwords do not match!");
+            return;
+        }
 
-      alert("Password updated successfully!");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update password.");
-    }
-  };
+        updateUserMutation.mutate({
+            userId,
+            data: {
+                credentials: [
+                    {
+                        type: "password",
+                        value: newPassword,
+                        temporary: false,
+                    },
+                ],
+            },
+        });
+
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+    };
+
+    // --------------------------------
+    // PATCH: Delete Account
+    // --------------------------------
+
+    const handleDeleteAccount = () => {
+        navigate("/deleteProfile");
+    };
+
 
   return (
     <div className="w-full max-w-5xl mx-auto py-12 px-4">
@@ -116,20 +178,6 @@ export default function Profile() {
               type="email"
               value={user.email}
               onChange={(e) => setUser({ ...user, email: e.target.value })}
-              className="border border-gray-300 rounded-md px-3 py-2 focus:ring-mallorca-purple focus:border-mallorca-purple"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-1 font-medium">
-              {t("profile.phoneNumber")}
-            </label>
-            <input
-              type="text"
-              value={user.phoneNumber}
-              onChange={(e) =>
-                setUser({ ...user, phoneNumber: e.target.value })
-              }
               className="border border-gray-300 rounded-md px-3 py-2 focus:ring-mallorca-purple focus:border-mallorca-purple"
             />
           </div>
@@ -198,7 +246,9 @@ export default function Profile() {
           {t("profile.changePassword")}
         </button>
 
-        <button className="w-full mt-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-500">
+        <button
+            onClick={handleDeleteAccount}
+            className="w-full mt-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-500">
           {t("profile.deleteAccount")}
         </button>
       </div>
