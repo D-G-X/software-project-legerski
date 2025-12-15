@@ -5,13 +5,11 @@ import {
   ApplicationPaymentResource,
   ApplicationResource,
   GetApplicationDocuments200,
-  LicenseResource,
-  UserResource
+  LicenseResource
 } from "../../types";
 import {Minimize2} from "lucide-react";
 import "./admin-applicationDetails.css";
 import {useListPayments} from "../services/payments/payments";
-import {useGetUser} from "../services/users/users";
 import {useGetLicense, useListLicenses} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
 import {formatAmount, formatBic, formatDate, formatIban} from "../common/format";
@@ -23,12 +21,6 @@ interface ApplicationDetailsProps {
   applicationData: ApplicationResource | null;
   onClose: () => void;
 }
-
-type UserDataResult = {
-  data: UserResource | null;
-  isFound: boolean;
-  isLoading: boolean;
-};
 
 type LicenseDataResult = {
   data: LicenseResource | null;
@@ -46,21 +38,6 @@ type PaymentDataResult = {
   data: ApplicationPaymentResource | null;
   isFound: boolean;
   isLoading: boolean;
-}
-
-function useGetUserData(userId: string): UserDataResult {
-  const {
-    data: response,
-    error,
-    isLoading
-  } = useGetUser(userId);
-
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
-  return {
-    data: response?.data ?? null,
-    isFound,
-    isLoading
-  };
 }
 
 function useGetLicenseData(userId: string, applicationId: number): LicenseDataResult {
@@ -128,16 +105,10 @@ export default function AdminApplicationDetails({
   const {t} = useTranslation();
 
   const {
-    data: userData,
-    isFound: foundUser,
-    isLoading: isLoadingUser
-  } = useGetUserData(applicationData?.user_id);
-
-  const {
     data: licenseData,
     isFound: foundLicense,
     isLoading: isLoadingLicense
-  } = useGetLicenseData(userData?.id ?? "", applicationData.id);
+  } = useGetLicenseData(applicationData.user_id, applicationData.id);
 
   const {
     data: documentData,
@@ -176,7 +147,7 @@ export default function AdminApplicationDetails({
              text-mallorca-purple/75 hover:bg-mallorca-purple/10"
             ><Minimize2/>
             </button>
-            {(isLoadingUser || isLoadingLicense || isLoadingDocument || isLoadingPayment) ?
+            {(isLoadingLicense || isLoadingDocument || isLoadingPayment) ?
                 <div className="font-inter text-center">
                   {/* Loading Screen */}
                   <div
@@ -269,29 +240,6 @@ export default function AdminApplicationDetails({
                     </div>
 
                   </div>
-
-                  {/* User fields */}
-                  {foundUser && (
-                      <>
-                        <div className="text-lg mt-4 text-mallorca-purple/70">
-                          {t("applicationDetails.index.user.label")}
-                        </div>
-                        <div
-                            className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.user.nameLabel") + ": "}</span>
-                            <span>{userData?.firstName + " " + userData?.lastName}</span>
-                          </div>
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.user.emailLabel") + ": "}</span>
-                            <span>{userData?.email}</span>
-                          </div>
-
-                        </div>
-                      </>
-                  )}
 
                   {/* License fields */}
                   {foundLicense && (
