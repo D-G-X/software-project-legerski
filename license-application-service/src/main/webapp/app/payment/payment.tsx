@@ -12,12 +12,18 @@ import { FormHeader } from "app/common/headingTitle";
 import SepaMandateDialog from "../common/modal-dialog/modal-dialog";
 //import { createPayment } from "app/services/payments/payments"
 import "./payment.css";
+import { useParams } from "react-router";
 
 export default function Payment() {
-  //const applicationId = 12345; // TODO: get the actual application ID from context or props
+  const params = useParams();
+
+  const applicationId = params.id!;
+
   const amount = 9999.99; // TODO: get the actual amount to be paid
   const { t } = useTranslation();
   useDocumentTitle(t("payment.title"));
+
+  console.log(applicationId);
 
   const getFormattedDate = () => {
     const now = new Date();
@@ -123,7 +129,6 @@ export default function Payment() {
       newErrors.sepaMandateCheck
     ) {
       setErrors(newErrors);
-      console.log(newErrors);
       return false;
     }
     setErrors({

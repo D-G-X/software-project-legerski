@@ -1,0 +1,39 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS"
+        logicalFilePath="db/changelog/09-09-changelog.xml">
+
+    <changeSet id="notification_table" author="Alexander">
+        <createTable tableName="notification">
+            <column defaultValueComputed="uuidv7()" name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="notification_pkey"/>
+            </column>
+            <column name="user_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_id" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="date" type="timestamp"/>
+            <column name="read_at" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="message" type="CLOB"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="foreign_key_user_id_notifications" author="Alexander">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="notification"
+                                 constraintName="notification_user_id_fkey" onDelete="CASCADE"
+                                 referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="foreign_key_application_id_notifications" author="Alexander">
+        <addForeignKeyConstraint baseColumnNames="application_id" baseTableName="notification"
+                                 constraintName="notification_application_id_fkey" onDelete="CASCADE"
+                                 referencedColumnNames="id" referencedTableName="application"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -18,7 +18,7 @@ export default function Home() {
       <div
         className="absolute inset-0 bg-center bg-cover bg-no-repeat opacity-80 scale-110 -z-10"
         style={{
-          backgroundImage: "url('/images/background.png')",
+          backgroundImage: "url('/images/background.webp')",
           backgroundPosition: "center bottom",
         }}
       ></div>

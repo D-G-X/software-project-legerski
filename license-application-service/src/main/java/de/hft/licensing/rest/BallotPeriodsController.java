@@ -10,12 +10,14 @@ import de.hft.licensing.model.*;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.ZoneId;
 import java.util.List;
 
 @RestController
+@PreAuthorize("hasRole('admin')")
 public class BallotPeriodsController implements BallotPeriodsApi {
     private final DefaultDSLContext dslContext;
 
