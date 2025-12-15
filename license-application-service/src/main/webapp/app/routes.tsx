@@ -15,6 +15,7 @@ import ContactPage from "./contact/contact";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
+import BallotConfig from "./ballot-config/ballot-config";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -28,6 +29,7 @@ export default function AppRoutes() {
         { path: "register", element: <Register /> },
         { path: "admin-dashboard", element: <AdminDashboard /> },
         { path: "ballot-dashboard", element: <BallotDashboard /> },
+        { path: "ballot-config", element: <BallotConfig /> },
         { path: "notification-settings", element: <NotificationSettings /> },
         {
           path: "license-application-request",

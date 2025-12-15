@@ -64,7 +64,7 @@ export default function NotificationSettings() {
     <div className="container mx-auto px-4 md:px-6">
       <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
         <div className="">
-          <div className="text-4xl font-bold text-mallorca-purple w-100 mb-10">
+          <div className="text-4xl font-bold text-mallorca-purple w-full mb-10">
             Notification Settings
           </div>
           <div className="pb-5">
