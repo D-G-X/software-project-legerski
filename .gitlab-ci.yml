@@ -59,7 +59,7 @@ build-backend:
   stage: build
   image: maven:3.9-eclipse-temurin-21
   services:
-    - postgres:15
+    - postgres:18.0
   variables:
     # PostgreSQL configuration
     POSTGRES_DB: government
@@ -107,7 +107,7 @@ test-backend:
   stage: test
   image: maven:3.9-eclipse-temurin-21
   services:
-    - postgres:15
+    - postgres:18.0
   variables:
     # PostgreSQL configuration
     POSTGRES_DB: government
