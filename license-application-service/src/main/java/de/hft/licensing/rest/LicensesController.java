@@ -1,7 +1,6 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.LicensesApi;
-
 import de.hft.licensing.db.enums.LicenseStatus;
 import de.hft.licensing.db.tables.License;
 import de.hft.licensing.db.tables.records.LicenseRecord;
@@ -18,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
