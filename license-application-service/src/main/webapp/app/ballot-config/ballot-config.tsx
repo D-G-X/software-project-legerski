@@ -4,8 +4,10 @@ import { isValidDateString } from "app/common/validationRules";
 import { useCreateBallotPeriod } from "app/services/ballot-periods/ballot-periods";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 export default function BallotConfig() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const auth = useContext(AuthContext);
 
@@ -24,7 +26,6 @@ export default function BallotConfig() {
   };
 
   const cancelChanges = () => {
-    // Call fetch API to fetch new values
     navigate(`/ballot-dashboard`);
   };
 
@@ -40,7 +41,7 @@ export default function BallotConfig() {
     const { ballot_start_date, ballot_end_date } = form;
 
     if (!ballot_start_date || !ballot_end_date) {
-      alert("Both start date and end date are required.");
+      alert(t("ballotConfig.alerts.requiredDates"));
       return;
     }
 
@@ -48,7 +49,7 @@ export default function BallotConfig() {
       !isValidDateString(ballot_start_date) ||
       !isValidDateString(ballot_end_date)
     ) {
-      alert("Invalid date format. Please use a valid date.");
+      alert(t("ballotConfig.alerts.invalidDate"));
       return;
     }
 
@@ -59,15 +60,15 @@ export default function BallotConfig() {
     const endDate = new Date(ballot_end_date);
 
     if (startDate <= today) {
-      alert("Start date must be later than today.");
+      alert(t("ballotConfig.alerts.startDateAfterToday"));
       return;
     }
     if (startDate.getTime() === endDate.getTime()) {
-      alert("Start date and end date cannot be the same.");
+      alert(t("ballotConfig.alerts.sameStartEndDate"));
       return;
     }
     if (startDate > endDate) {
-      alert("Start date cannot be later than end date.");
+      alert(t("ballotConfig.alerts.startDateAfterEndDate"));
       return;
     }
 
@@ -75,7 +76,7 @@ export default function BallotConfig() {
     maxEndDate.setMonth(maxEndDate.getMonth() + 6);
 
     if (endDate > maxEndDate) {
-      alert("End date cannot be more than 6 months after the start date.");
+      alert(t("ballotConfig.alerts.endDateTooLate"));
       return;
     }
 
@@ -87,17 +88,16 @@ export default function BallotConfig() {
         },
       });
 
-      alert("Ballot period created successfully!");
+      alert(t("ballotConfig.alerts.success"));
       navigate("/ballot-dashboard");
     } catch (error: any) {
       // Check for overlapping period error and handle specifically
       if (error?.response?.data?.error_code === "OVERLAPPING_PERIOD") {
-        alert(
-          "The specified start and end dates overlap with an existing ballot period."
-        );
+        alert(t("ballotConfig.alerts.overlappingPeriod"));
       } else {
         alert(
-          error?.response?.data?.message ?? "Failed to create ballot period."
+          error?.response?.data?.message ??
+            t("ballotConfig.alerts.creationFailed")
         );
       }
     }
@@ -107,17 +107,16 @@ export default function BallotConfig() {
       <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl font-bold text-mallorca-purple w-full mb-10 text-center">
-            Configure New Ballot
+            {t("ballotConfig.pageTitle")}
           </div>
 
           <div className="py-5 px-3 border rounded-2xl mb-10">
-            {/* Ballot Start Date */}
             <div className="text-md text-mallorca-purple gap-10 flex mb-10">
               <label
                 className="w-[50%] items-center py-2"
                 htmlFor="ballot_start_date"
               >
-                Start Date:
+                {t("ballotConfig.formFields.startDate")}
               </label>
               <input
                 id="ballot_start_date"
@@ -130,13 +129,12 @@ export default function BallotConfig() {
               />
             </div>
 
-            {/* Ballot End Date */}
             <div className="text-md text-mallorca-purple gap-10 flex ">
               <label
                 className="w-[50%] items-center py-2"
                 htmlFor="ballot_end_date"
               >
-                End Date:
+                {t("ballotConfig.formFields.endDate")}
               </label>
               <input
                 id="ballot_end_date"
@@ -156,13 +154,15 @@ export default function BallotConfig() {
               disabled={isPending}
               className="px-15 py-1 border-2 border-mallorca-purple bg-mallorca-purple rounded-lg text-white disabled:opacity-50"
             >
-              {isPending ? "Publishing..." : "Publish Ballot"}
+              {isPending
+                ? t("ballotConfig.buttons.publishing")
+                : t("ballotConfig.buttons.publish")}
             </button>
             <button
               onClick={cancelChanges}
               className="px-15 py-1 bg-white border-2 border-mallorca-purple rounded-lg text-mallorca-purple"
             >
-              Cancel
+              {t("ballotConfig.buttons.cancel")}
             </button>
           </div>
         </div>

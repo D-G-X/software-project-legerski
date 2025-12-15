@@ -669,5 +669,53 @@
       "consentTitle": "Cookie Consent",
       "consentText": "On your first visit, you accept all essential cookies. These cannot be disabled."
     }
+  },
+  "ballotConfig": {
+    "pageTitle": "Configure New Ballot",
+    "formFields": {
+      "startDate": "Start Date:",
+      "endDate": "End Date:"
+    },
+    "buttons": {
+      "publish": "Publish Ballot",
+      "cancel": "Cancel"
+    },
+    "alerts": {
+      "requiredDates": "Both start date and end date are required.",
+      "invalidDate": "Invalid date format. Please use a valid date.",
+      "startDateAfterToday": "Start date must be later than today.",
+      "sameStartEndDate": "Start date and end date cannot be the same.",
+      "startDateAfterEndDate": "Start date cannot be later than end date.",
+      "endDateTooLate": "End date cannot be more than 6 months after the start date.",
+      "success": "Ballot period created successfully!",
+      "overlappingPeriod": "The specified start and end dates overlap with an existing ballot period.",
+      "creationFailed": "Failed to create ballot period."
+    }
+  },
+  "notificationSettings": {
+    "pageTitle": "Notification Settings",
+    "description": "Manage how we send notifications to you",
+    "sections": {
+      "appUpdates": {
+        "title": "When my application is updated:",
+        "email": "Email"
+      },
+      "appStatus": {
+        "title": "Application Updates",
+        "label": "When my application status is updated"
+      },
+      "license": {
+        "title": "License Renewal Updates",
+        "label": "When my license is 6 months due for expiry"
+      }
+    },
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "alerts": {
+      "clientError": "Client Error Occurred",
+      "apiPlaceholder": "API call has to be implemented!"
+    }
   }
 }

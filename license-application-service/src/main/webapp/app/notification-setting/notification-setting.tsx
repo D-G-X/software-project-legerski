@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function NotificationSettings() {
+  const { t } = useTranslation();
   const [showSubmitChanges, setShowSubmitChanges] = useState(false);
   const [form, setForm] = useState({
     app_notif_type: false,
@@ -51,13 +53,12 @@ export default function NotificationSettings() {
       typeof form.app_notif_freq !== "boolean" ||
       typeof form.app_notif_lic_reminder !== "boolean"
     ) {
-      alert("Client Error Occured");
+      alert(t("notificationSettings.alerts.clientError"));
       window.location.reload();
       return;
     }
 
-    // submit API call
-    alert("API call has to be implemented!");
+    alert(t("notificationSettings.alerts.apiPlaceholder"));
   };
 
   return (
@@ -65,16 +66,18 @@ export default function NotificationSettings() {
       <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
         <div className="">
           <div className="text-4xl font-bold text-mallorca-purple w-full mb-10">
-            Notification Settings
+            {t("notificationSettings.pageTitle")}
           </div>
           <div className="pb-5">
             <div className="pb-2">
-              <span>Manage how we send notifications to you</span>
+              <span>{t("notificationSettings.description")}</span>
             </div>
-            <div className=" mx-3">
-              {/* Notificaton Preference */}
+            <div className="mx-3">
+              {/* Notification Preference */}
               <div className="text-md py-4 text-mallorca-purple/50">
-                <div className="pb-4">When my application is updated:</div>
+                <div className="pb-4">
+                  {t("notificationSettings.sections.appUpdates.title")}
+                </div>
                 <span className="bg-matte-grey px-4 py-2 text-white rounded-lg ml-5">
                   <input
                     id="app_notif_type"
@@ -85,44 +88,53 @@ export default function NotificationSettings() {
                     className="accent-matte-grey checked:bg-black p-2 rounded mr-2"
                   />
                   <label className="ml-2" htmlFor="app_notif_type">
-                    Email
+                    {t("notificationSettings.sections.appUpdates.email")}
                   </label>
                 </span>
               </div>
 
-              {/* Application Updates */}
+              {/* Application Status Updates */}
               <div className="text-md py-4 text-mallorca-purple/50">
-                <div className="pb-4">Application Updates</div>
+                <div className="pb-4">
+                  {t("notificationSettings.sections.appStatus.title")}
+                </div>
                 <span className="bg-matte-grey px-4 py-2 text-white rounded-lg ml-5">
                   <input
                     id="app_notif_freq"
                     name="app_notif_freq"
                     type="checkbox"
+                    checked={form.app_notif_freq}
+                    onChange={handleChange}
                     className="accent-matte-grey checked:bg-black p-2 rounded mr-2"
                   />
                   <label className="ml-2" htmlFor="app_notif_freq">
-                    When my application staus is updated
+                    {t("notificationSettings.sections.appStatus.label")}
                   </label>
                 </span>
               </div>
 
               {/* License Renewal Updates */}
               <div className="text-md py-4 text-mallorca-purple/50">
-                <div className="pb-4">License Renewal Updates</div>
+                <div className="pb-4">
+                  {t("notificationSettings.sections.license.title")}
+                </div>
                 <span className="bg-matte-grey px-4 py-2 text-white rounded-lg ml-5">
                   <input
                     id="app_notif_lic_reminder"
                     name="app_notif_lic_reminder"
                     type="checkbox"
+                    checked={form.app_notif_lic_reminder}
+                    onChange={handleChange}
                     className="accent-matte-grey checked:bg-black p-2 rounded mr-2"
                   />
                   <label className="ml-2" htmlFor="app_notif_lic_reminder">
-                    When my license is 6 months due for expiry
+                    {t("notificationSettings.sections.license.label")}
                   </label>
                 </span>
               </div>
             </div>
           </div>
+
           <div
             className={`pt-5 ${
               showSubmitChanges ? "flex" : "invisible"
@@ -132,13 +144,13 @@ export default function NotificationSettings() {
               onClick={handleSubmit}
               className="px-15 py-1 border-2 border-mallorca-purple bg-mallorca-purple rounded-lg text-white"
             >
-              Save
+              {t("notificationSettings.buttons.save")}
             </button>
             <button
               onClick={fetchOrResetChanges}
               className="px-15 py-1 bg-white border-2 border-mallorca-purple rounded-lg text-mallorca-purple"
             >
-              Cancel
+              {t("notificationSettings.buttons.cancel")}
             </button>
           </div>
         </div>
