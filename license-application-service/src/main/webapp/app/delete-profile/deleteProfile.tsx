@@ -20,7 +20,7 @@ const DeleteProfile = () => {
         mutation: {
             onSuccess: () => {
                 alert("Account deleted successfully!");
-                navigate("/login");
+                auth?.signOut();
             },
             onError: (err: DeleteUserMutationError) => {
                 console.error(err);
