@@ -102,12 +102,14 @@ export default function Login() {
           refresh_expires_in ? refresh_expires_in?.toString() : ""
         );
         localStorage.setItem("tokenType", token_type);
+        localStorage.setItem("role", "dev");
 
         auth?.setAccessToken(access_token);
         auth?.setRefreshToken(refresh_token);
         auth?.setAccessTokenExpiry(expires_in);
         auth?.setRefreshTokenExpiry(refresh_expires_in);
         auth?.setTokenType(refresh_token);
+        auth?.setRole("dev");
 
         navigate("/"); // redirect to dashboard
       } else {

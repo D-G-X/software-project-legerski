@@ -16,7 +16,7 @@ import BallotDetails from "./ballot-details/ballot-details";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
-import { ProtectedLoader } from "./common/ProtectedLoader";
+import ProtectedRoute from "./common/ProtectedLoader";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -33,43 +33,64 @@ export default function AppRoutes() {
         { path: "error", element: <Error /> },
         { path: "*", element: <Error /> },
 
-        // Post login (any user)
+        // Post login
         {
           path: "notification-settings",
-          element: <NotificationSettings />,
-          loader: ProtectedLoader(["dev", "admin", "user"]),
+          element: (
+            <ProtectedRoute>
+              <NotificationSettings />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "license-application-request",
-          element: <RequestApplication />,
-          loader: ProtectedLoader(["dev", "user"]),
+          element: (
+            <ProtectedRoute>
+              <RequestApplication />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "license-document-upload/:id",
-          element: <ApplicationDocumentUpload />,
-          loader: ProtectedLoader(["dev", "user"]),
+          element: (
+            <ProtectedRoute>
+              <ApplicationDocumentUpload />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "payment/:id",
-          element: <Payment />,
-          loader: ProtectedLoader(["dev", "user"]),
+          element: (
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          ),
         },
 
-        // Admin-only routes
+        // only Admin
         {
           path: "admin-dashboard",
-          element: <AdminDashboard />,
-          loader: ProtectedLoader(["dev", "admin"]),
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "ballot-dashboard",
-          element: <BallotDashboard />,
-          loader: ProtectedLoader(["dev", "admin"]),
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <BallotDashboard />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "ballot-details",
-          element: <BallotDetails />,
-          loader: ProtectedLoader(["dev", "admin"]),
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <BallotDetails />
+            </ProtectedRoute>
+          ),
         },
       ],
     },
