@@ -7,7 +7,6 @@ test("should create", () => {
           open={false}
           applicationData={null}
           onClose={jest.fn()}
-          onRenew={jest.fn()}
       />
   );
 
@@ -20,7 +19,6 @@ test("should render title when open", () => {
           open={true}
           applicationData={{ id: 1 } as any}
           onClose={jest.fn()}
-          onRenew={jest.fn()}
       />
   );
 
