@@ -51,6 +51,35 @@ type PaymentDataResult = {
   isLoading: boolean;
 }
 
+const SHOW_LICENSE_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"] as const;
+
+const SHOW_DOCUMENT_STATUSES = [
+  "SELECTED",
+  "PAYMENT_RECEIVED",
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "AWAITING_PAYMENT",
+  "APPROVED",
+  "IN_BALLOT",
+  "CANCELLED",
+  "REJECTED",
+  "NOT_SELECTED",
+  "DOCUMENTS_SUBMITTED",
+  "VERIFICATION_PENDING",
+] as const;
+
+const SHOW_PAYMENT_STATUSES = [
+  "SELECTED",
+  "PAYMENT_RECEIVED",
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "APPROVED",
+  "IN_BALLOT",
+  "CANCELLED",
+  "REJECTED",
+  "NOT_SELECTED",
+] as const;
+
 function useGetUserData(userId: string): UserDataResult {
   const {
     data: response,
@@ -69,17 +98,29 @@ function useGetUserData(userId: string): UserDataResult {
   };
 }
 
-function useGetLicenseData(userId: string, applicationId: number): LicenseDataResult {
-  const {data: listResponse} = useListLicenses({user_id: userId});
+function useGetLicenseData(
+    userId: string,
+    applicationId: number,
+    applicationStatus?: string
+): LicenseDataResult {
+  const enabledByStatus = SHOW_LICENSE_STATUSES.includes(applicationStatus as any);
+
+  const { data: listResponse } = useListLicenses(
+      { user_id: userId },
+      { query: { enabled: enabledByStatus } }
+  );
+
   const licenses = listResponse?.data ?? [];
-  // find license matching the application_id
   const matching = licenses.find(lic => lic.application_id === applicationId);
 
   const {
     data: licenseResponse,
     error,
     isLoading
-  } = useGetLicense(matching?.id ?? 0, {query: {enabled: !!matching?.id},});
+  } = useGetLicense(
+      matching?.id ?? 0,
+      { query: { enabled: enabledByStatus && !!matching?.id } }
+  );
 
   const isFound =
       error === undefined ||
@@ -92,12 +133,20 @@ function useGetLicenseData(userId: string, applicationId: number): LicenseDataRe
   };
 }
 
-function useGetDocumentData(applicationId: number): DocumentDataResult {
+function useGetDocumentData(
+    applicationId: number,
+    applicationStatus?: string
+): DocumentDataResult {
+  const enabledByStatus = SHOW_DOCUMENT_STATUSES.includes(applicationStatus as any);
+
   const {
     data: response,
     error,
     isLoading
-  } = useGetApplicationDocuments(applicationId);
+  } = useGetApplicationDocuments(
+      applicationId,
+      { query: { enabled: enabledByStatus } }
+  );
 
   const isFound =
       error === undefined ||
@@ -110,12 +159,20 @@ function useGetDocumentData(applicationId: number): DocumentDataResult {
   };
 }
 
-function useGetPaymentData(applicationId: number): PaymentDataResult {
+function useGetPaymentData(
+    applicationId: number,
+    applicationStatus?: string
+): PaymentDataResult {
+  const enabledByStatus = SHOW_PAYMENT_STATUSES.includes(applicationStatus as any);
+
   const {
     data: response,
     error,
     isLoading
-  } = useListPayments(applicationId);
+  } = useListPayments(
+      applicationId,
+      { query: { enabled: enabledByStatus } }
+  );
 
   const isFound =
       error === undefined ||
@@ -155,19 +212,29 @@ export default function ApplicationDetails({
     data: licenseData,
     isFound: foundLicense,
     isLoading: isLoadingLicense
-  } = useGetLicenseData(userData?.id ?? "", applicationData.id);
+  } = useGetLicenseData(
+      userData?.id ?? "",
+      applicationData.id,
+      applicationData.application_status
+  );
 
   const {
     data: documentData,
     isFound: foundDocument,
     isLoading: isLoadingDocument
-  } = useGetDocumentData(applicationData.id);
+  } = useGetDocumentData(
+      applicationData.id,
+      applicationData.application_status
+  );
 
   const {
     data: paymentData,
     isFound: foundPayment,
     isLoading: isLoadingPayment
-  } = useGetPaymentData(applicationData.id);
+  } = useGetPaymentData(
+      applicationData.id,
+      applicationData.application_status
+  );
 
   const queryClient = useQueryClient();
 
@@ -335,7 +402,7 @@ export default function ApplicationDetails({
                   )}
 
                   {/* License fields */}
-                  {foundLicense && (
+                  {SHOW_LICENSE_STATUSES.includes(applicationData?.application_status as any) && foundLicense && (
                       <>
                         <div className="text-lg mt-4 text-mallorca-purple/70">
                           {t("applicationDetails.index.license.label")}
@@ -369,7 +436,7 @@ export default function ApplicationDetails({
                   )}
 
                   {/* Document fields */}
-                  {foundDocument && (
+                  {SHOW_DOCUMENT_STATUSES.includes(applicationData?.application_status as any) && foundDocument && (
                       <>
                         <div className="text-lg mt-4 text-mallorca-purple/70">
                           {t("applicationDetails.index.documents.label")}
@@ -394,7 +461,7 @@ export default function ApplicationDetails({
                   )}
 
                   {/* Payment fields */}
-                  {foundPayment && (
+                  {SHOW_PAYMENT_STATUSES.includes(applicationData?.application_status as any) && foundPayment && (
                       <>
                         <div className="text-lg mt-4 text-mallorca-purple/70">
                           {t("applicationDetails.index.payment.label")}
