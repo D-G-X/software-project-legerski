@@ -155,8 +155,6 @@ export default function PaymentConfirm() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
 
-    console.log(form);
-
     if (id === "iban") {
       const rawIban = value.replace(/\s+/g, "").toUpperCase();
 
@@ -182,8 +180,6 @@ export default function PaymentConfirm() {
     const normalizedName = form.name.trim();
     const normalizedIban = form.iban.replace(/\s+/g, "");
     const normalizedBic = form.bic.replace(/\s+/g, "");
-
-    console.log(normalizedBic, normalizedName, normalizedIban, form);
 
     // validations
     const nameVal = validateName(normalizedName);
@@ -218,8 +214,6 @@ export default function PaymentConfirm() {
       bic: normalizedBic,
     };
 
-    console.log("postdata", postData);
-
     try {
       setLoading(true);
 
@@ -245,17 +239,6 @@ export default function PaymentConfirm() {
       // if (!isEqual) {
       //   throw new Error("Response data mismatch");
       // }
-
-      console.log("post isequal", {
-        application_id: applicationId,
-        payment_id: response.data.id,
-        payment_date: response.data.payment_date ?? Date.now().toString(),
-        payment_status: response.data.payment_status,
-        name: normalizedName,
-        iban: normalizedIban,
-        bic: normalizedBic,
-        amount,
-      });
 
       navigate(`/payment/${applicationId}/done`, {
         state: {
