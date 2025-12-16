@@ -232,6 +232,20 @@
   "common": {
     "orDivider": "or"
   },
+  "issued_license": {
+    "title": "Issued License",
+    "subtitle": "Your approved rental license details",
+    "licenseDetails": "License Details",
+    "licenseId": "License ID",
+    "licenseType": "License Type",
+    "status": "Status",
+    "issuedOn": "Issued On",
+    "validity": "Validity Period",
+    "propertyDetails": "Property Details",
+    "cadastralNumber": "Cadastral Number",
+    "gdprNotice": "License applies to this property only. Holder data is stored by the authority.",
+    "back": "Back"
+  },
   "login": {
     "title": "Sign in",
     "index": {
