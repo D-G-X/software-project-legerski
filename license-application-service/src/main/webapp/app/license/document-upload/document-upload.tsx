@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import "./document-upload.css";
 import { Upload } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { useGetApplication } from "app/services/applications/applications";
+import { AuthContext } from "app/common/AuthContext";
 
 interface DocUploadForm {
   id_proof: File | null;
@@ -19,6 +20,7 @@ interface DocUploadErrors {
 export default function ApplicationDocumentUpload() {
   const params = useParams();
   const applicationID = params.id!;
+  const auth = useContext(AuthContext);
 
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -75,6 +77,11 @@ export default function ApplicationDocumentUpload() {
   const { refetch } = useGetApplication(Number(applicationID), {
     query: {
       enabled: false,
+    },
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
     },
   });
 
