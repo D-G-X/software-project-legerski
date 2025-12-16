@@ -18,6 +18,7 @@ import {formatAmount, formatBic, formatDate, formatIban} from "../common/format"
 import {AxiosError} from "axios";
 import {AnimatedDots} from "../common/AnimatedDots";
 import ConfirmPopup from "../common/confirmPopup";
+import {useQueryClient} from "@tanstack/react-query";
 
 interface ApplicationDetailsProps {
   open: boolean;
@@ -57,7 +58,10 @@ function useGetUserData(userId: string): UserDataResult {
     isLoading
   } = useGetUser(userId);
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
+
   return {
     data: response?.data ?? null,
     isFound,
@@ -77,7 +81,9 @@ function useGetLicenseData(userId: string, applicationId: number): LicenseDataRe
     isLoading
   } = useGetLicense(matching?.id ?? 0, {query: {enabled: !!matching?.id},});
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
 
   return {
     data: licenseResponse?.data ?? null,
@@ -93,7 +99,10 @@ function useGetDocumentData(applicationId: number): DocumentDataResult {
     isLoading
   } = useGetApplicationDocuments(applicationId);
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
+
   return {
     data: response?.data ?? null,
     isFound,
@@ -108,31 +117,15 @@ function useGetPaymentData(applicationId: number): PaymentDataResult {
     isLoading
   } = useListPayments(applicationId);
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
+
   return {
     data: response?.data?.[0] ?? null,
     isFound,
     isLoading
   };
-}
-
-function useDeleteCurrentLicense(id: number | undefined) {
-  if (!id) {
-    alert("License could not be released");
-    return
-  }
-  const {mutate: deleteLicense} = useDeleteLicense({
-    mutation: {
-      onSuccess: () => {
-        alert("License released successfully.");
-      },
-      onError: (err) => {
-        console.error(err);
-        alert(`Error ${err} occurred while releasing the license.`);
-      },
-    },
-  });
-  deleteLicense({licenseId: id});
 }
 
 export default function ApplicationDetails({
@@ -176,17 +169,27 @@ export default function ApplicationDetails({
     isLoading: isLoadingPayment
   } = useGetPaymentData(applicationData.id);
 
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteLicense } = useDeleteLicense({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: ["listLicenses"] });
+        await queryClient.invalidateQueries({ queryKey: ["getLicense"] });
+
+        closePopup();
+      },
+      onError: (err) => {
+        console.error(err);
+        alert("Error while releasing license");
+      },
+    },
+  });
+
   function handleReleaseLicense() {
-
-    useDeleteCurrentLicense(licenseData?.id);
-
-    //TODO: Refresh the data after deletion
-
+    if (!licenseData?.id) return;
+    deleteLicense({ licenseId: licenseData.id });
     closePopup();
-  }
-
-  function handleDownload() {
-
   }
 
   return (
@@ -469,14 +472,6 @@ export default function ApplicationDetails({
                           </button>
                         </>
                     )}
-                    {/* Download Button */}
-                    <button
-                        type="submit"
-                        onClick={handleDownload}
-                        className={`bg-white text-mallorca-purple  px-10 py-2 rounded-md ${licenseData?.id ? "w-64" : "w-96" } font-medium text-lg hover:bg-mallorca-purple/20 hover:text-white border border-mallorca-purple`}
-                    >
-                      {t("applicationDetails.buttons.downloadLabel")}
-                    </button>
                   </div>
 
                   {isPopupOpen && (
