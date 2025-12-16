@@ -25,6 +25,11 @@ public class AuthController implements AuthenticationApi {
     }
 
     @Override
+    public ResponseEntity<LoginResource> refreshLogin(RefreshLoginRequest refreshLoginRequest) {
+        return ResponseEntity.ok().body(authService.refreshLogin(refreshLoginRequest));
+    }
+
+    @Override
     public ResponseEntity<RegisterResource> registerUser(RegisterRequest registerRequest) {
         RegisterResource registerResource = authService.register(registerRequest);
         if(registerResource == null) {
