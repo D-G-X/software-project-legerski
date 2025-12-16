@@ -384,6 +384,51 @@
         "fileTypeError": "Only PDF files are allowed",
         "fileSizeError": "File size must be less than 10 MB"
       }
+    },
+    "list": {
+      "headline": "Licenses",
+      "createNew": "Create new License",
+      "empty": "No Licenses could be found.",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "add": {
+      "headline": "Add License",
+      "back": "Back to list"
+    },
+    "id": {
+      "label": "Id"
+    },
+    "licenseType": {
+      "label": "License Type"
+    },
+    "licenseStatus": {
+      "label": "License Status"
+    },
+    "issuedAt": {
+      "label": "Issued At"
+    },
+    "expiresAt": {
+      "label": "Expires At"
+    },
+    "user": {
+      "label": "User"
+    },
+    "application": {
+      "label": "Application"
+    },
+    "edit": {
+      "headline": "Edit License",
+      "back": "Back to list"
+    },
+    "create": {
+      "success": "License was created successfully."
+    },
+    "update": {
+      "success": "License was updated successfully."
+    },
+    "delete": {
+      "success": "License was removed successfully."
     }
   },
   "validation": {
@@ -685,53 +730,6 @@
     "cancel": "No, Cancel",
     "loading": "Deleting..."
   },
-"license": {
-    "list": {
-      "headline": "Licenses",
-      "createNew": "Create new License",
-      "empty": "No Licenses could be found.",
-      "edit": "Edit",
-      "delete": "Delete"
-    },
-    "add": {
-      "headline": "Add License",
-      "back": "Back to list"
-    },
-    "id": {
-      "label": "Id"
-    },
-    "licenseType": {
-      "label": "License Type"
-    },
-    "licenseStatus": {
-      "label": "License Status"
-    },
-    "issuedAt": {
-      "label": "Issued At"
-    },
-    "expiresAt": {
-      "label": "Expires At"
-    },
-    "user": {
-      "label": "User"
-    },
-    "application": {
-      "label": "Application"
-    },
-    "edit": {
-      "headline": "Edit License",
-      "back": "Back to list"
-    },
-    "create": {
-      "success": "License was created successfully."
-    },
-    "update": {
-      "success": "License was updated successfully."
-    },
-    "delete": {
-      "success": "License was removed successfully."
-    }
-  },
   "select": {
     "empty": {
       "label": "Please select"
@@ -789,7 +787,7 @@
       "consentText": "On your first visit, you accept all essential cookies. These cannot be disabled."
     }
   },
-  "ballotDetails":{
+  "ballotDetails": {
     "overview": {
       "title": "Ballot Overview",
       "ballotId": "Ballot Id",
@@ -819,5 +817,5 @@
       "viewApplications": "View Applications",
       "cancel": "Cancel"
     }
-}
+  }
 }
