@@ -18,6 +18,7 @@ import {formatAmount, formatBic, formatDate, formatIban} from "../common/format"
 import {AxiosError} from "axios";
 import {AnimatedDots} from "../common/AnimatedDots";
 import ConfirmPopup from "../common/confirmPopup";
+import {useQueryClient} from "@tanstack/react-query";
 
 interface ApplicationDetailsProps {
   open: boolean;
@@ -50,6 +51,35 @@ type PaymentDataResult = {
   isLoading: boolean;
 }
 
+const SHOW_LICENSE_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"] as const;
+
+const SHOW_DOCUMENT_STATUSES = [
+  "SELECTED",
+  "PAYMENT_RECEIVED",
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "AWAITING_PAYMENT",
+  "APPROVED",
+  "IN_BALLOT",
+  "CANCELLED",
+  "REJECTED",
+  "NOT_SELECTED",
+  "DOCUMENTS_SUBMITTED",
+  "VERIFICATION_PENDING",
+] as const;
+
+const SHOW_PAYMENT_STATUSES = [
+  "SELECTED",
+  "PAYMENT_RECEIVED",
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "APPROVED",
+  "IN_BALLOT",
+  "CANCELLED",
+  "REJECTED",
+  "NOT_SELECTED",
+] as const;
+
 function useGetUserData(userId: string): UserDataResult {
   const {
     data: response,
@@ -57,7 +87,10 @@ function useGetUserData(userId: string): UserDataResult {
     isLoading
   } = useGetUser(userId);
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
+
   return {
     data: response?.data ?? null,
     isFound,
@@ -65,19 +98,33 @@ function useGetUserData(userId: string): UserDataResult {
   };
 }
 
-function useGetLicenseData(userId: string, applicationId: number): LicenseDataResult {
-  const {data: listResponse} = useListLicenses({user_id: userId});
+function useGetLicenseData(
+    userId: string,
+    applicationId: number,
+    applicationStatus?: string
+): LicenseDataResult {
+  const enabledByStatus = SHOW_LICENSE_STATUSES.includes(applicationStatus as any);
+
+  const { data: listResponse } = useListLicenses(
+      { user_id: userId },
+      { query: { enabled: enabledByStatus } }
+  );
+
   const licenses = listResponse?.data ?? [];
-  // find license matching the application_id
   const matching = licenses.find(lic => lic.application_id === applicationId);
 
   const {
     data: licenseResponse,
     error,
     isLoading
-  } = useGetLicense(matching?.id ?? 0, {query: {enabled: !!matching?.id},});
+  } = useGetLicense(
+      matching?.id ?? 0,
+      { query: { enabled: enabledByStatus && !!matching?.id } }
+  );
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
 
   return {
     data: licenseResponse?.data ?? null,
@@ -86,14 +133,25 @@ function useGetLicenseData(userId: string, applicationId: number): LicenseDataRe
   };
 }
 
-function useGetDocumentData(applicationId: number): DocumentDataResult {
+function useGetDocumentData(
+    applicationId: number,
+    applicationStatus?: string
+): DocumentDataResult {
+  const enabledByStatus = SHOW_DOCUMENT_STATUSES.includes(applicationStatus as any);
+
   const {
     data: response,
     error,
     isLoading
-  } = useGetApplicationDocuments(applicationId);
+  } = useGetApplicationDocuments(
+      applicationId,
+      { query: { enabled: enabledByStatus } }
+  );
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
+
   return {
     data: response?.data ?? null,
     isFound,
@@ -101,38 +159,30 @@ function useGetDocumentData(applicationId: number): DocumentDataResult {
   };
 }
 
-function useGetPaymentData(applicationId: number): PaymentDataResult {
+function useGetPaymentData(
+    applicationId: number,
+    applicationStatus?: string
+): PaymentDataResult {
+  const enabledByStatus = SHOW_PAYMENT_STATUSES.includes(applicationStatus as any);
+
   const {
     data: response,
     error,
     isLoading
-  } = useListPayments(applicationId);
+  } = useListPayments(
+      applicationId,
+      { query: { enabled: enabledByStatus } }
+  );
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
+
   return {
     data: response?.data?.[0] ?? null,
     isFound,
     isLoading
   };
-}
-
-function useDeleteCurrentLicense(id: number | undefined) {
-  if (!id) {
-    alert("License could not be released");
-    return
-  }
-  const {mutate: deleteLicense} = useDeleteLicense({
-    mutation: {
-      onSuccess: () => {
-        alert("License released successfully.");
-      },
-      onError: (err) => {
-        console.error(err);
-        alert(`Error ${err} occurred while releasing the license.`);
-      },
-    },
-  });
-  deleteLicense({licenseId: id});
 }
 
 export default function ApplicationDetails({
@@ -162,31 +212,51 @@ export default function ApplicationDetails({
     data: licenseData,
     isFound: foundLicense,
     isLoading: isLoadingLicense
-  } = useGetLicenseData(userData?.id ?? "", applicationData.id);
+  } = useGetLicenseData(
+      userData?.id ?? "",
+      applicationData.id,
+      applicationData.application_status
+  );
 
   const {
     data: documentData,
     isFound: foundDocument,
     isLoading: isLoadingDocument
-  } = useGetDocumentData(applicationData.id);
+  } = useGetDocumentData(
+      applicationData.id,
+      applicationData.application_status
+  );
 
   const {
     data: paymentData,
     isFound: foundPayment,
     isLoading: isLoadingPayment
-  } = useGetPaymentData(applicationData.id);
+  } = useGetPaymentData(
+      applicationData.id,
+      applicationData.application_status
+  );
+
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteLicense } = useDeleteLicense({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: ["listLicenses"] });
+        await queryClient.invalidateQueries({ queryKey: ["getLicense"] });
+
+        closePopup();
+      },
+      onError: (err) => {
+        console.error(err);
+        alert("Error while releasing license");
+      },
+    },
+  });
 
   function handleReleaseLicense() {
-
-    useDeleteCurrentLicense(licenseData?.id);
-
-    //TODO: Refresh the data after deletion
-
+    if (!licenseData?.id) return;
+    deleteLicense({ licenseId: licenseData.id });
     closePopup();
-  }
-
-  function handleDownload() {
-
   }
 
   return (
@@ -332,7 +402,7 @@ export default function ApplicationDetails({
                   )}
 
                   {/* License fields */}
-                  {foundLicense && (
+                  {SHOW_LICENSE_STATUSES.includes(applicationData?.application_status as any) && foundLicense && (
                       <>
                         <div className="text-lg mt-4 text-mallorca-purple/70">
                           {t("applicationDetails.index.license.label")}
@@ -366,7 +436,7 @@ export default function ApplicationDetails({
                   )}
 
                   {/* Document fields */}
-                  {foundDocument && (
+                  {SHOW_DOCUMENT_STATUSES.includes(applicationData?.application_status as any) && foundDocument && (
                       <>
                         <div className="text-lg mt-4 text-mallorca-purple/70">
                           {t("applicationDetails.index.documents.label")}
@@ -391,7 +461,7 @@ export default function ApplicationDetails({
                   )}
 
                   {/* Payment fields */}
-                  {foundPayment && (
+                  {SHOW_PAYMENT_STATUSES.includes(applicationData?.application_status as any) && foundPayment && (
                       <>
                         <div className="text-lg mt-4 text-mallorca-purple/70">
                           {t("applicationDetails.index.payment.label")}
@@ -469,14 +539,6 @@ export default function ApplicationDetails({
                           </button>
                         </>
                     )}
-                    {/* Download Button */}
-                    <button
-                        type="submit"
-                        onClick={handleDownload}
-                        className={`bg-white text-mallorca-purple  px-10 py-2 rounded-md ${licenseData?.id ? "w-64" : "w-96" } font-medium text-lg hover:bg-mallorca-purple/20 hover:text-white border border-mallorca-purple`}
-                    >
-                      {t("applicationDetails.buttons.downloadLabel")}
-                    </button>
                   </div>
 
                   {isPopupOpen && (

@@ -185,40 +185,49 @@ export default function NotificationPopup({className = ""}) {
                 <hr className="mt-2 border-gray-800"/>
 
                 <ul className="max-h-lg mt-1 my-3 overflow-y-auto divide-y">
-                  {notifications?.map((n) => (
-                      <li
-                          key={n.id}
-                          onClick={(e) => {
-                            markAsRead(n.id);
-                            e.stopPropagation();
-                            openModal(n);
-                          }}
+                  {notifications.length ?
+                      <>
+                        {notifications?.map((n) => (
+                            <li
+                                key={n.id}
+                                onClick={(e) => {
+                                  markAsRead(n.id);
+                                  e.stopPropagation();
+                                  openModal(n);
+                                }}
 
-                          className="cursor-pointer px-2 py-2 hover:bg-gray-100 transition rounded-xl"
-                      >
-                        <div className="flex justify-between items-center">
-                          {/* Message */}
-                          <div
-                              className={`flex items-center gap-2 font-bold ${
-                                  n.is_read
-                                      ? "text-gray-400"
-                                      : "text-mallorca-purple"
-                              }`}
-                          >
-                            <Dot color={`${n.is_read ? "#ffffff50" : "#351341"}`}
-                                 className="w-5 h-5 shrink-0"/>
-                            <span className="text-sm">
+                                className="cursor-pointer px-2 py-2 hover:bg-gray-100 transition rounded-xl"
+                            >
+                              <div className="flex justify-between items-center">
+                                {/* Message */}
+                                <div
+                                    className={`flex items-center gap-2 font-bold ${
+                                        n.is_read
+                                            ? "text-gray-400"
+                                            : "text-mallorca-purple"
+                                    }`}
+                                >
+                                  <Dot color={`${n.is_read ? "#ffffff50" : "#351341"}`}
+                                       className="w-5 h-5 shrink-0"/>
+                                  <span className="text-sm">
                               {t("notifications.messageLabel")} {n.application_id}
                             </span>
-                          </div>
+                                </div>
 
-                          {/* Date */}
-                          <span className="text-xs text-gray-400 mb-1">
+                                {/* Date */}
+                                <span className="text-xs text-gray-400 mb-1">
                             {formatRelativeDate(n.date, t("locale"))}
                           </span>
-                        </div>
-                      </li>
-                  ))}
+                              </div>
+                            </li>
+                        ))}
+                      </>
+                      :
+                      <div className="p-4 text-center text-gray-500">
+                        {t("notifications.noNotifications")}
+                      </div>
+                  }
+
                 </ul>
               </div>
           )}
