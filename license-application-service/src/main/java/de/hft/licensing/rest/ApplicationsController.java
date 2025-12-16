@@ -5,6 +5,7 @@ import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseType;
 import de.hft.licensing.db.enums.VerificationStatus;
 import de.hft.licensing.db.tables.Application;
+import de.hft.licensing.db.tables.BallotPeriod;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.model.ApplicationCreate;
@@ -49,6 +50,19 @@ public class ApplicationsController implements ApplicationsApi {
             return ResponseEntity.badRequest().build();
         }
 
+        LocalDateTime now = LocalDateTime.now();
+        boolean ballotPeriodActive = dsl.fetchExists(
+                dsl.selectOne()
+                        .from(BallotPeriod.BALLOT_PERIOD)
+                        .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(now))
+                        .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(now))
+        );
+
+        if(!ballotPeriodActive) {
+            // no active ballot period
+            return ResponseEntity.status(409).build();
+        }
+
         boolean userExists = dsl.fetchExists(
                 dsl.selectOne()
                         .from(User.USER)
@@ -59,7 +73,7 @@ public class ApplicationsController implements ApplicationsApi {
             return ResponseEntity.status(422).build();
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        now = LocalDateTime.now();
 
         // insert and return DB record (jooq DB record, not API model record)
         var dbRecord = dsl.insertInto(Application.APPLICATION)

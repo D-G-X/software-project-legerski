@@ -362,6 +362,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApplicationResource"
+        "409":
+          description: No active ballot period
+        "422":
+          description: User does not exist
 
   /applications/{applicationId}:
     get:
