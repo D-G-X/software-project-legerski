@@ -986,6 +986,10 @@ components:
             description: Type of the token issued.
             example: Bearer
             x-field-extra-annotation: '@JsonProperty("token_type")'
+          is_admin:
+            type: boolean
+            description: Indicates if the user has administrative privileges.
+            example: false
         required:
             - access_token
             - refresh_token
