@@ -310,7 +310,7 @@ paths:
           "404":
             description: User not found
 
-  /users/{userId}/notification-preferences:
+  /users/{userId}/notifications/preferences:
       get:
         tags: [Users]
         summary: Get notification preferences for a user
