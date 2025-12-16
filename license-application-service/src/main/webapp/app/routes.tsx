@@ -11,6 +11,8 @@ import ForgotPasswordRequest from "./forgot-password/request";
 import ResetPassword from "./forgot-password/reset";
 import RequestApplication from "./license/request-application/request-application";
 import ApplicationDocumentUpload from "./license/document-upload/document-upload";
+import Profile from "./profile/profile";
+import DeleteProfile from "./delete-profile/deleteProfile";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
 import BallotDetails from "./ballot-details/ballot-details";
@@ -40,6 +42,8 @@ export default function AppRoutes() {
         { path: "error", element: <Error /> },
         { path: "ballot-details", element: <BallotDetails /> },
         { path: "*", element: <Error /> },
+        { path: "profile", element: <Profile /> },
+        { path: "deleteProfile", element: <DeleteProfile /> },
       ],
     },
   ]);
