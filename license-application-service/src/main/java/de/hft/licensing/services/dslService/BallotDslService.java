@@ -1,4 +1,4 @@
-package de.hft.licensing.services;
+package de.hft.licensing.services.dslService;
 
 import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseStatus;
@@ -25,6 +25,7 @@ public class BallotDslService {
 
     private static final ApplicationStatus STATUS_SUBMITTED = ApplicationStatus.submitted;
     private static final ApplicationStatus STATUS_APPROVED  = ApplicationStatus.approved;
+    private static final ApplicationStatus STATUS_REJECTED  = ApplicationStatus.rejected;
 
     public BallotDslService(DefaultDSLContext dsl) {
         this.dsl = dsl;
@@ -32,7 +33,7 @@ public class BallotDslService {
 
     private final DefaultDSLContext dsl;
 
-    public void insertApplicationInBallotTable(int periodId, ApplicationRecord app) {
+    public void insertApplicationInBallotTableAsSelected(int periodId, ApplicationRecord app) {
         dsl.insertInto(Ballot.BALLOT)
                 .set(Ballot.BALLOT.BALLOT_PERIOD_ID, periodId)
                 .set(Ballot.BALLOT.APPLICATION_ID, app.getId())
@@ -41,9 +42,25 @@ public class BallotDslService {
 
     }
 
+    public void insertApplicationInBallotTableAsRejected(int periodId, ApplicationRecord app) {
+        dsl.insertInto(Ballot.BALLOT)
+                .set(Ballot.BALLOT.BALLOT_PERIOD_ID, periodId)
+                .set(Ballot.BALLOT.APPLICATION_ID, app.getId())
+                .set(Ballot.BALLOT.SELECTED, false)
+                .execute();
+
+    }
+
     public void updateApplicationStatusToApproved(ApplicationRecord app){
         dsl.update(Application.APPLICATION)
                 .set(Application.APPLICATION.APPLICATION_STATUS, STATUS_APPROVED)
+                .where(Application.APPLICATION.ID.eq(app.getId()))
+                .execute();
+    }
+
+    public void updateApplicationStatusToRejected(ApplicationRecord app){
+        dsl.update(Application.APPLICATION)
+                .set(Application.APPLICATION.APPLICATION_STATUS, STATUS_REJECTED)
                 .where(Application.APPLICATION.ID.eq(app.getId()))
                 .execute();
     }
@@ -80,6 +97,15 @@ public class BallotDslService {
         return dsl.selectFrom(BallotPeriod.BALLOT_PERIOD)
                 .where(BallotPeriod.BALLOT_PERIOD.ID.eq(periodId))
                 .fetchOneInto(BallotPeriodRecord.class);
+    }
+
+    public void deleteApplications(List<ApplicationRecord> applications) {
+        List<Integer> appIds = new ArrayList<>();
+        for (ApplicationRecord app : applications) {
+            appIds.add(app.getId());
+        }
+
+
     }
 
 }

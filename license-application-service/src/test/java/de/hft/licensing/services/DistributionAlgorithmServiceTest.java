@@ -3,6 +3,7 @@ package de.hft.licensing.services;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.LicenseTypeApiEnum;
+import de.hft.licensing.services.dslService.BallotDslService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,7 +74,8 @@ class DistributionAlgorithmServiceTest {
         assertTrue(result.selectedApplications().isEmpty());
         assertTrue(result.notSelectedApplications().isEmpty());
 
-        verify(dslService, never()).insertApplicationInBallotTable(anyInt(), any());
+        verify(dslService, never()).insertApplicationInBallotTableAsSelected(anyInt(), any());
+        verify(dslService, never()).insertApplicationInBallotTableAsRejected(anyInt(), any());
         verify(dslService, never()).createLicenseForApplication(any(), any());
         verify(dslService, never()).updateApplicationStatusToApproved(any());
     }
@@ -100,9 +102,11 @@ class DistributionAlgorithmServiceTest {
         assertEquals(3, result.selectedApplications().size());
         assertEquals(2, result.notSelectedApplications().size());
 
-        verify(dslService, times(3)).insertApplicationInBallotTable(eq(periodId), any());
-        verify(dslService, times(3)).createLicenseForApplication(any(), any());
-        verify(dslService, times(3)).updateApplicationStatusToApproved(any());
+        verify(dslService, times(maxAccepted)).insertApplicationInBallotTableAsSelected(eq(periodId), any());
+        verify(dslService, times(candidates.size() - maxAccepted)).insertApplicationInBallotTableAsRejected(eq(periodId), any());
+        verify(dslService, times(maxAccepted)).createLicenseForApplication(any(), any());
+        verify(dslService, times(maxAccepted)).updateApplicationStatusToApproved(any());
+        verify(dslService, times(candidates.size() - maxAccepted)).updateApplicationStatusToRejected(any());
 
         long distinctSelectedIds = result.selectedApplications().stream()
                 .map(ApplicationRecord::getId)
@@ -123,7 +127,8 @@ class DistributionAlgorithmServiceTest {
         );
         when(dslService.getCandidateApplications(any(LocalDateTime.class), any(LocalDateTime.class), any())).thenReturn(candidates);
 
-        var result = service.runLotteryForBallotPeriod(periodId, anyLicenseType(), 4);
+        int maxAccepted = 4;
+        var result = service.runLotteryForBallotPeriod(periodId, anyLicenseType(), maxAccepted);
 
         assertNotNull(result);
         assertEquals(4, result.selectedApplications().size());
@@ -135,9 +140,11 @@ class DistributionAlgorithmServiceTest {
         assertEquals(2L, countsByUser.get("A"));
         assertEquals(2L, countsByUser.get("B"));
 
-        verify(dslService, times(4)).insertApplicationInBallotTable(eq(periodId), any());
-        verify(dslService, times(4)).createLicenseForApplication(any(), any());
-        verify(dslService, times(4)).updateApplicationStatusToApproved(any());
+        verify(dslService, times(maxAccepted)).insertApplicationInBallotTableAsSelected(eq(periodId), any());
+        verify(dslService, times(candidates.size() - maxAccepted)).insertApplicationInBallotTableAsRejected(eq(periodId), any());
+        verify(dslService, times(maxAccepted)).createLicenseForApplication(any(), any());
+        verify(dslService, times(maxAccepted)).updateApplicationStatusToApproved(any());
+        verify(dslService, times(candidates.size() - maxAccepted)).updateApplicationStatusToRejected(any());
     }
 
 

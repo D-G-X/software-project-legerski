@@ -3,6 +3,7 @@ package de.hft.licensing.services;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.LicenseTypeApiEnum;
+import de.hft.licensing.services.dslService.BallotDslService;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,9 +102,14 @@ public class DistributionAlgorithmService {
 
 
         for (ApplicationRecord app : selected) {
-            dslService.insertApplicationInBallotTable(periodId, app);
+            dslService.insertApplicationInBallotTableAsSelected(periodId, app);
             createLicenseForApplication(app, licenseType);
             dslService.updateApplicationStatusToApproved(app);
+        }
+
+        for (ApplicationRecord app : notSelected) {
+            dslService.insertApplicationInBallotTableAsRejected(periodId, app);
+            dslService.updateApplicationStatusToRejected(app);
         }
 
         return new LotteryResult(selected, notSelected);
