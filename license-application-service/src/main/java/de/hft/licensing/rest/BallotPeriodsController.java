@@ -13,13 +13,18 @@ import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.jooq.impl.DefaultDSLContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+
+import static org.jooq.impl.DSL.selectOne;
+
 
 @RestController
 @PreAuthorize("hasRole('admin')")
@@ -32,19 +37,41 @@ public class BallotPeriodsController implements BallotPeriodsApi {
         this.distributionAlgorithmService = distributionAlgorithmService;
     }
 
+    public record BallotApiError(String code, String message) {}
+
     @Override
     @AdminOnly
     @Transactional
     public ResponseEntity<BallotPeriodResource> createBallotPeriod(CreateBallotPeriodRequest createBallotPeriodRequest) {
-        if(createBallotPeriodRequest == null || createBallotPeriodRequest.getStartDate() == null || createBallotPeriodRequest.getEndDate() == null
+        if (createBallotPeriodRequest == null
+                || createBallotPeriodRequest.getStartDate() == null
+                || createBallotPeriodRequest.getEndDate() == null
                 || createBallotPeriodRequest.getStartDate().isAfter(createBallotPeriodRequest.getEndDate())) {
             return ResponseEntity.badRequest().build();
         }
+
+        LocalDateTime newStart = createBallotPeriodRequest.getStartDate()
+                .atZoneSameInstant(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        LocalDateTime newEnd = createBallotPeriodRequest.getEndDate()
+                .atZoneSameInstant(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        boolean overlaps = dslContext.fetchExists(
+                selectOne()
+                        .from(BallotPeriod.BALLOT_PERIOD)
+                        .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(newEnd))
+                        .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(newStart))
+        );
+
+        if (overlaps) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
         BallotPeriodRecord ballotPeriodRecord = dslContext.insertInto(BallotPeriod.BALLOT_PERIOD)
-                .set(BallotPeriod.BALLOT_PERIOD.START_DATE, createBallotPeriodRequest.getStartDate().atZoneSameInstant(ZoneId.systemDefault())
-                        .toLocalDateTime())
-                .set(BallotPeriod.BALLOT_PERIOD.END_DATE, createBallotPeriodRequest.getEndDate().atZoneSameInstant(ZoneId.systemDefault())
-                        .toLocalDateTime())
+                .set(BallotPeriod.BALLOT_PERIOD.START_DATE, newStart)
+                .set(BallotPeriod.BALLOT_PERIOD.END_DATE, newEnd)
                 .returning()
                 .fetchOneInto(BallotPeriodRecord.class);
 
