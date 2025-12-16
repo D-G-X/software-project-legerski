@@ -5,11 +5,14 @@ import Home from "./home/home";
 import Error from "./error/error";
 import Login from "./login/login";
 import Register from "./register/register";
-import RequestApplication from "./license/request-application/request-application";
+import PaymentForm from "./payment/paymentForm";
+import PaymentConfirm from "./payment/paymentConfirm";
 import ForgotPasswordRequest from "./forgot-password/request";
 import ResetPassword from "./forgot-password/reset";
-import Payment from "./payment/payment";
+import RequestApplication from "./license/request-application/request-application";
 import ApplicationDocumentUpload from "./license/document-upload/document-upload";
+import Profile from "./profile/profile";
+import DeleteProfile from "./delete-profile/deleteProfile";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
 import BallotDetails from "./ballot-details/ballot-details";
@@ -51,7 +54,22 @@ export default function AppRoutes() {
         },
         {
           path: "payment/:id",
-          element: <Payment />,
+          element: <PaymentForm />,
+          loader: ProtectedLoader(["dev", "user"]),
+        },
+        {
+          path: "/payment/:id/done",
+          element: <PaymentConfirm />,
+          loader: ProtectedLoader(["dev", "user"]),
+        },
+        {
+          path: "profile",
+          element: <Profile />,
+          loader: ProtectedLoader(["dev", "user"]),
+        },
+        {
+          path: "deleteProfile",
+          element: <DeleteProfile />,
           loader: ProtectedLoader(["dev", "user"]),
         },
 
@@ -71,6 +89,20 @@ export default function AppRoutes() {
           element: <BallotDetails />,
           loader: ProtectedLoader(["dev", "admin"]),
         },
+        {
+          path: "notification-settings",
+          element: <NotificationSettings />,
+          loader: ProtectedLoader(["dev", "admin"]),
+        },
+        {
+          path: "license-application-request",
+          element: <RequestApplication />,
+        },
+        {
+          path: "license-document-upload/:id",
+          element: <ApplicationDocumentUpload />,
+        },
+        { path: "*", element: <Error /> },
       ],
     },
   ]);

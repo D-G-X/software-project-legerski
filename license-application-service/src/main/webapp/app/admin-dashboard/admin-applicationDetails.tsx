@@ -1,37 +1,26 @@
-import React, {useState} from "react";
+import React from "react";
 import {useTranslation} from "react-i18next";
 import {FormHeader} from "app/common/headingTitle";
 import {
   ApplicationPaymentResource,
   ApplicationResource,
   GetApplicationDocuments200,
-  LicenseResource,
-  UserResource
+  LicenseResource
 } from "../../types";
 import {Minimize2} from "lucide-react";
-import "./applicationDetails.css";
+import "./admin-applicationDetails.css";
 import {useListPayments} from "../services/payments/payments";
-import {useGetUser} from "../services/users/users";
-import {useDeleteLicense, useGetLicense, useListLicenses} from "../services/licenses/licenses";
+import {useGetLicense, useListLicenses} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
 import {formatAmount, formatBic, formatDate, formatIban} from "../common/format";
 import {AxiosError} from "axios";
 import {AnimatedDots} from "../common/AnimatedDots";
-import ConfirmPopup from "../common/confirmPopup";
-import {useQueryClient} from "@tanstack/react-query";
 
 interface ApplicationDetailsProps {
   open: boolean;
   applicationData: ApplicationResource | null;
   onClose: () => void;
-  onRenew: () => void;
 }
-
-type UserDataResult = {
-  data: UserResource | null;
-  isFound: boolean;
-  isLoading: boolean;
-};
 
 type LicenseDataResult = {
   data: LicenseResource | null;
@@ -51,80 +40,19 @@ type PaymentDataResult = {
   isLoading: boolean;
 }
 
-const SHOW_LICENSE_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"] as const;
-
-const SHOW_DOCUMENT_STATUSES = [
-  "SELECTED",
-  "PAYMENT_RECEIVED",
-  "SUBMITTED",
-  "UNDER_REVIEW",
-  "AWAITING_PAYMENT",
-  "APPROVED",
-  "IN_BALLOT",
-  "CANCELLED",
-  "REJECTED",
-  "NOT_SELECTED",
-  "DOCUMENTS_SUBMITTED",
-  "VERIFICATION_PENDING",
-] as const;
-
-const SHOW_PAYMENT_STATUSES = [
-  "SELECTED",
-  "PAYMENT_RECEIVED",
-  "SUBMITTED",
-  "UNDER_REVIEW",
-  "APPROVED",
-  "IN_BALLOT",
-  "CANCELLED",
-  "REJECTED",
-  "NOT_SELECTED",
-] as const;
-
-function useGetUserData(userId: string): UserDataResult {
-  const {
-    data: response,
-    error,
-    isLoading
-  } = useGetUser(userId);
-
-  const isFound =
-      error === undefined ||
-      (error as AxiosError | undefined)?.response?.status !== 404;
-
-  return {
-    data: response?.data ?? null,
-    isFound,
-    isLoading
-  };
-}
-
-function useGetLicenseData(
-    userId: string,
-    applicationId: number,
-    applicationStatus?: string
-): LicenseDataResult {
-  const enabledByStatus = SHOW_LICENSE_STATUSES.includes(applicationStatus as any);
-
-  const { data: listResponse } = useListLicenses(
-      { user_id: userId },
-      { query: { enabled: enabledByStatus } }
-  );
-
+function useGetLicenseData(userId: string, applicationId: number): LicenseDataResult {
+  const {data: listResponse} = useListLicenses({user_id: userId});
   const licenses = listResponse?.data ?? [];
+  // find license matching the application_id
   const matching = licenses.find(lic => lic.application_id === applicationId);
 
   const {
     data: licenseResponse,
     error,
     isLoading
-  } = useGetLicense(
-      matching?.id ?? 0,
-      { query: { enabled: enabledByStatus && !!matching?.id } }
-  );
+  } = useGetLicense(matching?.id ?? 0, {query: {enabled: !!matching?.id},});
 
-  const isFound =
-      error === undefined ||
-      (error as AxiosError | undefined)?.response?.status !== 404;
+  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
 
   return {
     data: licenseResponse?.data ?? null,
@@ -133,25 +61,14 @@ function useGetLicenseData(
   };
 }
 
-function useGetDocumentData(
-    applicationId: number,
-    applicationStatus?: string
-): DocumentDataResult {
-  const enabledByStatus = SHOW_DOCUMENT_STATUSES.includes(applicationStatus as any);
-
+function useGetDocumentData(applicationId: number): DocumentDataResult {
   const {
     data: response,
     error,
     isLoading
-  } = useGetApplicationDocuments(
-      applicationId,
-      { query: { enabled: enabledByStatus } }
-  );
+  } = useGetApplicationDocuments(applicationId);
 
-  const isFound =
-      error === undefined ||
-      (error as AxiosError | undefined)?.response?.status !== 404;
-
+  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
   return {
     data: response?.data ?? null,
     isFound,
@@ -159,25 +76,14 @@ function useGetDocumentData(
   };
 }
 
-function useGetPaymentData(
-    applicationId: number,
-    applicationStatus?: string
-): PaymentDataResult {
-  const enabledByStatus = SHOW_PAYMENT_STATUSES.includes(applicationStatus as any);
-
+function useGetPaymentData(applicationId: number): PaymentDataResult {
   const {
     data: response,
     error,
     isLoading
-  } = useListPayments(
-      applicationId,
-      { query: { enabled: enabledByStatus } }
-  );
+  } = useListPayments(applicationId);
 
-  const isFound =
-      error === undefined ||
-      (error as AxiosError | undefined)?.response?.status !== 404;
-
+  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
   return {
     data: response?.data?.[0] ?? null,
     isFound,
@@ -185,79 +91,36 @@ function useGetPaymentData(
   };
 }
 
-export default function ApplicationDetails({
+export default function AdminApplicationDetails({
                                              open,
                                              applicationData,
                                              onClose,
-                                             onRenew,
                                            }: ApplicationDetailsProps) {
   if (!open || !applicationData) {
-    console.log("ApplicationDetails: not open");
+    console.log("AdminApplicationDetails: not open");
     return null;
   } else {
-    console.log("ApplicationDetails: open");
+    console.log("AdminApplicationDetails: open");
   }
   const {t} = useTranslation();
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const openPopup = () => setIsPopupOpen(true);
-  const closePopup = () => setIsPopupOpen(false);
-
-  const {
-    data: userData,
-    isFound: foundUser,
-    isLoading: isLoadingUser
-  } = useGetUserData(applicationData?.user_id);
 
   const {
     data: licenseData,
     isFound: foundLicense,
     isLoading: isLoadingLicense
-  } = useGetLicenseData(
-      userData?.id ?? "",
-      applicationData.id,
-      applicationData.application_status
-  );
+  } = useGetLicenseData(applicationData.user_id, applicationData.id);
 
   const {
     data: documentData,
     isFound: foundDocument,
     isLoading: isLoadingDocument
-  } = useGetDocumentData(
-      applicationData.id,
-      applicationData.application_status
-  );
+  } = useGetDocumentData(applicationData.id);
 
   const {
     data: paymentData,
     isFound: foundPayment,
     isLoading: isLoadingPayment
-  } = useGetPaymentData(
-      applicationData.id,
-      applicationData.application_status
-  );
-
-  const queryClient = useQueryClient();
-
-  const { mutate: deleteLicense } = useDeleteLicense({
-    mutation: {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: ["listLicenses"] });
-        await queryClient.invalidateQueries({ queryKey: ["getLicense"] });
-
-        closePopup();
-      },
-      onError: (err) => {
-        console.error(err);
-        alert("Error while releasing license");
-      },
-    },
-  });
-
-  function handleReleaseLicense() {
-    if (!licenseData?.id) return;
-    deleteLicense({ licenseId: licenseData.id });
-    closePopup();
-  }
+  } = useGetPaymentData(applicationData.id);
 
   return (
       <div
@@ -284,7 +147,7 @@ export default function ApplicationDetails({
              text-mallorca-purple/75 hover:bg-mallorca-purple/10"
             ><Minimize2/>
             </button>
-            {(isLoadingUser || isLoadingLicense || isLoadingDocument || isLoadingPayment) ?
+            {(isLoadingLicense || isLoadingDocument || isLoadingPayment) ?
                 <div className="font-inter text-center">
                   {/* Loading Screen */}
                   <div
@@ -378,31 +241,8 @@ export default function ApplicationDetails({
 
                   </div>
 
-                  {/* User fields */}
-                  {foundUser && (
-                      <>
-                        <div className="text-lg mt-4 text-mallorca-purple/70">
-                          {t("applicationDetails.index.user.label")}
-                        </div>
-                        <div
-                            className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.user.nameLabel") + ": "}</span>
-                            <span>{userData?.firstName + " " + userData?.lastName}</span>
-                          </div>
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.user.emailLabel") + ": "}</span>
-                            <span>{userData?.email}</span>
-                          </div>
-
-                        </div>
-                      </>
-                  )}
-
                   {/* License fields */}
-                  {SHOW_LICENSE_STATUSES.includes(applicationData?.application_status as any) && foundLicense && (
+                  {foundLicense && (
                       <>
                         <div className="text-lg mt-4 text-mallorca-purple/70">
                           {t("applicationDetails.index.license.label")}
@@ -436,7 +276,7 @@ export default function ApplicationDetails({
                   )}
 
                   {/* Document fields */}
-                  {SHOW_DOCUMENT_STATUSES.includes(applicationData?.application_status as any) && foundDocument && (
+                  {foundDocument && (
                       <>
                         <div className="text-lg mt-4 text-mallorca-purple/70">
                           {t("applicationDetails.index.documents.label")}
@@ -461,7 +301,7 @@ export default function ApplicationDetails({
                   )}
 
                   {/* Payment fields */}
-                  {SHOW_PAYMENT_STATUSES.includes(applicationData?.application_status as any) && foundPayment && (
+                  {foundPayment && (
                       <>
                         <div className="text-lg mt-4 text-mallorca-purple/70">
                           {t("applicationDetails.index.payment.label")}
@@ -517,44 +357,6 @@ export default function ApplicationDetails({
                 </span>
                     )}
                   </div>
-
-                  <div className="my-12 flex flex-line items-center jusify-center gap-4">
-                    {licenseData?.id && (
-                        <>
-                          {/* Renew License Button */}
-                          <button
-                              type="submit"
-                              onClick={onRenew}
-                              className={`bg-mallorca-purple text-white px-10 py-2 rounded-md ${licenseData?.id ? "w-64" : "w-96" } font-medium text-lg`}
-                          >
-                            {t("applicationDetails.buttons.renewLicenseLabel")}
-                          </button>
-                          {/* Release License Button */}
-                          <button
-                              type="submit"
-                              onClick={openPopup}
-                              className={`bg-red-500 text-white  px-10 py-2 rounded-md ${licenseData?.id ? "w-64" : "w-96" } font-medium text-lg hover:bg-red-700  border-red-950`}
-                          >
-                            {t("applicationDetails.buttons.releaseLicenseLabel")}
-                          </button>
-                        </>
-                    )}
-                  </div>
-
-                  {isPopupOpen && (
-                      <ConfirmPopup
-                          open={isPopupOpen}
-                          onCancel={() => setIsPopupOpen(false)}
-                          onConfirm={handleReleaseLicense}
-                          headingLabel={t("applicationDetails.confirmPopup.headingLabel")}
-                          subHeadingLabel={t("applicationDetails.confirmPopup.subHeadingLabel")}
-                          quoteTitle={t("applicationDetails.confirmPopup.quoteTitle")}
-                          quoteText={[t("applicationDetails.confirmPopup.quoteText1"), t("applicationDetails.confirmPopup.quoteText2")]}
-                          cancelLabel={t("applicationDetails.confirmPopup.cancelButtonLabel")}
-                          confirmLabel={t("applicationDetails.confirmPopup.confirmButtonLabel")}
-                      />
-                  )}
-
                 </div>
 
             }

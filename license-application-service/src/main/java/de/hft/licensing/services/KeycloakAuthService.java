@@ -2,6 +2,8 @@ package de.hft.licensing.services;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.model.*;
 import org.jooq.DSLContext;
@@ -39,6 +41,7 @@ public class KeycloakAuthService {
     private String clientSecret;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public LoginResource login(LoginRequest request) {
         String url = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
@@ -62,7 +65,15 @@ public class KeycloakAuthService {
         ResponseEntity<LoginResource> response =
                 restTemplate.exchange(url, HttpMethod.POST, entity, LoginResource.class);
 
-        return response.getBody();
+        LoginResource loginResource = response.getBody();
+
+        // determine is_admin by decoding access_token (JWT) payload
+        if (loginResource != null && loginResource.getAccessToken() != null) {
+            boolean isAdmin = tokenHasAdminRole(loginResource.getAccessToken());
+            loginResource.setIsAdmin(isAdmin);
+        }
+
+        return loginResource;
     }
 
     public RegisterResource register(RegisterRequest request) {
@@ -237,6 +248,30 @@ public class KeycloakAuthService {
                 src.getValue(),
                 Boolean.TRUE.equals(src.getTemporary())
         );
+    }
+
+    private boolean tokenHasAdminRole(String accessToken) {
+        try {
+            String[] parts = accessToken.split("\\.");
+            if (parts.length < 2) return false;
+            String payloadB64 = parts[1];
+            int padding = (4 - (payloadB64.length() % 4)) % 4;
+            payloadB64 += "=".repeat(padding);
+            byte[] decoded = Base64.getUrlDecoder().decode(payloadB64);
+            JsonNode payload = objectMapper.readTree(decoded);
+
+            // check realm_access.roles
+            JsonNode realmAccess = payload.get("realm_access");
+            if (realmAccess != null && realmAccess.has("roles")) {
+                for (JsonNode roleNode : realmAccess.get("roles")) {
+                    if ("admin".equalsIgnoreCase(roleNode.asText())) return true;
+                }
+            }
+
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public record KeycloakUserRecord(

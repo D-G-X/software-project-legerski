@@ -1,5 +1,4 @@
 import { t } from "i18next";
-import { ISO_3166_1 } from "./iso-3166-1";
 
 // Regular expressions for validation rules (positive checks only, test with !regexName.test(value))
 const nameRegex = new RegExp(
@@ -209,8 +208,8 @@ export const validateCity = (value: string) => {
 };
 
 export const validateIban = (iban: string) => {
-  if (!iban) return { isValid: false, message: t("validation.iban.required") };
-  iban = iban.replace(/\s+/g, ""); // Remove spaces
+    if (!iban)
+        return { isValid: false, message: t("validation.iban.required") };
 
   if (iban.length < 15)
     return {
@@ -224,33 +223,27 @@ export const validateIban = (iban: string) => {
       message: t("validation.iban.maxLength"),
     };
 
-  if (!isValidCountryCode(iban.slice(0, 2)))
-    return {
-      isValid: false,
-      message: t("validation.iban.countryCode"),
-    };
-
-  if (!ibanRegex.test(iban))
-    return {
-      isValid: false,
-      message: t("validation.iban.specialChar"),
-    };
+    if (!ibanRegex.test(iban))
+        return {
+            isValid: false,
+            message: t("validation.iban.specialChar"),
+        };
 
   return { isValid: true, message: t("validation.iban.valid") };
 };
 
 export const validateBic = (bic: string, iban: string) => {
-  if (iban.slice(0, 2) === "ES" && !bic)
-    return { isValid: true, message: t("validation.bic.valid") };
-  if (!bic) return { isValid: false, message: t("validation.bic.required") };
+    if(iban.slice(0,2) === 'ES' && !bic)
+        return { isValid: true, message: t("validation.bic.valid") };
 
-  bic = bic.replace(/\s+/g, ""); // Remove spaces
+    if (!bic)
+        return { isValid: false, message: t("validation.bic.required") };
 
-  if (bic.length != 8 && bic.length != 11)
-    return {
-      isValid: false,
-      message: t("validation.bic.length"),
-    };
+    if (bic.length != 8 && bic.length != 11)
+        return {
+            isValid: false,
+            message: t("validation.bic.length"),
+        };
 
   if (!bicRegex.test(bic))
     return {
@@ -258,36 +251,7 @@ export const validateBic = (bic: string, iban: string) => {
       message: t("validation.bic.specialChar.general"),
     };
 
-  if (!isValidCountryCode(bic.slice(4, 6)))
-    return {
-      isValid: false,
-      message: t("validation.bic.countryCode"),
-    };
-
-  if (bic.charAt(6) === "0" || bic.charAt(6) === "1")
-    return {
-      isValid: false,
-      message: t("validation.bic.specialChar.pos6"),
-    };
-
-  if (bic.charAt(7) === "O")
-    return {
-      isValid: false,
-      message: t("validation.bic.specialChar.pos7"),
-    };
-
-  if (bic.length === 11)
-    if (bic.charAt(8) === "X" && bic.slice(8, 11) !== "XXX")
-      return {
-        isValid: false,
-        message: t("validation.bic.specialChar.pos8"),
-      };
-
-  return { isValid: true, message: t("validation.iban.valid") };
-};
-
-const isValidCountryCode = (code: string): boolean => {
-  return ISO_3166_1.has(code.toUpperCase());
+    return { isValid: true, message: t("validation.iban.valid") };
 };
 
 export const validateSepaMandateCheck = (value: boolean) => {
