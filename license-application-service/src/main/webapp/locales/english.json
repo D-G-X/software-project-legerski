@@ -147,6 +147,33 @@
       "next": "Next"
     }
   },
+  "admin-dashboard": {
+    "headline": "All Requests",
+    "links": {
+      "active_requests": "Active Requests",
+      "ballot_management": "Ballot Management"
+    },
+    "table": {
+      "requester_name": "Requester Name",
+      "address": "Address",
+      "phone_number": "Phone Number",
+      "email": "Email",
+      "country": "Country",
+      "status": "Status"
+    }
+  },
+  "ballot-dashboard": {
+    "headline": "Ballot Information",
+    "createNewBallot": "Create New Ballot",
+    "table": {
+      "ballotName": "Ballot Name",
+      "status": "Status",
+      "applicationPeriod": "Application Period (DD/MM/YYYY)",
+      "drawingDate": "Drawing Date (DD/MM/YYYY)",
+      "totalApplication": "Total Application",
+      "action": "Action"
+    }
+  },
   "applicationDetails": {
     "index": {
       "headline": "Application Details",
@@ -665,5 +692,36 @@
       "consentTitle": "Cookie Consent",
       "consentText": "On your first visit, you accept all essential cookies. These cannot be disabled."
     }
-  }
+  },
+  "ballotDetails":{
+    "overview": {
+      "title": "Ballot Overview",
+      "ballotId": "Ballot Id",
+      "licenseType": "License Type",
+      "status": "Status",
+      "ballotYear": "Ballot year",
+      "approvedCap": "Approved License Cap"
+    },
+    "license": {
+      "etv": "ETV",
+      "etvpl": "ETVPL",
+      "etv60": "ETV60"
+    },
+    "status": {
+      "completed": "Completed"
+    },
+    "timeline": {
+      "title": "Ballot Timeline",
+      "applicationPeriod": "Application Period",
+      "drawingDate": "Drawing Date"
+    },
+    "documents": {
+      "title": "Ballot Documents",
+      "download": "Download document"
+    },
+    "actions": {
+      "viewApplications": "View Applications",
+      "cancel": "Cancel"
+    }
+}
 }

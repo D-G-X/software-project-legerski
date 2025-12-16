@@ -48,9 +48,9 @@ public class ApplicationsController implements ApplicationsApi {
         }
 
         boolean userExists = dsl.fetchExists(
-            dsl.selectOne()
-                .from(User.USER)
-                .where(User.USER.ID.eq(applicationCreate.getUserId().toString()))
+                dsl.selectOne()
+                        .from(User.USER)
+                        .where(User.USER.ID.eq(applicationCreate.getUserId().toString()))
         );
         if (!userExists) {
             // client provided a user_id that does not exist
@@ -61,16 +61,16 @@ public class ApplicationsController implements ApplicationsApi {
 
         // insert and return DB record (jooq DB record, not API model record)
         var dbRecord = dsl.insertInto(Application.APPLICATION)
-            .set(Application.APPLICATION.USER_ID, applicationCreate.getUserId().toString())
-            .set(Application.APPLICATION.APPLICATION_STATUS, ApplicationStatus.draft)
-            .set(Application.APPLICATION.APPLIED_AT, now)
-            .set(Application.APPLICATION.CHANGED_AT, now)
-            .set(Application.APPLICATION.CADASTRAL_REFERENCE, applicationCreate.getCadastralReference())
-            .set(Application.APPLICATION.LICENSE_TYPE, (LicenseType) EnumMapperUtil.getPendantFromEnum(applicationCreate.getLicenseType()))
-            .set(Application.APPLICATION.REMARKS, applicationCreate.getRemarks())
-            .set(Application.APPLICATION.VERIFICATION_STATUS, VerificationStatus.pending)
-            .returning()
-            .fetchOneInto(ApplicationRecord.class);
+                .set(Application.APPLICATION.USER_ID, applicationCreate.getUserId().toString())
+                .set(Application.APPLICATION.APPLICATION_STATUS, ApplicationStatus.draft)
+                .set(Application.APPLICATION.APPLIED_AT, now)
+                .set(Application.APPLICATION.CHANGED_AT, now)
+                .set(Application.APPLICATION.CADASTRAL_REFERENCE, applicationCreate.getCadastralReference())
+                .set(Application.APPLICATION.LICENSE_TYPE, (LicenseType) EnumMapperUtil.getPendantFromEnum(applicationCreate.getLicenseType()))
+                .set(Application.APPLICATION.REMARKS, applicationCreate.getRemarks())
+                .set(Application.APPLICATION.VERIFICATION_STATUS, VerificationStatus.pending)
+                .returning()
+                .fetchOneInto(ApplicationRecord.class);
 
         if (dbRecord == null) {
             return ResponseEntity.status(500).build();
@@ -103,8 +103,8 @@ public class ApplicationsController implements ApplicationsApi {
         }
 
         return deleted > 0
-            ? ResponseEntity.noContent().build()
-            : ResponseEntity.notFound().build();
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 
     @Override
@@ -119,8 +119,8 @@ public class ApplicationsController implements ApplicationsApi {
         RecordToResourceMapperUtil.mapApplicationRecordToResource(result, apiResource);
 
         return result != null
-            ? ResponseEntity.ok(apiResource)
-            : ResponseEntity.notFound().build();
+                ? ResponseEntity.ok(apiResource)
+                : ResponseEntity.notFound().build();
     }
 
     @Override
@@ -133,7 +133,7 @@ public class ApplicationsController implements ApplicationsApi {
         }
         // Maps roles from JWT token
         boolean isAdmin = jwt.getAuthorities().stream()
-            .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
         // Extract the user ID from Keycloak token: "sub" claim
         UUID currentUserId = UUID.fromString(jwt.getToken().getSubject());
         // Enforce: normal users can only see their own applications
@@ -147,30 +147,30 @@ public class ApplicationsController implements ApplicationsApi {
         // no filters
         if(userId == null && applicationStatus == null) {
             result = dsl.select()
-                .from(Application.APPLICATION)
-                .fetchInto(ApplicationRecord.class);
+                    .from(Application.APPLICATION)
+                    .fetchInto(ApplicationRecord.class);
         }
         // filter by userId only
         else if (userId != null && applicationStatus == null) {
             result = dsl.select()
-                .from(Application.APPLICATION)
-                .where(Application.APPLICATION.USER_ID.eq(userId.toString()))
-                .fetchInto(ApplicationRecord.class);
+                    .from(Application.APPLICATION)
+                    .where(Application.APPLICATION.USER_ID.eq(userId.toString()))
+                    .fetchInto(ApplicationRecord.class);
         }
         // filter by applicationStatus only
         else if (userId == null) {
             result = dsl.select()
-                .from(Application.APPLICATION)
-                .where(Application.APPLICATION.APPLICATION_STATUS.eq((ApplicationStatus) EnumMapperUtil.getPendantFromEnum(applicationStatus)))
-                .fetchInto(ApplicationRecord.class);
+                    .from(Application.APPLICATION)
+                    .where(Application.APPLICATION.APPLICATION_STATUS.eq((ApplicationStatus) EnumMapperUtil.getPendantFromEnum(applicationStatus)))
+                    .fetchInto(ApplicationRecord.class);
         }
         // filter by both userId and applicationStatus
         else {
             result = dsl.select()
-                .from(Application.APPLICATION)
-                .where(Application.APPLICATION.USER_ID.eq(userId.toString())
-                    .and(Application.APPLICATION.APPLICATION_STATUS.eq((ApplicationStatus) EnumMapperUtil.getPendantFromEnum(applicationStatus))))
-                .fetchInto(ApplicationRecord.class);
+                    .from(Application.APPLICATION)
+                    .where(Application.APPLICATION.USER_ID.eq(userId.toString())
+                        .and(Application.APPLICATION.APPLICATION_STATUS.eq((ApplicationStatus) EnumMapperUtil.getPendantFromEnum(applicationStatus))))
+                    .fetchInto(ApplicationRecord.class);
         }
         List<ApplicationResource> mappedResult = result.stream().map(record -> {
             ApplicationResource resource = new ApplicationResource();
@@ -189,21 +189,21 @@ public class ApplicationsController implements ApplicationsApi {
         }
 
         var oldStatus = dsl.select(Application.APPLICATION.APPLICATION_STATUS)
-            .from(Application.APPLICATION)
-            .where(Application.APPLICATION.ID.eq(applicationId))
-            .fetchOneInto(ApplicationStatus.class);
+                .from(Application.APPLICATION)
+                .where(Application.APPLICATION.ID.eq(applicationId))
+                .fetchOneInto(ApplicationStatus.class);
         var oldRemarks = dsl.select(Application.APPLICATION.REMARKS)
-            .from(Application.APPLICATION)
-            .where(Application.APPLICATION.ID.eq(applicationId))
-            .fetchOneInto(String.class);
+                .from(Application.APPLICATION)
+                .where(Application.APPLICATION.ID.eq(applicationId))
+                .fetchOneInto(String.class);
 
         var updatedApplicationRecord = dsl.update(Application.APPLICATION)
-            .set(Application.APPLICATION.APPLICATION_STATUS, (ApplicationStatus) EnumMapperUtil.getPendantFromEnum(applicationUpdate.getApplicationStatus()))
-            .set(Application.APPLICATION.REMARKS, applicationUpdate.getRemarks())
-            .set(Application.APPLICATION.CHANGED_AT, LocalDateTime.now())
-            .where(Application.APPLICATION.ID.eq(applicationId))
-            .returning()
-            .fetchOneInto(ApplicationRecord.class);
+                .set(Application.APPLICATION.APPLICATION_STATUS, (ApplicationStatus) EnumMapperUtil.getPendantFromEnum(applicationUpdate.getApplicationStatus()))
+                .set(Application.APPLICATION.REMARKS, applicationUpdate.getRemarks())
+                .set(Application.APPLICATION.CHANGED_AT, LocalDateTime.now())
+                .where(Application.APPLICATION.ID.eq(applicationId))
+                .returning()
+                .fetchOneInto(ApplicationRecord.class);
 
 
         // TODO: if active ballot period add SUBMITTED to ballotperiod

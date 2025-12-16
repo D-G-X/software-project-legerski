@@ -79,7 +79,7 @@ paths:
         "400":
           description: Bad request - invalid input data
         "409":
-          description: Conflict - user already exists
+            description: Conflict - user already exists
 
   /users:
     get:
@@ -941,56 +941,56 @@ components:
 
   schemas:
     LoginRequest:
-      type: object
-      description: Request payload for user login.
-      properties:
-        email:
-          type: string
-          format: email
-          description: User's username.
-          example: johndoe@email.com
-        password:
-          type: string
-          format: password
-          description: User's password.
-          example: securepassword123
-      required:
-        - username
-        - password
+        type: object
+        description: Request payload for user login.
+        properties:
+          email:
+            type: string
+            format: email
+            description: User's username.
+            example: johndoe@email.com
+          password:
+            type: string
+            format: password
+            description: User's password.
+            example: securepassword123
+        required:
+            - username
+            - password
     LoginResource:
-      type: object
-      description: Response payload containing authentication tokens.
-      properties:
-        access_token:
-          type: string
-          description: JWT access token for authenticated requests.
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..
-          x-field-extra-annotation: '@JsonProperty("access_token")'
-        refresh_token:
-          type: string
-          description: Token used to obtain a new access token.
-          example: dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...
-          x-field-extra-annotation: '@JsonProperty("refresh_token")'
-        expires_in:
-          type: integer
-          description: Time in seconds until the access token expires.
-          example: 3600
-          x-field-extra-annotation: '@JsonProperty("expires_in")'
-        refresh_expires_in:
-          type: integer
-          description: Time in seconds until the refresh token expires.
-          example: 86400
-          x-field-extra-annotation: '@JsonProperty("refresh_expires_in")'
-        token_type:
-          type: string
-          description: Type of the token issued.
-          example: Bearer
-          x-field-extra-annotation: '@JsonProperty("token_type")'
-      required:
-        - access_token
-        - refresh_token
-        - expires_in
-        - token_type
+        type: object
+        description: Response payload containing authentication tokens.
+        properties:
+          access_token:
+            type: string
+            description: JWT access token for authenticated requests.
+            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..
+            x-field-extra-annotation: '@JsonProperty("access_token")'
+          refresh_token:
+            type: string
+            description: Token used to obtain a new access token.
+            example: dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...
+            x-field-extra-annotation: '@JsonProperty("refresh_token")'
+          expires_in:
+            type: integer
+            description: Time in seconds until the access token expires.
+            example: 3600
+            x-field-extra-annotation: '@JsonProperty("expires_in")'
+          refresh_expires_in:
+            type: integer
+            description: Time in seconds until the refresh token expires.
+            example: 86400
+            x-field-extra-annotation: '@JsonProperty("refresh_expires_in")'
+          token_type:
+            type: string
+            description: Type of the token issued.
+            example: Bearer
+            x-field-extra-annotation: '@JsonProperty("token_type")'
+        required:
+            - access_token
+            - refresh_token
+            - expires_in
+            - token_type
     RegisterRequest:
       type: object
       description: Request payload for user registration.
