@@ -1,18 +1,8 @@
 package de.hft.licensing.services;
 
-import de.hft.licensing.db.enums.ApplicationStatus;
-import de.hft.licensing.db.enums.LicenseStatus;
-import de.hft.licensing.db.enums.LicenseType;
-import de.hft.licensing.db.tables.Application;
-import de.hft.licensing.db.tables.Ballot;
-import de.hft.licensing.db.tables.BallotPeriod;
-import de.hft.licensing.db.tables.License;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.LicenseTypeApiEnum;
-import de.hft.licensing.utils.EnumMapperUtil;
-import org.jooq.Condition;
-import org.jooq.impl.DefaultDSLContext;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,13 +17,10 @@ public class DistributionAlgorithmService {
 
     private static final int DEFAULT_MAX_ACCEPTED_APPLICATIONS = 20_000;
 
-    private static final ApplicationStatus STATUS_SUBMITTED = ApplicationStatus.submitted;
-    private static final ApplicationStatus STATUS_APPROVED  = ApplicationStatus.approved;
+    private final BallotDslService dslService;
 
-    private final DefaultDSLContext dsl;
-
-    public DistributionAlgorithmService(DefaultDSLContext dsl) {
-        this.dsl = dsl;
+    public DistributionAlgorithmService(BallotDslService dslService) {
+        this.dslService = dslService;
     }
 
 
@@ -42,11 +29,8 @@ public class DistributionAlgorithmService {
                                                    @Nullable LicenseTypeApiEnum licenseType,
                                                    @Nullable Integer maxAcceptedOverride) {
 
-        BallotPeriodRecord period = dsl.selectFrom(BallotPeriod.BALLOT_PERIOD)
-                .where(BallotPeriod.BALLOT_PERIOD.ID.eq(periodId))
-                .fetchOne();
+        BallotPeriodRecord period = dslService.getBallotPeriodById(periodId);
 
-        // no period found
         if (period == null) {
             return null;
         }
@@ -58,27 +42,15 @@ public class DistributionAlgorithmService {
         }
 
         LocalDateTime endDate = period.getEndDate();
+        LocalDateTime startDate = period.getStartDate();
 
-        // all applications with status SUBMITTED and applied before period end date, if type != null filter by type
-        Condition condition = Application.APPLICATION.APPLICATION_STATUS.eq(STATUS_SUBMITTED)
-                .and(Application.APPLICATION.APPLIED_AT.le(endDate));
-        if (licenseType != null) {
-            condition = condition.and(Application.APPLICATION.LICENSE_TYPE.eq((LicenseType) EnumMapperUtil.getPendantFromEnum(licenseType)));
-        }
-
-        List<ApplicationRecord> candidates = dsl.selectFrom(Application.APPLICATION)
-                .where(condition)
-                .fetchInto(ApplicationRecord.class);
+        List<ApplicationRecord> candidates = dslService.getCandidateApplications(startDate, endDate, licenseType);
 
         if (candidates.isEmpty()) {
             return new LotteryResult(Collections.emptyList(), Collections.emptyList());
         }
 
-        // sort by appliedAt, then id
-        candidates.sort(
-                Comparator.comparing(ApplicationRecord::getAppliedAt)
-                        .thenComparing(ApplicationRecord::getId)
-        );
+        Collections.shuffle(new ArrayList<>(candidates));
 
         int maxAccepted = (maxAcceptedOverride != null && maxAcceptedOverride > 0)
                 ? maxAcceptedOverride
@@ -129,18 +101,9 @@ public class DistributionAlgorithmService {
 
 
         for (ApplicationRecord app : selected) {
-            dsl.insertInto(Ballot.BALLOT)
-                    .set(Ballot.BALLOT.BALLOT_PERIOD_ID, periodId)
-                    .set(Ballot.BALLOT.APPLICATION_ID, app.getId())
-                    .set(Ballot.BALLOT.SELECTED, true)
-                    .execute();
-
+            dslService.insertApplicationInBallotTable(periodId, app);
             createLicenseForApplication(app, licenseType);
-
-            dsl.update(Application.APPLICATION)
-                    .set(Application.APPLICATION.APPLICATION_STATUS, STATUS_APPROVED)
-                    .where(Application.APPLICATION.ID.eq(app.getId()))
-                    .execute();
+            dslService.updateApplicationStatusToApproved(app);
         }
 
         return new LotteryResult(selected, notSelected);
@@ -149,16 +112,8 @@ public class DistributionAlgorithmService {
 
     private void createLicenseForApplication(ApplicationRecord applicationRecord,
                                              @Nullable LicenseTypeApiEnum licenseType) {
+        dslService.createLicenseForApplication(applicationRecord, licenseType);
 
-        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
-         dsl.insertInto(License.LICENSE)
-            .set(License.LICENSE.USER_ID, applicationRecord.getUserId())
-            .set(License.LICENSE.APPLICATION_ID, applicationRecord.getId())
-            .set(License.LICENSE.LICENSE_TYPE, (LicenseType) EnumMapperUtil.getPendantFromEnum(licenseType))
-            .set(License.LICENSE.LICENSE_STATUS, LicenseStatus.active)
-            .set(License.LICENSE.ISSUED_AT, now)
-            .set(License.LICENSE.EXPIRES_AT, now.plusYears(5))
-            .execute();
     }
 
     public record LotteryResult(List<ApplicationRecord> selectedApplications,
