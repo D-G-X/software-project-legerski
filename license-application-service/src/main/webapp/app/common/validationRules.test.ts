@@ -1,14 +1,14 @@
 import {
   cadastralNumberRegex,
-  emailRegex,
+  emailRegex, isValidDateString,
   nameRegex,
   passwordRegex,
-  validateCadastralNumber,
-  validateConfirmPassword,
-  validateEmail,
-  validateIban,
-  validateName,
-  validatePassword
+  isValidCadastralNumber,
+  isValidConfirmPassword,
+  isValidEmail,
+  isValidIban,
+  isValidName,
+  isValidPassword, isValidSepaMandate
 } from "./validationRules";
 
 // Name Validation
@@ -16,44 +16,44 @@ describe("validateName", () => {
 
   // VALID NAMES TODO: check regex
   test("should return valid if name is two characters long", () => {
-    expect(validateName("JD").isValid).toBe(true);
+    expect(isValidName("JD").isValid).toBe(true);
   })
 
   test("should return valid if name is two single characters long with space in between", () => {
-    expect(validateName("J D").isValid).toBe(true);
+    expect(isValidName("J D").isValid).toBe(true);
   })
 
   test("should return valid if name is 99 characters long", () => {
-    expect(validateName("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST").isValid).toBe(true);
+    expect(isValidName("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST").isValid).toBe(true);
   })
 
   // INVALID NAMES
   test("should return invalid if name is empty", () => {
-    expect(validateName("").isValid).toBe(false);
+    expect(isValidName("").isValid).toBe(false);
   })
 
   test("should return invalid if name is one character long", () => {
-    expect(validateName("A").isValid).toBe(false);
+    expect(isValidName("A").isValid).toBe(false);
   })
 
   test("should return invalid if name is 100 characters long", () => {
-    expect(validateName("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST").isValid).toBe(true);
+    expect(isValidName("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST").isValid).toBe(true);
   })
 
   test("should return invalid if name has leading space", () => {
-    expect(validateName(" John Doe").isValid).toBe(false);
+    expect(isValidName(" John Doe").isValid).toBe(false);
   })
 
   test("should return invalid if name has trailing space", () => {
-    expect(validateName("John Doe ").isValid).toBe(false);
+    expect(isValidName("John Doe ").isValid).toBe(false);
   })
 
   test("should return invalid if name has multiple spaces", () => {
-    expect(validateName("John  Doe").isValid).toBe(false);
+    expect(isValidName("John  Doe").isValid).toBe(false);
   })
 
   test("should return invalid if name contains only combining marks (e.g. emojis)", () => {
-    expect(validateName("\u0301\u0301").isValid).toBe(false);
+    expect(isValidName("\u0301\u0301").isValid).toBe(false);
   });
 
   // REGEX FULL TEST
@@ -68,35 +68,35 @@ describe("validateEmail", () => {
 
   // VALID EMAIL ADDRESSES
   test("should return valid if email address has capital letters", () => {
-    expect(validateEmail("JOHN@DOE.COM").isValid).toBe(true)
+    expect(isValidEmail("JOHN@DOE.COM").isValid).toBe(true)
   })
 
   test("should return valid if email address has numbers", () => {
-    expect(validateEmail("j0hn@d0e.com").isValid).toBe(true)
+    expect(isValidEmail("j0hn@d0e.com").isValid).toBe(true)
   })
 
   test("should return valid if email address has extra dots", () => {
-    expect(validateEmail("john.doe@doe.co.uk").isValid).toBe(true)
+    expect(isValidEmail("john.doe@doe.co.uk").isValid).toBe(true)
   })
 
   test("should return valid if email address has long tld", () => {
-    expect(validateEmail("john@doe.comcomcom").isValid).toBe(true)
+    expect(isValidEmail("john@doe.comcomcom").isValid).toBe(true)
   })
   // INVALID EMAIL ADDRESSES
   test("should return invalid if email address is empty", () => {
-    expect(validateEmail("").isValid).toBe(false)
+    expect(isValidEmail("").isValid).toBe(false)
   })
 
   test("should return invalid if email address has no @", () => {
-    expect(validateEmail("johndoe.com").isValid).toBe(false)
+    expect(isValidEmail("johndoe.com").isValid).toBe(false)
   })
 
   test("should return invalid if email address has no tld (no dot)", () => {
-    expect(validateEmail("john@doe").isValid).toBe(false)
+    expect(isValidEmail("john@doe").isValid).toBe(false)
   })
 
   test("should return invalid if email address has too short tld (1 char)", () => {
-    expect(validateEmail("john@doe.c").isValid).toBe(false)
+    expect(isValidEmail("john@doe.c").isValid).toBe(false)
   })
 
   // REGEX FULL TESTS
@@ -120,32 +120,32 @@ describe("validateEmail", () => {
 describe("validatePassword", () => {
   // VALID CADASTRAL NUMBERS
   test("should return valid if cadastral number is exactly 20 alphanumeric characters", () => {
-    expect(validateCadastralNumber("A1B2C3D4E5F6G7H8I9J0").isValid).toBe(true);
+    expect(isValidCadastralNumber("A1B2C3D4E5F6G7H8I9J0").isValid).toBe(true);
   })
 
   test("should return valid if cadastral number only contains uppercase letters", () => {
-    expect(validateCadastralNumber("ABCDEFGHIJKLMNOPQRST").isValid).toBe(true);
+    expect(isValidCadastralNumber("ABCDEFGHIJKLMNOPQRST").isValid).toBe(true);
   })
 
   test("should return valid if cadastral number only contains lowercase letters", () => {
-    expect(validateCadastralNumber("abcdefghijklmnopqrst").isValid).toBe(true);
+    expect(isValidCadastralNumber("abcdefghijklmnopqrst").isValid).toBe(true);
   })
 
   test("should return valid if cadastral number only contains numbers", () => {
-    expect(validateCadastralNumber("12345678901234567890").isValid).toBe(true);
+    expect(isValidCadastralNumber("12345678901234567890").isValid).toBe(true);
   })
 
   // INVALID CADASTRAL NUMBERS
   test("should return invalid if cadastral number is empty", () => {
-    expect(validateCadastralNumber("").isValid).toBe(false);
+    expect(isValidCadastralNumber("").isValid).toBe(false);
   })
 
   test("should return invalid if cadastral number is shorter than 20 characters", () => {
-    expect(validateCadastralNumber("A1B2C3D4E5F6G7H8I9J").isValid).toBe(false);
+    expect(isValidCadastralNumber("A1B2C3D4E5F6G7H8I9J").isValid).toBe(false);
   })
 
   test("should return invalid if cadastral number is longer than 20 characters", () => {
-    expect(validateCadastralNumber("A1B2C3D4E5F6G7H8I9J0K").isValid).toBe(false);
+    expect(isValidCadastralNumber("A1B2C3D4E5F6G7H8I9J0K").isValid).toBe(false);
   })
 
   // REGEX FULL TEST
@@ -159,28 +159,28 @@ describe("validatePassword", () => {
 describe("validatePassword", () => {
   // VALID PASSWORDS
   test("should return valid if password is 8 chars long and contains a special character", () => {
-    expect(validatePassword("testabc!").isValid).toBe(true);
+    expect(isValidPassword("testabc!").isValid).toBe(true);
   })
 
   test("should return valid if password is 255 chars long and contains a special character", () => {
-    expect(validatePassword("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst!").isValid).toBe(true);
+    expect(isValidPassword("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst!").isValid).toBe(true);
   })
 
   // INVALID PASSWORDS
   test("should return invalid if password is empty", () => {
-    expect(validatePassword("").isValid).toBe(false);
+    expect(isValidPassword("").isValid).toBe(false);
   })
 
   test("should return invalid if password is 7 chars long and contains a special character", () => {
-    expect(validatePassword("testab!").isValid).toBe(false);
+    expect(isValidPassword("testab!").isValid).toBe(false);
   })
 
   test("should return invalid if password is 256 chars long and contains a special character", () => {
-    expect(validatePassword("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu!").isValid).toBe(false);
+    expect(isValidPassword("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu!").isValid).toBe(false);
   })
 
   test("should return invalid if password contains no special character", () => {
-    expect(validatePassword("test12345").isValid).toBe(false);
+    expect(isValidPassword("test12345").isValid).toBe(false);
   })
 
   // REGEX FULL TEST
@@ -194,72 +194,72 @@ describe("validatePassword", () => {
 describe("validateConfirmPassword", () => {
   // VALID CONFIRM PASSWORDS
   test("should return valid if password and confirm password match", () => {
-    expect(validateConfirmPassword("test123!", "test123!").isValid).toBe(true);
+    expect(isValidConfirmPassword("test123!", "test123!").isValid).toBe(true);
   })
 
   // INVALID CONFIRM PASSWORDS
   test("should return invalid if password and confirm password are empty", () => {
-    expect(validateConfirmPassword("", "").isValid).toBe(false);
+    expect(isValidConfirmPassword("", "").isValid).toBe(false);
   })
 
   test("should return invalid if password is empty", () => {
-    expect(validateConfirmPassword("", "test123!").isValid).toBe(false);
+    expect(isValidConfirmPassword("", "test123!").isValid).toBe(false);
   })
 
   test("should return invalid if confirm password is empty", () => {
-    expect(validateConfirmPassword("test123!", "").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (mistype)", () => {
-    expect(validateConfirmPassword("test123!", "test123?").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "test123?").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (case mismatch)", () => {
-    expect(validateConfirmPassword("test123!", "Test123!").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "Test123!").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (leading space)", () => {
-    expect(validateConfirmPassword("test123!", " test123!").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", " test123!").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (trailing space)", () => {
-    expect(validateConfirmPassword("test123!", "test123! ").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "test123! ").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (leading newline [unix])", () => {
-    expect(validateConfirmPassword("test123!", "\ntest123!").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "\ntest123!").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (trailing newline [unix])", () => {
-    expect(validateConfirmPassword("test123!", "test123!\n").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "test123!\n").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (leading newline [win])", () => {
-    expect(validateConfirmPassword("test123!", "\r\ntest123!").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "\r\ntest123!").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (trailing newline [win])", () => {
-    expect(validateConfirmPassword("test123!", "test123!\r\n").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "test123!\r\n").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (invisible char \u200B)", () => {
-    expect(validateConfirmPassword("test123!", "test123!\u200B").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "test123!\u200B").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (invisible char \u2060)", () => {
-    expect(validateConfirmPassword("test123!", "test123!\u2060").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "test123!\u2060").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (invisible char \u00A0)", () => {
-    expect(validateConfirmPassword("test123!", "test123!\u00A0").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "test123!\u00A0").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (invisible char \uFEFF)", () => {
-    expect(validateConfirmPassword("test123!", "test123!\uFEFF").isValid).toBe(false);
+    expect(isValidConfirmPassword("test123!", "test123!\uFEFF").isValid).toBe(false);
   })
 
   test("should return invalid if passwords not matching (umlaut unicode mismatch)", () => {
-    expect(validateConfirmPassword("täst123!", "t\u0061\u0308st123!").isValid).toBe(false);
+    expect(isValidConfirmPassword("täst123!", "t\u0061\u0308st123!").isValid).toBe(false);
   })
 })
 
@@ -268,60 +268,60 @@ describe("validateIban", () => {
 
   // VALID IBANS
   test("should return valid if IBAN is 15 chars long and contains two digits country code followed only by numbers", () => {
-    expect(validateIban("DE0123456789012").isValid).toBe(true);
+    expect(isValidIban("DE0123456789012").isValid).toBe(true);
   })
 
   test("should return valid if IBAN is 34 chars long and contains two digits country code followed only by numbers", () => {
-    expect(validateIban("DE01234567890123456789012345678901").isValid).toBe(true);
+    expect(isValidIban("DE01234567890123456789012345678901").isValid).toBe(true);
   })
 
   // INVALID IBANS
   test("should return invalid if IBAN is empty", () => {
-    expect(validateIban("").isValid).toBe(false);
+    expect(isValidIban("").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN is shorter than 15 chars", () => {
-    expect(validateIban("DE001234567890").isValid).toBe(false);
+    expect(isValidIban("DE001234567890").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN is longer than 34 chars", () => {
-    expect(validateIban("DE001234567891234567891234567891234").isValid).toBe(false);
+    expect(isValidIban("DE001234567891234567891234567891234").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN has no country code", () => {
-    expect(validateIban("141592653589793238").isValid).toBe(false);
+    expect(isValidIban("141592653589793238").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN has single digit country code", () => {
-    expect(validateIban("D141592653589793238").isValid).toBe(false);
+    expect(isValidIban("D141592653589793238").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN has tree digit country code", () => {
-    expect(validateIban("DEW141592653589793238").isValid).toBe(false);
+    expect(isValidIban("DEW141592653589793238").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN has invalid country code", () => {
-    expect(validateIban("120123456789012").isValid).toBe(false);
+    expect(isValidIban("120123456789012").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN has umlaute", () => {
-    expect(validateIban("ÖS141592653589793234").isValid).toBe(false);
+    expect(isValidIban("ÖS141592653589793234").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN has french accents", () => {
-    expect(validateIban("ÁU141592653589793234").isValid).toBe(false);
+    expect(isValidIban("ÁU141592653589793234").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN has polish accents", () => {
-    expect(validateIban("ŁU141592653589793234").isValid).toBe(false);
+    expect(isValidIban("ŁU141592653589793234").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN has special chars in country code", () => {
-    expect(validateIban("D.141592653589793234").isValid).toBe(false);
+    expect(isValidIban("D.141592653589793234").isValid).toBe(false);
   })
 
   test("should return invalid if IBAN has special chars after country code", () => {
-    expect(validateIban("DE.41592653589793234").isValid).toBe(false);
+    expect(isValidIban("DE.41592653589793234").isValid).toBe(false);
   })
 })
 
@@ -332,18 +332,84 @@ describe("validateBic", () => {
 
 // SEPA Mandate Validation
 describe("validateSepaMandateCheck", () => {
-  /*
   // VALID SEPA MANDATE
   test("valid SEPA mandate", () => {
-      expect(validateSepaMandateCheck(true).isValid).toBe();
+      expect(isValidSepaMandate(true).isValid).toBe(true);
   })
   // INVALID SEPA MANDATE
   test("invalid SEPA mandate", () => {
-      expect(validateSepaMandateCheck(false);
-      expect(result).toEqual({
-          isValid: false,
-      });
-  }*/
+    expect(isValidSepaMandate(false).isValid).toBe(false);
+  })
+})
+
+// Date String Validation
+describe("validateDateString", () => {
+  // VALID DATE STRINGS
+  test("valid ISO date", () => {
+    expect(isValidDateString("2024-01-01")).toBe(true);
+  });
+
+  test("valid ISO date year 0", () => {
+    expect(isValidDateString("0000-01-01")).toBe(true);
+  });
+
+  test("valid ISO date year 9999", () => {
+    expect(isValidDateString("9999-12-31")).toBe(true);
+  });
+
+  test("valid ISO date leap day in leap year", () => {
+    expect(isValidDateString("2024-02-29")).toBe(true);
+  });
+
+  // INVALID DATE STRINGS
+  test("invalid ISO date empty string", () => {
+    expect(isValidDateString("")).toBe(false);
+  });
+
+  test("invalid ISO date whitespace", () => {
+    expect(isValidDateString("   ")).toBe(false);
+  });
+
+  test(" invalid ISO date format does not match regex", () => {
+    expect(isValidDateString("2025/01/01")).toBe(false);
+    expect(isValidDateString("2025.01.01")).toBe(false);
+  });
+
+  test("invalid non-ISO date", () => {
+    expect(isValidDateString("abcd-ef-gh")).toBe(false);
+  });
+
+  test("invalid auto-corrected ISO date (Feb 30)", () => {
+    expect(isValidDateString("2025-02-30")).toBe(false);
+  });
+
+  test("invalid ISO date day in month", () => {
+    expect(isValidDateString("2025-04-31")).toBe(false);
+  });
+
+  test("invalid ISO date month 0", () => {
+    expect(isValidDateString("2024-00-10")).toBe(false);
+  });
+
+  test("invalid ISO date month 13", () => {
+    expect(isValidDateString("2025-13-01")).toBe(false);
+  });
+
+  test("invalid ISO date day 0", () => {
+    expect(isValidDateString("2025-01-00")).toBe(false);
+  });
+
+  test("invalid ISO date day 32", () => {
+    expect(isValidDateString("2025-01-32")).toBe(false);
+  });
+
+  test("invalid ISO date leap day in non-leap year", () => {
+    expect(isValidDateString("2025-02-29")).toBe(false);
+  });
+
+  test("invalid ISO date completely invalid date", () => {
+    expect(isValidDateString("9999-99-99")).toBe(false);
+  });
 })
 
 function performRegexFullTest(

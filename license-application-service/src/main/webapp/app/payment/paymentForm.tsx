@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  validateBic,
-  validateIban,
-  validateName,
-  validateSepaMandateCheck,
+  isValidBic,
+  isValidIban,
+  isValidName,
+  isValidSepaMandate,
 } from "../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
@@ -182,10 +182,10 @@ export default function PaymentConfirm() {
     const normalizedBic = form.bic.replace(/\s+/g, "");
 
     // validations
-    const nameVal = validateName(normalizedName);
-    const ibanVal = validateIban(normalizedIban);
-    const bicVal = validateBic(normalizedBic, normalizedIban);
-    const sepaVal = validateSepaMandateCheck(form.sepaMandateChecked);
+    const nameVal = isValidName(normalizedName);
+    const ibanVal = isValidIban(normalizedIban);
+    const bicVal = isValidBic(normalizedBic, normalizedIban);
+    const sepaVal = isValidSepaMandate(form.sepaMandateChecked);
 
     const newErrors = {
       name: nameVal.isValid ? "" : nameVal.message,
