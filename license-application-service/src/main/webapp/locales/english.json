@@ -437,6 +437,7 @@
       "required": "Name is required",
       "invalid": "Name can only contain letters and spaces",
       "minLength": "Name must be at least 2 characters long",
+      "maxLength": "Name must be less than 100 characters long",
       "valid": "Name is valid"
     },
     "email": {
@@ -446,8 +447,9 @@
     },
     "cadastral_number": {
       "required": "Cadastral Number is required.",
-      "valid": "Cadastral Number is valid.",
-      "min_length": "Enter Valid Cadastral number, must be 20 characters."
+      "length": "Enter Valid Cadastral number, must be exactly 20 characters.",
+      "invalid": "Cadastral Number can only contain alphanumeric characters.",
+      "valid": "Cadastral Number is valid."
     },
     "password": {
       "required": "Password is required",
