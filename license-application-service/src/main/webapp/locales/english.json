@@ -385,6 +385,51 @@
         "fileTypeError": "Only PDF files are allowed",
         "fileSizeError": "File size must be less than 10 MB"
       }
+    },
+    "list": {
+      "headline": "Licenses",
+      "createNew": "Create new License",
+      "empty": "No Licenses could be found.",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "add": {
+      "headline": "Add License",
+      "back": "Back to list"
+    },
+    "id": {
+      "label": "Id"
+    },
+    "licenseType": {
+      "label": "License Type"
+    },
+    "licenseStatus": {
+      "label": "License Status"
+    },
+    "issuedAt": {
+      "label": "Issued At"
+    },
+    "expiresAt": {
+      "label": "Expires At"
+    },
+    "user": {
+      "label": "User"
+    },
+    "application": {
+      "label": "Application"
+    },
+    "edit": {
+      "headline": "Edit License",
+      "back": "Back to list"
+    },
+    "create": {
+      "success": "License was created successfully."
+    },
+    "update": {
+      "success": "License was updated successfully."
+    },
+    "delete": {
+      "success": "License was removed successfully."
     }
   },
   "validation": {
@@ -447,7 +492,6 @@
       "required": "IBAN is required",
       "minLength": "IBAN must be at least 15 characters long",
       "maxLength": "IBAN must be less than 35 characters long",
-      "countryCode": "IBAN must start with a valid country code",
       "specialChar": "IBAN must not contain any special character",
       "invalid": "IBAN is invalid",
       "valid": "IBAN is valid"
@@ -455,13 +499,7 @@
     "bic": {
       "required": "BIC is required for non-domestic SEPA transactions",
       "length": "BIC must be exactly 8 or 11 characters long",
-      "countryCode": "BIC must contain a valid country code",
-      "specialChar": {
-        "general": "BIC must not contain any special character",
-        "pos6": "BIC must not contain the number '0' or '1' at position 6",
-        "pos7": "BIC must not contain the letter 'O' at position 7",
-        "pos8": "BIC must not contain the letter 'X' at position 8 if not followed by 'XX'"
-      },
+      "specialChar": "BIC must not contain any special character",
       "invalid": "BIC is invalid",
       "valid": "BIC is valid"
     },
@@ -470,12 +508,12 @@
       "valid": "SEPA mandate accepted"
     }
   },
-  "payment": {
+  "paymentForm": {
     "title": "Payment",
     "index": {
       "headline": "Pay now",
-      "subheadline": "SEPA direct debit",
-      "amountLabel": "Total amount: {{amount}}",
+      "subHeadline": "SEPA direct debit",
+      "amountLabel": "Total amount",
       "nameLabel": "Account holder",
       "ibanLabel": "IBAN",
       "bicLabel": "BIC",
@@ -484,34 +522,65 @@
         "plain": "I have read and accept the",
         "button": "SEPA Mandate"
       },
-      "sepaMandateDialog": {
-        "title": "SEPA Direct Debit Mandate",
-        "text": {
-          "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
-          "line2": "Note:",
-          "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
-          "line4": "Details of the payer:",
-          "line5": " –  Account holder: {{accountHolder}}",
-          "line6": " –  IBAN: {{iban}}",
-          "line7": " –  BIC: {{bic}}",
-          "line8": "Details of the payee:",
-          "line9": " –  Beneficiary: {{beneficiaryName}}",
-          "line10": " –  Creditor ID: {{creditorId}}",
-          "line11": " –  Mandate reference: {{mandateReference}}",
-          "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
-          "line13": "Issuing date: {{date}}"
-        },
-        "acceptButtonLabel": "Accept",
-        "cancelButtonLabel": "Cancel",
-        "downloadButtonLabel": "Download",
-        "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
-      },
-      "payButtonLabel": "Pay now"
+      "payButtonLabel": "Pay now",
+      "cancelButtonLabel": "Pay later and return to dashboard",
+      "cancelNote": {
+        "label1": "Your application will be saved as draft",
+        "label2": "you can complete the payment later from your dashboard."
+      }
     },
-    "response": {
-      "success": "Payment successful! Thank you for your payment.",
-      "error": "Payment failed! Please try again later."
-    }
+    "sepaMandateDialog": {
+      "title": "SEPA Direct Debit Mandate",
+      "text": {
+        "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
+        "line2": "Note:",
+        "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
+        "line4": "Details of the payer:",
+        "line5": " –  Account holder: {{accountHolder}}",
+        "line6": " –  IBAN: {{iban}}",
+        "line7": " –  BIC: {{bic}}",
+        "line8": "Details of the payee:",
+        "line9": " –  Beneficiary: {{beneficiaryName}}",
+        "line10": " –  Creditor ID: {{creditorId}}",
+        "line11": " –  Mandate reference: {{mandateReference}}",
+        "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
+        "line13": "Issuing date: {{date}}"
+      },
+      "acceptButtonLabel": "Accept",
+      "cancelButtonLabel": "Cancel",
+      "downloadButtonLabel": "Download",
+      "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
+    },
+    "processing": "Processing payment"
+  },
+  "paymentConfirm": {
+    "title": "Payment Done",
+    "index": {
+      "headline": {
+        "success": "Payment Received",
+        "failure": "Payment Failed"
+      },
+      "subHeadline": {
+        "success": "Your payment data has been received.",
+        "failure": "Your payment data could not be stored. Please try again."
+      },
+      "amountLabel": "Total amount",
+      "taxLabel": "no VAT applies",
+      "paymentIdLabel": "Payment ID",
+      "applicationIdLabel": "Application ID",
+      "nameLabel": "Account holder",
+      "ibanLabel": "IBAN",
+      "bicLabel": "BIC",
+      "bicOptional": "not required",
+      "dateLabel": "Payment date",
+      "sendReceiptLabel": "Send payment receipt to",
+      "receiptSentLabel": "Payment receipt sent!",
+      "leaveButtonLabel": {
+        "success": "Back to Dashboard",
+        "failure": "Try Again"
+      }
+    },
+    "processing": "Processing payment..."
   },
   "error": {
     "page": {
@@ -612,6 +681,55 @@
     "delete": {
       "success": "Application was removed successfully."
     }
+  },
+  "profile": {
+    "title": "Profile",
+    "accountInformation": "Account Information",
+    "changePassword": "Change Password",
+    "notificationSettings": "Notification Settings",
+    "saveChanges": "Save Changes",
+    "deleteAccount": "Delete Account",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "error": {
+      "currentPasswordRequired": "Current password is required",
+      "newPasswordRequired": "New password is required",
+      "confirmPasswordRequired": "Confirm password is required",
+      "passwordMismatch": "Passwords do not match",
+      "passwordMinLength": "Password must be at least 8 characters long"
+    },
+    "success": {
+      "changesSaved": "Changes have been saved successfully!",
+      "passwordChanged": "Password has been changed successfully!",
+      "accountDeleted": "Your account has been deleted successfully."
+    },
+    "confirmation": {
+      "deleteAccount": {
+        "headline": "Are you sure you want to delete your account?",
+        "subheadline": "This action cannot be undone.",
+        "cancelButton": "Cancel",
+        "confirmButton": "Delete Account"
+      }
+    },
+    "alerts": {
+      "unexpectedError": "An unexpected error occurred. Please try again later.",
+      "emailInvalid": "Invalid email address.",
+      "passwordInvalid": "Password must contain at least one special character, one uppercase letter, and one number."
+    }
+  },
+
+  "deleteProfile": {
+    "deleteAccount": "Delete Account",
+    "areYouSureDelete": "Are you sure you want to delete your Account?",
+    "warningMessage": "By deleting this account, you won’t be able to access the system.",
+    "yesDelete": "Yes, Delete",
+    "cancel": "No, Cancel",
+    "loading": "Deleting..."
   },
   "select": {
     "empty": {

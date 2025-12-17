@@ -5,11 +5,14 @@ import Home from "./home/home";
 import Error from "./error/error";
 import Login from "./login/login";
 import Register from "./register/register";
-import RequestApplication from "./license/request-application/request-application";
+import PaymentForm from "./payment/paymentForm";
+import PaymentConfirm from "./payment/paymentConfirm";
 import ForgotPasswordRequest from "./forgot-password/request";
 import ResetPassword from "./forgot-password/reset";
-import Payment from "./payment/payment";
+import RequestApplication from "./license/request-application/request-application";
 import ApplicationDocumentUpload from "./license/document-upload/document-upload";
+import Profile from "./profile/profile";
+import DeleteProfile from "./delete-profile/deleteProfile";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
 import BallotDetails from "./ballot-details/ballot-details";
@@ -28,24 +31,21 @@ export default function AppRoutes() {
         { path: "reset-password", element: <ResetPassword /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
+        { path: "/payment/:id", element: <PaymentForm /> },
+        { path: "/payment/:id/done", element: <PaymentConfirm /> },
         { path: "admin-dashboard", element: <AdminDashboard /> },
         { path: "ballot-dashboard", element: <BallotDashboard /> },
         { path: "ballot-config", element: <BallotConfig /> },
         { path: "notification-settings", element: <NotificationSettings /> },
-        {
-          path: "license-application-request",
-          element: <RequestApplication />,
-        },
-        {
-          path: "license-document-upload/:id",
-          element: <ApplicationDocumentUpload />,
-        },
-        { path: "payment/:id", element: <Payment /> },
+        { path: "license-application-request", element: <RequestApplication /> },
+        { path: "license-document-upload/:id", element: <ApplicationDocumentUpload /> },
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
         { path: "ballot-details", element: <BallotDetails /> },
         { path: "*", element: <Error /> },
+        { path: "profile", element: <Profile /> },
+        { path: "deleteProfile", element: <DeleteProfile /> },
       ],
     },
   ]);
