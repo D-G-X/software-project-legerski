@@ -414,6 +414,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApplicationResource"
+        "409":
+          description: No active ballot period
+        "422":
+          description: User does not exist
 
   /applications/{applicationId}:
     get:
@@ -736,6 +740,12 @@ paths:
           required: true
           schema:
             type: integer
+        - name: licensesCount
+          description: Number of licenses to allocate in this lottery round
+          in: query
+          schema:
+            type: integer
+            minimum: 1
       requestBody:
         required: false
         content:

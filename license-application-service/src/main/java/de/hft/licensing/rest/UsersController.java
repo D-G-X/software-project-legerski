@@ -16,6 +16,7 @@ import org.jooq.DSLContext;
 import org.jooq.impl.QOM.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientResponseException;
@@ -39,6 +40,7 @@ public class UsersController implements UsersApi {
 
     @Override
     @AdminOnly
+    @Transactional
     public ResponseEntity<Void> createUser(CreateUserRequest createUserRequest) {
         if (createUserRequest == null || createUserRequest.getSchema() == null || createUserRequest.getSchema().getUsername() == null) {
             return ResponseEntity.badRequest().build();
@@ -77,6 +79,7 @@ public class UsersController implements UsersApi {
 
     @Override
     @AdminOnly
+    @Transactional
     public ResponseEntity<Void> deleteUser(UUID userId) {
         if (userId == null) {
             return ResponseEntity.badRequest().build();
@@ -181,6 +184,7 @@ public class UsersController implements UsersApi {
 
     @Override
     @AdminOnly
+    @Transactional
     public ResponseEntity<Void> updateUser(String userId, UpdateUserRequest updateUserRequest) {
         if (userId == null || updateUserRequest == null) {
             return ResponseEntity.badRequest().build();
