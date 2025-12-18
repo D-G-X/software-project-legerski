@@ -99,6 +99,24 @@ paths:
         "404":
           description: User with the given email not found
 
+  /change-password:
+    post:
+      tags: [Authentication]
+      summary: Change user password
+      description: Change the password for an authenticated user.
+      operationId: changeUserPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "201":
+          description: Password changed successfully
+        "400":
+          description: Bad request - invalid input data
+
 
 
   /users:
@@ -1057,6 +1075,21 @@ components:
           format: email
           description: Email address associated with the user account.
           example: john.doe@example.com
+
+    ChangePasswordRequest:
+      type: object
+      description: Request payload for changing the user's password.
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address.
+          example: john.doe@example.com
+        new_password:
+          type: string
+          format: password
+          description: User's new desired password.
+          example: newsecurepassword456
 
     UserResource:
       type: object

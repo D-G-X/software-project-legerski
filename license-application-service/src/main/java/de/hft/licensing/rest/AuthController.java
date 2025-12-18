@@ -59,4 +59,17 @@ public class AuthController implements AuthenticationApi {
 
         return ResponseEntity.ok().build();
     }
+
+    @Override
+    public ResponseEntity<Void> changeUserPassword(ChangePasswordRequest changePasswordRequest) {
+        boolean isPasswordChanged = authService.changePassword(
+            changePasswordRequest.getEmail(),
+            changePasswordRequest.getNewPassword()
+        );
+        if (!isPasswordChanged) {
+            System.out.println("Failed to change password for email: " + changePasswordRequest.getEmail());
+            return ResponseEntity.status(500).build();
+        }
+        return ResponseEntity.ok().build();
+    }
 }

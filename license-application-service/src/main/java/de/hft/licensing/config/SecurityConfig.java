@@ -26,6 +26,7 @@ public class SecurityConfig {
                         .requestMatchers("/users/**").permitAll()
                         .requestMatchers("/register/**").permitAll()
                         .requestMatchers("/reset-password/**").permitAll()
+                        .requestMatchers("/change-password/**").permitAll()
                         .requestMatchers("/admin/**").permitAll()
                         .requestMatchers("/validation-callback/**").permitAll()
                         .requestMatchers(
