@@ -81,6 +81,26 @@ paths:
         "409":
             description: Conflict - user already exists
 
+  /reset-password:
+    post:
+      tags: [Authentication]
+      summary: Request password reset
+      description: Initiate a password reset process for a user by email.
+      operationId: requestPasswordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        "201":
+          description: Password reset email sent
+        "404":
+          description: User with the given email not found
+
+
+
   /users:
     get:
       tags: [Users]
@@ -1027,6 +1047,16 @@ components:
           type: string
           description: Confirmation message.
           example: User registered successfully. Please verify your email to activate the account.
+
+    ResetPasswordRequest:
+      type: object
+      description: Request payload for initiating a password reset.
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address associated with the user account.
+          example: john.doe@example.com
 
     UserResource:
       type: object

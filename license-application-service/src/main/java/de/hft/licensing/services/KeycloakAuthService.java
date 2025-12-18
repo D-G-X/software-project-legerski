@@ -120,6 +120,26 @@ public class KeycloakAuthService {
         return registerResource;
     }
 
+    public boolean isEmailRegistered(String email) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        String url = String.format("%s/admin/realms/%s/users?email=%s", keycloakUrl, realm, email);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<KeycloakUserRecord[]> response =
+                restTemplate.exchange(url, HttpMethod.GET, entity, KeycloakUserRecord[].class);
+
+        KeycloakUserRecord[] users = response.getBody();
+        return users != null && users.length > 0;
+    }
+
     private UUID extractUserUUIdFromLocationHeader(ResponseEntity<String> response) {
         String location = Objects.requireNonNull(response.getHeaders().get("Location")).getFirst();
         if (location != null && location.contains("/users/")) {
