@@ -1,5 +1,9 @@
 #!/bin/bash
 
+NODE_MODULES_DIR="node_modules"
+SERVICES_DIR="src/main/webapp/app/services"
+TYPES_DIR="src/main/webapp/types"
+
 read -p "Cleaning project. ALL NON-COMMITTED FILES WILL BE DELETED. Continue? (y/N) " answer
 if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
     echo "Cleaning up build artifacts and temporary files..."
@@ -9,10 +13,21 @@ else
 fi
 
 git clean -fd
-if [ -d "node_modules" ]; then
-  rm -rf node_modules
+
+docker compose -f ./docker-compose.yml down --volumes --remove-orphans
+
+if [ -d $NODE_MODULES_DIR ]; then
+  rm -rf $NODE_MODULES_DIR
 fi
-npm install
+
+if [ -d $SERVICES_DIR ]; then
+  rm -rf $SERVICES_DIR
+fi
+
+if [ -d $TYPES_DIR ]; then
+  find "$TYPES_DIR" -maxdepth 1 -type f ! -name 'custom.d.ts' -delete
+fi
+
 mvn clean
 
 echo "done!"

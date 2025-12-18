@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { validateResults } from "app/common/utils";
 import {
-  validatePassword,
-  validateConfirmPassword,
+  isValidPassword,
+  isValidConfirmPassword,
 } from "app/common/validationRules";
 import { ResetConfirmation } from "./confirmation";
 
@@ -40,11 +40,11 @@ export default function ResetPassword() {
   };
 
   const handleSubmit = () => {
-    const passwordValidateResult: validateResults = validatePassword(
+    const passwordValidateResult: validateResults = isValidPassword(
       form.password
     );
     const confirmPasswordValidateResult: validateResults =
-      validateConfirmPassword(form.password, form.confirm_password);
+      isValidConfirmPassword(form.password, form.confirm_password);
     let newErrors = {
       password: "",
       confirm_password: "",
