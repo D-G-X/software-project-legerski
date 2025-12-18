@@ -1,8 +1,12 @@
-import { describe, it, expect } from '@jest/globals';
+import React from "react";
+import Dashboard from "./dashboard";
 
-describe('Dashboard', () => {
-  it('should be implemented', () => {
-    //Add tests for dashboard component
-    expect(true).toBe(true);
-  });
+test("should create", () => {
+  const { container } = renderWithRouter(<Dashboard />);
+  expect(container).toBeTruthy();
+});
+
+test("should render title", () => {
+  const { container } = renderWithRouter(<Dashboard />);
+  expect(container).toBeTruthy();
 });

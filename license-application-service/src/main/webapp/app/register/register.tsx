@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
 import {
-  validateConfirmPassword,
-  validateEmail,
-  validateName,
-  validatePassword,
+  isValidConfirmPassword,
+  isValidEmail,
+  isValidName,
+  isValidPassword,
 } from "../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
@@ -73,16 +73,16 @@ export default function Register() {
   });
 
   const handleSubmit = async () => {
-    const fristNameValidateResult: validateResults = validateName(
+    const fristNameValidateResult: validateResults = isValidName(
       form.firstName
     );
-    const lastNameValidateResult: validateResults = validateName(form.lastName);
-    const emailValidateResult: validateResults = validateEmail(form.email);
-    const passwordValidateResult: validateResults = validatePassword(
+    const lastNameValidateResult: validateResults = isValidName(form.lastName);
+    const emailValidateResult: validateResults = isValidEmail(form.email);
+    const passwordValidateResult: validateResults = isValidPassword(
       form.password
     );
     const confirmPasswordValidateResult: validateResults =
-      validateConfirmPassword(form.password, form.confirm_password);
+      isValidConfirmPassword(form.password, form.confirm_password);
     let newErrors = {
       firstName: "",
       lastName: "",

@@ -291,7 +291,7 @@ paths:
         tags: [Users]
         summary: Update status of a notification.
         description: Update the read status of a specific notification for a user.
-        operationId: updateNotifications
+        operationId: updateNotification
         security:
           - KeycloakOAuth2: [openid]
         parameters:
@@ -299,7 +299,8 @@ paths:
             in: path
             required: true
             schema:
-              type: integer
+              type: string
+              format: uuid
         responses:
           "200":
             description: Updated notification status.
@@ -308,7 +309,7 @@ paths:
           "403":
             description: Forbidden
           "404":
-            description: User not found
+            description: Notification not found
 
   /users/{userId}/notifications/preferences:
       get:
@@ -1036,6 +1037,10 @@ components:
             description: Type of the token issued.
             example: Bearer
             x-field-extra-annotation: '@JsonProperty("token_type")'
+          is_admin:
+            type: boolean
+            description: Indicates if the user has administrative privileges.
+            example: false
         required:
             - access_token
             - refresh_token
@@ -1175,9 +1180,10 @@ components:
       description: A notification for a user
       properties:
         id:
-          type: integer
+          type: string
+          format: uuid
           description: Unique message identifier.
-          example: 101
+          example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
         application_id:
           type: integer
           description: Unique application identifier.

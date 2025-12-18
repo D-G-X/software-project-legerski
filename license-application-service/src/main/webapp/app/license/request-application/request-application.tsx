@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
 import {
-  validateCadastralNumber,
-  validateEmail,
-  validateName,
+  isValidCadastralNumber,
+  isValidEmail,
+  isValidName,
 } from "../../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
@@ -146,15 +146,15 @@ export default function RequestApplication() {
       consent_legal_data: "",
     };
 
-    const firstNameValidateResult: validateResults = validateName(
+    const firstNameValidateResult: validateResults = isValidName(
       form.first_name
     );
-    const lastNameValidateResult: validateResults = validateName(
+    const lastNameValidateResult: validateResults = isValidName(
       form.last_name
     );
 
-    const emailValidateResult: validateResults = validateEmail(form.email);
-    const cadastralNumValidateResult: validateResults = validateCadastralNumber(
+    const emailValidateResult: validateResults = isValidEmail(form.email);
+    const cadastralNumValidateResult: validateResults = isValidCadastralNumber(
       form.cadastral_number
     );
     if (!firstNameValidateResult.isValid) {
