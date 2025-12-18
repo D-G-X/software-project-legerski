@@ -311,6 +311,58 @@ paths:
           "404":
             description: Notification not found
 
+  /users/{userId}/notifications/preferences:
+      get:
+        tags: [Users]
+        summary: Get notification preferences for a user
+        description: Retrieve the notification preferences for a specific user.
+        operationId: getNotificationPreferences
+        security:
+          - KeycloakOAuth2: [ openid ]
+        parameters:
+          - name: userId
+            in: path
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          "200":
+            description: User notification preferences
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/NotificationPreferencesResource"
+      patch:
+        tags: [Users]
+        summary: Update notification preferences for a user
+        description: Update the notification preferences for a specific user.
+        operationId: updateNotificationPreferences
+        security:
+          - KeycloakOAuth2: [ openid ]
+        parameters:
+          - name: userId
+            in: path
+            required: true
+            schema:
+              type: string
+              format: uuid
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationPreferencesUpdate"
+        responses:
+          "200":
+            description: Updated notification preferences
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/NotificationPreferencesResource"
+
+
+
   /applications:
     get:
       tags: [Applications]
@@ -924,7 +976,6 @@ paths:
         '401':
           description: Unauthorized
 
-
 components:
   securitySchemes:
     KeycloakOAuth2:
@@ -1521,3 +1572,57 @@ components:
           type: string
           format: date-time
           description: Ballot period end, ISO 8601 format
+
+    NotificationPreferencesResource:
+      type: object
+      description: User notification preferences for the holiday rental licensing portal.
+      properties:
+        id:
+          type: integer
+          description: Unique identifier of the notification preferences record.
+          example: 301
+        user_id:
+          type: string
+          format: uuid
+          description: Unique identifier of the user.
+          example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
+        notification_way:
+          $ref: "#/components/schemas/NotificationWayApiEnum"
+        application_updates_notification:
+          type: boolean
+          description: Whether to receive notifications about application updates.
+          example: true
+        license_renewal_notification:
+          type: boolean
+          description: Whether to receive notifications about license renewals.
+          example: false
+      required:
+        - id
+        - user_id
+        - notification_way
+        - application_updates_notification
+        - license_renewal_notification
+
+    NotificationPreferencesUpdate:
+      type: object
+      description: Payload for updating user notification preferences.
+      properties:
+        notification_way:
+          $ref: "#/components/schemas/NotificationWayApiEnum"
+        application_updates_notification:
+          type: boolean
+          description: Whether to receive notifications about application updates.
+          example: true
+        license_renewal_notification:
+          type: boolean
+          description: Whether to receive notifications about license renewals.
+          example: false
+
+    NotificationWayApiEnum:
+      type: string
+      description: Methods of notification delivery.
+      enum:
+        - EMAIL # Notifications via email
+        - SMS # Notifications via SMS
+        - NONE # No notifications
+
