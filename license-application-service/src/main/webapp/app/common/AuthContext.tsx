@@ -2,6 +2,7 @@ import { refreshLogin } from "app/services/authentication/authentication";
 import React, { createContext, useState, ReactNode, useEffect } from "react";
 import { setAccessTokenHeader, setRefreshHandler } from "./axios-config";
 interface AuthContextType {
+  role: string | null;
   accessToken: string | null;
   refreshToken: string | null;
   accessTokenExpiry: number | null;
@@ -12,6 +13,7 @@ interface AuthContextType {
   setAccessTokenExpiry: (token: number | null) => void;
   setRefreshTokenExpiry: (token: number | null | undefined) => void;
   setTokenType: (token: string | null) => void;
+  setRole: (token: string | null) => void;
   signOut: () => void;
   refreshAccessToken: () => void;
   redirectToHome?: () => void;
@@ -31,6 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     number | null | undefined
   >(null);
   const [tokenType, setTokenType] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   const signOut = () => {
     setAccessToken(null);
@@ -38,11 +41,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setAccessTokenExpiry(null);
     setRefreshTokenExpiry(null);
     setTokenType(null);
+    setRole(null);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("accessTokenExpiry");
     localStorage.removeItem("refreshTokenExpiry");
     localStorage.removeItem("tokenType");
+    localStorage.removeItem("role");
     window.location.href = "/login"; // redirect to login page
   };
 
@@ -72,6 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         accessTokenExpiry,
         refreshTokenExpiry,
         tokenType,
+        role,
         setAccessToken,
         setRefreshToken,
         signOut,
@@ -79,6 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setRefreshTokenExpiry,
         setTokenType,
         refreshAccessToken,
+        setRole,
       }}
     >
       {children}
