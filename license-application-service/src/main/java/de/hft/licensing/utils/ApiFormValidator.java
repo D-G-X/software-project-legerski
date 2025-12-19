@@ -8,19 +8,20 @@ import java.util.regex.Pattern;
 
 public class ApiFormValidator {
 
-  // Regex for names: letters (including accented), marks, apostrophes, hyphens, spaces
-  private static final Pattern nameRegex = Pattern.compile(
+  // Regex for names: letters (including accented), marks, apostrophes, hyphens, single spaces
+  public static final Pattern nameRegex = Pattern.compile(
       "^\\p{L}(?:[\\p{L}\\p{M}'’\\-–]*" +
           "[\\p{L}\\p{M}])?(?: \\p{L}(?:[\\p{L}\\p{M}'’\\-]*[\\p{L}\\p{M}])?)*$",
       Pattern.UNICODE_CHARACTER_CLASS
   );
 
   // Regex for emails based on HTML 5 specification
-  private static final Pattern emailRegex = Pattern.compile(
+  public static final Pattern emailRegex = Pattern.compile(
       "^(?:[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+" +
           "(?:\\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*" +
           "|" +
-          "\"(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7E]|\\\\[\\x01-\\x09\\x0B\\x0C\\x0E-\\x7F])*\"" +
+          "\"(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7E]|\\\\[\\x01-\\x09\\x0B\\x0C\\x0E-\\x7F])*\""
+          +
           ")" +
           "@" +
           "(?:(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)\\.)+" +
@@ -28,22 +29,22 @@ public class ApiFormValidator {
   );
 
   // Regex for cadastral number: exactly 20 alphanumeric characters
-  private static final Pattern cadastralNumberRegex = Pattern.compile("^[A-Za-z0-9]*$");
+  public static final Pattern cadastralNumberRegex = Pattern.compile("^[A-Za-z0-9]*$");
 
   // Regex for password: at least one special character (punctuation or symbol)
-  private static final Pattern passwordRegex = Pattern.compile("[\\p{P}\\p{S}]",
+  public static final Pattern passwordRegex = Pattern.compile("[\\p{P}\\p{S}]",
       Pattern.UNICODE_CHARACTER_CLASS);
 
-  // Regex for IBAN: starts with two letters followed by alphanumeric characters
-  private static final Pattern ibanRegex = Pattern.compile("^[A-Z]{2}[0-9]{2}[0-9A-Z]{11,30}$",
+  // Regex for IBAN: 15 to 34 characters, first two letters, then 2 numbers, then 11 to 30 alphanumeric characters
+  public static final Pattern ibanRegex = Pattern.compile("^[A-Z]{2}[0-9]{2}[0-9A-Z]{11,30}$",
       Pattern.CASE_INSENSITIVE);
 
   // Regex for BIC: 8 or 11 characters, first 6 letters, then 2 alphanumeric, optional 3 alphanumeric
-  private static final Pattern bicRegex = Pattern.compile("^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$",
+  public static final Pattern bicRegex = Pattern.compile("^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$",
       Pattern.CASE_INSENSITIVE);
 
   // Regex for date in YYYY-MM-DD format
-  private static final Pattern dateRegex = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
+  public static final Pattern dateRegex = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
 
   // Name Validation
   public boolean isValidName(String name) {
@@ -62,6 +63,12 @@ public class ApiFormValidator {
   // Email validation
   public boolean isValidEmail(String email) {
     if (email.trim().isEmpty()) {
+      return false;
+    }
+    if (email.length() < 5) {
+      return false;
+    }
+    if (email.length() >= 255) {
       return false;
     }
     return emailRegex.matcher(email).matches();
@@ -87,7 +94,7 @@ public class ApiFormValidator {
       return false;
     }
     // avoid cutting off passwords that are too long for database
-    if (password.length() >= 256) {
+    if (password.length() >= 255) {
       return false;
     }
     // At least one special character (non letter or number)
@@ -117,6 +124,10 @@ public class ApiFormValidator {
   }
 
   public boolean isValidBic(String bic, String iban) {
+    if (iban.trim().isEmpty()) {
+      return false;
+    }
+
     if (iban.startsWith("ES") && bic.trim().isEmpty()) {
       return true;
     }

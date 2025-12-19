@@ -1,6 +1,6 @@
 import {t} from "i18next";
 
-// Regex for names: letters (including accented), marks, apostrophes, hyphens, spaces
+// Regex for names: letters (including accented), marks, apostrophes, hyphens, single spaces
 export const nameRegex = new RegExp(
     "^\\p{L}(?:[\\p{L}\\p{M}\'’\\-–]*" +
     "[\\p{L}\\p{M}])?(?: \\p{L}(?:[\\p{L}\\p{M}\'’\\-]*[\\p{L}\\p{M}])?)*$",
@@ -25,7 +25,7 @@ export const cadastralNumberRegex = new RegExp("^[A-Za-z0-9]*$");
 // Regex for password: at least one special character (punctuation or symbol)
 export const passwordRegex = new RegExp("[\\p{P}\\p{S}]", "u");
 
-// Regex for IBAN: starts with two letters followed by alphanumeric characters
+// Regex for IBAN: 15 to 34 characters, first two letters, then 2 numbers, then 11 to 30 alphanumeric characters
 export const ibanRegex = new RegExp("^[A-Z]{2}[0-9]{2}[0-9A-Z]{11,30}$", "i");
 
 // Regex for BIC: 8 or 11 characters, first 6 letters, then 2 alphanumeric, optional 3 alphanumeric
@@ -65,6 +65,18 @@ export const isValidEmail = (email: string | undefined | null) => {
   if (!email || email.trim() === "")
     return {isValid: false, message: t("validation.email.required")};
 
+  if (email.length < 5)
+    return {
+      isValid: false,
+      message: t("validation.email.minLength"),
+    };
+
+  if (email.length >= 255)
+    return {
+      isValid: false,
+      message: t("validation.email.maxLength"),
+    };
+
   if (!emailRegex.test(email))
     return {
       isValid: false,
@@ -75,7 +87,7 @@ export const isValidEmail = (email: string | undefined | null) => {
 };
 
 // Cadastral number validation: exactly 20 characters long
-export const isValidCadastralNumber = (cadastral_number: string) => {
+export const isValidCadastralNumber = (cadastral_number: string | undefined | null) => {
   if (!cadastral_number || cadastral_number.trim() === "")
     return {
       isValid: false,
@@ -98,7 +110,7 @@ export const isValidCadastralNumber = (cadastral_number: string) => {
 };
 
 // Password validation: min. 8 and max. 255 characters long and at least one special character
-export const isValidPassword = (password: string) => {
+export const isValidPassword = (password: string | undefined | null) => {
   if (!password || password.trim() === "")
     return {isValid: false, message: t("validation.password.required")};
 
@@ -108,7 +120,7 @@ export const isValidPassword = (password: string) => {
       message: t("validation.password.minLength"),
     };
   // avoid cutting off passwords that are too long for database
-  if (password.length >= 256)
+  if (password.length >= 255)
     return {
       isValid: false,
       message: t("validation.password.maxLength"),
@@ -126,8 +138,8 @@ export const isValidPassword = (password: string) => {
 
 // Confirm Password validation: must match password
 export const isValidConfirmPassword = (
-    password: string,
-    confirmPassword: string
+    password: string | undefined | null,
+    confirmPassword: string | undefined | null
 ) => {
   if (!confirmPassword || confirmPassword.trim() === "")
     return {
@@ -145,7 +157,7 @@ export const isValidConfirmPassword = (
 };
 
 // IBAN validation: length between 15 and 34 characters, valid characters
-export const isValidIban = (iban: string) => {
+export const isValidIban = (iban: string | undefined | null) => {
   if (!iban || iban.trim() === "")
     return {isValid: false, message: t("validation.iban.required")};
 
@@ -170,7 +182,10 @@ export const isValidIban = (iban: string) => {
   return {isValid: true, message: t("validation.iban.valid")};
 };
 
-export const isValidBic = (bic: string, iban: string) => {
+export const isValidBic = (bic: string | undefined | null, iban: string | undefined | null) => {
+  if (!iban || iban.trim() === "")
+    return {isValid: false, message: t("validation.iban.required")};
+
   if (iban.slice(0, 2) === 'ES' && (!bic || bic.trim() === ""))
     return {isValid: true, message: t("validation.bic.valid")};
 
@@ -202,7 +217,7 @@ export const isValidSepaMandate = (value: boolean) => {
   return {isValid: true, message: t("validation.sepaMandate.valid")};
 };
 
-export const isValidDateString = (value: string): boolean => {
+export const isValidDateString = (value: string | undefined | null): boolean => {
   if(!value || value.trim() === "")
     return false;
 
