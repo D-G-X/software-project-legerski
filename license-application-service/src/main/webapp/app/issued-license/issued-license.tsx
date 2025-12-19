@@ -5,7 +5,7 @@ import { FormHeader } from "../common/headingTitle";
 
 export default function IssuedLicensePage() {
   const navigate = useNavigate();
-  const { t } = useTranslation("issued_license");
+  const { t } = useTranslation("translation", { keyPrefix: "issued-license" });
 
   // Mock data – later this will come from backend
   const licenseData = {
@@ -21,18 +21,12 @@ export default function IssuedLicensePage() {
   return (
     <div className="container mx-auto px-4 md:px-6 min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center font-inter">
       <div className="w-full max-w-xl">
-
         {/* Page Header */}
-        <FormHeader
-          heading={t("title")}
-          subHeading={t("subtitle")}
-        />
+        <FormHeader heading={t("title")} subHeading={t("subtitle")} />
 
         {/* License Details */}
         <div className="bg-gray-50 rounded-lg p-6 mb-6">
-          <h3 className="font-semibold mb-4 text-lg">
-            {t("licenseDetails")}
-          </h3>
+          <h3 className="font-semibold mb-4 text-lg">{t("licenseDetails")}</h3>
 
           <div className="grid grid-cols-2 gap-y-3 text-sm">
             <span className="text-gray-500">{t("licenseId")}</span>
@@ -58,14 +52,10 @@ export default function IssuedLicensePage() {
 
         {/* Property Details */}
         <div className="bg-gray-50 rounded-lg p-6 mb-8">
-          <h3 className="font-semibold mb-3 text-lg">
-            {t("propertyDetails")}
-          </h3>
+          <h3 className="font-semibold mb-3 text-lg">{t("propertyDetails")}</h3>
 
           <div className="grid grid-cols-2 gap-y-3 text-sm">
-            <span className="text-gray-500">
-              {t("cadastralNumber")}
-            </span>
+            <span className="text-gray-500">{t("cadastralNumber")}</span>
             <span>{licenseData.cadastralNumber}</span>
           </div>
         </div>

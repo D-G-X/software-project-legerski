@@ -233,7 +233,7 @@
   "common": {
     "orDivider": "or"
   },
-  "issued_license": {
+  "issued-license": {
     "title": "Issued License",
     "subtitle": "Your approved rental license details",
     "licenseDetails": "License Details",
