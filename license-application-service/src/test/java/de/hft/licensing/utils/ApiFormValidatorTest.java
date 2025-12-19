@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 public class ApiFormValidatorTest {
 
-  static ApiFormValidator validator;
+  private static ApiFormValidator validator;
 
   @BeforeAll
   static void setup() {
