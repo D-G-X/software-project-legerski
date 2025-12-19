@@ -3,6 +3,7 @@ package de.hft.licensing.utils;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -32,7 +33,7 @@ public class ApiFormValidator {
   public static final Pattern cadastralNumberRegex = Pattern.compile("^[A-Za-z0-9]*$");
 
   // Regex for password: at least one special character (punctuation or symbol)
-  public static final Pattern passwordRegex = Pattern.compile("[\\p{P}\\p{S}]",
+  public static final Pattern passwordRegex = Pattern.compile(".*[\\p{P}\\p{S}].*",
       Pattern.UNICODE_CHARACTER_CLASS);
 
   // Regex for IBAN: 15 to 34 characters, first two letters, then 2 numbers, then 11 to 30 alphanumeric characters
@@ -140,18 +141,28 @@ public class ApiFormValidator {
     return bicRegex.matcher(bic).matches();
   }
 
+
   public boolean isValidDateString(String value) {
-    if (value.trim().isEmpty()) {
+    if (value == null || value.trim().isEmpty()) {
       return false;
     }
+
     if (!dateRegex.matcher(value).matches()) {
       return false;
     }
-    // Check that date is valid and not autocorrected by frontend
-    LocalDate parsed = LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
-    return parsed.atStartOfDay(ZoneOffset.UTC)
-        .toLocalDate()
-        .toString()
-        .equals(value);
+
+    try {
+      LocalDate date = LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
+
+      // Check that date is valid and not autocorrected
+      return date
+          .atStartOfDay(ZoneOffset.UTC)
+          .toLocalDate()
+          .toString()
+          .equals(value);
+
+    } catch (DateTimeParseException e) {
+      return false;
+    }
   }
 }

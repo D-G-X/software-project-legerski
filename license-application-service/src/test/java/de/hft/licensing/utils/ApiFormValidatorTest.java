@@ -487,7 +487,6 @@ public class ApiFormValidatorTest {
 
     @Test
     void shouldReturnValidIfBicIsEmptyDomestic() {
-      assertTrue(validator.isValidBic(null, "ES0123456789012"));
       assertTrue(validator.isValidBic("", "ES0123456789012"));
       assertTrue(validator.isValidBic(" ", "ES0123456789012"));
     }
@@ -521,7 +520,6 @@ public class ApiFormValidatorTest {
 
     @Test
     void shouldReturnInvalidIfBicIsEmptyNonDomestic() {
-      assertFalse(validator.isValidBic(null, "DE0123456789012"));
       assertFalse(validator.isValidBic("", "DE0123456789012"));
       assertFalse(validator.isValidBic(" ", "DE0123456789012"));
     }

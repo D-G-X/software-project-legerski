@@ -23,7 +23,8 @@ export const emailRegex = new RegExp(
 export const cadastralNumberRegex = new RegExp("^[A-Za-z0-9]*$");
 
 // Regex for password: at least one special character (punctuation or symbol)
-export const passwordRegex = new RegExp("[\\p{P}\\p{S}]", "u");
+export const passwordRegex = new RegExp(".*[\\p{P}\\p{S}].*", "u"
+);
 
 // Regex for IBAN: 15 to 34 characters, first two letters, then 2 numbers, then 11 to 30 alphanumeric characters
 export const ibanRegex = new RegExp("^[A-Z]{2}[0-9]{2}[0-9A-Z]{11,30}$", "i");
