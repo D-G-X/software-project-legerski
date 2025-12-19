@@ -72,6 +72,22 @@ function emptyToNull(val: any, inputVal: any) {
   return (val && typeof val === "string" ? val.trim() : val) || null;
 }
 
+export const getDateWithDelta = (deltaInDays: number): string => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + deltaInDays);
+  return date.toISOString().slice(0, 10);
+};
+
+export const toISOStringFromDateInput = (dateString: string): string => {
+  // dateString must be YYYY-MM-DD
+  const [year, month, day] = dateString.split("-").map(Number);
+
+  // Create UTC date to avoid timezone shift
+  const utcDate = new Date(Date.UTC(year!, month! - 1, day, 0, 0, 0));
+
+  return utcDate.toISOString();
+};
 /**
  * Extends the yup namespace with the "emptyToNull" method and define default validation error messages.
  */

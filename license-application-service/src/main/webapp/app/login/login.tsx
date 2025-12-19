@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
-import { validateEmail, validatePassword } from "../common/validationRules";
+import { isValidEmail, isValidPassword } from "../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
@@ -57,8 +57,8 @@ export default function Login() {
   });
 
   const handleSubmit = async () => {
-    const emailValidateResult: validateResults = validateEmail(form.email);
-    const passwordValidateResult: validateResults = validatePassword(
+    const emailValidateResult: validateResults = isValidEmail(form.email);
+    const passwordValidateResult: validateResults = isValidPassword(
       form.password
     );
     let newErrors = { email: "", password: "", login: "" };

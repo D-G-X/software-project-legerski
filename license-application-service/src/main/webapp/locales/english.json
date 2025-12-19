@@ -32,6 +32,7 @@
     "signInBtn": "Sign in",
     "signOutBtn": "Sign Out",
     "registerBtn": "Register",
+    "noNotification": "No notifications to display.",
     "languages": {
       "en": {
         "name": "English",
@@ -436,6 +437,7 @@
       "required": "Name is required",
       "invalid": "Name can only contain letters and spaces",
       "minLength": "Name must be at least 2 characters long",
+      "maxLength": "Name must be less than 100 characters long",
       "valid": "Name is valid"
     },
     "email": {
@@ -445,8 +447,9 @@
     },
     "cadastral_number": {
       "required": "Cadastral Number is required.",
-      "valid": "Cadastral Number is valid.",
-      "min_length": "Enter Valid Cadastral number, must be 20 characters."
+      "length": "Enter Valid Cadastral number, must be exactly 20 characters.",
+      "invalid": "Cadastral Number can only contain alphanumeric characters.",
+      "valid": "Cadastral Number is valid."
     },
     "password": {
       "required": "Password is required",
@@ -785,6 +788,54 @@
       ],
       "consentTitle": "Cookie Consent",
       "consentText": "On your first visit, you accept all essential cookies. These cannot be disabled."
+    }
+  },
+  "ballotConfig": {
+    "pageTitle": "Configure New Ballot",
+    "formFields": {
+      "startDate": "Start Date:",
+      "endDate": "End Date:"
+    },
+    "buttons": {
+      "publish": "Publish Ballot",
+      "cancel": "Cancel"
+    },
+    "alerts": {
+      "requiredDates": "Both start date and end date are required.",
+      "invalidDate": "Invalid date format. Please use a valid date.",
+      "startDateAfterToday": "Start date must be later than today.",
+      "sameStartEndDate": "Start date and end date cannot be the same.",
+      "startDateAfterEndDate": "Start date cannot be later than end date.",
+      "endDateTooLate": "End date cannot be more than 6 months after the start date.",
+      "success": "Ballot period created successfully!",
+      "overlappingPeriod": "The specified start and end dates overlap with an existing ballot period.",
+      "creationFailed": "Failed to create ballot period."
+    }
+  },
+  "notificationSettings": {
+    "pageTitle": "Notification Settings",
+    "description": "Manage how we send notifications to you",
+    "sections": {
+      "appUpdates": {
+        "title": "When my application is updated:",
+        "email": "Email"
+      },
+      "appStatus": {
+        "title": "Application Updates",
+        "label": "When my application status is updated"
+      },
+      "license": {
+        "title": "License Renewal Updates",
+        "label": "When my license is 6 months due for expiry"
+      }
+    },
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "alerts": {
+      "clientError": "Client Error Occurred",
+      "apiPlaceholder": "API call has to be implemented!"
     }
   },
   "ballotDetails": {

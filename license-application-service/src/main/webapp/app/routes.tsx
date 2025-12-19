@@ -20,6 +20,7 @@ import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
 import { ProtectedLoader } from "./common/ProtectedLoader";
+import BallotConfig from "./ballot-config/ballot-config";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -58,11 +59,6 @@ export default function AppRoutes() {
           loader: ProtectedLoader(["dev", "user"]),
         },
         {
-          path: "/payment/:id/done",
-          element: <PaymentConfirm />,
-          loader: ProtectedLoader(["dev", "user"]),
-        },
-        {
           path: "profile",
           element: <Profile />,
           loader: ProtectedLoader(["dev", "user"]),
@@ -77,6 +73,11 @@ export default function AppRoutes() {
         {
           path: "admin-dashboard",
           element: <AdminDashboard />,
+          loader: ProtectedLoader(["dev", "admin"]),
+        },
+        {
+          path: "ballot-config",
+          element: <BallotConfig />,
           loader: ProtectedLoader(["dev", "admin"]),
         },
         {
