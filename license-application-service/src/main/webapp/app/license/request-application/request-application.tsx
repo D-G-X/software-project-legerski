@@ -8,33 +8,25 @@ import {
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import "./request-application.css";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { AuthContext } from "app/common/AuthContext";
 import { getUserIdFromToken } from "app/common/authTokenDecode";
-// import { useGetUser } from "app/services/users/users";
-import { useCreateApplication } from "app/services/applications/applications";
+import {
+  useCreateApplication,
+  useGetApplication,
+  useUpdateApplication,
+} from "app/services/applications/applications";
 import { LicenseTypeApiEnum } from "types/licenseTypeApiEnum";
 import { useGetUser } from "app/services/users/users";
 
 export default function RequestApplication() {
+  const params = useParams();
+  const applicationId = parseInt(params.id!, 10);
+  const requestType = params.type!;
   const auth = useContext(AuthContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
   useDocumentTitle(t("license.request.title"));
-
-  const userID = getUserIdFromToken(auth?.accessToken);
-
-  const userDetails = useGetUser(userID, {
-    axios: {
-      headers: {
-        Authorization: `Bearer ${auth?.accessToken}`,
-      },
-    },
-    query: {
-      select: (res) => res.data,
-      enabled: !!userID,
-    },
-  });
 
   const [form, setForm] = useState({
     first_name: "",
@@ -59,7 +51,32 @@ export default function RequestApplication() {
     consent_legal_data: "",
   });
 
-  // ...existing code...
+  const userID = getUserIdFromToken(auth?.accessToken);
+
+  const userDetails = useGetUser(userID, {
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+    },
+    query: {
+      select: (res) => res.data,
+      enabled: !!userID,
+    },
+  });
+
+  const applicationDetails = useGetApplication(applicationId, {
+    query: {
+      select: (response) => response.data,
+      enabled: !!applicationId && ["renew", "edit"].includes(requestType),
+    },
+    axios: {
+      headers: {
+        Authorization: `${auth?.tokenType} ${auth?.accessToken}`,
+      },
+    },
+  });
+
   useEffect(() => {
     if (!userDetails.data) return;
 
@@ -70,7 +87,18 @@ export default function RequestApplication() {
       email: userDetails.data.email ?? prev.email,
     }));
   }, [userDetails.data]);
-  // ...existing code...
+
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      cadastral_number:
+        applicationDetails.data?.cadastral_reference ?? prev.cadastral_number,
+      rental_license_type:
+        applicationDetails.data?.license_type ?? prev.rental_license_type,
+      additional_comments:
+        applicationDetails.data?.remarks ?? prev.additional_comments,
+    }));
+  }, [applicationDetails.data]);
 
   const rentalLicenseType = [
     {
@@ -133,6 +161,21 @@ export default function RequestApplication() {
     },
   });
 
+  // uncomment after APIs are ready to handle edit form
+
+  // const updateApplication = useUpdateApplication({
+  //   mutation: {
+  //     onError: (error) => {
+  //       console.error("Application creation error:", error);
+  //     },
+  //   },
+  //   axios: {
+  //     headers: {
+  //       Authorization: `Bearer ${auth?.accessToken}`,
+  //     },
+  //   },
+  // });
+
   const handleSubmit = async (btn: string) => {
     let newErrors = {
       first_name: "",
@@ -149,9 +192,7 @@ export default function RequestApplication() {
     const firstNameValidateResult: validateResults = isValidName(
       form.first_name
     );
-    const lastNameValidateResult: validateResults = isValidName(
-      form.last_name
-    );
+    const lastNameValidateResult: validateResults = isValidName(form.last_name);
 
     const emailValidateResult: validateResults = isValidEmail(form.email);
     const cadastralNumValidateResult: validateResults = isValidCadastralNumber(
@@ -215,15 +256,6 @@ export default function RequestApplication() {
       app_submit: "",
     });
 
-    console.log({
-      user_id: userID,
-      license_type: form.rental_license_type as LicenseTypeApiEnum,
-      cadastral_reference: form.cadastral_number,
-      remarks: form.additional_comments,
-    });
-
-    // implement the API call for register;
-
     try {
       const response = await createApplication.mutateAsync({
         data: {
@@ -233,6 +265,19 @@ export default function RequestApplication() {
           remarks: form.additional_comments,
         },
       });
+
+      // uncomment after implementation of edit users
+      // const baseData = {
+      //   license_type: form.rental_license_type as LicenseTypeApiEnum,
+      //   cadastral_reference: form.cadastral_number,
+      //   remarks: form.additional_comments,
+      // };
+
+      // const response = ["edit"].includes(requestType)
+      //   ? await updateApplication.mutateAsync({ data: baseData })
+      //   : await createApplication.mutateAsync({
+      //       data: { ...baseData, user_id: userID },
+      //     });
 
       switch (response.status) {
         case 201:
