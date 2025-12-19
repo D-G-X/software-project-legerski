@@ -14,7 +14,6 @@ import { getUserIdFromToken } from "app/common/authTokenDecode";
 import {
   useCreateApplication,
   useGetApplication,
-  useUpdateApplication,
 } from "app/services/applications/applications";
 import { LicenseTypeApiEnum } from "types/licenseTypeApiEnum";
 import { useGetUser } from "app/services/users/users";
