@@ -37,8 +37,14 @@ export default function AppRoutes() {
         { path: "ballot-dashboard", element: <BallotDashboard /> },
         { path: "ballot-config", element: <BallotConfig /> },
         { path: "notification-settings", element: <NotificationSettings /> },
-        { path: "license-application-request", element: <RequestApplication /> },
-        { path: "license-document-upload/:id", element: <ApplicationDocumentUpload /> },
+        {
+          path: "license-application-request",
+          element: <RequestApplication />,
+        },
+        {
+          path: "license-document-upload/:id",
+          element: <ApplicationDocumentUpload />,
+        },
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
@@ -46,6 +52,10 @@ export default function AppRoutes() {
         { path: "*", element: <Error /> },
         { path: "profile", element: <Profile /> },
         { path: "deleteProfile", element: <DeleteProfile /> },
+        {
+          path: "license-application-request/:type/:id",
+          element: <RequestApplication />,
+        },
       ],
     },
   ]);
