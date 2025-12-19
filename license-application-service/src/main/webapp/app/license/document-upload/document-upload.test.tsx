@@ -1,8 +1,8 @@
-import { describe, it, expect } from '@jest/globals';
+import React from "react";
+import ApplicationDocumentUpload from "./document-upload";
 
-describe('DocumentUpload', () => {
-  it('should be implemented', () => {
-    //Add tests for document upload component
-    expect(true).toBe(true);
-  });
+test("should create", () => {
+  const { container } = renderWithRouter(<ApplicationDocumentUpload />);
+
+  expect(container).toBeTruthy();
 });
