@@ -1,13 +1,7 @@
 package de.hft.licensing.utils;
 
-import de.hft.licensing.db.enums.ApplicationStatus;
-import de.hft.licensing.db.enums.LicenseStatus;
-import de.hft.licensing.db.enums.LicenseType;
-import de.hft.licensing.db.enums.PaymentStatus;
-import de.hft.licensing.model.ApplicationStatusApiEnum;
-import de.hft.licensing.model.LicenseStatusApiEnum;
-import de.hft.licensing.model.LicenseTypeApiEnum;
-import de.hft.licensing.model.PaymentStatusApiEnum;
+import de.hft.licensing.db.enums.*;
+import de.hft.licensing.model.*;
 
 public class EnumMapperUtil {
 
@@ -55,6 +49,8 @@ public class EnumMapperUtil {
             case LicenseStatus e -> LicenseStatusApiEnum.fromValue(e.getLiteral().toUpperCase());
             case PaymentStatusApiEnum e -> PaymentStatus.lookupLiteral(e.getValue().toLowerCase());
             case PaymentStatus e -> PaymentStatusApiEnum.fromValue(e.getLiteral().toUpperCase());
+            case NotificationWayApiEnum e -> NotificationWay.lookupLiteral(e.getValue().toLowerCase());
+            case NotificationWay e -> NotificationWayApiEnum.fromValue(e.getLiteral().toUpperCase());
             default -> null;
         };
     }

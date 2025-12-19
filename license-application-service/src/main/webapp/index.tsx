@@ -37,6 +37,7 @@ const AppInitializer = () => {
     const storedAccessRefreshToken = localStorage.getItem("accessTokenExpiry");
     const storedRefreshToken = localStorage.getItem("refreshTokenExpiry");
     const storedTokenType = localStorage.getItem("tokenType");
+    const storedRole = localStorage.getItem("role");
 
     if (storedAccess) auth?.setAccessToken(storedAccess);
     if (storedRefresh) auth?.setRefreshToken(storedRefresh);
@@ -44,6 +45,7 @@ const AppInitializer = () => {
       auth?.setAccessTokenExpiry(Number(storedAccessRefreshToken));
     if (storedRefresh) auth?.setRefreshTokenExpiry(Number(storedRefreshToken));
     if (storedRefresh) auth?.setTokenType(storedTokenType);
+    if (storedRole) auth?.setRole(storedRole);
   }, [auth]);
 
   return <AppRoutes />;

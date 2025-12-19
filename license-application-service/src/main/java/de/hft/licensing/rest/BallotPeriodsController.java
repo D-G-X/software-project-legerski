@@ -1,41 +1,77 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.BallotPeriodsApi;
+import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.Ballot;
 import de.hft.licensing.db.tables.BallotPeriod;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.*;
+import de.hft.licensing.services.DistributionAlgorithmService;
+import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.jooq.impl.DefaultDSLContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+
+import static org.jooq.impl.DSL.selectOne;
+
 
 @RestController
 @PreAuthorize("hasRole('admin')")
 public class BallotPeriodsController implements BallotPeriodsApi {
     private final DefaultDSLContext dslContext;
+    private final DistributionAlgorithmService distributionAlgorithmService;
 
-    public BallotPeriodsController(DefaultDSLContext dslContext) {
+    public BallotPeriodsController(DefaultDSLContext dslContext, DistributionAlgorithmService distributionAlgorithmService) {
         this.dslContext = dslContext;
+        this.distributionAlgorithmService = distributionAlgorithmService;
     }
 
+    public record BallotApiError(String code, String message) {}
+
     @Override
+    @AdminOnly
+    @Transactional
     public ResponseEntity<BallotPeriodResource> createBallotPeriod(CreateBallotPeriodRequest createBallotPeriodRequest) {
-        if(createBallotPeriodRequest == null || createBallotPeriodRequest.getStartDate() == null || createBallotPeriodRequest.getEndDate() == null
+        if (createBallotPeriodRequest == null
+                || createBallotPeriodRequest.getStartDate() == null
+                || createBallotPeriodRequest.getEndDate() == null
                 || createBallotPeriodRequest.getStartDate().isAfter(createBallotPeriodRequest.getEndDate())) {
             return ResponseEntity.badRequest().build();
         }
+
+        LocalDateTime newStart = createBallotPeriodRequest.getStartDate()
+                .atZoneSameInstant(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        LocalDateTime newEnd = createBallotPeriodRequest.getEndDate()
+                .atZoneSameInstant(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        boolean overlaps = dslContext.fetchExists(
+                selectOne()
+                        .from(BallotPeriod.BALLOT_PERIOD)
+                        .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(newEnd))
+                        .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(newStart))
+        );
+
+        if (overlaps) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
         BallotPeriodRecord ballotPeriodRecord = dslContext.insertInto(BallotPeriod.BALLOT_PERIOD)
-                .set(BallotPeriod.BALLOT_PERIOD.START_DATE, createBallotPeriodRequest.getStartDate().atZoneSameInstant(ZoneId.systemDefault())
-                        .toLocalDateTime())
-                .set(BallotPeriod.BALLOT_PERIOD.END_DATE, createBallotPeriodRequest.getEndDate().atZoneSameInstant(ZoneId.systemDefault())
-                        .toLocalDateTime())
+                .set(BallotPeriod.BALLOT_PERIOD.START_DATE, newStart)
+                .set(BallotPeriod.BALLOT_PERIOD.END_DATE, newEnd)
                 .returning()
                 .fetchOneInto(BallotPeriodRecord.class);
 
@@ -49,6 +85,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<BallotPeriodResource> getBallotPeriodDetails(Integer periodId) {
         if (periodId == null || periodId <= 0) {
             return ResponseEntity.badRequest().build();
@@ -65,6 +102,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     }
 
     @Override
+    @AdminOnly
     public ResponseEntity<List<ApplicationResource>> getBallotPeriodEntries(Integer periodId) {
 
         List<ApplicationRecord> applicationRecords= dslContext.select()
@@ -74,6 +112,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                 .join(Application.APPLICATION)
                     .on(Ballot.BALLOT.APPLICATION_ID.eq(Application.APPLICATION.ID))
                 .where(BallotPeriod.BALLOT_PERIOD.ID.eq(periodId))
+                .and(Application.APPLICATION.APPLICATION_STATUS.eq(ApplicationStatus.submitted))
                 .fetchInto(ApplicationRecord.class);
 
         if (applicationRecords.isEmpty()) {
@@ -90,13 +129,49 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     }
 
     @Override
-    public ResponseEntity<RunLotteryForBallotPeriod200Response> runLotteryForBallotPeriod(Integer periodId, RunLotteryForBallotPeriodRequest runLotteryForBallotPeriodRequest) {
-        // implement lottery logic
-        // create ballot
-        // check if active period
-        // select applications in period
+    @AdminOnly
+    public ResponseEntity<RunLotteryForBallotPeriod200Response> runLotteryForBallotPeriod(
+            Integer periodId,
+            @Parameter(name = "licenses_to_distribute") Integer licensesToDistribute,
+            RunLotteryForBallotPeriodRequest runLotteryForBallotPeriodRequest) {
 
+        if (periodId == null || periodId <= 0) {
+            return ResponseEntity.badRequest().build();
+        }
 
-        return null;
+        LicenseTypeApiEnum licenseType = runLotteryForBallotPeriodRequest != null
+                ? runLotteryForBallotPeriodRequest.getLicenseType()
+                : null;
+
+        DistributionAlgorithmService.LotteryResult result;
+        try {
+            result = distributionAlgorithmService.runLotteryForBallotPeriod(
+                    periodId,
+                    licenseType,
+                    licensesToDistribute
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<ApplicationResource> selectedResources = result.selectedApplications().stream().map(record -> {
+            ApplicationResource resource = new ApplicationResource();
+            RecordToResourceMapperUtil.mapApplicationRecordToResource(record, resource);
+            return resource;
+        }).toList();
+
+        List<ApplicationResource> notSelectedResources = result.notSelectedApplications().stream().map(record -> {
+            ApplicationResource resource = new ApplicationResource();
+            RecordToResourceMapperUtil.mapApplicationRecordToResource(record, resource);
+            return resource;
+        }).toList();
+
+        RunLotteryForBallotPeriod200Response body = new RunLotteryForBallotPeriod200Response();
+        body.setSelectedApplications(selectedResources);
+        body.setNotSelectedApplications(notSelectedResources);
+
+        return ResponseEntity.ok(body);
     }
 }

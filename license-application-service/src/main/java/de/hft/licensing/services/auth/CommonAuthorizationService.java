@@ -12,7 +12,7 @@ public class CommonAuthorizationService {
             return false;
         }
         return jwt.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("admin"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
     }
 
     static UUID getCurrentUserId(Authentication authentication) {
