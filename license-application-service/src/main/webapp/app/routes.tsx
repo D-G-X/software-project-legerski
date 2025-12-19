@@ -19,6 +19,7 @@ import BallotDetails from "./ballot-details/ballot-details";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
+import { ProtectedLoader } from "./common/ProtectedLoader";
 import BallotConfig from "./ballot-config/ballot-config";
 
 export default function AppRoutes() {
@@ -31,12 +32,79 @@ export default function AppRoutes() {
         { path: "reset-password", element: <ResetPassword /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
-        { path: "/payment/:id", element: <PaymentForm /> },
-        { path: "/payment/:id/done", element: <PaymentConfirm /> },
-        { path: "admin-dashboard", element: <AdminDashboard /> },
-        { path: "ballot-dashboard", element: <BallotDashboard /> },
-        { path: "ballot-config", element: <BallotConfig /> },
-        { path: "notification-settings", element: <NotificationSettings /> },
+        { path: "legal", element: <LegalNotice /> },
+        { path: "contact", element: <ContactPage /> },
+        { path: "error", element: <Error /> },
+        { path: "*", element: <Error /> },
+
+        // Post login (any user)
+        {
+          path: "notification-settings",
+          element: <NotificationSettings />,
+          loader: ProtectedLoader(["admin", "user"]),
+        },
+        {
+          path: "license-application-request/:type/:id",
+          element: <RequestApplication />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "license-application-request",
+          element: <RequestApplication />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "license-document-upload/:id",
+          element: <ApplicationDocumentUpload />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "payment/:id",
+          element: <PaymentForm />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "payment/:id/done",
+          element: <PaymentConfirm />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "profile",
+          element: <Profile />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "deleteProfile",
+          element: <DeleteProfile />,
+          loader: ProtectedLoader(["user"]),
+        },
+
+        // Admin-only routes
+        {
+          path: "admin-dashboard",
+          element: <AdminDashboard />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-config",
+          element: <BallotConfig />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-dashboard",
+          element: <BallotDashboard />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-details",
+          element: <BallotDetails />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "notification-settings",
+          element: <NotificationSettings />,
+          loader: ProtectedLoader(["admin"]),
+        },
         {
           path: "license-application-request",
           element: <RequestApplication />,
@@ -45,16 +113,12 @@ export default function AppRoutes() {
           path: "license-document-upload/:id",
           element: <ApplicationDocumentUpload />,
         },
-        { path: "legal", element: <LegalNotice /> },
-        { path: "contact", element: <ContactPage /> },
-        { path: "error", element: <Error /> },
-        { path: "ballot-details", element: <BallotDetails /> },
         { path: "*", element: <Error /> },
         { path: "profile", element: <Profile /> },
-        { path: "deleteProfile", element: <DeleteProfile /> },
         {
-          path: "license-application-request/:type/:id",
-          element: <RequestApplication />,
+          path: "deleteProfile",
+          element: <DeleteProfile />,
+          loader: ProtectedLoader(["user", "admin"]),
         },
       ],
     },
