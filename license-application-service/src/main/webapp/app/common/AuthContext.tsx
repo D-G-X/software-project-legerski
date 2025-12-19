@@ -1,5 +1,6 @@
-// src/app/context/AuthContext.tsx
-import React, { createContext, useState, ReactNode } from "react";
+import { refreshLogin } from "app/services/authentication/authentication";
+import React, { createContext, useState, ReactNode, useEffect } from "react";
+import { setAccessTokenHeader, setRefreshHandler } from "./axios-config";
 interface AuthContextType {
   accessToken: string | null;
   refreshToken: string | null;
@@ -12,6 +13,7 @@ interface AuthContextType {
   setRefreshTokenExpiry: (token: number | null | undefined) => void;
   setTokenType: (token: string | null) => void;
   signOut: () => void;
+  refreshAccessToken: () => void;
   redirectToHome?: () => void;
 }
 
@@ -19,7 +21,6 @@ export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
 
-// AuthContext.tsx
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
@@ -45,6 +46,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     window.location.href = "/login"; // redirect to login page
   };
 
+  const refreshAccessToken = async () => {
+    if (!refreshToken) return null;
+    try {
+      const resp = await refreshLogin({ refresh_token: refreshToken });
+      const newToken = resp.data.access_token;
+      setAccessToken(newToken);
+      setAccessTokenHeader(newToken);
+      return newToken;
+    } catch {
+      signOut();
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    setRefreshHandler(refreshAccessToken);
+  }, [refreshToken]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -59,6 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setAccessTokenExpiry,
         setRefreshTokenExpiry,
         setTokenType,
+        refreshAccessToken,
       }}
     >
       {children}
