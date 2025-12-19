@@ -59,6 +59,11 @@ export default function AppRoutes() {
           loader: ProtectedLoader(["dev", "user"]),
         },
         {
+          path: "payment/:id/done",
+          element: <PaymentConfirm />,
+          loader: ProtectedLoader(["dev", "user"]),
+        },
+        {
           path: "profile",
           element: <Profile />,
           loader: ProtectedLoader(["dev", "user"]),
