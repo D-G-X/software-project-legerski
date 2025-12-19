@@ -1,8 +1,8 @@
 import React from "react";
-import LegalNotice from "./legal";
+import ContactPage from "./contact";
 
 test("should create", () => {
-  const { container } = renderWithRouter(<LegalNotice />);
+  const { container } = renderWithRouter(<ContactPage />);
 
   expect(container).toBeTruthy();
 });
