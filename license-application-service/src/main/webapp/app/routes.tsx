@@ -41,64 +41,69 @@ export default function AppRoutes() {
         {
           path: "notification-settings",
           element: <NotificationSettings />,
-          loader: ProtectedLoader(["dev", "admin", "user"]),
+          loader: ProtectedLoader(["admin", "user"]),
+        },
+        {
+          path: "license-application-request/:type/:id",
+          element: <RequestApplication />,
+          loader: ProtectedLoader(["user"]),
         },
         {
           path: "license-application-request",
           element: <RequestApplication />,
-          loader: ProtectedLoader(["dev", "user"]),
+          loader: ProtectedLoader(["user"]),
         },
         {
           path: "license-document-upload/:id",
           element: <ApplicationDocumentUpload />,
-          loader: ProtectedLoader(["dev", "user"]),
+          loader: ProtectedLoader(["user"]),
         },
         {
           path: "payment/:id",
           element: <PaymentForm />,
-          loader: ProtectedLoader(["dev", "user"]),
+          loader: ProtectedLoader(["user"]),
         },
         {
           path: "payment/:id/done",
           element: <PaymentConfirm />,
-          loader: ProtectedLoader(["dev", "user"]),
+          loader: ProtectedLoader(["user"]),
         },
         {
           path: "profile",
           element: <Profile />,
-          loader: ProtectedLoader(["dev", "user"]),
+          loader: ProtectedLoader(["user"]),
         },
         {
           path: "deleteProfile",
           element: <DeleteProfile />,
-          loader: ProtectedLoader(["dev", "user"]),
+          loader: ProtectedLoader(["user"]),
         },
 
         // Admin-only routes
         {
           path: "admin-dashboard",
           element: <AdminDashboard />,
-          loader: ProtectedLoader(["dev", "admin"]),
+          loader: ProtectedLoader(["admin"]),
         },
         {
           path: "ballot-config",
           element: <BallotConfig />,
-          loader: ProtectedLoader(["dev", "admin"]),
+          loader: ProtectedLoader(["admin"]),
         },
         {
           path: "ballot-dashboard",
           element: <BallotDashboard />,
-          loader: ProtectedLoader(["dev", "admin"]),
+          loader: ProtectedLoader(["admin"]),
         },
         {
           path: "ballot-details",
           element: <BallotDetails />,
-          loader: ProtectedLoader(["dev", "admin"]),
+          loader: ProtectedLoader(["admin"]),
         },
         {
           path: "notification-settings",
           element: <NotificationSettings />,
-          loader: ProtectedLoader(["dev", "admin"]),
+          loader: ProtectedLoader(["admin"]),
         },
         {
           path: "license-application-request",
@@ -109,6 +114,12 @@ export default function AppRoutes() {
           element: <ApplicationDocumentUpload />,
         },
         { path: "*", element: <Error /> },
+        { path: "profile", element: <Profile /> },
+        {
+          path: "deleteProfile",
+          element: <DeleteProfile />,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
       ],
     },
   ]);
