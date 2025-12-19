@@ -28,6 +28,12 @@ public class AuthController implements AuthenticationApi {
 
     @Override
     @Transactional
+    public ResponseEntity<LoginResource> refreshLogin(RefreshLoginRequest refreshLoginRequest) {
+        return ResponseEntity.ok().body(authService.refreshLogin(refreshLoginRequest));
+    }
+
+    @Override
+    @Transactional
     public ResponseEntity<RegisterResource> registerUser(RegisterRequest registerRequest) {
         RegisterResource registerResource = authService.register(registerRequest);
         if(registerResource == null) {

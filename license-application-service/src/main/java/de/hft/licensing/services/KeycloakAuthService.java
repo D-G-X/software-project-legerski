@@ -79,6 +79,38 @@ public class KeycloakAuthService {
         return loginResource;
     }
 
+
+    public LoginResource refreshLogin(RefreshLoginRequest refreshLoginRequest) {
+        String url = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put("grant_type", "refresh_token");
+        params.put("client_id", clientId);
+        params.put("client_secret", clientSecret);
+        params.put("refresh_token", refreshLoginRequest.getRefreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        String body = params.entrySet().stream()
+                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<LoginResource> response =
+                restTemplate.exchange(url, HttpMethod.POST, entity, LoginResource.class);
+
+        LoginResource loginResource = response.getBody();
+
+        if (loginResource != null && loginResource.getAccessToken() != null) {
+            boolean isAdmin = tokenHasAdminRole(loginResource.getAccessToken());
+            loginResource.setIsAdmin(isAdmin);
+        }
+
+        return loginResource;
+    }
+
     public RegisterResource register(RegisterRequest request) {
         String url = keycloakUrl + "/admin/realms/" + realm + "/users";
 
@@ -294,6 +326,7 @@ public class KeycloakAuthService {
             return false;
         }
     }
+
 
     public record KeycloakUserRecord(
             String id,
