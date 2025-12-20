@@ -1,2 +1,70 @@
-.idea
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+application-local.yml
+*.log
 .DS_Store
+node/
+node_modules/
+coverage/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+## IntelliJ IDEA
+.idea
+*.iws
+*.iml
+*.ipr
+
+## VS Code
+.vscode/
+
+## STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+## NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+############################
+# TEST DIRECTORIES AND FILES TO IGNORE ON MAIN BRANCH
+############################
+
+# Java / Spring tests
+/license-application-service/src/test/
+
+# Jest / frontend mocks (test-only)
+/license-application-service/__mocks__/
+
+# Java
+**/*Test.java
+**/*Tests.java
+
+# JavaScript / TypeScript
+**/*.test.js
+**/*.test.jsx
+**/*.test.ts
+**/*.test.tsx
+
+# Jest snapshots (falls vorhanden)
+**/__snapshots__/
+
+# MSW mocks (API mocks used only for tests)
+**/*.msw.ts
+**/*.msw.js
