@@ -667,6 +667,18 @@ paths:
           description: Application not found
 
   /ballot-periods:
+    get:
+      tags: [ Ballot Periods ]
+      summary: Get date of current or upcoming ballot period
+      description: Retrieve the start and end dates of the current or next ballot period.
+      operationId: getBallotPeriod
+      responses:
+        "200":
+          description: Current or upcoming ballot period
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BallotPeriodResource"
     post:
       tags: [Ballot Periods]
       summary: Create a ballot period

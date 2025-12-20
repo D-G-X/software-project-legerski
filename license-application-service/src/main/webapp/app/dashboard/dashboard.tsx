@@ -6,9 +6,34 @@ import Pagination from "../common/Pagination";
 import { useNavigate } from "react-router";
 import ApplicationDetails from "./applicationDetails";
 import { useListApplications } from "app/services/applications/applications";
-import { ApplicationResource } from "../../types";
+import {ApplicationResource, UserResource} from "../../types";
 import { AuthContext } from "app/common/AuthContext";
 import { getUserIdFromToken } from "app/common/authTokenDecode";
+import {useGetUser} from "../services/users/users";
+import {AxiosError} from "axios";
+import {InfoPopup} from "../common/infoPopup";
+
+type UserDataResult = {
+  data: UserResource | null;
+  isFound: boolean;
+};
+
+
+function useGetUserData(userId: string): UserDataResult {
+  const {
+    data: response,
+    error,
+  } = useGetUser(userId);
+
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
+
+  return {
+    data: response?.data ?? null,
+    isFound,
+  };
+}
 
 export default function Dashboard() {
   const auth = useContext(AuthContext);
@@ -21,6 +46,13 @@ export default function Dashboard() {
 
   const userID = getUserIdFromToken(auth?.accessToken);
   useDocumentTitle(t("home.index.headline"));
+
+  const {
+    data: userData,
+    isFound: foundUser,
+  } = useGetUserData(userID);
+
+
 
   const openDetails = (entry: ApplicationResource) => {
     setSelectedEntry(entry);
@@ -77,7 +109,7 @@ export default function Dashboard() {
           <div className="font-inter flex flex-col items-center w-full">
             <div className="text-center mt-16 text-xl">
               <div className="text-3xl font-bold text-mallorca-purple">
-                {t("dashboard.headline.getStarted") +
+                {t("dashboard.headline.getStarted", {firstName: foundUser ? userData?.firstName || "" : ""}) +
                     (applications.length > 0
                         ? t("dashboard.headline.manageApplications")
                         : "")}
@@ -189,6 +221,8 @@ export default function Dashboard() {
                   {t("dashboard.noApplications")}
                 </div>
             )}
+
+            <InfoPopup text={"Upcoming Ballot Period: 01.01.2026 - 01.03.2026"} />
 
           </div>
           {/* Application Details Modal */}
