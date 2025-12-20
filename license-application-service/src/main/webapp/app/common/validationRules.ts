@@ -161,19 +161,33 @@ export const isValidConfirmPassword = (
   return {isValid: true, message: t("validation.confirmPassword.valid")};
 };
 
-// Text area validation: max. 10k characters
+// Optional text area validation: max. 10k characters
 export const isValidOptionalText = (text: string | undefined | null) => {
   if (!text || text.trim() === "")
-    return {isValid: true, message: t("validation.optionalText.valid")};
+    return {isValid: true, message: t("validation.textArea.valid")};
 
   if (text.length > 10_000)
     return {
       isValid: false,
-      message: t("validation.optionalText.maxLength"),
+      message: t("validation.textArea.maxLength"),
     };
 
-  return {isValid: true, message: t("validation.optionalText.valid")};
+  return {isValid: true, message: t("validation.textArea.valid")};
 }
+
+// Required text area validation: max. 10k characters
+//export const isValidRequiredText = (text: string | undefined | null) => {
+//  if (!text || text.trim() === "")
+//    return {isValid: false, message: t("validation.textArea.required")};
+//
+//  if (text.length > 10_000)
+//    return {
+//      isValid: false,
+//      message: t("validation.textArea.maxLength"),
+//    };
+//
+//  return {isValid: true, message: t("validation.textArea.valid")};
+//}
 
 // File validation for document uploads (file type and size)
 export const isValidFile = (file: File | undefined | null) => {
