@@ -69,4 +69,14 @@ public class RecordToResourceMapperUtil {
         ballotPeriodResource.setEndDate(ballotPeriodRecord.getEndDate().atOffset(ZoneOffset.UTC));
     }
 
+    public static void mapNotificationPreferencesRecordToResource(NotificationPreferencesRecord record, NotificationPreferencesResource resource) {
+        if (record == null || resource == null) {
+            return;
+        }
+        resource.setUserId(UUID.fromString(record.getUserId()));
+        resource.setNotificationWay(EnumMapperUtil.getPendantFromEnum(record.getNotificationWay()));
+        resource.setApplicationUpdatesNotification(record.getApplicationUpdatesNotification());
+        resource.setLicenseRenewalNotification(record.getLicenseRenewalNotification());
+    }
+
 }

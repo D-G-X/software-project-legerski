@@ -10,7 +10,7 @@ import {
   formatBic,
   formatDate,
   formatIban,
-} from "../common/format";
+} from "../../common/format";
 
 type Props = {
   payment_id: number;

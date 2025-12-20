@@ -5,8 +5,8 @@ import Home from "./home/home";
 import Error from "./error/error";
 import Login from "./login/login";
 import Register from "./register/register";
-import PaymentForm from "./payment/paymentForm";
-import PaymentConfirm from "./payment/paymentConfirm";
+import PaymentForm from "./license/payment/paymentForm";
+import PaymentConfirm from "./license/payment/paymentConfirm";
 import ForgotPasswordRequest from "./forgot-password/request";
 import ResetPassword from "./forgot-password/reset";
 import RequestApplication from "./license/request-application/request-application";
@@ -19,6 +19,8 @@ import BallotDetails from "./ballot-details/ballot-details";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
+import { ProtectedLoader } from "./common/ProtectedLoader";
+import BallotConfig from "./ballot-config/ballot-config";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -30,20 +32,94 @@ export default function AppRoutes() {
         { path: "reset-password", element: <ResetPassword /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Register /> },
-        { path: "/payment/:id", element: <PaymentForm /> },
-        { path: "/payment/:id/done", element: <PaymentConfirm /> },
-        { path: "admin-dashboard", element: <AdminDashboard /> },
-        { path: "ballot-dashboard", element: <BallotDashboard /> },
-        { path: "notification-settings", element: <NotificationSettings /> },
-        { path: "license-application-request", element: <RequestApplication /> },
-        { path: "license-document-upload/:id", element: <ApplicationDocumentUpload /> },
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
-        { path: "ballot-details", element: <BallotDetails /> },
+        { path: "*", element: <Error /> },
+
+        // Post login (any user)
+        {
+          path: "notification-settings",
+          element: <NotificationSettings />,
+          loader: ProtectedLoader(["admin", "user"]),
+        },
+        {
+          path: "license-application-request/:type/:id",
+          element: <RequestApplication />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "license-application-request",
+          element: <RequestApplication />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "license-document-upload/:id",
+          element: <ApplicationDocumentUpload />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "payment/:id",
+          element: <PaymentForm />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "payment/:id/done",
+          element: <PaymentConfirm />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "profile",
+          element: <Profile />,
+          loader: ProtectedLoader(["user"]),
+        },
+        {
+          path: "deleteProfile",
+          element: <DeleteProfile />,
+          loader: ProtectedLoader(["user"]),
+        },
+
+        // Admin-only routes
+        {
+          path: "admin-dashboard",
+          element: <AdminDashboard />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-config",
+          element: <BallotConfig />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-dashboard",
+          element: <BallotDashboard />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-details",
+          element: <BallotDetails />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "notification-settings",
+          element: <NotificationSettings />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "license-application-request",
+          element: <RequestApplication />,
+        },
+        {
+          path: "license-document-upload/:id",
+          element: <ApplicationDocumentUpload />,
+        },
         { path: "*", element: <Error /> },
         { path: "profile", element: <Profile /> },
-        { path: "deleteProfile", element: <DeleteProfile /> },
+        {
+          path: "deleteProfile",
+          element: <DeleteProfile />,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
       ],
     },
   ]);

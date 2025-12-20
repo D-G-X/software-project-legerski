@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.hft.licensing.db.enums.NotificationWay;
+import de.hft.licensing.db.tables.NotificationPreferences;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.model.*;
+import de.hft.licensing.utils.EnumMapperUtil;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -76,6 +79,38 @@ public class KeycloakAuthService {
         return loginResource;
     }
 
+
+    public LoginResource refreshLogin(RefreshLoginRequest refreshLoginRequest) {
+        String url = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put("grant_type", "refresh_token");
+        params.put("client_id", clientId);
+        params.put("client_secret", clientSecret);
+        params.put("refresh_token", refreshLoginRequest.getRefreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        String body = params.entrySet().stream()
+                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<LoginResource> response =
+                restTemplate.exchange(url, HttpMethod.POST, entity, LoginResource.class);
+
+        LoginResource loginResource = response.getBody();
+
+        if (loginResource != null && loginResource.getAccessToken() != null) {
+            boolean isAdmin = tokenHasAdminRole(loginResource.getAccessToken());
+            loginResource.setIsAdmin(isAdmin);
+        }
+
+        return loginResource;
+    }
+
     public RegisterResource register(RegisterRequest request) {
         String url = keycloakUrl + "/admin/realms/" + realm + "/users";
 
@@ -115,7 +150,7 @@ public class KeycloakAuthService {
             int inserted = dsl.insertInto(User.USER)
                     .set(User.USER.ID, newUserUUID.toString())
                     .execute();
-            if (inserted == 0){
+            if (inserted == 0) {
                 System.out.println("[WARNING] - Failed to insert user with ID " + newUserUUID + " into the local database.");
                 registerResource.setUserId(null);
                 registerResource.setMessage("Failed to register user");
@@ -127,6 +162,24 @@ public class KeycloakAuthService {
             System.out.println("[ERROR] - User with ID " + newUserUUID + " already exists in the local database.");
             registerResource.setUserId(null);
             registerResource.setMessage("User already exists");
+        }
+
+        // Create user's Notification Preferences record with default values
+        try {
+            int insertedPreferences = dsl.insertInto(NotificationPreferences.NOTIFICATION_PREFERENCES)
+                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.USER_ID, newUserUUID.toString())
+                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.NOTIFICATION_WAY, (NotificationWay) EnumMapperUtil.getPendantFromEnum(NotificationWayApiEnum.NONE))
+                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.APPLICATION_UPDATES_NOTIFICATION, true)
+                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.LICENSE_RENEWAL_NOTIFICATION, true)
+                .execute();
+            if (insertedPreferences == 0) {
+                System.out.println("[WARNING] - Failed to insert notification preferences for user ID " + newUserUUID + " into the local database.");
+            } else {
+                System.out.println("[INFO] - Notification preferences for user ID " + newUserUUID + " created successfully in the local database.");
+            }
+        } catch (DataIntegrityViolationException e) {
+            System.out.println(e.getMessage());
+            System.out.println("[ERROR] - Notification preferences for user ID " + newUserUUID + " already exist in the local database.");
         }
         return registerResource;
     }
@@ -273,6 +326,7 @@ public class KeycloakAuthService {
             return false;
         }
     }
+
 
     public record KeycloakUserRecord(
             String id,

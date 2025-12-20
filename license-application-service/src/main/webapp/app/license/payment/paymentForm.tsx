@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  validateBic,
-  validateIban,
-  validateName,
-  validateSepaMandateCheck,
-} from "../common/validationRules";
+  isValidBic,
+  isValidIban,
+  isValidName,
+  isValidSepaMandate,
+} from "../../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
@@ -12,18 +12,18 @@ import {
   useCreatePayment,
   useGetApplicationFee,
 } from "app/services/payments/payments";
-import ModalDialog from "../common/modal-dialog";
+import ModalDialog from "../../common/modal-dialog";
 import { useNavigate, useParams } from "react-router";
 import "./paymentForm.css";
-import { AnimatedDots } from "../common/AnimatedDots";
+import { AnimatedDots } from "../../common/AnimatedDots";
 import { useGetApplication } from "app/services/applications/applications";
 import {
   formatAmount,
   formatBic,
   formatDate,
   formatIban,
-} from "../common/format";
-import { ApplicationPaymentCreate } from "../../types";
+} from "../../common/format";
+import { ApplicationPaymentCreate } from "../../../types";
 import { AuthContext } from "app/common/AuthContext";
 import axios from "axios";
 
@@ -182,10 +182,10 @@ export default function PaymentConfirm() {
     const normalizedBic = form.bic.replace(/\s+/g, "");
 
     // validations
-    const nameVal = validateName(normalizedName);
-    const ibanVal = validateIban(normalizedIban);
-    const bicVal = validateBic(normalizedBic, normalizedIban);
-    const sepaVal = validateSepaMandateCheck(form.sepaMandateChecked);
+    const nameVal = isValidName(normalizedName);
+    const ibanVal = isValidIban(normalizedIban);
+    const bicVal = isValidBic(normalizedBic, normalizedIban);
+    const sepaVal = isValidSepaMandate(form.sepaMandateChecked);
 
     const newErrors = {
       name: nameVal.isValid ? "" : nameVal.message,
