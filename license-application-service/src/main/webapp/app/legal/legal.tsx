@@ -4,7 +4,7 @@ import { FormHeader } from "../common/headingTitle";
 import { Section, SubSection } from "app/common/legalSection";
 
 export default function LegalNotice() {
-  const { t } = useTranslation("legalNotice");
+  const { t } = useTranslation("translation", { keyPrefix: "legal" });
 
   const legalConfig = [
     {
