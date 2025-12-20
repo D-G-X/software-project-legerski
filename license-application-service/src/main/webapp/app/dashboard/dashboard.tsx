@@ -1,23 +1,38 @@
-import React, { useContext, useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, {useContext, useState} from "react";
+import {useTranslation} from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import "./dashboard.css";
 import Pagination from "../common/Pagination";
-import { useNavigate } from "react-router";
+import {useNavigate} from "react-router";
 import ApplicationDetails from "./applicationDetails";
-import { useListApplications } from "app/services/applications/applications";
-import {ApplicationResource, UserResource} from "../../types";
-import { AuthContext } from "app/common/AuthContext";
-import { getUserIdFromToken } from "app/common/authTokenDecode";
+import {useListApplications} from "app/services/applications/applications";
+import {ApplicationResource, CurrentBallotPeriodResource, UserResource} from "../../types";
+import {AuthContext} from "app/common/AuthContext";
+import {getUserIdFromToken} from "app/common/authTokenDecode";
 import {useGetUser} from "../services/users/users";
 import {AxiosError} from "axios";
 import {InfoPopup} from "../common/infoPopup";
+import {useGetBallotPeriod} from "../services/ballot-periods/ballot-periods";
+import {formatDateShort} from "../common/format";
+
+enum BallotStatus {
+  UPCOMING = "UPCOMING",
+  RUNNING = "RUNNING",
+  CLOSED = "CLOSED",
+}
 
 type UserDataResult = {
   data: UserResource | null;
   isFound: boolean;
 };
 
+type BallotPeriodResult = {
+  data: CurrentBallotPeriodResource | null;
+  isFound: boolean;
+  status: BallotStatus;
+  start_date?: number;
+  end_date?: number;
+};
 
 function useGetUserData(userId: string): UserDataResult {
   const {
@@ -35,9 +50,61 @@ function useGetUserData(userId: string): UserDataResult {
   };
 }
 
+function useGetBallotDetails(): BallotPeriodResult {
+  const {
+    data: response,
+    error,
+  } = useGetBallotPeriod();
+
+  const isFound =
+      error === undefined ||
+      (error as AxiosError | undefined)?.response?.status !== 404;
+
+  if (response?.data?.start_date || !response?.data?.end_date) {
+    return {
+      data: null,
+      isFound,
+      status: BallotStatus.CLOSED,
+    };
+  }
+
+  const mostCurrentPeriod = {
+    start_date: new Date(response?.data?.start_date || "").getTime(),
+    end_date: new Date(response?.data?.end_date || "").getTime(),
+  };
+
+
+  if (mostCurrentPeriod.start_date > Date.now()) {
+    return {
+      data: response?.data,
+      isFound,
+      status: BallotStatus.UPCOMING,
+      start_date: mostCurrentPeriod.start_date,
+      end_date: mostCurrentPeriod.end_date,
+    };
+  } else if (mostCurrentPeriod.start_date <= Date.now() && mostCurrentPeriod.end_date >= Date.now()) {
+    return {
+      data: response?.data,
+      isFound,
+      status: BallotStatus.RUNNING,
+      start_date: mostCurrentPeriod.start_date,
+      end_date: mostCurrentPeriod.end_date,
+    };
+  } else {
+    return {
+      data: response?.data,
+      isFound,
+      status: BallotStatus.CLOSED,
+      start_date: mostCurrentPeriod.start_date,
+      end_date: mostCurrentPeriod.end_date,
+    }
+  }
+
+}
+
 export default function Dashboard() {
   const auth = useContext(AuthContext);
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const navigate = useNavigate();
   const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -52,7 +119,32 @@ export default function Dashboard() {
     isFound: foundUser,
   } = useGetUserData(userID);
 
+  const ballotDetails = useGetBallotDetails();
 
+  let ballotDetailsProps = {
+    bgColor: 'bg-red-600',
+    text: t("dashboard.ballotPeriodInfo.errorText"),
+  };
+
+  if (ballotDetails.isFound && ballotDetails.start_date && ballotDetails.end_date) {
+
+    if (ballotDetails.status === BallotStatus.UPCOMING) {
+      ballotDetailsProps.bgColor = 'bg-blue-600';
+      ballotDetailsProps.text = t("dashboard.ballotPeriodInfo.upcomingText") + ": " +
+          formatDateShort(ballotDetails.start_date, t) + " - " +
+          formatDateShort(ballotDetails.end_date, t)
+    } else if (ballotDetails.status === BallotStatus.RUNNING) {
+      ballotDetailsProps.bgColor = 'bg-green-600';
+      ballotDetailsProps.text = t("dashboard.ballotPeriodInfo.ongoingText") + ": " +
+          formatDateShort(ballotDetails.start_date, t) + " - " +
+          formatDateShort(ballotDetails.end_date, t)
+    } else if (ballotDetails.status === BallotStatus.CLOSED) {
+      ballotDetailsProps.bgColor = 'bg-gray-600';
+      ballotDetailsProps.text = t("dashboard.ballotPeriodInfo.closedText") + ": " +
+          formatDateShort(ballotDetails.start_date, t) + " - " +
+          formatDateShort(ballotDetails.end_date, t)
+    }
+  }
 
   const openDetails = (entry: ApplicationResource) => {
     setSelectedEntry(entry);
@@ -64,17 +156,17 @@ export default function Dashboard() {
     setSelectedEntry(null);
   };
 
-  const { data: response } = useListApplications(
-    {
-      user_id: userID,
-    },
-    {
-      axios: {
-        headers: {
-          Authorization: `Bearer ${auth?.accessToken}`,
-        },
+  const {data: response} = useListApplications(
+      {
+        user_id: userID,
       },
-    }
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
   );
 
   // response = AxiosResponse
@@ -217,22 +309,23 @@ export default function Dashboard() {
                   </div>
                 </div>
             ) : (
-                <div className="mt-16 w-full text-mallorca-purple/25 text-5xl flex justify-center items-center h-full">
+                <div
+                    className="mt-16 w-full text-mallorca-purple/25 text-5xl flex justify-center items-center h-full">
                   {t("dashboard.noApplications")}
                 </div>
             )}
 
-            <InfoPopup text={"Upcoming Ballot Period: 01.01.2026 - 01.03.2026"} />
+            <InfoPopup bgColor={ballotDetailsProps.bgColor} text={ballotDetailsProps.text}/>
 
           </div>
           {/* Application Details Modal */}
           {isDetailsOpen && (
-            <ApplicationDetails
-                open={isDetailsOpen}
-                applicationData={selectedEntry}
-                onClose={closeDetails}
-                onRenew={handleNewApplicationClick}
-            />
+              <ApplicationDetails
+                  open={isDetailsOpen}
+                  applicationData={selectedEntry}
+                  onClose={closeDetails}
+                  onRenew={handleNewApplicationClick}
+              />
           )}
         </div>
       </div>

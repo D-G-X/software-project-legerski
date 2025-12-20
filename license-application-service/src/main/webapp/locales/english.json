@@ -173,8 +173,10 @@
     },
     "ballotPeriodInfo":
     {
-      "upcoming" : "",
-      "ongoing": ""
+      "upcomingText" : "Upcoming Ballot Period",
+      "ongoingText": "Current Ballot Period",
+      "closedText": "Last Ballot Period",
+      "errorText": "Ballot period information currently unavailable"
     }
   },
   "admin-dashboard": {

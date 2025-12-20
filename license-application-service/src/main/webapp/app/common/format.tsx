@@ -27,7 +27,7 @@ export const formatBic = (raw: string | undefined): string => {
   return raw.replace(/\s+/g, "").toUpperCase();
 };
 
-export const formatDate = (raw: string | undefined, t: any): string => {
+export const formatDateLong = (raw: string | number | undefined, t: any): string => {
   if (raw === undefined || raw === "") return "";
   return new Date(raw).toLocaleString(t("locale"), {
     day: "2-digit",
@@ -36,6 +36,15 @@ export const formatDate = (raw: string | undefined, t: any): string => {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+  });
+};
+
+export const formatDateShort = (raw: string | number | undefined, t: any): string => {
+  if (raw === undefined || raw === "") return "";
+  return new Date(raw).toLocaleString(t("locale"), {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
 };
 

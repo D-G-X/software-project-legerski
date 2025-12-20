@@ -12,7 +12,7 @@ import "./admin-applicationDetails.css";
 import {useListPayments} from "../services/payments/payments";
 import {useGetLicense, useListLicenses} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
-import {formatAmount, formatBic, formatDate, formatIban} from "../common/format";
+import {formatAmount, formatBic, formatDateLong, formatIban} from "../common/format";
 import {AxiosError} from "axios";
 import {AnimatedDots} from "../common/AnimatedDots";
 
@@ -231,12 +231,12 @@ export default function AdminApplicationDetails({
 
                     <div className="flex justify-between min-w-lg">
                       <span>{t("applicationDetails.index.appliedOnLabel") + ": "}</span>
-                      <span>{formatDate(applicationData?.applied_at, t)}</span>
+                      <span>{formatDateLong(applicationData?.applied_at, t)}</span>
                     </div>
 
                     <div className="flex justify-between min-w-lg">
                       <span>{t("applicationDetails.index.lastUpdatedLabel") + ": "}</span>
-                      <span>{formatDate(applicationData?.changed_at, t)}</span>
+                      <span>{formatDateLong(applicationData?.changed_at, t)}</span>
                     </div>
 
                   </div>
@@ -263,12 +263,12 @@ export default function AdminApplicationDetails({
 
                           <div className="flex justify-between min-w-lg">
                             <span>{t("applicationDetails.index.license.issuedOnLabel") + ": "}</span>
-                            <span>{formatDate(licenseData?.issued_at, t)}</span>
+                            <span>{formatDateLong(licenseData?.issued_at, t)}</span>
                           </div>
 
                           <div className="flex justify-between min-w-lg">
                             <span>{t("applicationDetails.index.license.expiresOnLabel") + ": "}</span>
-                            <span>{formatDate(licenseData?.expires_at, t)}</span>
+                            <span>{formatDateLong(licenseData?.expires_at, t)}</span>
                           </div>
 
                         </div>
@@ -339,7 +339,7 @@ export default function AdminApplicationDetails({
 
                           <div className="flex justify-between min-w-lg">
                             <span>{t("applicationDetails.index.payment.dateLabel") + ": "}</span>
-                            <span>{formatDate(paymentData?.payment_date, t)}</span>
+                            <span>{formatDateLong(paymentData?.payment_date, t)}</span>
                           </div>
 
                           <div className="flex justify-between min-w-lg">

@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from "react-router";
 import {
   formatAmount,
   formatBic,
-  formatDate,
+  formatDateLong,
   formatIban,
 } from "../../common/format";
 
@@ -123,7 +123,7 @@ export default function PaymentConfirm() {
                 <span className="font-semibold">
                   {t("paymentConfirm.index.dateLabel") + ": "}
                 </span>
-                <span>{formatDate(Date.now().toString(), t)}</span>
+                <span>{formatDateLong(Date.now().toString(), t)}</span>
               </div>
             </div>
           </div>
