@@ -9,7 +9,6 @@ import {
   isValidIban,
   isValidName,
   isValidPassword,
-  isValidSepaMandate,
   nameRegex,
   passwordRegex
 } from "./validationRules";
@@ -513,18 +512,6 @@ describe("validateBic", () => {
   test("should return invalid if BIC has any illegal characters in alphanumeric part", () => {
     const allowedCharRegex = new RegExp("[0-9A-Z]", "i");
     expect(performRegexFullTest(bicRegex, allowedCharRegex, "GENODES", "DEH")).toEqual([]);
-  });
-});
-
-// SEPA Mandate Validation
-describe("validateSepaMandateCheck", () => {
-  // VALID SEPA MANDATE
-  test("valid SEPA mandate", () => {
-    expect(isValidSepaMandate(true).isValid).toBe(true);
-  });
-  // INVALID SEPA MANDATE
-  test("invalid SEPA mandate", () => {
-    expect(isValidSepaMandate(false).isValid).toBe(false);
   });
 });
 

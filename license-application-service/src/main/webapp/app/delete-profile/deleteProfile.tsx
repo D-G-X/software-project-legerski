@@ -5,6 +5,7 @@ import {AuthContext} from "app/common/AuthContext";
 import {getUserIdFromToken} from "app/common/authTokenDecode";
 import {useDeleteUser, DeleteUserMutationError} from "app/services/users/users";
 import {useNavigate} from "react-router";
+import {TriangleAlert} from "lucide-react";
 
 const DeleteProfile = () => {
     const {t} = useTranslation();
@@ -56,7 +57,7 @@ const DeleteProfile = () => {
 
                 <div className="bg-purple-100 text-purple-800 p-4 rounded-md mb-8">
                     <div className="flex items-center">
-                        <span className="mr-2 text-xl">⚠️</span>
+                        <span className="mr-2 text-xl"><TriangleAlert /></span>
                         <p>{t("deleteProfile.warningMessage")}</p>
                     </div>
                 </div>

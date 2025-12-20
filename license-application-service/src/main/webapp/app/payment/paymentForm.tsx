@@ -195,6 +195,10 @@ export default function PaymentConfirm() {
       pay: "",
     };
 
+    if(!form.sepaMandateChecked){
+      newErrors.sepaMandateCheck = t("validation.sepaMandate.required");
+    }
+
     if (Object.values(newErrors).some(Boolean)) {
       setErrors(newErrors);
       return;

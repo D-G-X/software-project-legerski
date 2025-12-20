@@ -35,6 +35,10 @@ export const bicRegex = new RegExp("^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$", "i");
 // Regex for date in YYYY-MM-DD format
 export const dateRegex = new RegExp("^\\d{4}-\\d{2}-\\d{2}$");
 
+// Allowed file types & size for document uploads
+const ALLOWED_TYPES = ["application/pdf"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB in bytes
+
 // Name Validation
 export const isValidName = (name: string | undefined | null) => {
   if (!name || name.trim() === "")
@@ -157,6 +161,29 @@ export const isValidConfirmPassword = (
   return {isValid: true, message: t("validation.confirmPassword.valid")};
 };
 
+// File validation for document uploads (file type and size)
+export const isValidFile = (file: File | undefined | null) => {
+  if (!file)
+    return {
+      isValid: false,
+      message: t("license.document_upload.input.fileRequired"),
+    };
+
+  if (!ALLOWED_TYPES.includes(file.type))
+    return {
+      isValid: false,
+      message: t("license.document_upload.input.fileTypeError"),
+    };
+
+  if (file.size > MAX_FILE_SIZE)
+    return {
+      isValid: false,
+      message: t("license.document_upload.input.fileTypeError"),
+    };
+
+  return {isValid: true, message: t("license.document_upload.valid")};
+};
+
 // IBAN validation: length between 15 and 34 characters, valid characters
 export const isValidIban = (iban: string | undefined | null) => {
   if (!iban || iban.trim() === "")
@@ -206,16 +233,6 @@ export const isValidBic = (bic: string | undefined | null, iban: string | undefi
     };
 
   return {isValid: true, message: t("validation.iban.valid")};
-};
-
-export const isValidSepaMandate = (value: boolean) => {
-  if (!value)
-    return {
-      isValid: false,
-      message: t("validation.sepaMandate.required"),
-    };
-
-  return {isValid: true, message: t("validation.sepaMandate.valid")};
 };
 
 export const isValidDateString = (value: string | undefined | null): boolean => {
