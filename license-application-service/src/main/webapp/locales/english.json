@@ -531,10 +531,6 @@
       "specialChar": "BIC must not contain any special character",
       "invalid": "BIC is invalid",
       "valid": "BIC is valid"
-    },
-    "sepaMandate": {
-      "required": "You must read and accept the SEPA mandate",
-      "valid": "SEPA mandate accepted"
     }
   },
   "paymentForm": {
@@ -580,6 +576,7 @@
       "downloadButtonLabel": "Download",
       "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
     },
+    "sepaMandateError": "You must read and accept the SEPA mandate",
     "processing": "Processing payment"
   },
   "paymentConfirm": {
