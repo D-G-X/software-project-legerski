@@ -748,7 +748,6 @@
       "passwordInvalid": "Password must contain at least one special character, one uppercase letter, and one number."
     }
   },
-
   "deleteProfile": {
     "deleteAccount": "Delete Account",
     "areYouSureDelete": "Are you sure you want to delete your Account?",
@@ -817,7 +816,6 @@
   "legal": {
     "legalNoticeTitle": "Legal Notice",
     "lastUpdated": "Last Updated: 27/11/2025",
-
     "owner": {
       "title": "Website Owner / Controller Identification",
       "description": "This portal is operated by:",
@@ -825,7 +823,6 @@
       "email": "Email: avisio.legal@palma.es",
       "laws": "This Portal is governed by Spanish Law 34/2002 on Information Society Services (LSSI-CE), GDPR (EU Regulation 2016/679), and other applicable Balearic regulations."
     },
-
     "purpose": {
       "title": "Purpose of the Portal",
       "description": "The Portal provides users and property owners in Mallorca with digital services for:",
@@ -836,15 +833,12 @@
       "payments": "Completing payments for administrative fees",
       "settings": "Managing notifications and personal settings"
     },
-
     "terms": {
       "title": "Terms and Conditions of Use",
-
       "acceptance": {
         "title": "Acceptance of Terms",
         "text": "By accessing or using this Portal, the user agrees to comply with this Legal Notice, Privacy Policy, and Cookies Policy."
       },
-
       "obligations": {
         "title": "User Obligations",
         "accurate": "Provide accurate and true information",
@@ -853,7 +847,6 @@
         "confidentiality": "Maintain confidentiality of their login credentials",
         "law": "Comply with all applicable local, state, and EU laws"
       },
-
       "prohibited": {
         "title": "Prohibited Actions",
         "unauthorized": "Attempt unauthorized access or interfere with security",
@@ -861,12 +854,10 @@
         "bots": "Use automated scripts (bots) to overload or manipulate the system",
         "misrepresentation": "Misrepresent property ownership or personal data"
       },
-
       "ipr": {
         "title": "Intellectual Property Rights",
         "text": "All content on the Portal—including design, text, graphics, logos, icons, and software—is owned by the Portal operator or licensed from third parties. Reproduction or distribution is prohibited without prior written consent."
       },
-
       "disclaimer": {
         "title": "Liability Disclaimer",
         "errors": "Errors in documents submitted by users",
@@ -876,32 +867,26 @@
         "asIs": "The Portal is provided 'as is' without guarantees of uninterrupted or error-free operation"
       }
     },
-
     "privacy": {
       "title": "Data Protection & Privacy",
       "text": "Personal data is processed according to GDPR. A full explanation appears in the Privacy Policy below."
     },
-
     "links": {
       "title": "External Links",
       "text": "The Portal may contain links to third-party websites or services. The operator is not responsible for their content, policies, or availability."
     },
-
     "modifications": {
       "title": "Modifications",
       "text": "The operator reserves the right to modify the Legal Notice, Privacy Policy, or Cookies Policy at any time. Updates will be posted on this page."
     },
-
     "jurisdiction": {
       "title": "Applicable Law & Jurisdiction",
       "text": "This Legal Notice is governed by Spanish law. Any disputes shall be resolved in the courts of Illes Balears, unless otherwise required by consumer protection legislation."
     },
-
     "privacyPolicy": {
       "title": "Privacy Policy",
       "lastUpdated": "Last Updated: 27/11/2025"
     },
-
     "cookies": {
       "title": "Cookies Policy",
       "lastUpdated": "Last Updated: 27/11/2025",
@@ -1006,7 +991,6 @@
       "confidentiality": "Maintain confidentiality of their login credentials",
       "lawCompliance": "Comply with all applicable local, state and EU laws"
     },
-
     "prohibitedActions": {
       "title": "Prohibited Actions",
       "intro": "Users must not:",
@@ -1015,7 +999,6 @@
       "bots": "Use automated scripts (bots) to overload or manipulate the system",
       "misrepresentation": "Misrepresent property ownership or personal data"
     },
-
     "liability": {
       "title": "Liability Disclaimer",
       "intro": "The Portal operator is not responsible for:",
