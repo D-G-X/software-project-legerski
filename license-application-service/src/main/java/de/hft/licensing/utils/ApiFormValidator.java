@@ -1,6 +1,7 @@
 package de.hft.licensing.utils;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -43,9 +44,6 @@ public class ApiFormValidator {
   // Regex for BIC: 8 or 11 characters, first 6 letters, then 2 alphanumeric, optional 3 alphanumeric
   public static final Pattern bicRegex = Pattern.compile("^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$",
       Pattern.CASE_INSENSITIVE);
-
-  // Regex for date in YYYY-MM-DD format
-  public static final Pattern dateRegex = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
 
   // Name Validation
   public boolean isValidName(String name) {
@@ -139,30 +137,5 @@ public class ApiFormValidator {
       return false;
     }
     return bicRegex.matcher(bic).matches();
-  }
-
-
-  public boolean isValidDateString(String value) {
-    if (value == null || value.trim().isEmpty()) {
-      return false;
-    }
-
-    if (!dateRegex.matcher(value).matches()) {
-      return false;
-    }
-
-    try {
-      LocalDate date = LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
-
-      // Check that date is valid and not autocorrected
-      return date
-          .atStartOfDay(ZoneOffset.UTC)
-          .toLocalDate()
-          .toString()
-          .equals(value);
-
-    } catch (DateTimeParseException e) {
-      return false;
-    }
   }
 }

@@ -2,7 +2,6 @@ package de.hft.licensing.utils;
 
 import static de.hft.licensing.utils.ApiFormValidator.bicRegex;
 import static de.hft.licensing.utils.ApiFormValidator.cadastralNumberRegex;
-import static de.hft.licensing.utils.ApiFormValidator.dateRegex;
 import static de.hft.licensing.utils.ApiFormValidator.emailRegex;
 import static de.hft.licensing.utils.ApiFormValidator.ibanRegex;
 import static de.hft.licensing.utils.ApiFormValidator.nameRegex;
@@ -575,125 +574,6 @@ public class ApiFormValidatorTest {
       Pattern allowedCharRegex = Pattern.compile("[0-9A-Z]", Pattern.CASE_INSENSITIVE);
 
       assertEquals(List.of(), performRegexFullTest(bicRegex, allowedCharRegex, "GENODES", "DEH"));
-    }
-  }
-
-  @Nested
-  class testIsValidDateString {
-
-    // VALID DATE STRINGS
-
-    @Test
-    void validIsoDate() {
-      assertTrue(validator.isValidDateString("2024-01-01"));
-    }
-
-    @Test
-    void validIsoDateYearZero() {
-      assertTrue(validator.isValidDateString("0000-01-01"));
-    }
-
-    @Test
-    void validIsoDateYear9999() {
-      assertTrue(validator.isValidDateString("9999-12-31"));
-    }
-
-    @Test
-    void validIsoDateLeapDayInLeapYear() {
-      assertTrue(validator.isValidDateString("2024-02-29"));
-    }
-
-    // INVALID DATE STRINGS
-
-    @Test
-    void invalidIsoDateEmptyString() {
-      assertFalse(validator.isValidDateString(""));
-      assertFalse(validator.isValidDateString(" "));
-    }
-
-    @Test
-    void invalidIsoDateWhitespaceCorrectLength() {
-      assertFalse(validator.isValidDateString("   "));
-    }
-
-    @Test
-    void invalidIsoDateFormatDoesNotMatchRegex() {
-      assertFalse(validator.isValidDateString("2025/01/01"));
-      assertFalse(validator.isValidDateString("2025.01.01"));
-    }
-
-    @Test
-    void invalidIsoDateFormatLeadingZeros() {
-      assertFalse(validator.isValidDateString("2025-1-01"));
-      assertFalse(validator.isValidDateString("2025-01-1"));
-      assertFalse(validator.isValidDateString("25-01-01"));
-    }
-
-    @Test
-    void invalidIsoDateTooShort() {
-      assertFalse(validator.isValidDateString("202-01-01"));
-      assertFalse(validator.isValidDateString("2024-1-01"));
-      assertFalse(validator.isValidDateString("2024-01-1"));
-    }
-
-    @Test
-    void invalidIsoDateTooLong() {
-      assertFalse(validator.isValidDateString("20240-01-01"));
-      assertFalse(validator.isValidDateString("2024-010-01"));
-      assertFalse(validator.isValidDateString("2024-01-010"));
-    }
-
-    @Test
-    void invalidNonIsoDate() {
-      assertFalse(validator.isValidDateString("abcd-ef-gh"));
-    }
-
-    @Test
-    void invalidAutoCorrectedIsoDateFeb30() {
-      assertFalse(validator.isValidDateString("2025-02-30"));
-    }
-
-    @Test
-    void invalidIsoDateDayInMonth() {
-      assertFalse(validator.isValidDateString("2025-04-31"));
-    }
-
-    @Test
-    void invalidIsoDateMonthZero() {
-      assertFalse(validator.isValidDateString("2024-00-10"));
-    }
-
-    @Test
-    void invalidIsoDateMonth13() {
-      assertFalse(validator.isValidDateString("2025-13-01"));
-    }
-
-    @Test
-    void invalidIsoDateDayZero() {
-      assertFalse(validator.isValidDateString("2025-01-00"));
-    }
-
-    @Test
-    void invalidIsoDateDay32() {
-      assertFalse(validator.isValidDateString("2025-01-32"));
-    }
-
-    @Test
-    void invalidIsoDateLeapDayInNonLeapYear() {
-      assertFalse(validator.isValidDateString("2025-02-29"));
-    }
-
-    // UNICODE FULL TEST
-
-    @Test
-    void shouldReturnInvalidIfIsoDateHasAnyIllegalCharacters() {
-      Pattern allowedCharRegex = Pattern.compile("[0-9]", Pattern.CASE_INSENSITIVE);
-
-      assertEquals(List.of(), performRegexFullTest(dateRegex, allowedCharRegex, "202", "-01-01"));
-      assertEquals(List.of(), performRegexFullTest(dateRegex, allowedCharRegex, "2024-", "1-01"));
-      assertEquals(List.of(), performRegexFullTest(dateRegex, allowedCharRegex, "2024-0", "-01"));
-      assertEquals(List.of(), performRegexFullTest(dateRegex, allowedCharRegex, "2024-01-", "1"));
-      assertEquals(List.of(), performRegexFullTest(dateRegex, allowedCharRegex, "2024-01-0", ""));
     }
   }
 
