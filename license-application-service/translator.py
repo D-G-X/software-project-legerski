@@ -109,6 +109,8 @@ def main():
 
     print(f"✔ written {output_file}")
 
+  print("All translations completed successfully 🎉")
+
 
 if __name__ == "__main__":
   main()
