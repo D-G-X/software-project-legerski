@@ -13,7 +13,7 @@ export default function AdminDashboard() {
 
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | null>(null);
+    const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | undefined>(undefined);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
 
     const closeDetails = () => {
         setIsDetailsOpen(false);
-        setSelectedEntry(null);
+        setSelectedEntry(undefined);
     };
 
     // const { data: response } = useListApplications({
@@ -221,6 +221,7 @@ export default function AdminDashboard() {
                 <ApplicationDetails
                     open={isDetailsOpen}
                     applicationData={selectedEntry}
+                    userData={undefined}
                     onClose={closeDetails}
                     onRenew={handleNewApplicationClick}
                 />

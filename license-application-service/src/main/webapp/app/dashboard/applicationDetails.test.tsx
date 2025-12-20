@@ -5,7 +5,8 @@ test("should create", () => {
   const { container } = renderWithRouter(
     <ApplicationDetails
       open={false}
-      applicationData={null}
+      applicationData={undefined}
+      userData={undefined}
       onClose={jest.fn()}
       onRenew={jest.fn()}
     />
@@ -13,16 +14,3 @@ test("should create", () => {
 
   expect(container).toBeTruthy();
 });
-
-// test("should render title when open", () => {
-//   const { getByText } = renderWithRouter(
-//     <ApplicationDetails
-//       open={true}
-//       applicationData={{ id: 1 } as any}
-//       onClose={jest.fn()}
-//       onRenew={jest.fn()}
-//     />
-//   );
-
-//   expect(getByText(/Application Details/i)).toBeInTheDocument();
-// });

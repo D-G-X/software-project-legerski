@@ -74,7 +74,7 @@ export default function Dashboard() {
   const auth = useContext(AuthContext);
   const {t} = useTranslation();
   const navigate = useNavigate();
-  const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | undefined>(undefined);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -118,7 +118,7 @@ export default function Dashboard() {
 
   const closeDetails = () => {
     setIsDetailsOpen(false);
-    setSelectedEntry(null);
+    setSelectedEntry(undefined);
   };
 
   const {data: response} = useListApplications(
@@ -277,6 +277,7 @@ export default function Dashboard() {
               <ApplicationDetails
                   open={isDetailsOpen}
                   applicationData={selectedEntry}
+                  userData={userData?.data}
                   onClose={closeDetails}
                   onRenew={handleNewApplicationClick}
               />
