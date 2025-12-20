@@ -103,11 +103,11 @@ function useGetPaymentData(
 }
 
 export default function AdminApplicationDetails({
-                                             open,
-                                              userId,
-                                             applicationData,
-                                             onClose,
-                                           }: ApplicationDetailsProps) {
+                                                  open,
+                                                  userId,
+                                                  applicationData,
+                                                  onClose,
+                                                }: ApplicationDetailsProps) {
   if (!open || !applicationData) {
     console.log("ApplicationDetails: not open");
     return null;
