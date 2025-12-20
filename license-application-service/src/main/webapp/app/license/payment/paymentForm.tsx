@@ -4,7 +4,7 @@ import {
   isValidIban,
   isValidName,
   isValidSepaMandate,
-} from "../common/validationRules";
+} from "../../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
@@ -12,18 +12,18 @@ import {
   useCreatePayment,
   useGetApplicationFee,
 } from "app/services/payments/payments";
-import ModalDialog from "../common/modal-dialog";
+import ModalDialog from "../../common/modal-dialog";
 import { useNavigate, useParams } from "react-router";
 import "./paymentForm.css";
-import { AnimatedDots } from "../common/AnimatedDots";
+import { AnimatedDots } from "../../common/AnimatedDots";
 import { useGetApplication } from "app/services/applications/applications";
 import {
   formatAmount,
   formatBic,
   formatDate,
   formatIban,
-} from "../common/format";
-import { ApplicationPaymentCreate } from "../../types";
+} from "../../common/format";
+import { ApplicationPaymentCreate } from "../../../types";
 import { AuthContext } from "app/common/AuthContext";
 import axios from "axios";
 
