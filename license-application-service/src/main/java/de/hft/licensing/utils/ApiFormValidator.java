@@ -1,11 +1,5 @@
 package de.hft.licensing.utils;
 
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class ApiFormValidator {
@@ -98,14 +92,6 @@ public class ApiFormValidator {
     }
     // At least one special character (non letter or number)
     return passwordRegex.matcher(password).matches();
-  }
-
-  // Confirm Password validation: must match password
-  public boolean isValidConfirmPassword(String password, String confirmPassword) {
-    if (confirmPassword.trim().isEmpty()) {
-      return false;
-    }
-    return Objects.equals(password, confirmPassword);
   }
 
   // IBAN validation: length between 15 and 34 characters, valid characters

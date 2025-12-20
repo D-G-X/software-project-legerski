@@ -371,15 +371,6 @@ public class ApiFormValidatorTest {
   }
 
   @Nested
-  class testIsValidConfirmPassword {
-
-    @Test
-    void returnsFalse_whenConfirmPasswordAndPasswordIsEmpty() {
-      assertFalse(validator.isValidConfirmPassword("", ""));
-    }
-  }
-
-  @Nested
   class testIsValidIban {
 
     // VALID IBANS
