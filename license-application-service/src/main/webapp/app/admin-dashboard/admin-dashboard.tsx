@@ -4,8 +4,8 @@ import useDocumentTitle from "../common/use-document-title";
 import "./admin-dashboard.css";
 import Pagination from "../common/Pagination";
 import { Link, useNavigate } from "react-router";
-import ApplicationDetails from "../dashboard/applicationDetails";
 import {ApplicationResource} from "../../types";
+import AdminApplicationDetails from "./admin-applicationDetails";
 // import { useListApplications } from "app/services/applications/applications";
 // import { ApplicationResource } from "../../types";
 
@@ -218,12 +218,11 @@ export default function AdminDashboard() {
             <div>
             {/* Application Details Modal */}
             {isDetailsOpen && (
-                <ApplicationDetails
+                <AdminApplicationDetails
                     open={isDetailsOpen}
+                    userId="" //TODO: pass actual user data
                     applicationData={selectedEntry}
-                    userData={undefined}
                     onClose={closeDetails}
-                    onRenew={handleNewApplicationClick}
                 />
             )}
             </div>
