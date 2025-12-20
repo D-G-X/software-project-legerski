@@ -161,6 +161,20 @@ export const isValidConfirmPassword = (
   return {isValid: true, message: t("validation.confirmPassword.valid")};
 };
 
+// Text area validation: max. 10k characters
+export const isValidOptionalText = (text: string | undefined | null) => {
+  if (!text || text.trim() === "")
+    return {isValid: true, message: t("validation.optionalText.valid")};
+
+  if (text.length > 10_000)
+    return {
+      isValid: false,
+      message: t("validation.optionalText.maxLength"),
+    };
+
+  return {isValid: true, message: t("validation.optionalText.valid")};
+}
+
 // File validation for document uploads (file type and size)
 export const isValidFile = (file: File | undefined | null) => {
   if (!file)

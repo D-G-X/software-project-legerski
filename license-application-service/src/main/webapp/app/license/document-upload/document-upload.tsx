@@ -45,7 +45,7 @@ export default function ApplicationDocumentUpload() {
 
     const fileVal = isValidFile(file);
 
-    if (fileVal.message != t("license.document_upload.valid")) {
+    if (!fileVal.isValid) {
       setErrors((prev) => ({
         ...prev,
         [id]: fileVal.message,

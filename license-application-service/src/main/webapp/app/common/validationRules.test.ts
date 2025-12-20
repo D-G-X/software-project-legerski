@@ -7,7 +7,7 @@ import {
   isValidDateString,
   isValidEmail,
   isValidIban,
-  isValidName,
+  isValidName, isValidOptionalText,
   isValidPassword,
   nameRegex,
   passwordRegex
@@ -356,6 +356,25 @@ describe("validateConfirmPassword", () => {
 
   test("should return invalid if passwords not matching (unicode mismatch)", () => {
     expect(isValidConfirmPassword("täst123!", "t\u0061\u0308st123!").isValid).toBe(false);
+  });
+});
+
+// Text Validation (Optional Text)
+describe("validateTextArea", () => {
+  // VALID OPTIONAL TEXT
+  test("should return valid if text area is empty", () => {
+    expect(isValidOptionalText(null).isValid).toBe(true);
+    expect(isValidOptionalText(undefined).isValid).toBe(true);
+    expect(isValidOptionalText("").isValid).toBe(true);
+    expect(isValidOptionalText(" ").isValid).toBe(true);
+  });
+  test("should return valid if text area is 10,000 characters long", () => {
+    expect(isValidOptionalText("A".repeat(10_000)).isValid).toBe(true);
+  });
+
+  // INVALID OPTIONAL TEXT
+  test("should return invalid if text area is 10,001 characters long", () => {
+    expect(isValidOptionalText("A".repeat(10_001)).isValid).toBe(false);
   });
 });
 
