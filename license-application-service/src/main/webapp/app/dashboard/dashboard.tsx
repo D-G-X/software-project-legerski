@@ -6,11 +6,13 @@ import Pagination from "../common/Pagination";
 import {useNavigate} from "react-router";
 import ApplicationDetails from "./applicationDetails";
 import {useListApplications} from "app/services/applications/applications";
-import {ApplicationResource, CurrentBallotPeriodResource, UserResource} from "../../types";
+import {
+  ApplicationResource,
+  BallotPeriodResource,
+} from "../../types";
 import {AuthContext} from "app/common/AuthContext";
 import {getUserIdFromToken} from "app/common/authTokenDecode";
 import {useGetUser} from "../services/users/users";
-import {AxiosError} from "axios";
 import {InfoPopup} from "../common/infoPopup";
 import {useGetBallotPeriod} from "../services/ballot-periods/ballot-periods";
 import {formatDateShort} from "../common/format";
@@ -21,49 +23,19 @@ enum BallotStatus {
   CLOSED = "CLOSED",
 }
 
-type UserDataResult = {
-  data: UserResource | null;
-  isFound: boolean;
-};
-
 type BallotPeriodResult = {
-  data: CurrentBallotPeriodResource | null;
-  isFound: boolean;
+  data: BallotPeriodResource | undefined;
   status: BallotStatus;
   start_date?: number;
   end_date?: number;
 };
 
-function useGetUserData(userId: string): UserDataResult {
-  const {
-    data: response,
-    error,
-  } = useGetUser(userId);
-
-  const isFound =
-      error === undefined ||
-      (error as AxiosError | undefined)?.response?.status !== 404;
-
-  return {
-    data: response?.data ?? null,
-    isFound,
-  };
-}
-
-function useGetBallotDetails(): BallotPeriodResult {
-  const {
-    data: response,
-    error,
-  } = useGetBallotPeriod();
-
-  const isFound =
-      error === undefined ||
-      (error as AxiosError | undefined)?.response?.status !== 404;
+function useGetBallotDetails(): BallotPeriodResult | null {
+  const {data: response} = useGetBallotPeriod();
 
   if (response?.data?.start_date || !response?.data?.end_date) {
     return {
-      data: null,
-      isFound,
+      data: response?.data,
       status: BallotStatus.CLOSED,
     };
   }
@@ -77,7 +49,6 @@ function useGetBallotDetails(): BallotPeriodResult {
   if (mostCurrentPeriod.start_date > Date.now()) {
     return {
       data: response?.data,
-      isFound,
       status: BallotStatus.UPCOMING,
       start_date: mostCurrentPeriod.start_date,
       end_date: mostCurrentPeriod.end_date,
@@ -85,7 +56,6 @@ function useGetBallotDetails(): BallotPeriodResult {
   } else if (mostCurrentPeriod.start_date <= Date.now() && mostCurrentPeriod.end_date >= Date.now()) {
     return {
       data: response?.data,
-      isFound,
       status: BallotStatus.RUNNING,
       start_date: mostCurrentPeriod.start_date,
       end_date: mostCurrentPeriod.end_date,
@@ -93,13 +63,11 @@ function useGetBallotDetails(): BallotPeriodResult {
   } else {
     return {
       data: response?.data,
-      isFound,
       status: BallotStatus.CLOSED,
       start_date: mostCurrentPeriod.start_date,
       end_date: mostCurrentPeriod.end_date,
     }
   }
-
 }
 
 export default function Dashboard() {
@@ -114,10 +82,7 @@ export default function Dashboard() {
   const userID = getUserIdFromToken(auth?.accessToken);
   useDocumentTitle(t("home.index.headline"));
 
-  const {
-    data: userData,
-    isFound: foundUser,
-  } = useGetUserData(userID);
+  const {data: userData} = useGetUser(userID);
 
   const ballotDetails = useGetBallotDetails();
 
@@ -126,7 +91,7 @@ export default function Dashboard() {
     text: t("dashboard.ballotPeriodInfo.errorText"),
   };
 
-  if (ballotDetails.isFound && ballotDetails.start_date && ballotDetails.end_date) {
+  if (ballotDetails?.start_date && ballotDetails?.end_date) {
 
     if (ballotDetails.status === BallotStatus.UPCOMING) {
       ballotDetailsProps.bgColor = 'bg-blue-600';
@@ -180,17 +145,6 @@ export default function Dashboard() {
       currentPage * itemsPerPage
   );
 
-  const formatDate = (rawDate: string | undefined) => {
-    if (!rawDate) return "";
-    return new Date(rawDate).toLocaleString(t("locale"), {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   function handleNewApplicationClick() {
     navigate(`/license-application-request`);
   }
@@ -201,7 +155,7 @@ export default function Dashboard() {
           <div className="font-inter flex flex-col items-center w-full">
             <div className="text-center mt-16 text-xl">
               <div className="text-3xl font-bold text-mallorca-purple">
-                {t("dashboard.headline.getStarted", {firstName: foundUser ? userData?.firstName || "" : ""}) +
+                {t("dashboard.headline.getStarted", {firstName: userData?.data.firstName || ""}) +
                     (applications.length > 0
                         ? t("dashboard.headline.manageApplications")
                         : "")}
@@ -240,7 +194,7 @@ export default function Dashboard() {
                           <tr key={item.id}>
                             <td>{item.id}</td>
                             <td>{item.cadastral_reference}</td>
-                            <td>{formatDate(item.applied_at)}</td>
+                            <td>{formatDateShort(item.applied_at, t)}</td>
                             <td>{item.license_type}</td>
                             <td>
                           <span
