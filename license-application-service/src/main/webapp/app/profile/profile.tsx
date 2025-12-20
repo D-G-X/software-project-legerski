@@ -9,6 +9,12 @@ import {
 } from "app/services/users/users";
 import {AuthContext} from "app/common/AuthContext";
 import {getUserIdFromToken} from "app/common/authTokenDecode";
+import {
+    isValidName,
+    isValidEmail,
+    isValidPassword,
+    isValidConfirmPassword,
+} from "app/common/validationRules";
 
 export default function Profile() {
     const auth = useContext(AuthContext);
@@ -22,6 +28,16 @@ export default function Profile() {
         lastName: "",
         email: ""
     });
+
+    const [errors, setErrors] = useState<{
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        newPassword?: string;
+        confirmPassword?: string;
+        currentPassword?: string;
+    }>({});
+
 
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -71,10 +87,24 @@ export default function Profile() {
     });
 
     const handleUpdateDetails = () => {
-        if (!user.firstName || !user.lastName || !user.email) {
-            alert('All fields are required!');
-            return;
-        }
+        const firstNameValidation = isValidName(user.firstName);
+        const lastNameValidation = isValidName(user.lastName);
+        const emailValidation = isValidEmail(user.email);
+
+        const newErrors: typeof errors = {};
+
+        if (!firstNameValidation.isValid)
+            newErrors.firstName = firstNameValidation.message;
+
+        if (!lastNameValidation.isValid)
+            newErrors.lastName = lastNameValidation.message;
+
+        if (!emailValidation.isValid)
+            newErrors.email = emailValidation.message;
+
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) return;
 
         updateUserMutation.mutate({
             userId,
@@ -90,15 +120,28 @@ export default function Profile() {
     // PATCH: UPDATE PASSWORD
     // --------------------------------
     const handleChangePassword = () => {
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            alert("Please fill in all password fields!");
+        const passwordValidation = isValidPassword(newPassword);
+        const confirmPasswordValidation = isValidConfirmPassword(
+            newPassword,
+            confirmPassword
+        );
+
+        const newErrors: typeof errors = {};
+
+        if (!currentPassword || currentPassword.trim() === "") {
+            setErrors({ currentPassword: t("validation.password.required") });
             return;
         }
 
-        if (newPassword !== confirmPassword) {
-            alert("New passwords do not match!");
-            return;
-        }
+        if (!passwordValidation.isValid)
+            newErrors.newPassword = passwordValidation.message;
+
+        if (!confirmPasswordValidation.isValid)
+            newErrors.confirmPassword = confirmPasswordValidation.message;
+
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) return;
 
         updateUserMutation.mutate({
             userId,
@@ -151,9 +194,15 @@ export default function Profile() {
                         <input
                             type="text"
                             value={user.firstName}
-                            onChange={(e) => setUser({...user, firstName: e.target.value})}
-                            className="border border-gray-300 rounded-md px-3 py-2 focus:ring-mallorca-purple focus:border-mallorca-purple"
+                            onChange={(e) => {
+                                setUser({ ...user, firstName: e.target.value });
+                                setErrors({ ...errors, firstName: undefined });
+                            }}
+                            className="border border-gray-300 rounded-md px-3 py-2"
                         />
+                        {errors.firstName && (
+                            <span className="text-red-600 text-sm mt-1">{errors.firstName}</span>
+                        )}
                     </div>
 
                     <div className="flex flex-col">
@@ -166,6 +215,9 @@ export default function Profile() {
                             onChange={(e) => setUser({...user, lastName: e.target.value})}
                             className="border border-gray-300 rounded-md px-3 py-2 focus:ring-mallorca-purple focus:border-mallorca-purple"
                         />
+                        {errors.lastName && (
+                            <span className="text-red-600 text-sm mt-1">{errors.lastName}</span>
+                        )}
                     </div>
                 </div>
 
@@ -179,6 +231,9 @@ export default function Profile() {
                             onChange={(e) => setUser({...user, email: e.target.value})}
                             className="border border-gray-300 rounded-md px-3 py-2 focus:ring-mallorca-purple focus:border-mallorca-purple"
                         />
+                        {errors.email && (
+                            <span className="text-red-600 text-sm mt-1">{errors.email}</span>
+                        )}
                     </div>
                 </div>
 
@@ -210,6 +265,9 @@ export default function Profile() {
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         className="border border-gray-300 rounded-md px-3 py-2 focus:ring-mallorca-purple focus:border-mallorca-purple"
                     />
+                    {errors.currentPassword && (
+                        <span className="text-red-600 text-sm mt-1">{errors.currentPassword}</span>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -223,6 +281,9 @@ export default function Profile() {
                             onChange={(e) => setNewPassword(e.target.value)}
                             className="border border-gray-300 rounded-md px-3 py-2 focus:ring-mallorca-purple focus:border-mallorca-purple"
                         />
+                        {errors.newPassword && (
+                            <span className="text-red-600 text-sm mt-1">{errors.newPassword}</span>
+                        )}
                     </div>
 
                     <div className="flex flex-col">
@@ -235,6 +296,9 @@ export default function Profile() {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className="border border-gray-300 rounded-md px-3 py-2 focus:ring-mallorca-purple focus:border-mallorca-purple"
                         />
+                        {errors.confirmPassword && (
+                            <span className="text-red-600 text-sm mt-1">{errors.confirmPassword}</span>
+                        )}
                     </div>
                 </div>
 
