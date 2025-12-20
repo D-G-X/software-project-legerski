@@ -86,7 +86,7 @@ export default function Profile() {
         },
     });
 
-    const handleUpdateDetails = () => {
+    const handleUpdateDetails = async () => {
         const firstNameValidation = isValidName(user.firstName);
         const lastNameValidation = isValidName(user.lastName);
         const emailValidation = isValidEmail(user.email);
@@ -106,20 +106,26 @@ export default function Profile() {
 
         if (Object.keys(newErrors).length > 0) return;
 
-        updateUserMutation.mutate({
-            userId,
-            data: {
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-            },
-        });
+        try {
+            await updateUserMutation.mutateAsync({
+                userId,
+                data: {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                },
+            });
+            alert("User details updated successfully!");
+        } catch (err: any) {
+            console.error(err);
+            alert(err?.message || "Failed to update user details.");
+        }
     };
 
     // --------------------------------
     // PATCH: UPDATE PASSWORD
     // --------------------------------
-    const handleChangePassword = () => {
+    const handleChangePassword = async () => {
         const passwordValidation = isValidPassword(newPassword);
         const confirmPasswordValidation = isValidConfirmPassword(
             newPassword,
@@ -143,22 +149,27 @@ export default function Profile() {
 
         if (Object.keys(newErrors).length > 0) return;
 
-        updateUserMutation.mutate({
-            userId,
-            data: {
-                credentials: [
-                    {
-                        type: "password",
-                        value: newPassword,
-                        temporary: false,
-                    },
-                ],
-            },
-        });
-
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
+        try {
+            await updateUserMutation.mutateAsync({
+                userId,
+                data: {
+                    credentials: [
+                        {
+                            type: "password",
+                            value: newPassword,
+                            temporary: false,
+                        },
+                    ],
+                },
+            });
+            alert("Password updated successfully!");
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
+        } catch (err: any) {
+            console.error(err);
+            alert(err?.message || "Failed to update password.");
+        }
     };
 
     // --------------------------------
