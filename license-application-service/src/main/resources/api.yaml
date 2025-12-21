@@ -706,6 +706,22 @@ paths:
                     type: string
                     example: "The specified start and end dates overlap with an existing ballot period."
 
+
+  /ballot-periods/current:
+    get:
+      tags: [ Ballot Periods ]
+      summary: Get date of current or upcoming ballot period
+      description: Retrieve the start and end dates of the current or next ballot period.
+      operationId: getBallotPeriod
+      responses:
+        "200":
+          description: Current or upcoming ballot period
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentBallotPeriodResource"
+
+
   /ballot-periods/{period_id}:
     get:
       tags: [Ballot Periods]
@@ -1601,6 +1617,18 @@ components:
         ballot_period_id:
           type: integer
           description: Unique identifier for the ballot period
+        start_date:
+          type: string
+          format: date-time
+          description: Ballot period start, ISO 8601 format
+        end_date:
+          type: string
+          format: date-time
+          description: Ballot period end, ISO 8601 format
+
+    CurrentBallotPeriodResource:
+      type: object
+      properties:
         start_date:
           type: string
           format: date-time

@@ -20,7 +20,7 @@ import { useGetApplication } from "app/services/applications/applications";
 import {
   formatAmount,
   formatBic,
-  formatDate,
+  formatDateLong,
   formatIban,
 } from "../../common/format";
 import { ApplicationPaymentCreate } from "../../../types";
@@ -460,7 +460,7 @@ export default function PaymentConfirm() {
                   t("paymentForm.sepaMandateDialog.text.line12") +
                   "\n\n\n" +
                   t("paymentForm.sepaMandateDialog.text.line13", {
-                    date: formatDate(Date.now().toString(), t),
+                    date: formatDateLong(Date.now().toString(), t),
                   }) +
                   "\n\n"
                 }

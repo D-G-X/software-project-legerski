@@ -5,7 +5,8 @@ test("should create", () => {
   const { container } = renderWithRouter(
     <AdminApplicationDetails
       open={false}
-      applicationData={null}
+      userId={""}
+      applicationData={undefined}
       onClose={jest.fn()}
     />
   );

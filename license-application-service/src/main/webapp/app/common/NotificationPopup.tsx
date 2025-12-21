@@ -7,7 +7,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useNavigate } from "react-router";
-import { formatDate, formatRelativeDate } from "./format";
+import { formatDateLong, formatRelativeDate } from "./format";
 import { UserNotificationResource } from "../../types";
 import {
   useGetNotifications,
@@ -270,7 +270,7 @@ export default function NotificationPopup({ className = "" }) {
 
               <div className="flex justify-between items-center mt-6">
                 <span className="font-medium text-gray-500 text-sm">
-                  {formatDate(currentNotification.date, t)}
+                  {formatDateLong(currentNotification.date, t)}
                 </span>
 
                 <button

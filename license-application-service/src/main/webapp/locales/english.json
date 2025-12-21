@@ -130,7 +130,7 @@
   },
   "dashboard": {
     "headline": {
-      "getStarted": "Get started with a new Holiday Rental Licence",
+      "getStarted": "Hello {{firstName}}! Get started with a new Holiday Rental Licence",
       "manageApplications": " or manage your application in one place!"
     },
     "noApplications": "You haven’t submitted any license applications yet",
@@ -170,6 +170,13 @@
       "entries": "entries",
       "previous": "Previous",
       "next": "Next"
+    },
+    "ballotPeriodInfo":
+    {
+      "upcomingText" : "Upcoming Ballot Period",
+      "ongoingText": "Current Ballot Period",
+      "closedText": "Last Ballot Period",
+      "errorText": "Ballot period information currently unavailable"
     }
   },
   "admin-dashboard": {
