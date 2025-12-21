@@ -71,7 +71,7 @@ export default function AppRoutes() {
         {
           path: "profile",
           element: <Profile />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user", "admin"]),
         },
         {
           path: "deleteProfile",
