@@ -22,7 +22,6 @@ interface ApplicationDetailsProps {
   userId: string | undefined;
   applicationData: ApplicationResource | undefined;
   onClose: () => void;
-  onRenew: () => void;
 }
 
 const SHOW_LICENSE_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"] as const;
@@ -124,12 +123,11 @@ function useGetPaymentData(applicationId: number) {
 }
 
 export default function ApplicationDetailsAdmin({
-                                             open,
-    userId,
-                                             applicationData,
-                                             onClose,
-                                             onRenew,
-                                           }: ApplicationDetailsProps) {
+                                                  open,
+                                                  userId,
+                                                  applicationData,
+                                                  onClose,
+                                                }: ApplicationDetailsProps) {
   if (!open || !applicationData) {
     console.log("ApplicationDetails: not open");
     return null;
@@ -138,7 +136,6 @@ export default function ApplicationDetailsAdmin({
   }
   const {t} = useTranslation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const openPopup = () => setIsPopupOpen(true);
   const closePopup = () => setIsPopupOpen(false);
 
   if (!applicationData || !applicationData.id || !userId) {
@@ -401,29 +398,6 @@ export default function ApplicationDetailsAdmin({
                       <span
                           className="text-xs font-light italic">{"*" + t("applicationDetails.index.payment.taxLabel")}
                 </span>
-                  )}
-                </div>
-
-                <div className="my-12 flex flex-line items-center jusify-center gap-4">
-                  {licenseData?.id && (
-                      <>
-                        {/* Renew License Button */}
-                        <button
-                            type="submit"
-                            onClick={onRenew}
-                            className={`bg-mallorca-purple text-white px-10 py-2 rounded-md ${licenseData?.id ? "w-64" : "w-96"} font-medium text-lg`}
-                        >
-                          {t("applicationDetails.buttons.renewLicenseLabel")}
-                        </button>
-                        {/* Release License Button */}
-                        <button
-                            type="submit"
-                            onClick={openPopup}
-                            className={`bg-red-500 text-white  px-10 py-2 rounded-md ${licenseData?.id ? "w-64" : "w-96"} font-medium text-lg hover:bg-red-700  border-red-950`}
-                        >
-                          {t("applicationDetails.buttons.releaseLicenseLabel")}
-                        </button>
-                      </>
                   )}
                 </div>
 
