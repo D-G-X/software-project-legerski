@@ -111,7 +111,7 @@ export default function Dashboard() {
   const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | undefined>(undefined);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   useDocumentTitle(t("home.index.headline"));
   const userID = getUserIdFromToken(auth?.accessToken);
   const userData = getUserData(userID);
@@ -170,7 +170,7 @@ export default function Dashboard() {
 
   return (
       <div className="container mx-auto px-4 md:px-6">
-        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
+        <div className="relative flex flex-col min-h-[calc(100vh-8rem)] bg-white">
           <div className="font-inter flex flex-col items-center w-full">
             <div className="text-center mt-16 text-xl">
               <div className="text-3xl font-bold text-mallorca-purple">
@@ -287,10 +287,12 @@ export default function Dashboard() {
                   {t("dashboard.noApplications")}
                 </div>
             )}
-
-            <InfoPopup bgColor={ballotDetailsProps.bgColor} text={ballotDetailsProps.text}/>
-
           </div>
+          {/* Ballot Period Info Popup */}
+          <div className="mt-auto flex justify-center w-full mb-4">
+            <InfoPopup bgColor={ballotDetailsProps.bgColor} text={ballotDetailsProps.text}/>
+          </div>
+
           {/* Application Details Modal */}
           {isDetailsOpen && (
               <ApplicationDetails
