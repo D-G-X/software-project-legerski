@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {FormHeader} from "app/common/headingTitle";
 import {
@@ -17,6 +17,7 @@ import {formatAmount, formatBic, formatDateLong, formatIban} from "../common/for
 import {AnimatedDots} from "../common/AnimatedDots";
 import ConfirmPopup from "../common/confirmPopup";
 import {useQueryClient} from "@tanstack/react-query";
+import {AuthContext} from "../common/AuthContext";
 
 interface ApplicationDetailsProps {
   open: boolean;
@@ -40,7 +41,7 @@ const SHOW_DOCUMENT_STATUSES = [
   "REJECTED",
   "NOT_SELECTED",
   "DOCUMENTS_SUBMITTED",
-  "VERIFICATION_PENDING",
+  "VERIFICATION_PENDING"
 ] as const;
 
 const SHOW_PAYMENT_STATUSES = [
@@ -52,55 +53,73 @@ const SHOW_PAYMENT_STATUSES = [
   "IN_BALLOT",
   "CANCELLED",
   "REJECTED",
-  "NOT_SELECTED",
+  "NOT_SELECTED"
 ] as const;
 
-function useGetLicenseData(
-    userId: string,
-    applicationId: number,
-    applicationStatus?: string
-): LicenseResource | undefined {
-  const enabledByStatus = SHOW_LICENSE_STATUSES.includes(applicationStatus as any);
+const BLUE_STATUSES =
+    ["SUBMITTED",
+      "UNDER_REVIEW",
+      "AWAITING_PAYMENT",
+      "APPROVED",
+      "IN_BALLOT"];
 
-  const {data: listResponse} = useListLicenses(
-      {user_id: userId},
-      {query: {enabled: enabledByStatus}}
-  );
+const GREEN_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"]
+
+const RED_STATUSES = ["CANCELLED", "REJECTED", "NOT_SELECTED"];
+
+const GREY_STATUSES = ["DRAFT", "EXPIRED"];
+
+const ORANGE_STATUSES = ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING"];
+
+function useGetLicenseData(userId: string, applicationId: number) {
+
+  const {data: listResponse} = useListLicenses({user_id: userId});
 
   const licenses = listResponse?.data ?? [];
   const matching = licenses.find(lic => lic.application_id === applicationId);
 
+  const auth = useContext(AuthContext);
   const {data: licenseResponse} = useGetLicense(
-      matching?.id ?? 0,
-      {query: {enabled: enabledByStatus && !!matching?.id}}
+      matching?.id ?? -1,
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
   );
 
   return licenseResponse?.data;
 }
 
-function useGetDocumentData(
-    applicationId: number,
-    applicationStatus?: string
-): GetApplicationDocuments200 | undefined {
-  const enabledByStatus = SHOW_DOCUMENT_STATUSES.includes(applicationStatus as any);
-
+function useGetDocumentData(applicationId: number) {
+  const auth = useContext(AuthContext);
   const {data: response} = useGetApplicationDocuments(
       applicationId,
-      {query: {enabled: enabledByStatus}}
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
   );
 
   return response?.data;
 }
 
-function useGetPaymentData(
-    applicationId: number,
-    applicationStatus?: string
-): ApplicationPaymentResource | undefined {
-  const enabledByStatus = SHOW_PAYMENT_STATUSES.includes(applicationStatus as any);
-
+function useGetPaymentData(applicationId: number) {
+  const auth = useContext(AuthContext);
   const {data: response} = useListPayments(
       applicationId,
-      {query: {enabled: enabledByStatus}}
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
   );
 
   return response?.data?.[-1]; // Get the latest payment
@@ -128,21 +147,21 @@ export default function ApplicationDetails({
     alert("Missing application or user data");
     return null;
   }
-  const licenseData = useGetLicenseData(
-      userData.id,
-      applicationData.id,
-      applicationData.application_status
-  );
+  let licenseData: LicenseResource | undefined;
+  let documentData: GetApplicationDocuments200 | undefined;
+  let paymentData: ApplicationPaymentResource | undefined;
 
-  const documentData = useGetDocumentData(
-      applicationData.id,
-      applicationData.application_status
-  );
+  if (SHOW_LICENSE_STATUSES.includes(applicationData.application_status as any)) {
+    licenseData = useGetLicenseData(userData.id, applicationData.id);
+  }
 
-  const paymentData = useGetPaymentData(
-      applicationData.id,
-      applicationData.application_status
-  );
+  if (SHOW_DOCUMENT_STATUSES.includes(applicationData.application_status as any)) {
+    documentData = useGetDocumentData(applicationData.id);
+  }
+
+  if (SHOW_PAYMENT_STATUSES.includes(applicationData.application_status as any)) {
+    paymentData = useGetPaymentData(applicationData.id);
+  }
 
   const queryClient = useQueryClient();
 
@@ -236,30 +255,25 @@ export default function ApplicationDetails({
                   <span>{t("applicationDetails.index.statusLabel") + ": "}</span>
                   <span
                       className={`${
-                          // green
-                          ["SELECTED", "PAYMENT_RECEIVED"].includes(
+                          // green statuses: all selected
+                          GREEN_STATUSES.includes(
                               applicationData?.application_status
                           )
                               ? "text-green-800"
-                              : // blue
-                              ["SUBMITTED",
-                                "UNDER_REVIEW",
-                                "AWAITING_PAYMENT",
-                                "APPROVED",
-                                "IN_BALLOT",]
-                              .includes(applicationData?.application_status)
+                              : // blue statuses: all in-review/submitted
+                              BLUE_STATUSES.includes(applicationData?.application_status)
                                   ? "text-blue-800"
-                                  :
-                                  ["CANCELLED", "REJECTED", "NOT_SELECTED",].includes(
-                                      applicationData?.application_status
-                                  )
-                                      ? "text-red-800"
-                                      : // grey
-                                      ["DRAFT", "EXPIRED",].includes(applicationData?.application_status)
-                                          ? "text-gray-800 "
-                                          : // orange (all in-process)
-                                          ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING",].includes(applicationData?.application_status)
-                                              ? "text-orange-800"
+                                  : // orange statuses: all in-process
+                                  ORANGE_STATUSES.includes(applicationData?.application_status)
+                                      ? "text-orange-800"
+                                      : // red statuses: declined statuses
+                                      RED_STATUSES.includes(
+                                          applicationData?.application_status
+                                      )
+                                          ? "text-red-800"
+                                          : // grey statuses: draft, expired
+                                          GREY_STATUSES.includes(applicationData?.application_status)
+                                              ? "text-gray-800 "
                                               : // fallback
                                               "text-mallorca-purple"
                       }`}
