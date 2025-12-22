@@ -161,7 +161,7 @@ public class ApiFormValidatorTest {
 
     @Test
     void shouldReturnInvalidIfEmailAddressHas4Characters() {
-      assertFalse(validator.isValidEmail("j@.co"));
+      assertFalse(validator.isValidEmail("j@dc"));
     }
 
     @Test

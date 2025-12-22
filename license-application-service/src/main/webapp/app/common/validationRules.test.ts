@@ -118,7 +118,7 @@ describe("validateEmail", () => {
   });
 
   test("should return invalid if email address has 4 characters", () => {
-    expect(isValidEmail("j@.co").isValid).toBe(false);
+    expect(isValidEmail("j@dc").isValid).toBe(false);
   });
 
   test("should return invalid if email address has 255 characters", () => {
