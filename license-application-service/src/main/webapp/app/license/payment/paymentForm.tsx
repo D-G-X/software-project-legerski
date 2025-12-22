@@ -3,7 +3,6 @@ import {
   isValidBic,
   isValidIban,
   isValidName,
-  isValidSepaMandate,
 } from "../../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
@@ -184,13 +183,12 @@ export default function PaymentConfirm() {
     const nameVal = isValidName(normalizedName);
     const ibanVal = isValidIban(normalizedIban);
     const bicVal = isValidBic(normalizedBic, normalizedIban);
-    const sepaVal = isValidSepaMandate(form.sepaMandateChecked);
 
     const newErrors = {
       name: nameVal.isValid ? "" : nameVal.message,
       iban: ibanVal.isValid ? "" : ibanVal.message,
       bic: bicVal.isValid ? "" : bicVal.message,
-      sepaMandateCheck: sepaVal.isValid ? "" : sepaVal.message,
+      sepaMandateCheck: form.sepaMandateChecked ? "" : t("paymentForm.sepaMandateError"),
       pay: "",
     };
 

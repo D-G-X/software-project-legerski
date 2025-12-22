@@ -4,6 +4,7 @@ import {
   isValidCadastralNumber,
   isValidEmail,
   isValidName,
+  isValidOptionalText,
 } from "../../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
@@ -196,6 +197,8 @@ export default function RequestApplication() {
     const cadastralNumValidateResult: validateResults = isValidCadastralNumber(
       form.cadastral_number
     );
+    const additionalCommentsResult: validateResults = isValidOptionalText(form.additional_comments);
+
     if (!firstNameValidateResult.isValid) {
       newErrors.first_name = firstNameValidateResult.message;
     }
@@ -207,8 +210,13 @@ export default function RequestApplication() {
     if (!emailValidateResult.isValid) {
       newErrors.email = emailValidateResult.message;
     }
+
     if (!cadastralNumValidateResult.isValid) {
       newErrors.cadastral_number = cadastralNumValidateResult.message;
+    }
+
+    if(!additionalCommentsResult.isValid){
+      newErrors.additional_comments = additionalCommentsResult.message;
     }
 
     if (!form.rental_license_type) {
@@ -235,6 +243,7 @@ export default function RequestApplication() {
       newErrors.email ||
       newErrors.cadastral_number ||
       newErrors.rental_license_type ||
+      newErrors.additional_comments ||
       newErrors.consent_legal_data ||
       newErrors.consent_personal_data
     ) {

@@ -376,9 +376,9 @@
         "errorMissing": "Please specify the expected rental start date."
       },
       "comments": {
-        "label": "Additional Comments / Remarks",
+        "label": "Additional Comments / Remarks (Optional)",
         "description": "If you have any additional comments or information to provide, please share it here.",
-        "placeholder": "Add your comments here"
+        "placeholder": "Add your comments here (max 10k characters)."
       },
       "personal_consent": {
         "label": "I understand that my personal data will be securely stored in the database for the purpose of processing my request.",
@@ -413,6 +413,7 @@
       "input": {
         "buttonLabel": "Browse",
         "fileSizeLabel": "File with a max size of 10 MB — PDF only",
+        "fileRequired": "Please upload all required documents to proceed",
         "fileTypeError": "Only PDF files are allowed",
         "fileSizeError": "File size must be less than 10 MB"
       }
@@ -473,6 +474,8 @@
     },
     "email": {
       "required": "Email is required",
+      "minLength": "Email must be at least 5 characters long",
+      "maxLength": "Email must be less than 255 characters long",
       "invalid": "Invalid email format",
       "valid": "Email format is valid"
     },
@@ -494,32 +497,10 @@
       "mismatch": "Passwords do not match",
       "valid": "Passwords match"
     },
-    "phone": {
-      "required": "Phone number is required.",
-      "invalid": "Please enter a valid phone number.",
-      "valid": "Phone number looks good."
-    },
-    "reason": {
-      "required": "Reason is required.",
-      "minLength": "Reason must be at least 3 characters long.",
-      "maxLength": "Reason cannot exceed 500 characters.",
-      "valid": "Reason looks good."
-    },
-    "address": {
-      "required": "Street address is required.",
-      "minLength": "Street address must be at least 3 characters long.",
-      "invalid": "Please enter a valid street address.",
-      "valid": "Street address looks good."
-    },
-    "city": {
-      "required": "City is required.",
-      "invalid": "Please enter a valid city name.",
-      "valid": "City looks good."
-    },
-    "postalCode": {
-      "required": "Postal code is required.",
-      "invalid": "Please enter a valid postal code.",
-      "valid": "Postal code looks good."
+    "textArea": {
+      "required": "Text field is required.",
+      "maxLength": "Text field cannot exceed 10.000 characters.",
+      "valid": "Text field looks good."
     },
     "iban": {
       "required": "IBAN is required",
@@ -535,10 +516,6 @@
       "specialChar": "BIC must not contain any special character",
       "invalid": "BIC is invalid",
       "valid": "BIC is valid"
-    },
-    "sepaMandate": {
-      "required": "You must read and accept the SEPA mandate",
-      "valid": "SEPA mandate accepted"
     }
   },
   "paymentForm": {
@@ -584,6 +561,7 @@
       "downloadButtonLabel": "Download",
       "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
     },
+    "sepaMandateError": "You must read and accept the SEPA mandate",
     "processing": "Processing payment"
   },
   "paymentConfirm": {
