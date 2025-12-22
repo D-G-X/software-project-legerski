@@ -1,12 +1,13 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.AuthenticationApi;
+import de.hft.licensing.model.ChangePasswordRequest;
 import de.hft.licensing.model.LoginRequest;
 import de.hft.licensing.model.LoginResource;
 import de.hft.licensing.model.RefreshLoginRequest;
 import de.hft.licensing.model.RegisterRequest;
 import de.hft.licensing.model.RegisterResource;
-import de.hft.licensing.model.*;
+import de.hft.licensing.model.ResetPasswordRequest;
 import de.hft.licensing.services.EmailService;
 import de.hft.licensing.services.KeycloakAuthService;
 import de.hft.licensing.utils.ApiFormValidator;
@@ -64,9 +65,7 @@ public class AuthController implements AuthenticationApi {
     } else if (registerResource.getUserId() == null) {
       return ResponseEntity.badRequest().body(registerResource);
     }
-    return ResponseEntity.created(URI.create("/auth/register/" + registerResource.getUserId())).
-
-        build();
+    return ResponseEntity.created(URI.create("/auth/register/" + registerResource.getUserId())).build();
   }
 
     @Override
