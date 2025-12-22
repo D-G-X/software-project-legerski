@@ -23,10 +23,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
-                        .requestMatchers("/users/**").permitAll()
                         .requestMatchers("/register/**").permitAll()
+                        .requestMatchers("/refresh-login/**").permitAll()
+                        .requestMatchers("/reset-password/**").permitAll()
+                        .requestMatchers("/change-password/**").permitAll()
                         .requestMatchers("/validation-callback/**").permitAll()
-                        .requestMatchers("/applications/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",

@@ -1,6 +1,6 @@
 import { FormHeader } from "app/common/headingTitle";
 import { validateResults } from "app/common/utils";
-import { validateEmail } from "app/common/validationRules";
+import { isValidEmail } from "app/common/validationRules";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RequestSent } from "./confirmation";
@@ -13,7 +13,7 @@ export default function ForgotPasswordRequest() {
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleSubmit = () => {
-    const emailValidateResult: validateResults = validateEmail(email);
+    const emailValidateResult: validateResults = isValidEmail(email);
 
     if (!emailValidateResult.isValid) {
       setEmailError(emailValidateResult.message);

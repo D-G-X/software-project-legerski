@@ -4,7 +4,7 @@ import { FormHeader } from "../common/headingTitle";
 import { Section, SubSection } from "app/common/legalSection";
 
 export default function LegalNotice() {
-  const { t } = useTranslation("legalNotice");
+  const { t } = useTranslation("translation", { keyPrefix: "legal" });
 
   const legalConfig = [
     {
@@ -133,7 +133,7 @@ export default function LegalNotice() {
             <ul className="list-disc ml-6 mb-4">
               <li>{t("dataCollected.fullName")}</li>
               <li>{t("dataCollected.email")}</li>
-              <li>{t("dataCollected.phone")}</li>
+              {/* <li>{t("dataCollected.phone")}</li> */}
               <li>{t("dataCollected.password")}</li>
             </ul>
           ),

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
-import { validateEmail, validatePassword } from "../common/validationRules";
+import { isValidEmail, isValidPassword } from "../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
@@ -57,8 +57,8 @@ export default function Login() {
   });
 
   const handleSubmit = async () => {
-    const emailValidateResult: validateResults = validateEmail(form.email);
-    const passwordValidateResult: validateResults = validatePassword(
+    const emailValidateResult: validateResults = isValidEmail(form.email);
+    const passwordValidateResult: validateResults = isValidPassword(
       form.password
     );
     let newErrors = { email: "", password: "", login: "" };
@@ -86,13 +86,31 @@ export default function Login() {
 
       // Check if login was successful
       if (response.status === 200) {
-        const { access_token, refresh_token } = response.data;
+        const {
+          access_token,
+          refresh_token,
+          expires_in,
+          refresh_expires_in,
+          token_type,
+          is_admin,
+        } = response.data;
 
         localStorage.setItem("accessToken", access_token);
         localStorage.setItem("refreshToken", refresh_token);
+        localStorage.setItem("accessTokenExpiry", expires_in.toString());
+        localStorage.setItem(
+          "refreshTokenExpiry",
+          refresh_expires_in ? refresh_expires_in?.toString() : ""
+        );
+        localStorage.setItem("tokenType", token_type);
+        localStorage.setItem("role", is_admin ? "admin" : "user");
 
         auth?.setAccessToken(access_token);
         auth?.setRefreshToken(refresh_token);
+        auth?.setAccessTokenExpiry(expires_in);
+        auth?.setRefreshTokenExpiry(refresh_expires_in);
+        auth?.setTokenType(refresh_token);
+        auth?.setRole(is_admin ? "admin" : "user");
 
         navigate("/"); // redirect to dashboard
       } else {
