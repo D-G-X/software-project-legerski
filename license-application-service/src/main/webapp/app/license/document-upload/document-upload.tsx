@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
-import "./document-upload.css";
 import { Upload } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { useGetApplication } from "app/services/applications/applications";

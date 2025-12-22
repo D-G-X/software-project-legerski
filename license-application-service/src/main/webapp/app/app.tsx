@@ -3,7 +3,6 @@ import { Outlet, useLocation } from "react-router";
 import Header from "app/common/header";
 import Footer from "./common/footer";
 import ErrorBoundary from "app/error/error-boundary";
-import "./app.css";
 
 /**
  * Provide the app layout and some general functionality.

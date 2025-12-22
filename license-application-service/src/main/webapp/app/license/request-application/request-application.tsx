@@ -8,7 +8,6 @@ import {
 } from "../../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
-import "./request-application.css";
 import { Link, useNavigate, useParams } from "react-router";
 import { AuthContext } from "app/common/AuthContext";
 import { getUserIdFromToken } from "app/common/authTokenDecode";
