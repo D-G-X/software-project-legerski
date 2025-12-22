@@ -27,7 +27,6 @@ public class SecurityConfig {
                         .requestMatchers("/refresh-login/**").permitAll()
                         .requestMatchers("/reset-password/**").permitAll()
                         .requestMatchers("/change-password/**").permitAll()
-                        .requestMatchers("/admin/**").permitAll()
                         .requestMatchers("/validation-callback/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
