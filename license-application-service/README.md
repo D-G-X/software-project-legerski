@@ -38,7 +38,7 @@ The Keycloak admin console is accessible at [http://localhost:8081](http://local
 
 Then, select the realm `license-realm` from the dropdown menu in the top-left corner, instead of `master`.
 
-Check that the `client-secret` is properly set in `application.yml` file, under `keycloak:client-secret`. The client secret can be found in the Keycloak admin console under "**Clients**" -> `backend-api` -> "**Credentials**" tab.
+Check that the `KEYCLOAK_CLIENT_SECRET` is properly set in `.env` file. The client secret can be found in the Keycloak admin console under "**Clients**" -> `backend-api` -> "**Credentials**" tab.
 
 ### Development
 

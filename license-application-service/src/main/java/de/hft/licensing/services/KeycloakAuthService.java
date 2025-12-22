@@ -184,6 +184,62 @@ public class KeycloakAuthService {
         return registerResource;
     }
 
+    public boolean isEmailRegistered(String email) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        String url = String.format("%s/admin/realms/%s/users?email=%s", keycloakUrl, realm, email);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<KeycloakUserRecord[]> response =
+                restTemplate.exchange(url, HttpMethod.GET, entity, KeycloakUserRecord[].class);
+
+        KeycloakUserRecord[] users = response.getBody();
+        return users != null && users.length > 0;
+    }
+
+    public boolean changePassword(String email, String newPassword) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        String url = String.format("%s/admin/realms/%s/users?email=%s", keycloakUrl, realm, email);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<KeycloakUserRecord[]> response =
+                restTemplate.exchange(url, HttpMethod.GET, entity, KeycloakUserRecord[].class);
+
+        KeycloakUserRecord[] users = response.getBody();
+        if (users == null || users.length == 0) {
+            return false;
+        }
+
+        String userId = users[0].id();
+
+        String resetUrl = String.format("%s/admin/realms/%s/users/%s/reset-password", keycloakUrl, realm, userId);
+
+        Map<String, Object> credential = new LinkedHashMap<>();
+        credential.put("type", "password");
+        credential.put("value", newPassword);
+        credential.put("temporary", false);
+
+        HttpEntity<Map<String, Object>> resetEntity = new HttpEntity<>(credential, headers);
+
+        restTemplate.exchange(resetUrl, HttpMethod.PUT, resetEntity, Void.class);
+        return true;
+    }
+
     private UUID extractUserUUIdFromLocationHeader(ResponseEntity<String> response) {
         String location = Objects.requireNonNull(response.getHeaders().get("Location")).getFirst();
         if (location != null && location.contains("/users/")) {
