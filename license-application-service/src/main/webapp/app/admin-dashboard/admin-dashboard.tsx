@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {useTranslation} from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import "./admin-dashboard.css";
@@ -6,8 +6,24 @@ import Pagination from "../common/Pagination";
 import {Link, useNavigate} from "react-router";
 import {ApplicationResource} from "../../types";
 import AdminApplicationDetails from "./admin-applicationDetails";
-// import { useListApplications } from "app/services/applications/applications";
-// import { ApplicationResource } from "../../types";
+import {AuthContext} from "../common/AuthContext";
+import {useGetBallotPeriodEntries} from "../services/ballot-periods/ballot-periods";
+import {formatDateShort} from "../common/format";
+
+function getApplicationsForBallotPeriod(periodId: number | undefined) {
+  if(!periodId) return;
+  const auth = useContext(AuthContext);
+  const {data: response} = useGetBallotPeriodEntries(periodId,
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
+  );
+  return response;
+}
 
 export default function AdminDashboard() {
 
@@ -29,68 +45,18 @@ export default function AdminDashboard() {
     setSelectedEntry(undefined);
   };
 
-  // const { data: response } = useListApplications({
-  //     user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-  // });
-
-  // const applications: ApplicationResource[] = Array.isArray(response?.data)
-  //     ? response.data
-  //     : [];
-
-
-  const formatDate = (rawDate: string | undefined) => {
-    if (!rawDate) return "";
-    return new Date(rawDate).toLocaleString(t("locale"), {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const response = getApplicationsForBallotPeriod(1) // TODO: replace with actual period ID
+  const applications: ApplicationResource[] = Array.isArray(response?.data)
+      ? response.data
+      : [];
 
   function handleNewApplicationClick() {
     navigate(`/login`);
   }
 
-  const localData: ApplicationResource[] =
-      [
-        {
-          id: 201,
-          user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-          license_type: "ETVPL",
-          cadastral_reference: "1234567AB9999C0001DE",
-          applied_at: "2025-03-12T09:15:00Z",
-          changed_at: "2025-03-18T14:32:00Z",
-          application_status: "DRAFT",
-          remarks: "Application draft saved but not submitted."
-        },
-        {
-          id: 202,
-          user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-          license_type: "ETV60",
-          cadastral_reference: "1234567AB9999C0001DE",
-          applied_at: "2025-02-28T11:00:00Z",
-          changed_at: "2025-03-05T15:20:00Z",
-          application_status: "DOCUMENTS_SUBMITTED",
-          remarks: "All required documents successfully uploaded."
-        },
-        {
-          id: 203,
-          user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-          license_type: "ETV",
-          cadastral_reference: "1234567AB9999C0001DE",
-          applied_at: "2025-04-01T08:40:00Z",
-          changed_at: "2025-04-06T16:05:00Z",
-          application_status: "VERIFICATION_PENDING",
-          remarks: "Documents received and awaiting verification."
-        }
-      ];
+  const totalPage = Math.ceil(applications.length / itemsPerPage);
 
-
-  const totalPage = Math.ceil(localData.length / itemsPerPage);
-
-  const currentData = localData.slice(
+  const currentData = applications.slice(
       (currentPage - 1) * itemsPerPage,
       currentPage * itemsPerPage
   );
@@ -107,14 +73,6 @@ export default function AdminDashboard() {
               <button onClick={handleNewApplicationClick}
                       className={"text-blue-500 underline"}>{t("admin-dashboard.links.ballot_management")}</button>
             </div>
-
-            {/*<button*/}
-            {/*    type="button"*/}
-            {/*    className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 w-max"*/}
-            {/*    onClick={handleNewApplicationClick}*/}
-            {/*>*/}
-            {/*    {t("dashboard.buttonLabel")}*/}
-            {/*</button>*/}
 
             {currentData.length > 0 && (
                 <div className="mt-16 w-full">
@@ -140,8 +98,8 @@ export default function AdminDashboard() {
                             <td>{item.user_id}</td>
                             <td>{item.license_type}</td>
                             <td>{item.cadastral_reference}</td>
-                            <td>{formatDate(item.applied_at)}</td>
-                            <td>{formatDate(item.changed_at)}</td>
+                            <td>{formatDateShort(item.applied_at, t)}</td>
+                            <td>{formatDateShort(item.changed_at, t)}</td>
                             <td>{item.application_status}</td>
                             {(item.remarks && (
                                 <td>{item.remarks}</td>
@@ -207,7 +165,7 @@ export default function AdminDashboard() {
                         onPageChange={setCurrentPage}
                         start={(currentPage - 1) * itemsPerPage + 1}
                         end={currentPage * itemsPerPage}
-                        numberOfItems={localData.length}
+                        numberOfItems={applications.length}
                     />
                   </div>
                 </div>
@@ -219,7 +177,7 @@ export default function AdminDashboard() {
           {isDetailsOpen && (
               <AdminApplicationDetails
                   open={isDetailsOpen}
-                  userId="" //TODO: pass actual user data
+                  userId={selectedEntry?.user_id}
                   applicationData={selectedEntry}
                   onClose={closeDetails}
               />
