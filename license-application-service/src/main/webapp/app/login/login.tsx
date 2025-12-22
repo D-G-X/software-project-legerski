@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
 import { OrDivider } from "app/common/orDivider";
-import "./login.css";
 import { useLoginUser } from "app/services/authentication/authentication";
 import { AuthContext } from "app/common/AuthContext";
 import { useNavigate } from "react-router";

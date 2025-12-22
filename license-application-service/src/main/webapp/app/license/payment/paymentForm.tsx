@@ -14,7 +14,6 @@ import {
 } from "app/services/payments/payments";
 import ModalDialog from "../../common/modal-dialog";
 import { useNavigate, useParams } from "react-router";
-import "./paymentForm.css";
 import { AnimatedDots } from "../../common/AnimatedDots";
 import { useGetApplication } from "app/services/applications/applications";
 import {

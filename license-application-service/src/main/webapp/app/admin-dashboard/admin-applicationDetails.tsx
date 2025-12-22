@@ -8,7 +8,6 @@ import {
   LicenseResource,
 } from "../../types";
 import {Minimize2} from "lucide-react";
-import "./admin-applicationDetails.css";
 import {useListPayments} from "../services/payments/payments";
 import {useDeleteLicense, useGetLicense, useListLicenses} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";

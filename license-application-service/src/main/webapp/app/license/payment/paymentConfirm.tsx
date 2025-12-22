@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
-import "./paymentConfirm.css";
 import { CircleCheck, CircleX } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import {

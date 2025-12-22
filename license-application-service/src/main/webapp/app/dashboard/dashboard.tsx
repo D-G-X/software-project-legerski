@@ -1,7 +1,6 @@
 import React, {useContext, useState} from "react";
 import {useTranslation} from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
-import "./dashboard.css";
 import Pagination from "../common/Pagination";
 import {useNavigate} from "react-router";
 import ApplicationDetails from "./applicationDetails";
@@ -104,7 +103,7 @@ function getApplications(userID: string | undefined) {
   return response;
 }
 
-export default function Dashboard() {
+export function Dashboard() {
   const auth = useContext(AuthContext);
   const {t} = useTranslation();
   const navigate = useNavigate();
@@ -199,23 +198,23 @@ export default function Dashboard() {
                     <table className="mt-8 text-lg dashboard-table text-mallorca-purple">
                       <thead>
                       <tr>
-                        <th>{t("dashboard.table.applicationId")}</th>
-                        <th>{t("dashboard.table.cadastalId")}</th>
-                        <th>{t("dashboard.table.requestDate")}</th>
-                        <th>{t("dashboard.table.licenceType")}</th>
-                        <th>{t("dashboard.table.status")}</th>
-                        <th>{t("dashboard.table.action.title")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("dashboard.table.applicationId")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("dashboard.table.cadastalId")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("dashboard.table.requestDate")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("dashboard.table.licenceType")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("dashboard.table.status")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("dashboard.table.action.title")}</th>
                       </tr>
                       </thead>
 
                       <tbody>
                       {currentData.map((item) => (
                           <tr key={item.id}>
-                            <td>{item.id}</td>
-                            <td>{item.cadastral_reference}</td>
-                            <td>{formatDateShort(item.applied_at, t)}</td>
-                            <td>{item.license_type}</td>
-                            <td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{item.id}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{item.cadastral_reference}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{formatDateShort(item.applied_at, t)}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{item.license_type}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">
                           <span
                               className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-56 rounded-md ${
                                   // green
@@ -255,7 +254,7 @@ export default function Dashboard() {
                           </span>
                             </td>
 
-                            <td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">
                               <button
                                   key={item.id}
                                   onClick={() => openDetails(item)}
