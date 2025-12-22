@@ -1,8 +1,8 @@
-import { describe, it, expect } from '@jest/globals';
+import React from "react";
+import RequestApplication from "./request-application";
 
-describe('RequestApplication', () => {
-  it('should be implemented', () => {
-    // Add tests for request application component
-    expect(true).toBe(true);
-  });
+test("should create", () => {
+  const { container } = renderWithRouter(<RequestApplication />);
+
+  expect(container).toBeTruthy();
 });

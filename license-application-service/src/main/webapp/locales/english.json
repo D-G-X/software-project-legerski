@@ -32,6 +32,7 @@
     "signInBtn": "Sign in",
     "signOutBtn": "Sign Out",
     "registerBtn": "Register",
+    "noNotification": "No notifications to display.",
     "languages": {
       "en": {
         "name": "English",
@@ -61,6 +62,30 @@
     "notificationBtn": "Notifications",
     "contactBtn": "Contact",
     "legalBtn": "Legal Notice"
+  },
+  "contact": {
+    "header": {
+      "english": "English",
+      "contact": "Contact",
+      "account": "Account",
+      "notifications": "Notifications",
+      "signout": "Sign out"
+    },
+    "title": "Contact Support",
+    "subtitle": "Need help with your license or ballot application? We’re here to assist.",
+    "email": {
+      "title": "Email Support:"
+    },
+    "phone": {
+      "title": "Phone Support:",
+      "hours": "Mon–Fri, 9:00–17:00 CET"
+    },
+    "address": {
+      "title": "Office Address:"
+    },
+    "contactButton": "Contact Support",
+    "back": "Back",
+    "legalNotice": "Legal Notice"
   },
   "notifications": {
     "title": "Your Notifications",
@@ -105,7 +130,7 @@
   },
   "dashboard": {
     "headline": {
-      "getStarted": "Get started with a new Holiday Rental Licence",
+      "getStarted": "Hello {{firstName}}! Get started with a new Holiday Rental Licence",
       "manageApplications": " or manage your application in one place!"
     },
     "noApplications": "You haven’t submitted any license applications yet",
@@ -145,6 +170,13 @@
       "entries": "entries",
       "previous": "Previous",
       "next": "Next"
+    },
+    "ballotPeriodInfo":
+    {
+      "upcomingText" : "Upcoming Ballot Period",
+      "ongoingText": "Current Ballot Period",
+      "closedText": "Last Ballot Period",
+      "errorText": "Ballot period information currently unavailable"
     }
   },
   "admin-dashboard": {
@@ -384,6 +416,51 @@
         "fileTypeError": "Only PDF files are allowed",
         "fileSizeError": "File size must be less than 10 MB"
       }
+    },
+    "list": {
+      "headline": "Licenses",
+      "createNew": "Create new License",
+      "empty": "No Licenses could be found.",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "add": {
+      "headline": "Add License",
+      "back": "Back to list"
+    },
+    "id": {
+      "label": "Id"
+    },
+    "licenseType": {
+      "label": "License Type"
+    },
+    "licenseStatus": {
+      "label": "License Status"
+    },
+    "issuedAt": {
+      "label": "Issued At"
+    },
+    "expiresAt": {
+      "label": "Expires At"
+    },
+    "user": {
+      "label": "User"
+    },
+    "application": {
+      "label": "Application"
+    },
+    "edit": {
+      "headline": "Edit License",
+      "back": "Back to list"
+    },
+    "create": {
+      "success": "License was created successfully."
+    },
+    "update": {
+      "success": "License was updated successfully."
+    },
+    "delete": {
+      "success": "License was removed successfully."
     }
   },
   "validation": {
@@ -391,6 +468,7 @@
       "required": "Name is required",
       "invalid": "Name can only contain letters and spaces",
       "minLength": "Name must be at least 2 characters long",
+      "maxLength": "Name must be less than 100 characters long",
       "valid": "Name is valid"
     },
     "email": {
@@ -400,13 +478,14 @@
     },
     "cadastral_number": {
       "required": "Cadastral Number is required.",
-      "valid": "Cadastral Number is valid.",
-      "min_length": "Enter Valid Cadastral number, must be 20 characters."
+      "length": "Enter Valid Cadastral number, must be exactly 20 characters.",
+      "invalid": "Cadastral Number can only contain alphanumeric characters.",
+      "valid": "Cadastral Number is valid."
     },
     "password": {
       "required": "Password is required",
       "minLength": "Password must be at least 8 characters long",
-      "maxLength": "Password must be less than 256 characters long",
+      "maxLength": "Password must be less than 255 characters long",
       "specialChar": "Password must contain at least one special character",
       "valid": "Password is valid"
     },
@@ -446,7 +525,6 @@
       "required": "IBAN is required",
       "minLength": "IBAN must be at least 15 characters long",
       "maxLength": "IBAN must be less than 35 characters long",
-      "countryCode": "IBAN must start with a valid country code",
       "specialChar": "IBAN must not contain any special character",
       "invalid": "IBAN is invalid",
       "valid": "IBAN is valid"
@@ -454,13 +532,7 @@
     "bic": {
       "required": "BIC is required for non-domestic SEPA transactions",
       "length": "BIC must be exactly 8 or 11 characters long",
-      "countryCode": "BIC must contain a valid country code",
-      "specialChar": {
-        "general": "BIC must not contain any special character",
-        "pos6": "BIC must not contain the number '0' or '1' at position 6",
-        "pos7": "BIC must not contain the letter 'O' at position 7",
-        "pos8": "BIC must not contain the letter 'X' at position 8 if not followed by 'XX'"
-      },
+      "specialChar": "BIC must not contain any special character",
       "invalid": "BIC is invalid",
       "valid": "BIC is valid"
     },
@@ -469,12 +541,12 @@
       "valid": "SEPA mandate accepted"
     }
   },
-  "payment": {
+  "paymentForm": {
     "title": "Payment",
     "index": {
       "headline": "Pay now",
-      "subheadline": "SEPA direct debit",
-      "amountLabel": "Total amount: {{amount}}",
+      "subHeadline": "SEPA direct debit",
+      "amountLabel": "Total amount",
       "nameLabel": "Account holder",
       "ibanLabel": "IBAN",
       "bicLabel": "BIC",
@@ -483,34 +555,65 @@
         "plain": "I have read and accept the",
         "button": "SEPA Mandate"
       },
-      "sepaMandateDialog": {
-        "title": "SEPA Direct Debit Mandate",
-        "text": {
-          "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
-          "line2": "Note:",
-          "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
-          "line4": "Details of the payer:",
-          "line5": " –  Account holder: {{accountHolder}}",
-          "line6": " –  IBAN: {{iban}}",
-          "line7": " –  BIC: {{bic}}",
-          "line8": "Details of the payee:",
-          "line9": " –  Beneficiary: {{beneficiaryName}}",
-          "line10": " –  Creditor ID: {{creditorId}}",
-          "line11": " –  Mandate reference: {{mandateReference}}",
-          "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
-          "line13": "Issuing date: {{date}}"
-        },
-        "acceptButtonLabel": "Accept",
-        "cancelButtonLabel": "Cancel",
-        "downloadButtonLabel": "Download",
-        "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
-      },
-      "payButtonLabel": "Pay now"
+      "payButtonLabel": "Pay now",
+      "cancelButtonLabel": "Pay later and return to dashboard",
+      "cancelNote": {
+        "label1": "Your application will be saved as draft",
+        "label2": "you can complete the payment later from your dashboard."
+      }
     },
-    "response": {
-      "success": "Payment successful! Thank you for your payment.",
-      "error": "Payment failed! Please try again later."
-    }
+    "sepaMandateDialog": {
+      "title": "SEPA Direct Debit Mandate",
+      "text": {
+        "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
+        "line2": "Note:",
+        "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
+        "line4": "Details of the payer:",
+        "line5": " –  Account holder: {{accountHolder}}",
+        "line6": " –  IBAN: {{iban}}",
+        "line7": " –  BIC: {{bic}}",
+        "line8": "Details of the payee:",
+        "line9": " –  Beneficiary: {{beneficiaryName}}",
+        "line10": " –  Creditor ID: {{creditorId}}",
+        "line11": " –  Mandate reference: {{mandateReference}}",
+        "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
+        "line13": "Issuing date: {{date}}"
+      },
+      "acceptButtonLabel": "Accept",
+      "cancelButtonLabel": "Cancel",
+      "downloadButtonLabel": "Download",
+      "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
+    },
+    "processing": "Processing payment"
+  },
+  "paymentConfirm": {
+    "title": "Payment Done",
+    "index": {
+      "headline": {
+        "success": "Payment Received",
+        "failure": "Payment Failed"
+      },
+      "subHeadline": {
+        "success": "Your payment data has been received.",
+        "failure": "Your payment data could not be stored. Please try again."
+      },
+      "amountLabel": "Total amount",
+      "taxLabel": "no VAT applies",
+      "paymentIdLabel": "Payment ID",
+      "applicationIdLabel": "Application ID",
+      "nameLabel": "Account holder",
+      "ibanLabel": "IBAN",
+      "bicLabel": "BIC",
+      "bicOptional": "not required",
+      "dateLabel": "Payment date",
+      "sendReceiptLabel": "Send payment receipt to",
+      "receiptSentLabel": "Payment receipt sent!",
+      "leaveButtonLabel": {
+        "success": "Back to Dashboard",
+        "failure": "Try Again"
+      }
+    },
+    "processing": "Processing payment..."
   },
   "error": {
     "page": {
@@ -612,6 +715,54 @@
       "success": "Application was removed successfully."
     }
   },
+  "profile": {
+    "title": "Profile",
+    "accountInformation": "Account Information",
+    "changePassword": "Change Password",
+    "notificationSettings": "Notification Settings",
+    "saveChanges": "Save Changes",
+    "deleteAccount": "Delete Account",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "error": {
+      "currentPasswordRequired": "Current password is required",
+      "newPasswordRequired": "New password is required",
+      "confirmPasswordRequired": "Confirm password is required",
+      "passwordMismatch": "Passwords do not match",
+      "passwordMinLength": "Password must be at least 8 characters long"
+    },
+    "success": {
+      "changesSaved": "Changes have been saved successfully!",
+      "passwordChanged": "Password has been changed successfully!",
+      "accountDeleted": "Your account has been deleted successfully."
+    },
+    "confirmation": {
+      "deleteAccount": {
+        "headline": "Are you sure you want to delete your account?",
+        "subheadline": "This action cannot be undone.",
+        "cancelButton": "Cancel",
+        "confirmButton": "Delete Account"
+      }
+    },
+    "alerts": {
+      "unexpectedError": "An unexpected error occurred. Please try again later.",
+      "emailInvalid": "Invalid email address.",
+      "passwordInvalid": "Password must contain at least one special character, one uppercase letter, and one number."
+    }
+  },
+  "deleteProfile": {
+    "deleteAccount": "Delete Account",
+    "areYouSureDelete": "Are you sure you want to delete your Account?",
+    "warningMessage": "By deleting this account, you won’t be able to access the system.",
+    "yesDelete": "Yes, Delete",
+    "cancel": "No, Cancel",
+    "loading": "Deleting..."
+  },
   "select": {
     "empty": {
       "label": "Please select"
@@ -669,7 +820,261 @@
       "consentText": "On your first visit, you accept all essential cookies. These cannot be disabled."
     }
   },
-  "ballotDetails":{
+  "legal": {
+    "legalNoticeTitle": "Legal Notice",
+    "lastUpdated": "Last Updated: 27/11/2025",
+    "owner": {
+      "title": "Website Owner / Controller Identification",
+      "description": "This portal is operated by:",
+      "address": "Dirección Insular de Licencias Turísticas, Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain",
+      "email": "Email: avisio.legal@palma.es",
+      "laws": "This Portal is governed by Spanish Law 34/2002 on Information Society Services (LSSI-CE), GDPR (EU Regulation 2016/679), and other applicable Balearic regulations."
+    },
+    "purpose": {
+      "title": "Purpose of the Portal",
+      "description": "The Portal provides users and property owners in Mallorca with digital services for:",
+      "register": "Registering and maintaining user accounts",
+      "apply": "Applying for holiday rental licenses",
+      "upload": "Uploading documents for verification",
+      "track": "Tracking application status",
+      "payments": "Completing payments for administrative fees",
+      "settings": "Managing notifications and personal settings"
+    },
+    "terms": {
+      "title": "Terms and Conditions of Use",
+      "acceptance": {
+        "title": "Acceptance of Terms",
+        "text": "By accessing or using this Portal, the user agrees to comply with this Legal Notice, Privacy Policy, and Cookies Policy."
+      },
+      "obligations": {
+        "title": "User Obligations",
+        "accurate": "Provide accurate and true information",
+        "validDocs": "Upload only valid documents belonging to them",
+        "noFraud": "Refrain from fraudulent, malicious, or illegal activities",
+        "confidentiality": "Maintain confidentiality of their login credentials",
+        "law": "Comply with all applicable local, state, and EU laws"
+      },
+      "prohibited": {
+        "title": "Prohibited Actions",
+        "unauthorized": "Attempt unauthorized access or interfere with security",
+        "malware": "Upload viruses, malware, or harmful content",
+        "bots": "Use automated scripts (bots) to overload or manipulate the system",
+        "misrepresentation": "Misrepresent property ownership or personal data"
+      },
+      "ipr": {
+        "title": "Intellectual Property Rights",
+        "text": "All content on the Portal—including design, text, graphics, logos, icons, and software—is owned by the Portal operator or licensed from third parties. Reproduction or distribution is prohibited without prior written consent."
+      },
+      "disclaimer": {
+        "title": "Liability Disclaimer",
+        "errors": "Errors in documents submitted by users",
+        "interruptions": "Temporary service interruptions",
+        "thirdparty": "Issues related to third-party integrations (e.g., payment gateways, document verification)",
+        "delays": "Delays in administrative processing",
+        "asIs": "The Portal is provided 'as is' without guarantees of uninterrupted or error-free operation"
+      }
+    },
+    "privacy": {
+      "title": "Data Protection & Privacy",
+      "text": "Personal data is processed according to GDPR. A full explanation appears in the Privacy Policy below."
+    },
+    "links": {
+      "title": "External Links",
+      "text": "The Portal may contain links to third-party websites or services. The operator is not responsible for their content, policies, or availability."
+    },
+    "modifications": {
+      "title": "Modifications",
+      "text": "The operator reserves the right to modify the Legal Notice, Privacy Policy, or Cookies Policy at any time. Updates will be posted on this page."
+    },
+    "jurisdiction": {
+      "title": "Applicable Law & Jurisdiction",
+      "text": "This Legal Notice is governed by Spanish law. Any disputes shall be resolved in the courts of Illes Balears, unless otherwise required by consumer protection legislation."
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last Updated: 27/11/2025"
+    },
+    "cookies": {
+      "title": "Cookies Policy",
+      "lastUpdated": "Last Updated: 27/11/2025",
+      "whatAreCookies": "What Are Cookies?",
+      "definition": "Cookies are small text files stored on your device to enhance your browsing experience. They may store preferences, login status, or analytics information.",
+      "typesTitle": "Types of Cookies We Use",
+      "essentialTitle": "Essential cookies",
+      "essential": "Essential cookies are required for basic functionality such as login, security sessions, and form submissions.",
+      "consentTitle": "Cookie Consent",
+      "consentText": "On your first visit, you accept all essential cookies. Essential cookies cannot be disabled because the Portal will not function without them."
+    },
+    "dataController": {
+      "title": "Data Controller",
+      "description": "The entity responsible for processing personal data on this Portal is: Dirección Insular de Licencias Turísticas",
+      "address": "Address: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain",
+      "email": "Email: avisio.legal@palma.es"
+    },
+    "dataCollected": {
+      "title": "Data We Collect",
+      "accountInfo": "Account & Identity Information",
+      "fullName": "Full name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "password": "Password (encrypted)",
+      "propertyInfo": "Property & License Application Information",
+      "propertyAddress": "Property address / Ownership documents",
+      "cadastralRef": "Cadastral reference",
+      "licenseForms": "License-related forms",
+      "idCopy": "Passport / Personal ID copy",
+      "uploadedDocs": "Uploaded Documents",
+      "idProof": "ID proof",
+      "propertyProof": "Property ownership proof",
+      "technicalData": "Technical Data",
+      "ipAddress": "IP address",
+      "browserDevice": "Browser and device details",
+      "loginActivity": "Login activity",
+      "usageAnalytics": "Usage analytics",
+      "paymentInfo": "Payment Information",
+      "accountHolder": "Account holder name",
+      "ibanBic": "IBAN / BIC (if account is non-domestic)",
+      "paymentProcessor": "Payment Information is securely handled by a third-party payment processor (Banco Santander, S.A.). The Portal does not store bank account details."
+    },
+    "processingPurpose": {
+      "title": "Purpose of Processing",
+      "description": "Your data is processed for the following purposes:",
+      "createAccounts": "Creating and managing user accounts",
+      "processLicenses": "Processing holiday rental license applications",
+      "verifyIdentity": "Identity and document verification",
+      "sendNotifications": "Sending notifications and updates",
+      "ballotAlgorithm": "Running the ballot allocation algorithm",
+      "generateReceipts": "Generating receipts and payment confirmations",
+      "ensureSecurity": "Ensuring platform security",
+      "basisTitle": "Processing is based on:",
+      "gdprContract": "GDPR Art. 6(1)(b): Contract performance",
+      "gdprLegal": "GDPR Art. 6(1)(c): Legal obligations",
+      "gdprConsent": "GDPR Art. 6(1)(a): User consent",
+      "gdprPublicInterest": "GDPR Art. 6(1)(e): Public interest tasks (if applicable)"
+    },
+    "dataStorage": {
+      "title": "Data Storage Duration",
+      "description": "Data is stored only as long as necessary:"
+    },
+    "userRights": {
+      "title": "User Rights (GDPR Chapter III)",
+      "description": "You may request:",
+      "access": "Access to your data",
+      "correction": "Correction or deletion",
+      "restriction": "Restriction of processing",
+      "portability": "Data portability",
+      "objection": "Objection to certain processing",
+      "withdrawal": "Withdrawal of consent",
+      "contact": "Requests can be sent to: avisio.legal@palma.es"
+    },
+    "security": {
+      "title": "Security Measures",
+      "description": "We implement:",
+      "accessControl": "Access control with JWT + Keycloak",
+      "securityAssessments": "Regular security assessments",
+      "cookiesPolicy": "Cookies Policy Last Updated: 27/11/2025",
+      "paymentInfo": "Payment Information is securely handled by a third-party payment processor (Banco Santander, S.A.). The Portal does not store bank account details.",
+      "dataRetention": "Active user accounts: retained while account is active\nLicense application documents: retained during review + legally required archival period\nPayment receipts: stored for mandatory tax/record-keeping periods\nLog data: short-term retention for security monitoring",
+      "noSystem": "No system is 100% secure, but best-practice security measures are applied."
+    },
+    "governingLaw": {
+      "title": "Governing Law",
+      "description": "For the purposes of applicable legislation, this Portal is governed by:",
+      "lssi": "Spanish Law 34/2002 on Information Society Services and E-Commerce (LSSI-CE)",
+      "gdpr": "General Data Protection Regulation (GDPR) – EU Regulation 2016/679",
+      "regional": "Any other relevant regional or national regulations of the Balearic Islands.",
+      "noAffiliation": "No official governmental affiliation is claimed unless explicitly stated."
+    },
+    "portalObjective": {
+      "title": "Portal Objective",
+      "description": "The Portal aims to improve transparency, accessibility, and efficiency of the rental license application process."
+    },
+    "userObligations": {
+      "title": "User Obligations",
+      "intro": "The user agrees to:",
+      "accurateInfo": "Provide accurate and true information",
+      "validDocs": "Upload only valid documents belonging to them",
+      "noFraud": "Refrain from fraudulent, malicious, or illegal activities",
+      "confidentiality": "Maintain confidentiality of their login credentials",
+      "lawCompliance": "Comply with all applicable local, state and EU laws"
+    },
+    "prohibitedActions": {
+      "title": "Prohibited Actions",
+      "intro": "Users must not:",
+      "unauthorizedAccess": "Attempt unauthorized access or interfere with security",
+      "malware": "Upload viruses, malware, or harmful content",
+      "bots": "Use automated scripts (bots) to overload or manipulate the system",
+      "misrepresentation": "Misrepresent property ownership or personal data"
+    },
+    "liability": {
+      "title": "Liability Disclaimer",
+      "intro": "The Portal operator is not responsible for:",
+      "errors": "Errors in documents submitted by users",
+      "interruptions": "Temporary service interruptions",
+      "thirdParty": "Third-party integration (payment gateways, document verification services)",
+      "delays": "Delays in administrative processing by authorities",
+      "asIs": "The Portal is provided “as is,” without guarantee of uninterrupted or error-free operation"
+    },
+    "dataRetention": {
+      "title": "Data Retention Periods",
+      "activeAccounts": "Active user accounts: retained while the account is active",
+      "licenseDocs": "License application documents: retained during review and for the legally required archival period",
+      "paymentReceipts": "Payment receipts: stored for mandatory tax and record-keeping periods",
+      "logData": "Log data: retained short-term for security monitoring"
+    },
+    "securityMeasures": {
+      "noSystem": "No system is 100% secure, but best-practice security measures are applied."
+    }
+  },
+  "ballotConfig": {
+    "pageTitle": "Configure New Ballot",
+    "formFields": {
+      "startDate": "Start Date:",
+      "endDate": "End Date:"
+    },
+    "buttons": {
+      "publish": "Publish Ballot",
+      "cancel": "Cancel"
+    },
+    "alerts": {
+      "requiredDates": "Both start date and end date are required.",
+      "invalidDate": "Invalid date format. Please use a valid date.",
+      "startDateAfterToday": "Start date must be later than today.",
+      "sameStartEndDate": "Start date and end date cannot be the same.",
+      "startDateAfterEndDate": "Start date cannot be later than end date.",
+      "endDateTooLate": "End date cannot be more than 6 months after the start date.",
+      "success": "Ballot period created successfully!",
+      "overlappingPeriod": "The specified start and end dates overlap with an existing ballot period.",
+      "creationFailed": "Failed to create ballot period."
+    }
+  },
+  "notificationSettings": {
+    "pageTitle": "Notification Settings",
+    "description": "Manage how we send notifications to you",
+    "sections": {
+      "appUpdates": {
+        "title": "When my application is updated:",
+        "email": "Email"
+      },
+      "appStatus": {
+        "title": "Application Updates",
+        "label": "When my application status is updated"
+      },
+      "license": {
+        "title": "License Renewal Updates",
+        "label": "When my license is 6 months due for expiry"
+      }
+    },
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "alerts": {
+      "clientError": "Client Error Occurred",
+      "apiPlaceholder": "API call has to be implemented!"
+    }
+  },
+  "ballotDetails": {
     "overview": {
       "title": "Ballot Overview",
       "ballotId": "Ballot Id",
@@ -699,5 +1104,5 @@
       "viewApplications": "View Applications",
       "cancel": "Cancel"
     }
-}
+  }
 }

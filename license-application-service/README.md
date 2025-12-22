@@ -80,6 +80,21 @@ To retrieve your client secret follow these steps:
 
 > Note that the keycloak dashboard doesn't work on Safari!
 
+---
+
+### Quick Fixes
+
+If you have issues with compiling or starting the backend, try the following steps:
+
+	•	Settings/Preferences → Build, Execution, Deployment → Build Tools → Maven
+	•	Runner → “Delegate IDE build/run actions to Maven”
+
+(or depending on your IntelliJ-Version: “Use Maven for build and run”)
+
+By doing this, IntelliJ will use Maven to build and run the project instead of its internal build process.
+
+---
+
 ## API Documentation
 
 - #### [Swagger API](http://localhost:8080/swagger-ui/index.html)

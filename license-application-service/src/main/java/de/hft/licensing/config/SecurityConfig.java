@@ -23,8 +23,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
-                        .requestMatchers("/users/**").permitAll()
                         .requestMatchers("/register/**").permitAll()
+                        .requestMatchers("/refresh-login/**").permitAll()
                         .requestMatchers("/reset-password/**").permitAll()
                         .requestMatchers("/change-password/**").permitAll()
                         .requestMatchers("/admin/**").permitAll()

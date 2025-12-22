@@ -5,6 +5,7 @@ import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseType;
 import de.hft.licensing.db.enums.VerificationStatus;
 import de.hft.licensing.db.tables.Application;
+import de.hft.licensing.db.tables.BallotPeriod;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.model.ApplicationCreate;
@@ -22,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -42,9 +44,23 @@ public class ApplicationsController implements ApplicationsApi {
 
     @Override
     @PreAuthorize("@applicationAuthorization.canCreateApplication(authentication, #applicationCreate.userId)")
+    @Transactional
     public ResponseEntity<ApplicationResource> createApplication(ApplicationCreate applicationCreate) {
         if (applicationCreate == null || applicationCreate.getUserId() == null || applicationCreate.getLicenseType() == null) {
             return ResponseEntity.badRequest().build();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        boolean ballotPeriodActive = dsl.fetchExists(
+                dsl.selectOne()
+                        .from(BallotPeriod.BALLOT_PERIOD)
+                        .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(now))
+                        .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(now))
+        );
+
+        if(!ballotPeriodActive) {
+            // no active ballot period
+            return ResponseEntity.status(409).build();
         }
 
         boolean userExists = dsl.fetchExists(
@@ -57,7 +73,7 @@ public class ApplicationsController implements ApplicationsApi {
             return ResponseEntity.status(422).build();
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        now = LocalDateTime.now();
 
         // insert and return DB record (jooq DB record, not API model record)
         var dbRecord = dsl.insertInto(Application.APPLICATION)
@@ -90,6 +106,7 @@ public class ApplicationsController implements ApplicationsApi {
 
     @Override
     @PreAuthorize("@applicationAuthorization.canAccessApplication(authentication, #applicationId)")
+    @Transactional
     public ResponseEntity<Void> deleteApplication(Integer applicationId) {
         int deleted = dsl.deleteFrom(Application.APPLICATION)
             .where(Application.APPLICATION.ID.eq(applicationId))
@@ -183,6 +200,7 @@ public class ApplicationsController implements ApplicationsApi {
 
     @Override
     @PreAuthorize("@applicationAuthorization.canAccessApplication(authentication, #applicationId)")
+    @Transactional
     public ResponseEntity<ApplicationResource> updateApplication(Integer applicationId, ApplicationUpdate applicationUpdate) {
         if (applicationId == null || applicationUpdate == null || applicationUpdate.getApplicationStatus() == null || applicationUpdate.getRemarks() == null) {
             return ResponseEntity.badRequest().build();
@@ -205,8 +223,6 @@ public class ApplicationsController implements ApplicationsApi {
                 .returning()
                 .fetchOneInto(ApplicationRecord.class);
 
-
-        // TODO: if active ballot period add SUBMITTED to ballotperiod
 
         if(updatedApplicationRecord != null){
             ApplicationResource updatedApplicationResource = new ApplicationResource();

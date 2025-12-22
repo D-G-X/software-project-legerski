@@ -37,6 +37,11 @@ logging.level.org.jooq.Constants: off
 springdoc:
   swagger-ui:
     operations-sorter: alpha
+    oauth:
+      client-id: backend-api
+      client-secret: ${KEYCLOAK_CLIENT_SECRET}
+      use-pkce-with-authorization-code-grant: true
+    oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
 
 error:
   handling:

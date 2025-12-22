@@ -7,23 +7,27 @@ export const formatAmount = (raw: number | undefined, t: any): string => {
     currency: "EUR",
     minimumFractionDigits: 2,
   }).format(raw);
-}
+};
 
-export const formatIban = (raw: string | undefined): string => {
-  if (raw === undefined || raw === "") return "";
+export const formatIban = (raw?: string): string => {
+  if (!raw) return "";
+
   const visibleLength = 2;
   const clean = raw.replace(/\s+/g, "").toUpperCase();
+
+  const maskLength = Math.max(0, clean.length - visibleLength);
   const visible = clean.slice(-visibleLength);
-  const masked = "•".repeat(clean.length - visibleLength);
+  const masked = "•".repeat(maskLength);
+
   return (masked + visible).replace(/(.{4})/g, "$1 ").trim();
 };
 
 export const formatBic = (raw: string | undefined): string => {
   if (raw === undefined || raw === "") return "";
   return raw.replace(/\s+/g, "").toUpperCase();
-}
+};
 
-export const formatDate = (raw: string | undefined, t: any): string => {
+export const formatDateLong = (raw: string | number | undefined, t: any): string => {
   if (raw === undefined || raw === "") return "";
   return new Date(raw).toLocaleString(t("locale"), {
     day: "2-digit",
@@ -33,11 +37,20 @@ export const formatDate = (raw: string | undefined, t: any): string => {
     minute: "2-digit",
     second: "2-digit",
   });
-}
+};
+
+export const formatDateShort = (raw: string | number | undefined, t: any): string => {
+  if (raw === undefined || raw === "") return "";
+  return new Date(raw).toLocaleString(t("locale"), {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
 
 export const formatRelativeDate = (
-    iso: string,
-    locale: string = "en-US"
+  iso: string,
+  locale: string = "en-US"
 ): string => {
   const timeFormat = new Intl.RelativeTimeFormat(locale, {
     numeric: "always",
@@ -65,4 +78,4 @@ export const formatRelativeDate = (
   }
 
   return timeFormat.format(0, "second");
-}
+};

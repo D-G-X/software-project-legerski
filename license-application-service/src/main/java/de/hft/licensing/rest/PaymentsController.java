@@ -14,6 +14,7 @@ import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -32,6 +33,7 @@ public class PaymentsController implements PaymentsApi {
 
     @Override
     @PreAuthorize("@paymentAuthorization.canAccessPayments(authentication, #applicationId)")
+    @Transactional
     public ResponseEntity<ApplicationPaymentResource> createPayment(Integer applicationId, ApplicationPaymentCreate applicationPaymentCreate) {
         if (applicationId == null || applicationPaymentCreate.getApplicationId() == null) {
             return ResponseEntity.badRequest().build();
