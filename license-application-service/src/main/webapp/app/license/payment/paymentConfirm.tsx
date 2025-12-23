@@ -36,7 +36,7 @@ export default function PaymentConfirm() {
   const data: Props = state;
   const success = data.payment_status === "UNPAID";
 
-  useDocumentTitle(t("paymentConfirm.title"));
+  useDocumentTitle(t("license.paymentConfirm.title"));
 
   return (
     <div className="container mx-auto px-4 md:px-6">
@@ -53,23 +53,23 @@ export default function PaymentConfirm() {
           <FormHeader
             heading={
               success
-                ? t("paymentConfirm.index.headline.success")
-                : t("paymentConfirm.index.headline.failure")
+                ? t("license.paymentConfirm.index.headline.success")
+                : t("license.paymentConfirm.index.headline.failure")
             }
             subHeading={
               success
-                ? t("paymentConfirm.index.subHeadline.success")
-                : t("paymentConfirm.index.subHeadline.failure")
+                ? t("license.paymentConfirm.index.subHeadline.success")
+                : t("license.paymentConfirm.index.subHeadline.failure")
             }
           />
           {/* Response fields */}
           <div className="bg-gray-50 rounded-lg p-6 mt-8 shadow">
             <div className="flex justify-between text-xl font-semibold">
-              <span>{t("paymentConfirm.index.amountLabel") + ": "}</span>
+              <span>{t("license.paymentConfirm.index.amountLabel") + ": "}</span>
               <div className="flex flex-col items-end leading-tight">
                 <span>{formatAmount(data.amount, t)}</span>
                 <span className="text-xs font-light italic">
-                  {t("paymentConfirm.index.taxLabel")}
+                  {t("license.paymentConfirm.index.taxLabel")}
                 </span>
               </div>
             </div>
@@ -79,48 +79,48 @@ export default function PaymentConfirm() {
             <div className="space-y-2.5 text-gray-700">
               <div className="flex justify-between">
                 <span className="font-semibold">
-                  {t("paymentConfirm.index.nameLabel") + ": "}
+                  {t("license.paymentConfirm.index.nameLabel") + ": "}
                 </span>
                 <span>{data.name}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-semibold">
-                  {t("paymentConfirm.index.ibanLabel") + ": "}
+                  {t("license.paymentConfirm.index.ibanLabel") + ": "}
                 </span>
                 <span>{formatIban(data.iban)}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-semibold">
-                  {t("paymentConfirm.index.bicLabel") + ": "}
+                  {t("license.paymentConfirm.index.bicLabel") + ": "}
                 </span>
                 <span>
                   {data.bic ? (
                     formatBic(data.bic)
                   ) : (
-                    <em>{t("paymentConfirm.index.bicOptional")}</em>
+                    <em>{t("license.paymentConfirm.index.bicOptional")}</em>
                   )}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-semibold">
-                  {t("paymentConfirm.index.applicationIdLabel") + ": "}
+                  {t("license.paymentConfirm.index.applicationIdLabel") + ": "}
                 </span>
                 <span>{data.application_id}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-semibold">
-                  {t("paymentConfirm.index.paymentIdLabel") + ": "}
+                  {t("license.paymentConfirm.index.paymentIdLabel") + ": "}
                 </span>
                 <span>{data.payment_id}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-semibold">
-                  {t("paymentConfirm.index.dateLabel") + ": "}
+                  {t("license.paymentConfirm.index.dateLabel") + ": "}
                 </span>
                 <span>{formatDateLong(Date.now().toString(), t)}</span>
               </div>
@@ -134,8 +134,8 @@ export default function PaymentConfirm() {
             className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90"
           >
             {success
-              ? t("paymentConfirm.index.leaveButtonLabel.success")
-              : t("paymentConfirm.index.leaveButtonLabel.failure")}
+              ? t("license.paymentConfirm.index.leaveButtonLabel.success")
+              : t("license.paymentConfirm.index.leaveButtonLabel.failure")}
           </button>
         </div>
       </div>

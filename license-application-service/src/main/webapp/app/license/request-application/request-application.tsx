@@ -421,11 +421,11 @@ export default function RequestApplication() {
           <div className="mb-4">
             <label>
               <span className="block">
-                {t("license.request.cadastraNumber.label")}{" "}
+                {t("license.request.cadastralNumber.label")}{" "}
                 <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                {t("license.request.cadastraNumber.description")}
+                {t("license.request.cadastralNumber.description")}
               </span>
             </label>
             <div className="mt-1">
@@ -435,7 +435,7 @@ export default function RequestApplication() {
                 type="text"
                 id="cadastral_number"
                 value={form.cadastral_number}
-                placeholder={t("license.request.cadastraNumber.placeholder")}
+                placeholder={t("license.request.cadastralNumber.placeholder")}
                 onChange={handleChange}
                 className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />
