@@ -527,10 +527,10 @@ export default function PaymentConfirm() {
               >
                 {t("license.paymentForm.index.cancelButtonLabel")}
               </button>
-              <p className="mt-3 font-inter text-center text-gray-600 text-xs">
+              <p className="mt-3 font-inter text-center text-gray-600 text-sm">
                 {t("license.paymentForm.index.cancelNote.label1")}
               </p>
-              <p className="mt-1 font-inter text-center text-gray-600 text-xs">
+              <p className="mt-1 font-inter text-center text-gray-600 text-sm">
                 {t("license.paymentForm.index.cancelNote.label2")}
               </p>
             </div>
