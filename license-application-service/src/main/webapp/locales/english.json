@@ -104,7 +104,9 @@
     "request": {
       "headline": "Forgot Password",
       "subheadline": "Enter your registered email to receive a link to reset your password",
-      "resetPasswordBtn": "Reset Password"
+      "resetPasswordBtn": "Reset Password",
+      "emailNotRegistered": "This email is not registered",
+      "genericError": "Something went wrong. Please try again later."
     },
     "confirmation": {
       "headline": "Sent !",
