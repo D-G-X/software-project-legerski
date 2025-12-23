@@ -49,7 +49,7 @@ public class ApplicationsController implements ApplicationsApi {
   @Transactional
   public ResponseEntity<ApplicationResource> createApplication(
       ApplicationCreate applicationCreate) {
-    if (applicationCreate != null || applicationCreate.getUserId() == null
+    if (applicationCreate == null || applicationCreate.getUserId() == null
         || applicationCreate.getLicenseType() == null) {
       return ResponseEntity.badRequest().build();
     }
