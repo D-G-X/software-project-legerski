@@ -23,7 +23,7 @@ LANGUAGES = {
   "indonesian": "id-ID",
 }
 
-LOCALE_PATH = "./src/main/webapp/locales"
+LOCALE_PATH = "../src/main/webapp/locales"
 SOURCE_FILE = "english.json"
 
 
