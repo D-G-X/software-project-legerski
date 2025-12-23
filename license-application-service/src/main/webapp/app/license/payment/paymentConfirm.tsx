@@ -10,17 +10,7 @@ import {
   formatDateLong,
   formatIban,
 } from "../../common/format";
-
-type Props = {
-  payment_id: number;
-  application_id: number;
-  amount: number;
-  name: string;
-  iban: string;
-  bic: string;
-  payment_date: string;
-  payment_status: string;
-};
+import {StateProps} from "./paymentForm";
 
 export default function PaymentConfirm() {
   const { t } = useTranslation();
@@ -33,7 +23,7 @@ export default function PaymentConfirm() {
 
   if (!state) return null;
 
-  const data: Props = state;
+  const data: StateProps = state;
   const success = data.payment_status === "UNPAID";
 
   useDocumentTitle(t("license.paymentConfirm.title"));
@@ -76,6 +66,13 @@ export default function PaymentConfirm() {
 
             <hr className="my-4 border-gray-300" />
 
+            <div className="flex justify-between">
+                <span className="font-semibold">
+                  {t("license.paymentConfirm.index.paymentIdLabel") + ": "}
+                </span>
+              <span>{data.payment_id}</span>
+            </div>
+
             <div className="space-y-2.5 text-gray-700">
               <div className="flex justify-between">
                 <span className="font-semibold">
@@ -106,6 +103,15 @@ export default function PaymentConfirm() {
 
               <div className="flex justify-between">
                 <span className="font-semibold">
+                  {t("license.paymentConfirm.index.dateLabel") + ": "}
+                </span>
+                <span>{formatDateLong(Date.now(), t)}</span>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-6 mt-8 shadow">
+              <div className="flex justify-between">
+                <span className="font-semibold">
                   {t("license.paymentConfirm.index.applicationIdLabel") + ": "}
                 </span>
                 <span>{data.application_id}</span>
@@ -113,16 +119,16 @@ export default function PaymentConfirm() {
 
               <div className="flex justify-between">
                 <span className="font-semibold">
-                  {t("license.paymentConfirm.index.paymentIdLabel") + ": "}
+                  {t("license.paymentConfirm.index.cadastralIdLabel") + ": "}
                 </span>
-                <span>{data.payment_id}</span>
+                <span>{data.cadastral_reference}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-semibold">
-                  {t("license.paymentConfirm.index.dateLabel") + ": "}
+                  {t("license.paymentConfirm.index.licenseTypeLabel") + ": "}
                 </span>
-                <span>{formatDateLong(Date.now().toString(), t)}</span>
+                <span>{data.license_type}</span>
               </div>
             </div>
           </div>

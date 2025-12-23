@@ -13,7 +13,6 @@ import {
 } from "app/services/payments/payments";
 import ModalDialog from "../../common/modal-dialog";
 import { useNavigate, useParams } from "react-router";
-import { AnimatedDots } from "../../common/AnimatedDots";
 import { useGetApplication } from "app/services/applications/applications";
 import {
   formatAmount,
@@ -24,6 +23,19 @@ import {
 import { ApplicationPaymentCreate } from "../../../types";
 import { AuthContext } from "app/common/AuthContext";
 import axios from "axios";
+
+export type StateProps = {
+  amount: number | null | undefined;
+  payment_id: number;
+  application_id: number;
+  cadastral_reference: string | undefined;
+  license_type: string | undefined;
+  name: string;
+  iban: string;
+  bic: string;
+  payment_date: string;
+  payment_status: string;
+};
 
 export default function PaymentConfirm() {
   const { t } = useTranslation();
@@ -237,17 +249,24 @@ export default function PaymentConfirm() {
       //   throw new Error("Response data mismatch");
       // }
 
+      const stateData: StateProps = {
+        amount: amount,
+        application_id: applicationId,
+        cadastral_reference: applicationDetails?.cadastral_reference,
+        license_type: applicationDetails?.license_type,
+        payment_id: response.data.id,
+        payment_date: response.data.payment_date ?? Date.now().toString(),
+        payment_status: response.data.payment_status,
+        name: normalizedName,
+        iban: normalizedIban,
+        bic: normalizedBic,
+      };
+
       navigate(`/payment/${applicationId}/done`, {
         state: {
-          application_id: applicationId,
-          payment_id: response.data.id,
-          payment_date: response.data.payment_date ?? Date.now().toString(),
-          payment_status: response.data.payment_status,
-          name: normalizedName,
-          iban: normalizedIban,
-          bic: normalizedBic,
-          amount,
-        },
+          ...stateData,
+        }
+
       });
     } catch (err) {
       setErrors((prev) => ({ ...prev, pay: "Payment failed" }));
@@ -261,7 +280,7 @@ export default function PaymentConfirm() {
   return (
     <div className="container mx-auto px-4 md:px-6">
       <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
-        {!loading ? (
+        {!loading && (
           <div className="font-inter min-w-96">
             <FormHeader
               heading={t("license.paymentForm.index.headline")}
@@ -534,17 +553,6 @@ export default function PaymentConfirm() {
                 {t("license.paymentForm.index.cancelNote.label2")}
               </p>
             </div>
-          </div>
-        ) : (
-          <div className="font-inter text-center">
-            {/* Loading Screen */}
-            <div className="w-16 h-16 border-6 border-gray-200 border-t-mallorca-purple rounded-full animate-spin mx-auto" />
-            <p className="mt-6 font-light text-xl text-gray-600 relative inline-block">
-              {t("license.paymentForm.processing")}
-              <span className="absolute left-full">
-                <AnimatedDots speed={400} />
-              </span>
-            </p>
           </div>
         )}
       </div>
