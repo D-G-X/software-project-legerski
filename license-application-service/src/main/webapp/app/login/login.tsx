@@ -57,17 +57,17 @@ export default function Login() {
 
   const handleSubmit = async () => {
     const emailValidateResult: validateResults = isValidEmail(form.email);
-    const passwordValidateResult: validateResults = isValidPassword(
-      form.password
-    );
+    // const passwordValidateResult: validateResults = isValidPassword(
+    //   form.password
+    // );
     let newErrors = { email: "", password: "", login: "" };
 
     if (!emailValidateResult.isValid) {
       newErrors.email = emailValidateResult.message;
     }
-    if (!passwordValidateResult.isValid) {
-      newErrors.password = passwordValidateResult.message;
-    }
+    // if (!passwordValidateResult.isValid) {
+    //   newErrors.password = passwordValidateResult.message;
+    // }
 
     if (newErrors.email || newErrors.password) {
       setErrors(newErrors);
