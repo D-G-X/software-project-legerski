@@ -5,7 +5,8 @@ import { Upload } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { useGetApplication } from "app/services/applications/applications";
 import { AuthContext } from "app/common/AuthContext";
-import {isValidFile} from "../../common/validationRules";
+import { useGlobalLoader } from "app/common/GlobalLoader";
+import { isValidFile } from "../../common/validationRules";
 
 interface DocUploadForm {
   id_proof: File | null;
@@ -63,7 +64,7 @@ export default function ApplicationDocumentUpload() {
     }));
   };
 
-  const { refetch } = useGetApplication(Number(applicationID), {
+  const applicationQuery = useGetApplication(Number(applicationID), {
     query: {
       enabled: false,
     },
@@ -73,6 +74,13 @@ export default function ApplicationDocumentUpload() {
       },
     },
   });
+
+  const { show, hide } = useGlobalLoader();
+
+  React.useEffect(() => {
+    if (applicationQuery.isFetching) show();
+    else hide();
+  }, [applicationQuery.isFetching, show, hide]);
 
   const handleSubmit = async () => {
     const newErrors: DocUploadErrors = { id_proof: "", address_proof: "" };
@@ -112,7 +120,7 @@ export default function ApplicationDocumentUpload() {
         );
       }
 
-      const applcationDetails = await refetch();
+      const applcationDetails = await applicationQuery.refetch();
 
       // Navigate to payment
       // have to add new status, for now the below if else will always return successful verification of documents
@@ -132,6 +140,8 @@ export default function ApplicationDocumentUpload() {
       }
     } catch (err) {
       alert(t("license.document_upload.error"));
+    } finally {
+      hide();
     }
   };
 

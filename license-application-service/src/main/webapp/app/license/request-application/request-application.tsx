@@ -11,6 +11,7 @@ import useDocumentTitle from "app/common/use-document-title";
 import { Link, useNavigate, useParams } from "react-router";
 import { AuthContext } from "app/common/AuthContext";
 import { getUserIdFromToken } from "app/common/authTokenDecode";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 import {
   useCreateApplication,
   useGetApplication,
@@ -75,6 +76,13 @@ export default function RequestApplication() {
       },
     },
   });
+
+  const { show, hide } = useGlobalLoader();
+
+  useEffect(() => {
+    if (userDetails.isFetching || applicationDetails.isFetching) show();
+    else hide();
+  }, [userDetails.isFetching, applicationDetails.isFetching, show, hide]);
 
   useEffect(() => {
     if (!userDetails.data) return;
@@ -266,6 +274,7 @@ export default function RequestApplication() {
     });
 
     try {
+      show();
       const response = await createApplication.mutateAsync({
         data: {
           user_id: userID,
@@ -322,6 +331,8 @@ export default function RequestApplication() {
           break;
       }
       return false;
+    } finally {
+      hide();
     }
   };
 
