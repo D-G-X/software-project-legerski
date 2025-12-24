@@ -69,14 +69,38 @@ export default function Profile() {
   }, [response.data]);
 
   const updateUserMutation = useUpdateUser({
-    axios: { headers: { Authorization: `Bearer ${auth?.accessToken}` } },
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+    },
     mutation: {
       onSuccess: () => {
-        alert("User details updated successfully!");
+        // 204 No Content → still treated as success
+        alert(t("updateProfile.alerts.success"));
       },
-      onError: (err: UpdateUserMutationError) => {
-        console.error(err);
-        alert("Failed to update user details.");
+      onError: (error: UpdateUserMutationError) => {
+        const status = error?.response?.status;
+
+        switch (status) {
+          case 400:
+            alert(t("updateProfile.alerts.invalidRequest"));
+            break;
+
+          case 401:
+            alert(t("updateProfile.alerts.unauthorized"));
+            break;
+
+          case 404:
+            alert(t("updateProfile.alerts.userNotFound"));
+            break;
+
+          default:
+            alert(t("updateProfile.alerts.failed"));
+            break;
+        }
+
+        console.error(error);
       },
     },
   });
