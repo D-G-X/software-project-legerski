@@ -1,17 +1,22 @@
+import argparse
 import json
 import os
 import re
+import sys
 import time
 
 from dotenv import load_dotenv
 from openai import OpenAI
+from ollama import chat
 
 load_dotenv()
 
 # TODO: Store OpenAI API key in .env file as OPENAI_API_KEY
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+USE_REMOTE_BACKEND = 0
 GPT_MODEL = "gpt-5-mini"
+MISTRAL_MODEL = "mistral-12k"
 MAX_RETRIES = 3
 
 # Mapping of target languages to their respective locale codes
@@ -50,12 +55,21 @@ JSON:
 
   for attempt in range(1, MAX_RETRIES + 1):
     try:
-      response = client.responses.create(
-        model=GPT_MODEL,
-        input=prompt,
-      )
-
-      return safe_json_load(response.output_text)
+      if USE_REMOTE_BACKEND:
+        response = client.responses.create(
+          model=GPT_MODEL,
+          input=prompt,
+        )
+        return safe_json_load(response.output_text)
+      else:
+        response = chat(
+          model=MISTRAL_MODEL,
+          messages=[
+            {"role": "user", "content": prompt}
+          ],
+          options={"num_ctx": 12288, "temperature": 0.1},
+        )
+        return safe_json_load(response["message"]["content"])
 
     except Exception as e:
       last_error = e

@@ -1,0 +1,6 @@
+FROM mistral
+
+PARAMETER num_ctx 12288
+PARAMETER temperature 0.1
+PARAMETER top_p 0.9
+PARAMETER repeat_penalty 1.1
