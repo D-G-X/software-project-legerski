@@ -1,7 +1,7 @@
 type Unit = "second" | "minute" | "hour" | "day" | "month" | "year";
 
-export const formatAmount = (raw: number | undefined, t: any): string => {
-  if (raw === undefined) return "";
+export const formatAmount = (raw: number | undefined | null, t: any): string | null => {
+  if (!raw) return null;
   return new Intl.NumberFormat(t("locale"), {
     style: "currency",
     currency: "EUR",
@@ -27,7 +27,7 @@ export const formatBic = (raw: string | undefined): string => {
   return raw.replace(/\s+/g, "").toUpperCase();
 };
 
-export const formatDate = (raw: string | undefined, t: any): string => {
+export const formatDateLong = (raw: string | number | undefined, t: any): string => {
   if (raw === undefined || raw === "") return "";
   return new Date(raw).toLocaleString(t("locale"), {
     day: "2-digit",
@@ -36,6 +36,15 @@ export const formatDate = (raw: string | undefined, t: any): string => {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+  });
+};
+
+export const formatDateShort = (raw: string | number | undefined, t: any): string => {
+  if (raw === undefined || raw === "") return "";
+  return new Date(raw).toLocaleString(t("locale"), {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
 };
 

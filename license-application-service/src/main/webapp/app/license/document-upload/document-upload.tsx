@@ -1,11 +1,11 @@
 import React, { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
-import "./document-upload.css";
 import { Upload } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { useGetApplication } from "app/services/applications/applications";
 import { AuthContext } from "app/common/AuthContext";
+import {isValidFile} from "../../common/validationRules";
 
 interface DocUploadForm {
   id_proof: File | null;
@@ -36,29 +36,18 @@ export default function ApplicationDocumentUpload() {
     address_proof: "",
   });
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB in bytes
-  const ALLOWED_TYPES = ["application/pdf"];
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, files } = e.target;
     if (!files || files.length === 0) return;
 
     const file = files[0];
 
-    if (!file) return;
+    const fileVal = isValidFile(file);
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    if (!fileVal.isValid) {
       setErrors((prev) => ({
         ...prev,
-        [id]: t("license.document_upload.input.fileTypeError"),
-      }));
-      return;
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      setErrors((prev) => ({
-        ...prev,
-        [id]: t("license.document_upload.input.fileSizeError"),
+        [id]: fileVal.message,
       }));
       return;
     }

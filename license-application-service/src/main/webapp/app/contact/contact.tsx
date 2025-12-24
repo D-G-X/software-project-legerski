@@ -5,7 +5,7 @@ import { FormHeader } from "../common/headingTitle";
 import { Mail, MapPin, Phone } from "lucide-react";
 
 export default function ContactPage() {
-  const { t } = useTranslation("contact");
+  const { t } = useTranslation("translation", { keyPrefix: "contact" });
   const navigate = useNavigate();
 
   return (

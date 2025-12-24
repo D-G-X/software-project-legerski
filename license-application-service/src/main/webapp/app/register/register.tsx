@@ -9,7 +9,6 @@ import {
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
-import "./register.css";
 import { OrDivider } from "app/common/orDivider";
 import { useRegisterUser } from "../services/authentication/authentication";
 import { useNavigate } from "react-router";

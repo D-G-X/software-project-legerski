@@ -108,6 +108,42 @@ paths:
         "401":
           description: Unauthorized - invalid or expired refresh token
 
+  /reset-password:
+    post:
+      tags: [Authentication]
+      summary: Request password reset
+      description: Initiate a password reset process for a user by email.
+      operationId: requestPasswordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        "201":
+          description: Password reset email sent
+        "404":
+          description: User with the given email not found
+
+  /change-password:
+    post:
+      tags: [Authentication]
+      summary: Change user password
+      description: Change the password for an authenticated user.
+      operationId: changeUserPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "201":
+          description: Password changed successfully
+        "400":
+          description: Bad request - invalid input data
+
   /users:
     get:
       tags: [Users]
@@ -706,6 +742,22 @@ paths:
                     type: string
                     example: "The specified start and end dates overlap with an existing ballot period."
 
+
+  /ballot-periods/current:
+    get:
+      tags: [ Ballot Periods ]
+      summary: Get date of current or upcoming ballot period
+      description: Retrieve the start and end dates of the current or next ballot period.
+      operationId: getBallotPeriod
+      responses:
+        "200":
+          description: Current or upcoming ballot period
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentBallotPeriodResource"
+
+
   /ballot-periods/{period_id}:
     get:
       tags: [Ballot Periods]
@@ -1119,6 +1171,31 @@ components:
           type: string
           description: Confirmation message.
           example: User registered successfully. Please verify your email to activate the account.
+
+    ResetPasswordRequest:
+      type: object
+      description: Request payload for initiating a password reset.
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address associated with the user account.
+          example: john.doe@example.com
+
+    ChangePasswordRequest:
+      type: object
+      description: Request payload for changing the user's password.
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address.
+          example: john.doe@example.com
+        new_password:
+          type: string
+          format: password
+          description: User's new desired password.
+          example: newsecurepassword456
 
     UserResource:
       type: object
@@ -1601,6 +1678,18 @@ components:
         ballot_period_id:
           type: integer
           description: Unique identifier for the ballot period
+        start_date:
+          type: string
+          format: date-time
+          description: Ballot period start, ISO 8601 format
+        end_date:
+          type: string
+          format: date-time
+          description: Ballot period end, ISO 8601 format
+
+    CurrentBallotPeriodResource:
+      type: object
+      properties:
         start_date:
           type: string
           format: date-time

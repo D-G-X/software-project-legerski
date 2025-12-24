@@ -5,8 +5,8 @@ import Home from "./home/home";
 import Error from "./error/error";
 import Login from "./login/login";
 import Register from "./register/register";
-import PaymentForm from "./payment/paymentForm";
-import PaymentConfirm from "./payment/paymentConfirm";
+import PaymentForm from "./license/payment/paymentForm";
+import PaymentConfirm from "./license/payment/paymentConfirm";
 import ForgotPasswordRequest from "./forgot-password/request";
 import ResetPassword from "./forgot-password/reset";
 import RequestApplication from "./license/request-application/request-application";
@@ -52,36 +52,36 @@ export default function AppRoutes() {
         {
           path: "license-application-request/:type/:id",
           element: <RequestApplication />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           path: "license-application-request",
           element: <RequestApplication />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           path: "license-document-upload/:id",
           element: <ApplicationDocumentUpload />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           path: "payment/:id",
           element: <PaymentForm />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           path: "payment/:id/done",
           element: <PaymentConfirm />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           element: <Profile />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user", "admin"]),
         },
         {
           path: "deleteProfile",
           element: <DeleteProfile />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
 
         // Admin-only routes

@@ -85,6 +85,19 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     }
 
     @Override
+    public ResponseEntity<CurrentBallotPeriodResource> getBallotPeriod() {
+        BallotPeriodRecord ballotPeriodRecord = dslContext.selectFrom(BallotPeriod.BALLOT_PERIOD)
+            .orderBy(BallotPeriod.BALLOT_PERIOD.ID.desc())
+            .limit(1)
+            .fetchOneInto(BallotPeriodRecord.class);
+
+        CurrentBallotPeriodResource currentBallotPeriodResource = new CurrentBallotPeriodResource();
+        RecordToResourceMapperUtil.mapCurrentBallotPeriodRecordToResource(ballotPeriodRecord, currentBallotPeriodResource);
+
+        return ballotPeriodRecord != null ? ResponseEntity.ok(currentBallotPeriodResource) : ResponseEntity.notFound().build();
+    }
+
+    @Override
     @AdminOnly
     public ResponseEntity<BallotPeriodResource> getBallotPeriodDetails(Integer periodId) {
         if (periodId == null || periodId <= 0) {

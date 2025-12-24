@@ -1,155 +1,111 @@
-import React, {useState} from "react";
-import { useTranslation } from "react-i18next";
+import React, {useContext, useState} from "react";
+import {useTranslation} from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
-import "./admin-dashboard.css";
 import Pagination from "../common/Pagination";
-import { Link, useNavigate } from "react-router";
-import ApplicationDetails from "../dashboard/applicationDetails";
+import {Link, useNavigate} from "react-router";
 import {ApplicationResource} from "../../types";
-// import { useListApplications } from "app/services/applications/applications";
-// import { ApplicationResource } from "../../types";
+import AdminApplicationDetails from "./admin-applicationDetails";
+import {AuthContext} from "../common/AuthContext";
+import {useGetBallotPeriodEntries} from "../services/ballot-periods/ballot-periods";
+import {formatDateShort} from "../common/format";
+
+function getApplicationsForBallotPeriod(periodId: number | undefined) {
+  if(!periodId) return;
+  const auth = useContext(AuthContext);
+  const {data: response} = useGetBallotPeriodEntries(periodId,
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
+  );
+  return response;
+}
 
 export default function AdminDashboard() {
 
-    const { t } = useTranslation();
-    const navigate = useNavigate();
-    const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | null>(null);
-    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
-    useDocumentTitle(t("home.index.headline"));
+  const {t} = useTranslation();
+  const navigate = useNavigate();
+  const [selectedEntry, setSelectedEntry] = useState<ApplicationResource | undefined>(undefined);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  useDocumentTitle(t("home.index.headline"));
 
-    const openDetails = (entry: ApplicationResource) => {
-        setSelectedEntry(entry);
-        setIsDetailsOpen(true);
-    };
+  const openDetails = (entry: ApplicationResource) => {
+    setSelectedEntry(entry);
+    setIsDetailsOpen(true);
+  };
 
-    const closeDetails = () => {
-        setIsDetailsOpen(false);
-        setSelectedEntry(null);
-    };
+  const closeDetails = () => {
+    setIsDetailsOpen(false);
+    setSelectedEntry(undefined);
+  };
 
-    // const { data: response } = useListApplications({
-    //     user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-    // });
+  const response = getApplicationsForBallotPeriod(1) // TODO: replace with actual period ID
+  const applications: ApplicationResource[] = Array.isArray(response?.data)
+      ? response.data
+      : [];
 
-    // const applications: ApplicationResource[] = Array.isArray(response?.data)
-    //     ? response.data
-    //     : [];
+  function handleNewApplicationClick() {
+    navigate(`/login`);
+  }
 
+  const totalPage = Math.ceil(applications.length / itemsPerPage);
 
-
-
-    const formatDate = (rawDate: string | undefined) => {
-        if (!rawDate) return "";
-        return new Date(rawDate).toLocaleString(t("locale"), {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    };
-
-    function handleNewApplicationClick() {
-        navigate(`/login`);
-    }
-
-    const localData: ApplicationResource[] =
-      [
-        {
-          id: 201,
-          user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-          license_type: "ETVPL",
-          cadastral_reference: "1234567AB9999C0001DE",
-          applied_at: "2025-03-12T09:15:00Z",
-          changed_at: "2025-03-18T14:32:00Z",
-          application_status: "DRAFT",
-          remarks: "Application draft saved but not submitted."
-        },
-        {
-          id: 202,
-          user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-          license_type: "ETV60",
-          cadastral_reference: "1234567AB9999C0001DE",
-          applied_at: "2025-02-28T11:00:00Z",
-          changed_at: "2025-03-05T15:20:00Z",
-          application_status: "DOCUMENTS_SUBMITTED",
-          remarks: "All required documents successfully uploaded."
-        },
-        {
-          id: 203,
-          user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
-          license_type: "ETV",
-          cadastral_reference: "1234567AB9999C0001DE",
-          applied_at: "2025-04-01T08:40:00Z",
-          changed_at: "2025-04-06T16:05:00Z",
-          application_status: "VERIFICATION_PENDING",
-          remarks: "Documents received and awaiting verification."
-        }
-      ];
+  const currentData = applications.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+  );
 
 
+  return (
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
+          <div className="font-inter flex flex-col w-full mt-4">
+            <h1 className="text-3xl font-bold text-mallorca-purple text-left">{t("admin-dashboard.headline")}</h1>
+            <div className={"flex justify-between mt-2"}>
+              <Link to={"/login"}
+                    className={"text-green-500"}>{t("admin-dashboard.links.active_requests")}</Link>
+              <button onClick={handleNewApplicationClick}
+                      className={"text-blue-500 underline"}>{t("admin-dashboard.links.ballot_management")}</button>
+            </div>
 
-    const totalPage = Math.ceil(localData.length / itemsPerPage);
+            {currentData.length > 0 && (
+                <div className="mt-16 w-full">
+                  <h1 className="font-bold text-xl text-mallorca-purple">
+                    {t("dashboard.title")}
+                  </h1>
 
-    const currentData = localData.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
-
-    return (
-        <div className="container mx-auto px-4 md:px-6">
-            <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
-                <div className="font-inter flex flex-col w-full mt-4">
-                    <h1 className="text-3xl font-bold text-mallorca-purple text-left">{t("admin-dashboard.headline")}</h1>
-                    <div className={"flex justify-between mt-2"}>
-                        <Link to={"/login"} className={"text-green-500"}>{t("admin-dashboard.links.active_requests")}</Link>
-                        <button onClick={handleNewApplicationClick} className={"text-blue-500 underline"}>{t("admin-dashboard.links.ballot_management")}</button>
-                    </div>
-
-                    {/*<button*/}
-                    {/*    type="button"*/}
-                    {/*    className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 w-max"*/}
-                    {/*    onClick={handleNewApplicationClick}*/}
-                    {/*>*/}
-                    {/*    {t("dashboard.buttonLabel")}*/}
-                    {/*</button>*/}
-
-                    {currentData.length > 0 && (
-                        <div className="mt-16 w-full">
-                            <h1 className="font-bold text-xl text-mallorca-purple">
-                                {t("dashboard.title")}
-                            </h1>
-
-                            <div className="overflow-x-auto">
-                                <table className="mt-8 text-lg dashboard-table text-mallorca-purple">
-                                    <thead>
-                                    <tr>
-                                        <th>{t("admin-dashboard.table.requester_name")}</th>
-                                        <th>{t("admin-dashboard.table.address")}</th>
-                                        <th>{t("admin-dashboard.table.phone_number")}</th>
-                                        <th>{t("admin-dashboard.table.email")}</th>
-                                        <th>{t("admin-dashboard.table.country")}</th>
-                                        <th>{t("admin-dashboard.table.status")}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {currentData.map((item) => (
-                                        <tr key={item.id}>
-                                            <td>{item.user_id}</td>
-                                            <td>{item.license_type}</td>
-                                            <td>{item.cadastral_reference}</td>
-                                            <td>{formatDate(item.applied_at)}</td>
-                                            <td>{formatDate(item.changed_at)}</td>
-                                            <td>{item.application_status}</td>
-                                          {(item.remarks && (
-                                              <td>{item.remarks}</td>
-                                          ))}
-                                            <td>
+                  <div className="overflow-x-auto">
+                    <table className="mt-8 text-lg dashboard-table text-mallorca-purple">
+                      <thead>
+                      <tr>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.requester_name")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.address")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.phone_number")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.email")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.country")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.status")}</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      {currentData.map((item) => (
+                          <tr key={item.id}>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.user_id}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.license_type}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.cadastral_reference}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{formatDateShort(item.applied_at, t)}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{formatDateShort(item.changed_at, t)}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.application_status}</td>
+                            {(item.remarks && (
+                                <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.remarks}</td>
+                            ))}
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >
                         <span
-                            className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[14rem] rounded-md ${
+                            className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-56 rounded-md ${
                                 // green
                                 ["SELECTED", "PAYMENT_RECEIVED"].includes(
                                     item.application_status
@@ -157,11 +113,11 @@ export default function AdminDashboard() {
                                     ? "text-green-800 bg-green-200"
                                     : // blue
                                     ["SUBMITTED",
-                                        "UNDER_REVIEW",
-                                        "AWAITING_PAYMENT",
-                                        "APPROVED",
-                                        "IN_BALLOT",]
-                                        .includes(item.application_status)
+                                      "UNDER_REVIEW",
+                                      "AWAITING_PAYMENT",
+                                      "APPROVED",
+                                      "IN_BALLOT",]
+                                    .includes(item.application_status)
                                         ? "text-blue-800 bg-blue-200"
                                         :
                                         ["CANCELLED", "REJECTED", "NOT_SELECTED",].includes(
@@ -181,51 +137,51 @@ export default function AdminDashboard() {
                           {t(
                               "dashboard.licenceStatus." +
                               item.application_status
-                                  .toLowerCase()
-                                  .replace(/_([a-z])/g, (_, c) => c.toUpperCase()) // Camel case
+                              .toLowerCase()
+                              .replace(/_([a-z])/g, (_, c) => c.toUpperCase()) // Camel case
                           )}
                         </span>
-                                            </td>
-                                          <td>
-                                            <button
-                                                key={item.id}
-                                                onClick={() => openDetails(item)}
-                                                className="text-mallorca-purple underline"
-                                            >
-                                              {t("dashboard.table.action.value")}
-                                            </button>
-                                          </td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
+                            </td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-[10px]" >
+                              <button
+                                  key={item.id}
+                                  onClick={() => openDetails(item)}
+                                  className="text-mallorca-purple underline"
+                              >
+                                {t("dashboard.table.action.value")}
+                              </button>
+                            </td>
+                          </tr>
+                      ))}
+                      </tbody>
+                    </table>
 
-                                <div className="my-8" />
+                    <div className="my-8"/>
 
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalPage={totalPage}
-                                    onPageChange={setCurrentPage}
-                                    start={(currentPage - 1) * itemsPerPage + 1}
-                                    end={currentPage * itemsPerPage}
-                                    numberOfItems={localData.length}
-                                />
-                            </div>
-                        </div>
-                    )}
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPage={totalPage}
+                        onPageChange={setCurrentPage}
+                        start={(currentPage - 1) * itemsPerPage + 1}
+                        end={currentPage * itemsPerPage}
+                        numberOfItems={applications.length}
+                    />
+                  </div>
                 </div>
-            </div>
-            <div>
-            {/* Application Details Modal */}
-            {isDetailsOpen && (
-                <ApplicationDetails
-                    open={isDetailsOpen}
-                    applicationData={selectedEntry}
-                    onClose={closeDetails}
-                    onRenew={handleNewApplicationClick}
-                />
             )}
-            </div>
+          </div>
         </div>
-    );
+        <div>
+          {/* Application Details Modal */}
+          {isDetailsOpen && (
+              <AdminApplicationDetails
+                  open={isDetailsOpen}
+                  userId={selectedEntry?.user_id}
+                  applicationData={selectedEntry}
+                  onClose={closeDetails}
+              />
+          )}
+        </div>
+      </div>
+  );
 }

@@ -4,10 +4,10 @@ import {
   isValidCadastralNumber,
   isValidEmail,
   isValidName,
+  isValidOptionalText,
 } from "../../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
-import "./request-application.css";
 import { Link, useNavigate, useParams } from "react-router";
 import { AuthContext } from "app/common/AuthContext";
 import { getUserIdFromToken } from "app/common/authTokenDecode";
@@ -197,6 +197,8 @@ export default function RequestApplication() {
     const cadastralNumValidateResult: validateResults = isValidCadastralNumber(
       form.cadastral_number
     );
+    const additionalCommentsResult: validateResults = isValidOptionalText(form.additional_comments);
+
     if (!firstNameValidateResult.isValid) {
       newErrors.first_name = firstNameValidateResult.message;
     }
@@ -208,8 +210,13 @@ export default function RequestApplication() {
     if (!emailValidateResult.isValid) {
       newErrors.email = emailValidateResult.message;
     }
+
     if (!cadastralNumValidateResult.isValid) {
       newErrors.cadastral_number = cadastralNumValidateResult.message;
+    }
+
+    if(!additionalCommentsResult.isValid){
+      newErrors.additional_comments = additionalCommentsResult.message;
     }
 
     if (!form.rental_license_type) {
@@ -236,6 +243,7 @@ export default function RequestApplication() {
       newErrors.email ||
       newErrors.cadastral_number ||
       newErrors.rental_license_type ||
+      newErrors.additional_comments ||
       newErrors.consent_legal_data ||
       newErrors.consent_personal_data
     ) {
@@ -413,11 +421,11 @@ export default function RequestApplication() {
           <div className="mb-4">
             <label>
               <span className="block">
-                {t("license.request.cadastraNumber.label")}{" "}
+                {t("license.request.cadastralNumber.label")}{" "}
                 <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                {t("license.request.cadastraNumber.description")}
+                {t("license.request.cadastralNumber.description")}
               </span>
             </label>
             <div className="mt-1">
@@ -427,7 +435,7 @@ export default function RequestApplication() {
                 type="text"
                 id="cadastral_number"
                 value={form.cadastral_number}
-                placeholder={t("license.request.cadastraNumber.placeholder")}
+                placeholder={t("license.request.cadastralNumber.placeholder")}
                 onChange={handleChange}
                 className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />

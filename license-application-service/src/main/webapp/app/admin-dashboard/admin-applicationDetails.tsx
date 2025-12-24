@@ -1,126 +1,184 @@
-import React from "react";
+import React, {useContext, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {FormHeader} from "app/common/headingTitle";
 import {
   ApplicationPaymentResource,
   ApplicationResource,
   GetApplicationDocuments200,
-  LicenseResource
+  LicenseResource,
 } from "../../types";
 import {Minimize2} from "lucide-react";
-import "./admin-applicationDetails.css";
 import {useListPayments} from "../services/payments/payments";
-import {useGetLicense, useListLicenses} from "../services/licenses/licenses";
+import {useDeleteLicense, useGetLicense, useListLicenses} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
-import {formatAmount, formatBic, formatDate, formatIban} from "../common/format";
-import {AxiosError} from "axios";
-import {AnimatedDots} from "../common/AnimatedDots";
+import {formatAmount, formatBic, formatDateLong, formatIban} from "../common/format";
+import ConfirmPopup from "../common/confirmPopup";
+import {useQueryClient} from "@tanstack/react-query";
+import {AuthContext} from "../common/AuthContext";
 
 interface ApplicationDetailsProps {
   open: boolean;
-  applicationData: ApplicationResource | null;
+  userId: string | undefined;
+  applicationData: ApplicationResource | undefined;
   onClose: () => void;
 }
 
-type LicenseDataResult = {
-  data: LicenseResource | null;
-  isFound: boolean;
-  isLoading: boolean;
-};
+const SHOW_LICENSE_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"] as const;
 
-type DocumentDataResult = {
-  data: GetApplicationDocuments200 | null;
-  isFound: boolean;
-  isLoading: boolean;
-};
+const SHOW_DOCUMENT_STATUSES = [
+  "SELECTED",
+  "PAYMENT_RECEIVED",
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "AWAITING_PAYMENT",
+  "APPROVED",
+  "IN_BALLOT",
+  "CANCELLED",
+  "REJECTED",
+  "NOT_SELECTED",
+  "DOCUMENTS_SUBMITTED",
+  "VERIFICATION_PENDING"
+] as const;
 
-type PaymentDataResult = {
-  data: ApplicationPaymentResource | null;
-  isFound: boolean;
-  isLoading: boolean;
-}
+const SHOW_PAYMENT_STATUSES = [
+  "SELECTED",
+  "PAYMENT_RECEIVED",
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "APPROVED",
+  "IN_BALLOT",
+  "CANCELLED",
+  "REJECTED",
+  "NOT_SELECTED"
+] as const;
 
-function useGetLicenseData(userId: string, applicationId: number): LicenseDataResult {
+const BLUE_STATUSES =
+    ["SUBMITTED",
+      "UNDER_REVIEW",
+      "AWAITING_PAYMENT",
+      "APPROVED",
+      "IN_BALLOT"];
+
+const GREEN_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"]
+
+const RED_STATUSES = ["CANCELLED", "REJECTED", "NOT_SELECTED"];
+
+const GREY_STATUSES = ["DRAFT", "EXPIRED"];
+
+const ORANGE_STATUSES = ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING"];
+
+function useGetLicenseData(userId: string, applicationId: number) {
+
   const {data: listResponse} = useListLicenses({user_id: userId});
+
   const licenses = listResponse?.data ?? [];
-  // find license matching the application_id
   const matching = licenses.find(lic => lic.application_id === applicationId);
 
-  const {
-    data: licenseResponse,
-    error,
-    isLoading
-  } = useGetLicense(matching?.id ?? 0, {query: {enabled: !!matching?.id},});
+  const auth = useContext(AuthContext);
+  const {data: licenseResponse} = useGetLicense(
+      matching?.id ?? -1,
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
+  );
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
-
-  return {
-    data: licenseResponse?.data ?? null,
-    isFound,
-    isLoading
-  };
+  return licenseResponse?.data;
 }
 
-function useGetDocumentData(applicationId: number): DocumentDataResult {
-  const {
-    data: response,
-    error,
-    isLoading
-  } = useGetApplicationDocuments(applicationId);
+function useGetDocumentData(applicationId: number) {
+  const auth = useContext(AuthContext);
+  const {data: response} = useGetApplicationDocuments(
+      applicationId,
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
+  );
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
-  return {
-    data: response?.data ?? null,
-    isFound,
-    isLoading
-  };
+  return response?.data;
 }
 
-function useGetPaymentData(applicationId: number): PaymentDataResult {
-  const {
-    data: response,
-    error,
-    isLoading
-  } = useListPayments(applicationId);
+function useGetPaymentData(applicationId: number) {
+  const auth = useContext(AuthContext);
+  const {data: response} = useListPayments(
+      applicationId,
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
+  );
 
-  const isFound = (error as AxiosError | undefined)?.response?.status !== 404;
-  return {
-    data: response?.data?.[0] ?? null,
-    isFound,
-    isLoading
-  };
+  return response?.data?.[-1]; // Get the latest payment
 }
 
-export default function AdminApplicationDetails({
-                                             open,
-                                             applicationData,
-                                             onClose,
-                                           }: ApplicationDetailsProps) {
+export default function ApplicationDetailsAdmin({
+                                                  open,
+                                                  userId,
+                                                  applicationData,
+                                                  onClose,
+                                                }: ApplicationDetailsProps) {
   if (!open || !applicationData) {
-    console.log("AdminApplicationDetails: not open");
+    console.log("ApplicationDetails: not open");
     return null;
   } else {
-    console.log("AdminApplicationDetails: open");
+    console.log("ApplicationDetails: open");
   }
   const {t} = useTranslation();
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const closePopup = () => setIsPopupOpen(false);
 
-  const {
-    data: licenseData,
-    isFound: foundLicense,
-    isLoading: isLoadingLicense
-  } = useGetLicenseData(applicationData.user_id, applicationData.id);
+  if (!applicationData || !applicationData.id || !userId) {
+    alert("Missing application or user data");
+    return null;
+  }
+  let licenseData: LicenseResource | undefined;
+  let documentData: GetApplicationDocuments200 | undefined;
+  let paymentData: ApplicationPaymentResource | undefined;
 
-  const {
-    data: documentData,
-    isFound: foundDocument,
-    isLoading: isLoadingDocument
-  } = useGetDocumentData(applicationData.id);
+  if (SHOW_LICENSE_STATUSES.includes(applicationData.application_status as any)) {
+    licenseData = useGetLicenseData(userId, applicationData.id);
+  }
 
-  const {
-    data: paymentData,
-    isFound: foundPayment,
-    isLoading: isLoadingPayment
-  } = useGetPaymentData(applicationData.id);
+  if (SHOW_DOCUMENT_STATUSES.includes(applicationData.application_status as any)) {
+    documentData = useGetDocumentData(applicationData.id);
+  }
+
+  if (SHOW_PAYMENT_STATUSES.includes(applicationData.application_status as any)) {
+    paymentData = useGetPaymentData(applicationData.id);
+  }
+
+  const queryClient = useQueryClient();
+
+  const {mutate: deleteLicense} = useDeleteLicense({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({queryKey: ["listLicenses"]});
+        await queryClient.invalidateQueries({queryKey: ["getLicense"]});
+
+        closePopup();
+      },
+      onError: (err) => {
+        console.error(err);
+        alert("Error while releasing license");
+      },
+    },
+  });
+
+  function handleReleaseLicense() {
+    if (!licenseData?.id) return;
+    deleteLicense({licenseId: licenseData.id});
+    closePopup();
+  }
 
   return (
       <div
@@ -147,226 +205,222 @@ export default function AdminApplicationDetails({
              text-mallorca-purple/75 hover:bg-mallorca-purple/10"
             ><Minimize2/>
             </button>
-            {(isLoadingLicense || isLoadingDocument || isLoadingPayment) ?
-                <div className="font-inter text-center">
-                  {/* Loading Screen */}
-                  <div
-                      className="w-16 h-16 border-6 border-gray-200 border-t-mallorca-purple rounded-full animate-spin mx-auto"/>
-                  <p className="mt-6 font-light text-xl text-gray-600 relative inline-block">
-                    {t("applicationDetails.loading")}
-                    <span className="absolute left-full">
-                      <AnimatedDots speed={400}/>
-                    </span>
-                  </p>
+            <div className="font-inter text-center">
+
+              <div className="font-inter max-w-[calc(100vb-8rem)]">
+
+                <FormHeader
+                    heading={t("applicationDetails.index.headline")}
+                    subHeading={t("")}
+                    className="mt-16"
+                />
+
+                {/* Application fields */}
+                <div className="bg-gray-50 rounded-lg p-6 mt-12 shadow space-y-2.5 text-gray-700">
+
+                  <div className="flex justify-between min-w-lg font-semibold">
+                    <span>{t("applicationDetails.index.applicationIdLabel") + ": "}</span>
+                    <span>{applicationData?.id}</span>
+                  </div>
+
+                  <hr className="my-2 border-gray-300"/>
+
+                  <div className="flex justify-between min-w-lg">
+                    <span>{t("applicationDetails.index.licenseTypeLabel") + ": "}</span>
+                    <span>{applicationData?.license_type}</span>
+                  </div>
+
+                  <div className="flex justify-between min-w-lg">
+                    <span>{t("applicationDetails.index.cadastralIdLabel") + ": "}</span>
+                    <span>{applicationData?.cadastral_reference}</span>
+                  </div>
+
+                  <div className="flex justify-between min-w-lg">
+                    <span>{t("applicationDetails.index.statusLabel") + ": "}</span>
+                    <span
+                        className={`${
+                            // green statuses: all selected
+                            GREEN_STATUSES.includes(
+                                applicationData?.application_status
+                            )
+                                ? "text-green-800"
+                                : // blue statuses: all in-review/submitted
+                                BLUE_STATUSES.includes(applicationData?.application_status)
+                                    ? "text-blue-800"
+                                    : // orange statuses: all in-process
+                                    ORANGE_STATUSES.includes(applicationData?.application_status)
+                                        ? "text-orange-800"
+                                        : // red statuses: declined statuses
+                                        RED_STATUSES.includes(
+                                            applicationData?.application_status
+                                        )
+                                            ? "text-red-800"
+                                            : // grey statuses: draft, expired
+                                            GREY_STATUSES.includes(applicationData?.application_status)
+                                                ? "text-gray-800 "
+                                                : // fallback
+                                                "text-mallorca-purple"
+                        }`}
+                    >{applicationData?.application_status}</span>
+                  </div>
+
+                  {applicationData?.remarks && (
+                      <div className="flex justify-between min-w-lg">
+                        <span>{t("applicationDetails.index.remarksLabel") + ": "}</span>
+                        <span>{applicationData?.remarks}</span>
+                      </div>
+                  )}
+
+                  <div className="flex justify-between min-w-lg">
+                    <span>{t("applicationDetails.index.appliedOnLabel") + ": "}</span>
+                    <span>{formatDateLong(applicationData?.applied_at, t)}</span>
+                  </div>
+
+                  <div className="flex justify-between min-w-lg">
+                    <span>{t("applicationDetails.index.lastUpdatedLabel") + ": "}</span>
+                    <span>{formatDateLong(applicationData?.changed_at, t)}</span>
+                  </div>
+
                 </div>
-                :
-                <div className="font-inter max-w-[calc(100vb-8rem)]">
 
-                  <FormHeader
-                      heading={t("applicationDetails.index.headline")}
-                      subHeading={t("")}
-                      className="mt-16"
-                  />
+                {/* License fields */}
+                {SHOW_LICENSE_STATUSES.includes(applicationData?.application_status as any) && (
+                    <>
+                      <div className="text-lg mt-4 text-mallorca-purple/70">
+                        {t("applicationDetails.index.license.label")}
+                      </div>
 
-                  {/* Application fields */}
-                  <div className="bg-gray-50 rounded-lg p-6 mt-12 shadow space-y-2.5 text-gray-700">
+                      <div
+                          className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
 
-                    <div className="flex justify-between min-w-lg font-semibold">
-                      <span>{t("applicationDetails.index.applicationIdLabel") + ": "}</span>
-                      <span>{applicationData?.id}</span>
-                    </div>
-
-                    <hr className="my-2 border-gray-300"/>
-
-                    <div className="flex justify-between min-w-lg">
-                      <span>{t("applicationDetails.index.licenseTypeLabel") + ": "}</span>
-                      <span>{applicationData?.license_type}</span>
-                    </div>
-
-                    <div className="flex justify-between min-w-lg">
-                      <span>{t("applicationDetails.index.cadastralIdLabel") + ": "}</span>
-                      <span>{applicationData?.cadastral_reference}</span>
-                    </div>
-
-                    <div className="flex justify-between min-w-lg">
-                      <span>{t("applicationDetails.index.statusLabel") + ": "}</span>
-                      <span
-                          className={`${
-                              // green
-                              ["SELECTED", "PAYMENT_RECEIVED"].includes(
-                                  applicationData?.application_status
-                              )
-                                  ? "text-green-800"
-                                  : // blue
-                                  ["SUBMITTED",
-                                    "UNDER_REVIEW",
-                                    "AWAITING_PAYMENT",
-                                    "APPROVED",
-                                    "IN_BALLOT",]
-                                  .includes(applicationData?.application_status)
-                                      ? "text-blue-800"
-                                      :
-                                      ["CANCELLED", "REJECTED", "NOT_SELECTED",].includes(
-                                          applicationData?.application_status
-                                      )
-                                          ? "text-red-800"
-                                          : // grey
-                                          ["DRAFT", "EXPIRED",].includes(applicationData?.application_status)
-                                              ? "text-gray-800 "
-                                              : // orange (all in-process)
-                                              ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING",].includes(applicationData?.application_status)
-                                                  ? "text-orange-800"
-                                                  : // fallback
-                                                  "text-mallorca-purple"
-                          }`}
-                      >{applicationData?.application_status}</span>
-                    </div>
-
-                    {applicationData?.remarks && (
                         <div className="flex justify-between min-w-lg">
-                          <span>{t("applicationDetails.index.remarksLabel") + ": "}</span>
-                          <span>{applicationData?.remarks}</span>
-                        </div>
-                    )}
-
-                    <div className="flex justify-between min-w-lg">
-                      <span>{t("applicationDetails.index.appliedOnLabel") + ": "}</span>
-                      <span>{formatDate(applicationData?.applied_at, t)}</span>
-                    </div>
-
-                    <div className="flex justify-between min-w-lg">
-                      <span>{t("applicationDetails.index.lastUpdatedLabel") + ": "}</span>
-                      <span>{formatDate(applicationData?.changed_at, t)}</span>
-                    </div>
-
-                  </div>
-
-                  {/* License fields */}
-                  {foundLicense && (
-                      <>
-                        <div className="text-lg mt-4 text-mallorca-purple/70">
-                          {t("applicationDetails.index.license.label")}
+                          <span>{t("applicationDetails.index.license.idLabel") + ": "}</span>
+                          <span>{licenseData?.id}</span>
                         </div>
 
-                        <div
-                            className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.license.idLabel") + ": "}</span>
-                            <span>{licenseData?.id}</span>
-                          </div>
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.license.statusLabel") + ": "}</span>
-                            <span>{licenseData?.license_status}</span>
-                          </div>
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.license.issuedOnLabel") + ": "}</span>
-                            <span>{formatDate(licenseData?.issued_at, t)}</span>
-                          </div>
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.license.expiresOnLabel") + ": "}</span>
-                            <span>{formatDate(licenseData?.expires_at, t)}</span>
-                          </div>
-
-                        </div>
-                      </>
-                  )}
-
-                  {/* Document fields */}
-                  {foundDocument && (
-                      <>
-                        <div className="text-lg mt-4 text-mallorca-purple/70">
-                          {t("applicationDetails.index.documents.label")}
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.license.statusLabel") + ": "}</span>
+                          <span>{licenseData?.license_status}</span>
                         </div>
 
-                        <div
-                            className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.documents.statusLabel") + ": "}</span>
-                            <span>{documentData?.status}</span>
-                          </div>
-
-                          {documentData?.rejection_reason && (
-                              <div className="flex justify-between min-w-lg">
-                                <span>{t("applicationDetails.index.documents.rejectionReasonLabel") + ": "}</span>
-                                <span>{documentData?.rejection_reason}</span>
-                              </div>
-                          )}
-                        </div>
-                      </>
-                  )}
-
-                  {/* Payment fields */}
-                  {foundPayment && (
-                      <>
-                        <div className="text-lg mt-4 text-mallorca-purple/70">
-                          {t("applicationDetails.index.payment.label")}
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.license.issuedOnLabel") + ": "}</span>
+                          <span>{formatDateLong(licenseData?.issued_at, t)}</span>
                         </div>
 
-                        <div
-                            className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.payment.idLabel") + ": "}</span>
-                            <span>{paymentData?.id}</span>
-                          </div>
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.payment.amountLabel") + ": "}</span>
-                            <span>{formatAmount(paymentData?.amount, t) + "*"}</span>
-                          </div>
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.payment.nameLabel") + ": "}</span>
-                            <span>{paymentData?.name}</span>
-                          </div>
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.payment.ibanLabel") + ": "}</span>
-                            <span>{formatIban(paymentData?.iban)}</span>
-                          </div>
-
-                          {paymentData?.bic && (
-                              <div className="flex justify-between min-w-lg">
-                                <span>{t("applicationDetails.index.payment.bicLabel") + ": "}</span>
-                                <span>{formatBic(paymentData?.bic)}</span>
-                              </div>
-                          )}
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.payment.dateLabel") + ": "}</span>
-                            <span>{formatDate(paymentData?.payment_date, t)}</span>
-                          </div>
-
-                          <div className="flex justify-between min-w-lg">
-                            <span>{t("applicationDetails.index.payment.statusLabel") + ": "}</span>
-                            <span>{paymentData?.payment_status}</span>
-                          </div>
-
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.license.expiresOnLabel") + ": "}</span>
+                          <span>{formatDateLong(licenseData?.expires_at, t)}</span>
                         </div>
-                      </>
-                  )}
-                  <div className="px-6 mt-1">
-                    {foundPayment && (
-                        <span
-                            className="text-xs font-light italic">{"*" + t("applicationDetails.index.payment.taxLabel")}
+
+                      </div>
+                    </>
+                )}
+
+                {/* Document fields */}
+                {SHOW_DOCUMENT_STATUSES.includes(applicationData?.application_status as any) && (
+                    <>
+                      <div className="text-lg mt-4 text-mallorca-purple/70">
+                        {t("applicationDetails.index.documents.label")}
+                      </div>
+
+                      <div
+                          className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
+
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.documents.statusLabel") + ": "}</span>
+                          <span>{documentData?.status}</span>
+                        </div>
+
+                        {documentData?.rejection_reason && (
+                            <div className="flex justify-between min-w-lg">
+                              <span>{t("applicationDetails.index.documents.rejectionReasonLabel") + ": "}</span>
+                              <span>{documentData?.rejection_reason}</span>
+                            </div>
+                        )}
+                      </div>
+                    </>
+                )}
+
+                {/* Payment fields */}
+                {SHOW_PAYMENT_STATUSES.includes(applicationData?.application_status as any) && (
+                    <>
+                      <div className="text-lg mt-4 text-mallorca-purple/70">
+                        {t("applicationDetails.index.payment.label")}
+                      </div>
+
+                      <div
+                          className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
+
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.payment.idLabel") + ": "}</span>
+                          <span>{paymentData?.id}</span>
+                        </div>
+
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.payment.amountLabel") + ": "}</span>
+                          <span>{formatAmount(paymentData?.amount, t) + "*"}</span>
+                        </div>
+
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.payment.nameLabel") + ": "}</span>
+                          <span>{paymentData?.name}</span>
+                        </div>
+
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.payment.ibanLabel") + ": "}</span>
+                          <span>{formatIban(paymentData?.iban)}</span>
+                        </div>
+
+                        {paymentData?.bic && (
+                            <div className="flex justify-between min-w-lg">
+                              <span>{t("applicationDetails.index.payment.bicLabel") + ": "}</span>
+                              <span>{formatBic(paymentData?.bic)}</span>
+                            </div>
+                        )}
+
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.payment.dateLabel") + ": "}</span>
+                          <span>{formatDateLong(paymentData?.payment_date, t)}</span>
+                        </div>
+
+                        <div className="flex justify-between min-w-lg">
+                          <span>{t("applicationDetails.index.payment.statusLabel") + ": "}</span>
+                          <span>{paymentData?.payment_status}</span>
+                        </div>
+
+                      </div>
+                    </>
+                )}
+                <div className="px-6 mt-1">
+                  {SHOW_PAYMENT_STATUSES.includes(applicationData?.application_status as any) && (
+                      <span
+                          className="text-xs font-light italic">{"*" + t("applicationDetails.index.payment.taxLabel")}
                 </span>
-                    )}
-                  </div>
+                  )}
                 </div>
 
-            }
+                {isPopupOpen && (
+                    <ConfirmPopup
+                        open={isPopupOpen}
+                        onCancel={() => setIsPopupOpen(false)}
+                        onConfirm={handleReleaseLicense}
+                        headingLabel={t("applicationDetails.confirmPopup.headingLabel")}
+                        subHeadingLabel={t("applicationDetails.confirmPopup.subHeadingLabel")}
+                        quoteTitle={t("applicationDetails.confirmPopup.quoteTitle")}
+                        quoteText={[t("applicationDetails.confirmPopup.quoteText1"), t("applicationDetails.confirmPopup.quoteText2")]}
+                        cancelLabel={t("applicationDetails.confirmPopup.cancelButtonLabel")}
+                        confirmLabel={t("applicationDetails.confirmPopup.confirmButtonLabel")}
+                    />
+                )}
 
+              </div>
+
+            </div>
           </div>
+          {/* Spacer to push content above the footer */}
+          <div className="mb-12"></div>
         </div>
-        {/* Spacer to push content above the footer */
-        }
-        <div className="mb-12"></div>
       </div>
-  )
-      ;
+  );
 }
