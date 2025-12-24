@@ -9,6 +9,7 @@ import { useLoginUser } from "app/services/authentication/authentication";
 import { AuthContext } from "app/common/AuthContext";
 import { useNavigate } from "react-router";
 import { Link } from "react-router";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 
 export default function Login() {
   const auth = useContext(AuthContext);
@@ -55,6 +56,8 @@ export default function Login() {
     },
   });
 
+  const { show, hide } = useGlobalLoader();
+
   const handleSubmit = async () => {
     const emailValidateResult: validateResults = isValidEmail(form.email);
 
@@ -81,6 +84,7 @@ export default function Login() {
     setErrors({ email: "", password: "", login: "" });
 
     try {
+      show();
       const response = await loginUser.mutateAsync({
         data: {
           email: form.email,
@@ -133,6 +137,8 @@ export default function Login() {
         default:
           alert(t("login.loginUserAlerts.serverError"));
       }
+    } finally {
+      hide();
     }
     return;
   };
