@@ -5,8 +5,10 @@ import { useCreateBallotPeriod } from "app/services/ballot-periods/ballot-period
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 
 export default function BallotConfig() {
+  const { show, hide } = useGlobalLoader();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const auth = useContext(AuthContext);
@@ -81,6 +83,7 @@ export default function BallotConfig() {
     }
 
     try {
+      show();
       const response = await createBallotPeriod({
         data: {
           start_date: toISOStringFromDateInput(ballot_start_date),
@@ -89,7 +92,7 @@ export default function BallotConfig() {
       });
 
       switch (response.status) {
-        case 201:
+        case 200:
           alert(t("ballotConfig.alerts.success"));
           navigate("/ballot-dashboard");
           break;
@@ -102,15 +105,10 @@ export default function BallotConfig() {
       return true;
     } catch (error: any) {
       const status = error?.response?.status;
-      const errorCode = error?.response?.data?.error_code;
 
       switch (status) {
         case 409:
-          if (errorCode === "OVERLAPPING_PERIOD") {
-            alert(t("ballotConfig.alerts.overlappingPeriod"));
-          } else {
-            alert(t("ballotConfig.alerts.creationFailed"));
-          }
+          alert(t("ballotConfig.alerts.overlappingPeriod"));
           break;
 
         case 400:
@@ -130,6 +128,8 @@ export default function BallotConfig() {
       }
 
       return false;
+    } finally {
+      hide();
     }
   };
   return (

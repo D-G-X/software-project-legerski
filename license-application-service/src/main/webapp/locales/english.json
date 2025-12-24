@@ -1033,6 +1033,7 @@
     },
     "buttons": {
       "publish": "Publish Ballot",
+      "publishing": "Publishing...",
       "cancel": "Cancel"
     },
     "alerts": {
@@ -1042,6 +1043,8 @@
       "sameStartEndDate": "Start date and end date cannot be the same.",
       "startDateAfterEndDate": "Start date cannot be later than end date.",
       "endDateTooLate": "End date cannot be more than 6 months after the start date.",
+      "badRequest": "Bad request. Please check your input.",
+      "unauthorized": "Unauthorized request. Please sign in.",
       "success": "Ballot period created successfully!",
       "overlappingPeriod": "The specified start and end dates overlap with an existing ballot period.",
       "creationFailed": "Failed to create ballot period."
