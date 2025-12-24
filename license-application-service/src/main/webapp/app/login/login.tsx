@@ -113,7 +113,7 @@ export default function Login() {
         auth?.setRefreshToken(refresh_token);
         auth?.setAccessTokenExpiry(expires_in);
         auth?.setRefreshTokenExpiry(refresh_expires_in);
-        auth?.setTokenType(refresh_token);
+        auth?.setTokenType(token_type);
         auth?.setRole(is_admin ? "admin" : "user");
 
         navigate("/"); // redirect to dashboard
