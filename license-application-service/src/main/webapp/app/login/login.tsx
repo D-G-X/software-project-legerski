@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
-import { isValidEmail, isValidPassword } from "../common/validationRules";
+import { isValidEmail } from "../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
@@ -57,17 +57,22 @@ export default function Login() {
 
   const handleSubmit = async () => {
     const emailValidateResult: validateResults = isValidEmail(form.email);
-    const passwordValidateResult: validateResults = isValidPassword(
-      form.password
-    );
+
+    // redundant validation from register
+    // const passwordValidateResult: validateResults = isValidPassword(
+    //   form.password
+    // );
+
     let newErrors = { email: "", password: "", login: "" };
 
     if (!emailValidateResult.isValid) {
       newErrors.email = emailValidateResult.message;
     }
-    if (!passwordValidateResult.isValid) {
-      newErrors.password = passwordValidateResult.message;
-    }
+
+    // redundant validation from register
+    // if (!passwordValidateResult.isValid) {
+    //   newErrors.password = passwordValidateResult.message;
+    // }
 
     if (newErrors.email || newErrors.password) {
       setErrors(newErrors);
@@ -108,7 +113,7 @@ export default function Login() {
         auth?.setRefreshToken(refresh_token);
         auth?.setAccessTokenExpiry(expires_in);
         auth?.setRefreshTokenExpiry(refresh_expires_in);
-        auth?.setTokenType(refresh_token);
+        auth?.setTokenType(token_type);
         auth?.setRole(is_admin ? "admin" : "user");
 
         navigate("/"); // redirect to dashboard

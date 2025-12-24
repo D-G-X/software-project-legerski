@@ -197,7 +197,9 @@ export default function RequestApplication() {
     const cadastralNumValidateResult: validateResults = isValidCadastralNumber(
       form.cadastral_number
     );
-    const additionalCommentsResult: validateResults = isValidOptionalText(form.additional_comments);
+    const additionalCommentsResult: validateResults = isValidOptionalText(
+      form.additional_comments
+    );
 
     if (!firstNameValidateResult.isValid) {
       newErrors.first_name = firstNameValidateResult.message;
@@ -215,7 +217,7 @@ export default function RequestApplication() {
       newErrors.cadastral_number = cadastralNumValidateResult.message;
     }
 
-    if(!additionalCommentsResult.isValid){
+    if (!additionalCommentsResult.isValid) {
       newErrors.additional_comments = additionalCommentsResult.message;
     }
 
@@ -309,6 +311,10 @@ export default function RequestApplication() {
 
         case 401:
           alert("Unauthorized Error");
+          break;
+
+        case 422:
+          alert("User does not exits,");
           break;
 
         default:

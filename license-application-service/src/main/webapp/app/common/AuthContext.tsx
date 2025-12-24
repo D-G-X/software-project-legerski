@@ -55,10 +55,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!refreshToken) return null;
     try {
       const resp = await refreshLogin({ refresh_token: refreshToken });
-      const newToken = resp.data.access_token;
-      setAccessToken(newToken);
-      setAccessTokenHeader(newToken);
-      return newToken;
+      const {
+        access_token,
+        refresh_token,
+        expires_in,
+        refresh_expires_in,
+        token_type,
+      } = resp.data;
+
+      // persist updated tokens and metadata
+      if (access_token) {
+        localStorage.setItem("accessToken", access_token);
+        setAccessToken(access_token);
+        setAccessTokenHeader(access_token);
+      }
+      if (refresh_token) {
+        localStorage.setItem("refreshToken", refresh_token);
+        setRefreshToken(refresh_token);
+      }
+      if (typeof expires_in !== "undefined") {
+        localStorage.setItem("accessTokenExpiry", String(expires_in));
+        setAccessTokenExpiry(expires_in);
+      }
+      if (typeof refresh_expires_in !== "undefined") {
+        localStorage.setItem(
+          "refreshTokenExpiry",
+          refresh_expires_in ? String(refresh_expires_in) : ""
+        );
+        setRefreshTokenExpiry(refresh_expires_in);
+      }
+      if (token_type) {
+        localStorage.setItem("tokenType", token_type);
+        setTokenType(token_type);
+      }
+
+      return access_token ?? null;
     } catch {
       signOut();
       return null;
