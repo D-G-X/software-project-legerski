@@ -57,14 +57,19 @@ export default function Login() {
 
   const handleSubmit = async () => {
     const emailValidateResult: validateResults = isValidEmail(form.email);
+
+    // redundant validation from register
     // const passwordValidateResult: validateResults = isValidPassword(
     //   form.password
     // );
+
     let newErrors = { email: "", password: "", login: "" };
 
     if (!emailValidateResult.isValid) {
       newErrors.email = emailValidateResult.message;
     }
+
+    // redundant validation from register
     // if (!passwordValidateResult.isValid) {
     //   newErrors.password = passwordValidateResult.message;
     // }
