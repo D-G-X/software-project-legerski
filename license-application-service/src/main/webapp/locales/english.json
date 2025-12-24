@@ -753,7 +753,14 @@
     "warningMessage": "By deleting this account, you won’t be able to access the system.",
     "yesDelete": "Yes, Delete",
     "cancel": "No, Cancel",
-    "loading": "Deleting..."
+    "loading": "Deleting...",
+    "alerts": {
+      "success": "Your account has been deleted successfully.",
+      "unauthorized": "Unauthorized request. Please sign in.",
+      "forbidden": "You do not have permission to perform this action.",
+      "userNotFound": "User not found.",
+      "failed": "Failed to delete account. Please try again later."
+    }
   },
   "select": {
     "empty": {
