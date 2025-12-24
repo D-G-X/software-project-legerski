@@ -38,7 +38,6 @@ function useUpdateNotificationStatus(): UpdateNotificationResult {
 }
 
 export default function NotificationPopup({ className = "" }) {
-  console.log("Rendering NotificationPopup");
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);

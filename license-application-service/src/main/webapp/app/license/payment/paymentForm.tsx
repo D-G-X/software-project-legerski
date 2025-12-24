@@ -79,12 +79,13 @@ export default function PaymentConfirm() {
   });
 
   const {
-    refetch: refetchAppFee,
+    data: applicationFeeData,
     isFetching: isFetchingAppFee,
     error: appFeeError,
   } = useGetApplicationFee(applicationId, {
     query: {
-      enabled: false,
+      enabled: !!applicationDetails?.id && !!auth?.accessToken,
+      select: (response) => response,
     },
     axios: {
       headers: {
@@ -123,26 +124,17 @@ export default function PaymentConfirm() {
   }, [appError, appFeeError]);
 
   useEffect(() => {
-    const fetchFee = async () => {
-      if (isFetchingAppData) {
-        return;
-      }
-      if (!applicationDetails?.id) {
-        navigate("/");
-        return;
-      }
+    if (!applicationDetails?.id) {
+      navigate("/");
+      return;
+    }
+  }, [applicationDetails, navigate]);
 
-      const result = await refetchAppFee();
-      if (isFetchingAppFee && !result) {
-        alert("Payment Gateway is not responding, please try again later!");
-        navigate("/");
-        return;
-      }
-      setAmount(result?.data?.data.fee_amount);
-    };
-
-    fetchFee();
-  }, [applicationDetails]);
+  useEffect(() => {
+    if (applicationFeeData?.data?.fee_amount !== undefined) {
+      setAmount(applicationFeeData.data.fee_amount);
+    }
+  }, [applicationFeeData]);
 
   const [showSepaDialog, setShowSepaDialog] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -200,7 +192,9 @@ export default function PaymentConfirm() {
       name: nameVal.isValid ? "" : nameVal.message,
       iban: ibanVal.isValid ? "" : ibanVal.message,
       bic: bicVal.isValid ? "" : bicVal.message,
-      sepaMandateCheck: form.sepaMandateChecked ? "" : t("license.paymentForm.sepaMandateError"),
+      sepaMandateCheck: form.sepaMandateChecked
+        ? ""
+        : t("license.paymentForm.sepaMandateError"),
       pay: "",
     };
 
@@ -265,8 +259,7 @@ export default function PaymentConfirm() {
       navigate(`/payment/${applicationId}/done`, {
         state: {
           ...stateData,
-        }
-
+        },
       });
     } catch (err) {
       setErrors((prev) => ({ ...prev, pay: "Payment failed" }));
@@ -308,30 +301,34 @@ export default function PaymentConfirm() {
               <hr className="my-4 border-gray-300" />
 
               <div className="flex justify-between items-baseline text-md font-normal">
-                <span>{t("license.paymentForm.index.cadastralIdLabel") + ": "}</span>
+                <span>
+                  {t("license.paymentForm.index.cadastralIdLabel") + ": "}
+                </span>
                 <div className="flex flex-col items-end">
                   <span className="leading-none">
                     {isFetchingAppData ? (
-                        <div className="w-32 h-6 rounded-md overflow-hidden relative">
-                          <div className="absolute inset-0 bg-linear-to-r from-gray-200 via-mallorca-purple/30 to-gray-200 animate-shimmer" />
-                        </div>
+                      <div className="w-32 h-6 rounded-md overflow-hidden relative">
+                        <div className="absolute inset-0 bg-linear-to-r from-gray-200 via-mallorca-purple/30 to-gray-200 animate-shimmer" />
+                      </div>
                     ) : (
-                        applicationDetails?.cadastral_reference || "N/A"
+                      applicationDetails?.cadastral_reference || "N/A"
                     )}
                   </span>
                 </div>
               </div>
 
               <div className="flex justify-between items-baseline text-md font-normal">
-                <span>{t("license.paymentForm.index.licenseTypeLabel") + ": "}</span>
+                <span>
+                  {t("license.paymentForm.index.licenseTypeLabel") + ": "}
+                </span>
                 <div className="flex flex-col items-end">
                   <span className="leading-none">
                     {isFetchingAppData || isFetchingAppFee ? (
-                        <div className="w-32 h-6 rounded-md overflow-hidden relative">
-                          <div className="absolute inset-0 bg-linear-to-r from-gray-200 via-mallorca-purple/30 to-gray-200 animate-shimmer" />
-                        </div>
+                      <div className="w-32 h-6 rounded-md overflow-hidden relative">
+                        <div className="absolute inset-0 bg-linear-to-r from-gray-200 via-mallorca-purple/30 to-gray-200 animate-shimmer" />
+                      </div>
                     ) : (
-                        applicationDetails?.license_type || "N/A"
+                      applicationDetails?.license_type || "N/A"
                     )}
                   </span>
                 </div>
@@ -429,7 +426,9 @@ export default function PaymentConfirm() {
                     htmlFor="sepaMandateChecked"
                     className="px-3 text-mallorca-purple/70 text-lg"
                   >
-                    {t("license.paymentForm.index.acceptSepaMandateLabel.plain")}
+                    {t(
+                      "license.paymentForm.index.acceptSepaMandateLabel.plain"
+                    )}
                     <button
                       type="button"
                       onClick={(e) => {
@@ -438,7 +437,9 @@ export default function PaymentConfirm() {
                       }}
                       className="ml-1 text-mallorca-purple underline hover:text-mallorca-purple/80"
                     >
-                      {t("license.paymentForm.index.acceptSepaMandateLabel.button")}
+                      {t(
+                        "license.paymentForm.index.acceptSepaMandateLabel.button"
+                      )}
                     </button>
                   </label>
                 </div>
@@ -467,7 +468,9 @@ export default function PaymentConfirm() {
                   "license.paymentForm.sepaMandateDialog.downloadFileName",
                   { accountHolder: form.name ? " " + form.name : "" }
                 )}
-                title={t("license.paymentForm.sepaMandateDialog.title") + "\n\n"}
+                title={
+                  t("license.paymentForm.sepaMandateDialog.title") + "\n\n"
+                }
                 text={
                   t("license.paymentForm.sepaMandateDialog.text.line1") +
                   "\n\n" +
@@ -502,7 +505,11 @@ export default function PaymentConfirm() {
                   }) +
                   "\n" +
                   t("license.paymentForm.sepaMandateDialog.text.line11", {
-                    mandateReference: `ESM-${new Date().getFullYear()}-${Math.floor(Math.random() * 100_000).toString().padStart(5, "0")}`,
+                    mandateReference: `ESM-${new Date().getFullYear()}-${Math.floor(
+                      Math.random() * 100_000
+                    )
+                      .toString()
+                      .padStart(5, "0")}`,
                   }) +
                   "\n\n" +
                   t("license.paymentForm.sepaMandateDialog.text.line12") +
