@@ -58,18 +58,7 @@ export default function Register() {
     }));
   };
 
-  const registerUser = useRegisterUser({
-    mutation: {
-      onSuccess: (data) => {
-        console.log("Registered successfully:", data.data);
-        alert("Account created successfully!");
-      },
-      onError: (error) => {
-        console.error("Registration error:", error);
-        alert("Registration failed");
-      },
-    },
-  });
+  const registerUser = useRegisterUser();
 
   const handleSubmit = async () => {
     const fristNameValidateResult: validateResults = isValidName(
