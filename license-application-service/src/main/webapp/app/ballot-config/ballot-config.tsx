@@ -81,25 +81,55 @@ export default function BallotConfig() {
     }
 
     try {
-      await createBallotPeriod({
+      const response = await createBallotPeriod({
         data: {
           start_date: toISOStringFromDateInput(ballot_start_date),
           end_date: toISOStringFromDateInput(ballot_end_date),
         },
       });
 
-      alert(t("ballotConfig.alerts.success"));
-      navigate("/ballot-dashboard");
-    } catch (error: any) {
-      // Check for overlapping period error and handle specifically
-      if (error?.response?.data?.error_code === "OVERLAPPING_PERIOD") {
-        alert(t("ballotConfig.alerts.overlappingPeriod"));
-      } else {
-        alert(
-          error?.response?.data?.message ??
-            t("ballotConfig.alerts.creationFailed")
-        );
+      switch (response.status) {
+        case 201:
+          alert(t("ballotConfig.alerts.success"));
+          navigate("/ballot-dashboard");
+          break;
+
+        default:
+          alert(t("ballotConfig.alerts.creationFailed"));
+          break;
       }
+
+      return true;
+    } catch (error: any) {
+      const status = error?.response?.status;
+      const errorCode = error?.response?.data?.error_code;
+
+      switch (status) {
+        case 409:
+          if (errorCode === "OVERLAPPING_PERIOD") {
+            alert(t("ballotConfig.alerts.overlappingPeriod"));
+          } else {
+            alert(t("ballotConfig.alerts.creationFailed"));
+          }
+          break;
+
+        case 400:
+          alert(t("ballotConfig.alerts.badRequest"));
+          break;
+
+        case 401:
+          alert(t("ballotConfig.alerts.unauthorized"));
+          break;
+
+        default:
+          alert(
+            error?.response?.data?.message ??
+              t("ballotConfig.alerts.creationFailed")
+          );
+          break;
+      }
+
+      return false;
     }
   };
   return (
