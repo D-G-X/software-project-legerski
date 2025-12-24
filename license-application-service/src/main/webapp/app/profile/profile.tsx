@@ -9,6 +9,7 @@ import {
 } from "app/services/users/users";
 import { AuthContext } from "app/common/AuthContext";
 import { getUserIdFromToken } from "app/common/authTokenDecode";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 import {
   isValidName,
   isValidEmail,
@@ -68,6 +69,13 @@ export default function Profile() {
     });
   }, [response.data]);
 
+  const { show, hide } = useGlobalLoader();
+
+  useEffect(() => {
+    if (response.isFetching) show(t("profile.loading") || "Loading…");
+    else hide();
+  }, [response.isFetching, show, hide, t]);
+
   const updateUserMutation = useUpdateUser({
     axios: {
       headers: {
@@ -75,28 +83,24 @@ export default function Profile() {
       },
     },
     mutation: {
-      onSuccess: () => {
-        // 204 No Content → still treated as success
-        alert(t("updateProfile.alerts.success"));
-      },
       onError: (error: UpdateUserMutationError) => {
         const status = error?.response?.status;
 
         switch (status) {
           case 400:
-            alert(t("updateProfile.alerts.invalidRequest"));
+            alert(t("profile.alerts.invalidRequest"));
             break;
 
           case 401:
-            alert(t("updateProfile.alerts.unauthorized"));
+            alert(t("profile.alerts.unauthorized"));
             break;
 
           case 404:
-            alert(t("updateProfile.alerts.userNotFound"));
+            alert(t("profile.alerts.userNotFound"));
             break;
 
           default:
-            alert(t("updateProfile.alerts.failed"));
+            alert(t("profile.alerts.failed"));
             break;
         }
 
@@ -124,15 +128,21 @@ export default function Profile() {
 
     if (Object.keys(newErrors).length > 0) return;
 
-    await updateUserMutation.mutateAsync({
-      userId,
-      data: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      },
-    });
-    alert("User details updated successfully!");
+    try {
+      show(t("profile.updating") || "Updating…");
+      await updateUserMutation.mutateAsync({
+        userId,
+        data: {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        },
+      });
+      // double alerts
+      alert(t("profile.updateSuccess") || "User details updated successfully!");
+    } finally {
+      hide();
+    }
   };
 
   // --------------------------------
@@ -162,22 +172,28 @@ export default function Profile() {
 
     if (Object.keys(newErrors).length > 0) return;
 
-    await updateUserMutation.mutateAsync({
-      userId,
-      data: {
-        credentials: [
-          {
-            type: "password",
-            value: newPassword,
-            temporary: false,
-          },
-        ],
-      },
-    });
-    alert("Password updated successfully!");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      show(t("profile.updatingPassword") || "Updating password…");
+      await updateUserMutation.mutateAsync({
+        userId,
+        data: {
+          credentials: [
+            {
+              type: "password",
+              value: newPassword,
+              temporary: false,
+            },
+          ],
+        },
+      });
+      // double alerts
+      alert(t("profile.passwordUpdated") || "Password updated successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } finally {
+      hide();
+    }
   };
 
   // --------------------------------
@@ -197,7 +213,12 @@ export default function Profile() {
       <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-8 relative">
         {/* Notification settings button */}
         <div className="absolute right-4 top-4">
-          <button className="px-6 py-2 bg-mallorca-purple text-white rounded-md hover:bg-mallorca-purple-dark text-sm">
+          <button
+            onClick={() => {
+              navigate("/notification-settings");
+            }}
+            className="px-6 py-2 bg-mallorca-purple text-white rounded-md hover:bg-mallorca-purple-dark text-sm"
+          >
             {t("profile.notificationSettings")}
           </button>
         </div>

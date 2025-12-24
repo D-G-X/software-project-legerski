@@ -171,9 +171,8 @@
       "previous": "Previous",
       "next": "Next"
     },
-    "ballotPeriodInfo":
-    {
-      "upcomingText" : "Upcoming Ballot Period",
+    "ballotPeriodInfo": {
+      "upcomingText": "Upcoming Ballot Period",
       "ongoingText": "Current Ballot Period",
       "closedText": "Last Ballot Period",
       "errorText": "Ballot period information currently unavailable"
@@ -700,6 +699,11 @@
   },
   "profile": {
     "title": "Profile",
+    "loading": "Loading…",
+    "updating": "Updating…",
+    "updatingPassword": "Updating password…",
+    "updateSuccess": "Your changes have been saved.",
+    "passwordUpdated": "Your password has been updated.",
     "accountInformation": "Account Information",
     "changePassword": "Change Password",
     "notificationSettings": "Notification Settings",
@@ -735,7 +739,12 @@
     "alerts": {
       "unexpectedError": "An unexpected error occurred. Please try again later.",
       "emailInvalid": "Invalid email address.",
-      "passwordInvalid": "Password must contain at least one special character, one uppercase letter, and one number."
+      "passwordInvalid": "Password must contain at least one special character, one uppercase letter, and one number.",
+      "success": "Profile updated successfully.",
+      "invalidRequest": "Invalid request. Please check your input.",
+      "unauthorized": "Unauthorized request. Please sign in.",
+      "userNotFound": "User not found.",
+      "failed": "Failed to update profile. Please try again later."
     }
   },
   "deleteProfile": {
