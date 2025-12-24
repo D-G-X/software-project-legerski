@@ -22,6 +22,7 @@ import {
 } from "../../common/format";
 import { ApplicationPaymentCreate } from "../../../types";
 import { AuthContext } from "app/common/AuthContext";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 import axios from "axios";
 
 export type StateProps = {
@@ -123,6 +124,13 @@ export default function PaymentConfirm() {
     }
   }, [appError, appFeeError]);
 
+  const { show, hide } = useGlobalLoader();
+
+  useEffect(() => {
+    if (isFetchingAppData || isFetchingAppFee) show();
+    else hide();
+  }, [isFetchingAppData, isFetchingAppFee, show, hide]);
+
   useEffect(() => {
     if (!applicationDetails?.id) {
       navigate("/");
@@ -218,6 +226,7 @@ export default function PaymentConfirm() {
     };
 
     try {
+      show();
       setLoading(true);
 
       const response = await mutation.mutateAsync({
@@ -265,6 +274,7 @@ export default function PaymentConfirm() {
       setErrors((prev) => ({ ...prev, pay: "Payment failed" }));
     } finally {
       setLoading(false);
+      hide();
     }
   };
 

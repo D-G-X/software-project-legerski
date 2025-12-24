@@ -7,6 +7,7 @@ import {
   useDeleteUser,
   DeleteUserMutationError,
 } from "app/services/users/users";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 import { useNavigate } from "react-router";
 import { TriangleAlert } from "lucide-react";
 
@@ -16,6 +17,7 @@ const DeleteProfile = () => {
   const auth = useContext(AuthContext);
   const userId = getUserIdFromToken(auth?.accessToken);
   const [isLoading, setIsLoading] = useState(false);
+  const { show, hide } = useGlobalLoader();
 
   useDocumentTitle(t("deleteProfile.deleteAccount"));
 
@@ -53,6 +55,7 @@ const DeleteProfile = () => {
 
         console.error(error);
         setIsLoading(false);
+        hide();
       },
     },
   });
@@ -62,6 +65,7 @@ const DeleteProfile = () => {
     if (!userId) return;
     if (!window.confirm(t("deleteProfile.areYouSureDelete"))) return;
     setIsLoading(true);
+    show();
     deleteUserMutation.mutate({ userId });
   };
 

@@ -13,6 +13,7 @@ import AppRoutes from "./app/routes";
 import { AuthContext, AuthProvider } from "./app/common/AuthContext";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { GlobalLoaderProvider } from "app/common/GlobalLoader";
 
 const queryClient = new QueryClient();
 
@@ -73,10 +74,12 @@ const root = document.getElementById("root")!!;
 
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <AppInitializer />
-      </AuthProvider>
-    </QueryClientProvider>
+    <GlobalLoaderProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppInitializer />
+        </AuthProvider>
+      </QueryClientProvider>
+    </GlobalLoaderProvider>
   </React.StrictMode>
 );
