@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
-import { isValidEmail, isValidPassword } from "../common/validationRules";
+import { isValidEmail } from "../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
