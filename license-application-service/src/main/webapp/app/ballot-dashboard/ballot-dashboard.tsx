@@ -12,6 +12,8 @@ export default function BallotDashboard () {
     const itemsPerPage = 10; // This state is to hold number of items per page in pagination table
     useDocumentTitle(t("home.index.headline"));
     const navigate = useNavigate();
+    // 1. New State for Filtering
+    const [statusFilter, setStatusFilter] = useState("All");
 
     function handleNewApplicationClick() {
         navigate(`/login`);
@@ -108,13 +110,25 @@ export default function BallotDashboard () {
         }
     ];
 
+    // 2. Filter logic: Create a filtered list based on the dropdown selection
+    const filteredBallots = ballots.filter((ballot) => {
+        if (statusFilter === "All") return true;
+        return ballot.status === statusFilter;
+    });
 
-    const totalPage = Math.ceil(ballots.length / itemsPerPage);
+    // 3. Update Pagination logic to use the filtered list
+    const totalPage = Math.ceil(filteredBallots.length / itemsPerPage);
 
-    const currentData = ballots.slice(
+    const currentData = filteredBallots.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
+
+    // Handle filter change and reset page to 1
+    const handleFilterChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+        setStatusFilter(e.target.value);
+        setCurrentPage(1);
+    };
 
     return (
         <div className={"container mx-auto px-4 md:px-6 min-h-[calc(100vh-8rem)] "}>
@@ -122,6 +136,20 @@ export default function BallotDashboard () {
                 <div className={"w-full my-8 flex justify-between items-end"}>
                     <h1 className={"inline-block text-xl w-6/12"}>{t("ballot-dashboard.headline")}</h1>
                     <button onClick={handleNewApplicationClick} className={"bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 inline-block w-max text-sm"}>{t("ballot-dashboard.createNewBallot")}</button>
+                </div>
+                {/* 4. Dropdown UI */}
+                <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium">{t("Filter by Status")}:</label>
+                    <select
+                        value={statusFilter}
+                        onChange={handleFilterChange}
+                        className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-mallorca-purple w-100"
+                    >
+                        <option value="All">All Statuses</option>
+                        <option value="Completed">Completed</option>
+                        <option value="On Going">On Going</option>
+                        <option value="Upcoming">Upcoming</option>
+                    </select>
                 </div>
                 <div className={"overflow-x-auto"}>
                     {currentData.length > 0 && (
