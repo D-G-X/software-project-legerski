@@ -16,7 +16,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 USE_REMOTE_BACKEND = 0
 GPT_MODEL = "gpt-5-mini"
-MISTRAL_MODEL = "mistral-12k"
+MISTRAL_MODEL = "mistral"
 MAX_RETRIES = 3
 
 # Mapping of target languages to their respective locale codes
@@ -67,7 +67,7 @@ JSON:
           messages=[
             {"role": "user", "content": prompt}
           ],
-          options={"num_ctx": 12288, "temperature": 0.1},
+          options={"num_ctx": 8192, "temperature": 0.1},
         )
         return safe_json_load(response["message"]["content"])
 

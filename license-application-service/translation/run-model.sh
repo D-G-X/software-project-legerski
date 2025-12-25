@@ -6,7 +6,7 @@ echo "Downloading Mistral model from Ollama..."
 ollama pull mistral
 
 echo "Running Mistral model..."
-ollama create mistral-12k -f Modelfile
-ollama run mistral-12k
+ollama create mistral -f Modelfile
+ollama run mistral
 
 echo "done!"
