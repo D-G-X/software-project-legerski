@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import Pagination from "../common/Pagination";
 
-import { useNavigate } from "react-router";
+import {Link, useNavigate} from "react-router";
 
 
 export default function BallotDashboard () {
@@ -14,15 +14,17 @@ export default function BallotDashboard () {
     const navigate = useNavigate();
     // 1. New State for Filtering
     const [statusFilter, setStatusFilter] = useState("All");
+    // 1. States for Search and Status Filter
+    const [searchTerm, setSearchTerm] = useState("");
 
     function handleNewApplicationClick() {
-        navigate(`/login`);
+        navigate(`/ballot-config`);
     }
 
     const ballots = [
         {
             "id": "001",
-            "ballotName": "Spring Marathon 2026",
+            "ballotName": "Spring Marathon 2025",
             "status": "Completed",
             "applicationPeriod": "01/10/25 - 31/10/25",
             "drawingDate": "15/11/25",
@@ -30,7 +32,7 @@ export default function BallotDashboard () {
         },
         {
             "id": "002",
-            "ballotName": "Autumn Half-Marathon Lottery",
+            "ballotName": "Autumn Half-Marathon Lottery 2025",
             "status": "Upcoming",
             "applicationPeriod": "15/03/26 - 30/04/26",
             "drawingDate": "15/05/26",
@@ -110,10 +112,16 @@ export default function BallotDashboard () {
         }
     ];
 
-    // 2. Filter logic: Create a filtered list based on the dropdown selection
+    // 2. Combined Filter Logic
+    // This checks both the search input AND the dropdown status
     const filteredBallots = ballots.filter((ballot) => {
-        if (statusFilter === "All") return true;
-        return ballot.status === statusFilter;
+        const matchesSearch = ballot.ballotName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
+
+        const matchesStatus = statusFilter === "All" || ballot.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
     });
 
     // 3. Update Pagination logic to use the filtered list
@@ -124,7 +132,12 @@ export default function BallotDashboard () {
         currentPage * itemsPerPage
     );
 
-    // Handle filter change and reset page to 1
+    // Handlers
+    const handleSearchChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
+    };
+
     const handleFilterChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
         setStatusFilter(e.target.value);
         setCurrentPage(1);
@@ -137,19 +150,32 @@ export default function BallotDashboard () {
                     <h1 className={"inline-block text-xl w-6/12"}>{t("ballot-dashboard.headline")}</h1>
                     <button onClick={handleNewApplicationClick} className={"bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 inline-block w-max text-sm"}>{t("ballot-dashboard.createNewBallot")}</button>
                 </div>
-                {/* 4. Dropdown UI */}
-                <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium">{t("Filter by Status")}:</label>
-                    <select
-                        value={statusFilter}
-                        onChange={handleFilterChange}
-                        className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-mallorca-purple w-100"
-                    >
-                        <option value="All">All Statuses</option>
-                        <option value="Completed">Completed</option>
-                        <option value="On Going">On Going</option>
-                        <option value="Upcoming">Upcoming</option>
-                    </select>
+                {/* 4. Search and Filter UI Bar */}
+                <div className="flex flex-wrap items-center justify-between">
+                    {/* Search Input */}
+                    <div className="relative flex-grow max-w-sm">
+                        <input
+                            type="text"
+                            placeholder={t("Search by name...")}
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-mallorca-purple outline-none"
+                        />
+                    </div>
+                    {/* 4. Dropdown UI */}
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium">{t("Filter by Status")}:</label>
+                        <select
+                            value={statusFilter}
+                            onChange={handleFilterChange}
+                            className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-mallorca-purple w-100"
+                        >
+                            <option value="All">All</option>
+                            <option value="Completed">Completed</option>
+                            <option value="On Going">On Going</option>
+                            <option value="Upcoming">Upcoming</option>
+                        </select>
+                    </div>
                 </div>
                 <div className={"overflow-x-auto"}>
                     {currentData.length > 0 && (
@@ -181,9 +207,11 @@ export default function BallotDashboard () {
                                     <td>{item.drawingDate}</td>
                                     <td>{item.totalApplications}</td>
                                     <td className={"text-blue-700 underline"}>
-                                        {
-                                            item.status === 'Completed' ? 'See Details' : 'Edit Configuration'
-                                        }
+                                        <Link to={ item.status === 'Completed' ? '/ballot-details' : '/ballot-config' }>
+                                            {
+                                                item.status === 'Completed' ? 'See Details' : 'Edit Configuration'
+                                            }
+                                        </Link>
                                     </td>
                                 </tr>
                             ))}
