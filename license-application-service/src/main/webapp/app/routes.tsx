@@ -12,6 +12,7 @@ import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
+import BallotApplicationsDashboard from "./ballot-applications-dashboard/ballot-applications-dashboard";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -26,6 +27,7 @@ export default function AppRoutes() {
         { path: "payment", element: <Payment /> },
         { path: "admin-dashboard", element: <AdminDashboard /> },
         { path: "ballot-dashboard", element: <BallotDashboard /> },
+        { path: "ballot-applications-dashboard/:ballotId", element: <BallotApplicationsDashboard /> },
         { path: "legal", element: <LegalNotice /> },
         { path: "contact", element: <ContactPage /> },
         { path: "error", element: <Error /> },
