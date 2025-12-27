@@ -1,14 +1,19 @@
 #!/bin/bash
 
+CALLER_DIR="$(pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NODE_MODULES_DIR="node_modules"
 SERVICES_DIR="src/main/webapp/app/services"
 TYPES_DIR="src/main/webapp/types"
+
+cd "$SCRIPT_DIR" || exit 1
 
 read -p "Cleaning project. ALL NON-COMMITTED FILES WILL BE DELETED. Continue? (y/N) " answer
 if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
     echo "Cleaning up build artifacts and temporary files..."
 else
     echo "Aborted."
+    cd "$CALLER_DIR" || exit 1
     exit 1
 fi
 
@@ -31,3 +36,5 @@ fi
 mvn clean
 
 echo "done!"
+
+cd "$CALLER_DIR" || exit 1
