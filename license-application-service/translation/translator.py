@@ -28,6 +28,16 @@ SOURCE_FILE = "english.json"
 # STRUCTURE VALIDATION
 # ─────────────────────────────────────────────────────────────
 
+def count_lines(src_path: str, dst_path: str):
+  with open(src_path, "r", encoding="utf-8") as f:
+    src_lines = sum(1 for _ in f)
+  with open(dst_path, "r", encoding="utf-8") as f:
+    dst_lines = sum(1 for _ in f)
+  if src_lines != dst_lines:
+    print(
+      f"⚠ Line count mismatch: {src_lines} (source) vs {dst_lines} (destination)")
+
+
 def assert_same_structure(a: dict, b: dict, path: str = "root"):
   if type(a) is not type(b):
     raise ValueError(f"Type mismatch at {path}")
@@ -110,7 +120,7 @@ Input JSON (authoritative, must be preserved):
     except Exception as e:
       last_error = e
       if attempt < MAX_RETRIES:
-        print(f"⚠ {section_name}: retry {attempt}/{MAX_RETRIES} ({e})")
+        print(f"⚠ {section_name:<25} retry {attempt:>2}/{MAX_RETRIES:<2} ({e})")
         time.sleep(1)
 
   raise RuntimeError(
@@ -123,10 +133,14 @@ Input JSON (authoritative, must be preserved):
 # ─────────────────────────────────────────────────────────────
 
 def main():
-  with open(f"{LOCALE_PATH}/{SOURCE_FILE}", "r", encoding="utf-8") as f:
+  src_file_path = f"{LOCALE_PATH}/{SOURCE_FILE}"
+
+  with open(src_file_path, "r", encoding="utf-8") as f:
     source = json.load(f)
 
   for language, locale in LANGUAGES.items():
+    dst_file_path = f"{LOCALE_PATH}/{language}.json"
+
     print(f"→ translating {language}")
 
     result: Dict[str, Any] = {}
@@ -137,7 +151,7 @@ def main():
 
     sections = [(k, v) for k, v in source.items() if k != "locale"]
     for idx, (key, value) in enumerate(sections, start=1):
-      print(f"\t↳ section: {key}\t\t({idx}/{len(sections)})")
+      print(f"  ↳ section: {key:<25} ({idx}/{len(sections)})")
       if not isinstance(value, dict):
         result[key] = value
         continue
@@ -148,11 +162,13 @@ def main():
         target_language=language.capitalize(),
       )
 
-    output_file = f"{LOCALE_PATH}/{language}.json"
-    with open(output_file, "w", encoding="utf-8") as f:
+    with open(dst_file_path, "w", encoding="utf-8") as f:
       json.dump(result, f, ensure_ascii=False, indent=2)
+      f.write("\n")
 
-    print(f"✔ written {output_file}")
+    count_lines(src_file_path, dst_file_path)
+
+    print(f"✔ written {dst_file_path}")
 
   print("All translations completed successfully.")
 
