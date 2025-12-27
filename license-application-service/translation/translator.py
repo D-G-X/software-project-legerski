@@ -1,10 +1,9 @@
 import json
 import os
 import time
-from typing import Any, Dict
-
 from dotenv import load_dotenv
 from openai import OpenAI
+from typing import Any, Dict
 
 load_dotenv()
 
@@ -29,7 +28,7 @@ SOURCE_FILE = "english.json"
 # STRUCTURE VALIDATION
 # ─────────────────────────────────────────────────────────────
 
-def assert_same_structure(a: Any, b: Any, path: str = "root"):
+def assert_same_structure(a: dict, b: dict, path: str = "root"):
   if type(a) is not type(b):
     raise ValueError(f"Type mismatch at {path}")
 
@@ -48,21 +47,19 @@ def assert_same_structure(a: Any, b: Any, path: str = "root"):
       assert_same_structure(x, y, f"{path}[{i}]")
 
 
-def safe_json_load_exact(text: str, original: Dict[str, Any]) -> Dict[str, Any]:
+def safe_json_load_exact(output: str, input: Dict[str, Any]) -> Dict[str, Any]:
   try:
-    parsed = json.loads(text)
+    parsed_output = json.loads(output)
   except Exception:
     with open("last_raw_response.txt", "w", encoding="utf-8") as f:
-      f.write(text)
-    with open("last_raw_input.txt", "w", encoding="utf-8") as f:
-      f.write(original)
+      f.write(output)
     raise ValueError("Response is not valid JSON")
 
-  if not isinstance(parsed, dict):
+  if not isinstance(parsed_output, dict):
     raise ValueError("Response JSON is not an object")
 
-  assert_same_structure(original, parsed)
-  return parsed
+  assert_same_structure(input, parsed_output)
+  return parsed_output
 
 
 # ─────────────────────────────────────────────────────────────
@@ -74,7 +71,6 @@ def translate_section(
     data: Dict[str, Any],
     target_language: str
 ) -> Dict[str, Any]:
-
   section_wrapper = {section_name: data}
 
   last_error = None
@@ -135,19 +131,17 @@ def main():
 
     result: Dict[str, Any] = {}
 
-    # locale niemals übersetzen
+    # never translate the locale code itself
     if "locale" in source:
       result["locale"] = locale
 
-    for key, value in source.items():
-      if key == "locale":
-        continue
-
+    sections = [(k, v) for k, v in source.items() if k != "locale"]
+    for idx, (key, value) in enumerate(sections, start=1):
+      print(f"\t↳ section: {key}\t\t({idx}/{len(sections)})")
       if not isinstance(value, dict):
         result[key] = value
         continue
 
-      print(f"  ↳ section: {key}")
       result[key] = translate_section(
         section_name=key,
         data=value,
