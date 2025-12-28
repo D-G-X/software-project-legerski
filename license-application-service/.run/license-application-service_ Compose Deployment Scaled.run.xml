@@ -10,9 +10,7 @@
       </settings>
     </deployment>
     <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="license-application-service: Compose Deployment" run_configuration_type="docker-deploy" />
-      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/license-application-service/pom.xml" goal="license-application-service: liquibase:update" />
-      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/license-application-service/pom.xml" goal="compile" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Initial Setup" run_configuration_type="MavenRunConfiguration" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/license-application-service/pom.xml" goal="package" />
     </method>
   </configuration>
