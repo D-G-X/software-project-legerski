@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="license-application-service: Compose Deployment Scaled" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="commandLineOptions" value="--build" />
+        <option name="sourceFilePath" value="license-application-service/docker-compose.yml" />
+        <upScaledServices>
+          <entry key="backend" value="2" />
+        </upScaledServices>
+      </settings>
+    </deployment>
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="license-application-service: Compose Deployment" run_configuration_type="docker-deploy" />
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/license-application-service/pom.xml" goal="license-application-service: liquibase:update" />
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/license-application-service/pom.xml" goal="compile" />
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/license-application-service/pom.xml" goal="package" />
+    </method>
+  </configuration>
+</component>
