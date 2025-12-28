@@ -1,12 +1,18 @@
-#!/usr/bin/env pwsh
+# clean.ps1
 
-$NODE_MODULES_DIR = "node_modules"
-$SERVICES_DIR     = "src/main/webapp/app/services"
-$TYPES_DIR        = "src/main/webapp/types"
+$CallerDir = Get-Location
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+$NodeModulesDir = "node_modules"
+$ServicesDir    = "src/main/webapp/app/services"
+$TypesDir       = "src/main/webapp/types"
+
+Set-Location $ScriptDir
 
 $answer = Read-Host "Cleaning project. ALL NON-COMMITTED FILES WILL BE DELETED. Continue? (y/N)"
 if ($answer -ne "y" -and $answer -ne "Y") {
     Write-Host "Aborted."
+    Set-Location $CallerDir
     exit 1
 }
 
@@ -16,16 +22,16 @@ git clean -fd
 
 docker compose -f ./docker-compose.yml down --volumes --remove-orphans
 
-if (Test-Path $NODE_MODULES_DIR) {
-    Remove-Item $NODE_MODULES_DIR -Recurse -Force
+if (Test-Path $NodeModulesDir) {
+    Remove-Item -Recurse -Force $NodeModulesDir
 }
 
-if (Test-Path $SERVICES_DIR) {
-    Remove-Item $SERVICES_DIR -Recurse -Force
+if (Test-Path $ServicesDir) {
+    Remove-Item -Recurse -Force $ServicesDir
 }
 
-if (Test-Path $TYPES_DIR) {
-    Get-ChildItem $TYPES_DIR -File |
+if (Test-Path $TypesDir) {
+    Get-ChildItem $TypesDir -File |
         Where-Object { $_.Name -ne "custom.d.ts" } |
         Remove-Item -Force
 }
@@ -33,3 +39,5 @@ if (Test-Path $TYPES_DIR) {
 mvn clean
 
 Write-Host "done!"
+
+Set-Location $CallerDir

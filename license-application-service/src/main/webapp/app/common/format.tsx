@@ -1,7 +1,7 @@
 type Unit = "second" | "minute" | "hour" | "day" | "month" | "year";
 
-export const formatAmount = (raw: number | undefined, t: any): string => {
-  if (raw === undefined) return "";
+export const formatAmount = (raw: number | undefined | null, t: any): string | null => {
+  if (!raw) return null;
   return new Intl.NumberFormat(t("locale"), {
     style: "currency",
     currency: "EUR",

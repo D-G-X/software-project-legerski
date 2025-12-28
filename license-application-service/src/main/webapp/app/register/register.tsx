@@ -9,11 +9,11 @@ import {
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
-import "./register.css";
 import { OrDivider } from "app/common/orDivider";
 import { useRegisterUser } from "../services/authentication/authentication";
 import { useNavigate } from "react-router";
 import { AuthContext } from "app/common/AuthContext";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 
 export default function Register() {
   const auth = useContext(AuthContext);
@@ -59,18 +59,8 @@ export default function Register() {
     }));
   };
 
-  const registerUser = useRegisterUser({
-    mutation: {
-      onSuccess: (data) => {
-        console.log("Registered successfully:", data.data);
-        alert("Account created successfully!");
-      },
-      onError: (error) => {
-        console.error("Registration error:", error);
-        alert("Registration failed");
-      },
-    },
-  });
+  const registerUser = useRegisterUser();
+  const { show, hide } = useGlobalLoader();
 
   const handleSubmit = async () => {
     const fristNameValidateResult: validateResults = isValidName(
@@ -130,6 +120,7 @@ export default function Register() {
 
     // API call for register;
     try {
+      show();
       const response = await registerUser.mutateAsync({
         data: {
           firstname: form.firstName,
@@ -150,7 +141,6 @@ export default function Register() {
       return true;
     } catch (error: any) {
       const status = error?.response?.status;
-
       switch (status) {
         case 400:
           alert(t("register.registerUserAlerts.invalidReq"));
@@ -169,6 +159,8 @@ export default function Register() {
           break;
       }
       return false;
+    } finally {
+      hide();
     }
   };
 

@@ -46,27 +46,27 @@ export default function AppRoutes() {
         {
           path: "license-application-request/:type/:id",
           element: <RequestApplication />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           path: "license-application-request",
           element: <RequestApplication />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           path: "license-document-upload/:id",
           element: <ApplicationDocumentUpload />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           path: "payment/:id",
           element: <PaymentForm />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           path: "payment/:id/done",
           element: <PaymentConfirm />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
         {
           path: "profile",
@@ -76,7 +76,7 @@ export default function AppRoutes() {
         {
           path: "deleteProfile",
           element: <DeleteProfile />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user","admin"]),
         },
 
         // Admin-only routes

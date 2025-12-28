@@ -1,7 +1,6 @@
 import React, {useContext, useState} from "react";
 import {useTranslation} from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
-import "./admin-dashboard.css";
 import Pagination from "../common/Pagination";
 import {Link, useNavigate} from "react-router";
 import {ApplicationResource} from "../../types";
@@ -84,29 +83,29 @@ export default function AdminDashboard() {
                     <table className="mt-8 text-lg dashboard-table text-mallorca-purple">
                       <thead>
                       <tr>
-                        <th>{t("admin-dashboard.table.requester_name")}</th>
-                        <th>{t("admin-dashboard.table.address")}</th>
-                        <th>{t("admin-dashboard.table.phone_number")}</th>
-                        <th>{t("admin-dashboard.table.email")}</th>
-                        <th>{t("admin-dashboard.table.country")}</th>
-                        <th>{t("admin-dashboard.table.status")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.requester_name")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.address")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.phone_number")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.email")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.country")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.status")}</th>
                       </tr>
                       </thead>
                       <tbody>
                       {currentData.map((item) => (
                           <tr key={item.id}>
-                            <td>{item.user_id}</td>
-                            <td>{item.license_type}</td>
-                            <td>{item.cadastral_reference}</td>
-                            <td>{formatDateShort(item.applied_at, t)}</td>
-                            <td>{formatDateShort(item.changed_at, t)}</td>
-                            <td>{item.application_status}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.user_id}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.license_type}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.cadastral_reference}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{formatDateShort(item.applied_at, t)}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{formatDateShort(item.changed_at, t)}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.application_status}</td>
                             {(item.remarks && (
-                                <td>{item.remarks}</td>
+                                <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.remarks}</td>
                             ))}
-                            <td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >
                         <span
-                            className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[14rem] rounded-md ${
+                            className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-56 rounded-md ${
                                 // green
                                 ["SELECTED", "PAYMENT_RECEIVED"].includes(
                                     item.application_status
@@ -143,7 +142,7 @@ export default function AdminDashboard() {
                           )}
                         </span>
                             </td>
-                            <td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-[10px]" >
                               <button
                                   key={item.id}
                                   onClick={() => openDetails(item)}

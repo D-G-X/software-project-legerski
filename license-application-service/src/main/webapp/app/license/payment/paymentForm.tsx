@@ -3,7 +3,6 @@ import {
   isValidBic,
   isValidIban,
   isValidName,
-  isValidSepaMandate,
 } from "../../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
@@ -14,8 +13,6 @@ import {
 } from "app/services/payments/payments";
 import ModalDialog from "../../common/modal-dialog";
 import { useNavigate, useParams } from "react-router";
-import "./paymentForm.css";
-import { AnimatedDots } from "../../common/AnimatedDots";
 import { useGetApplication } from "app/services/applications/applications";
 import {
   formatAmount,
@@ -25,7 +22,21 @@ import {
 } from "../../common/format";
 import { ApplicationPaymentCreate } from "../../../types";
 import { AuthContext } from "app/common/AuthContext";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 import axios from "axios";
+
+export type StateProps = {
+  amount: number | null | undefined;
+  payment_id: number;
+  application_id: number;
+  cadastral_reference: string | undefined;
+  license_type: string | undefined;
+  name: string;
+  iban: string;
+  bic: string;
+  payment_date: string;
+  payment_status: string;
+};
 
 export default function PaymentConfirm() {
   const { t } = useTranslation();
@@ -69,12 +80,13 @@ export default function PaymentConfirm() {
   });
 
   const {
-    refetch: refetchAppFee,
+    data: applicationFeeData,
     isFetching: isFetchingAppFee,
     error: appFeeError,
   } = useGetApplicationFee(applicationId, {
     query: {
-      enabled: false,
+      enabled: !!applicationDetails?.id && !!auth?.accessToken,
+      select: (response) => response,
     },
     axios: {
       headers: {
@@ -112,27 +124,25 @@ export default function PaymentConfirm() {
     }
   }, [appError, appFeeError]);
 
+  const { show, hide } = useGlobalLoader();
+
   useEffect(() => {
-    const fetchFee = async () => {
-      if (isFetchingAppData) {
-        return;
-      }
-      if (!applicationDetails?.id) {
-        navigate("/");
-        return;
-      }
+    if (isFetchingAppData || isFetchingAppFee) show();
+    else hide();
+  }, [isFetchingAppData, isFetchingAppFee, show, hide]);
 
-      const result = await refetchAppFee();
-      if (isFetchingAppFee && !result) {
-        alert("Payment Gateway is not responding, please try again later!");
-        navigate("/");
-        return;
-      }
-      setAmount(result?.data?.data.fee_amount);
-    };
+  useEffect(() => {
+    if (!applicationDetails?.id) {
+      navigate("/");
+      return;
+    }
+  }, [applicationDetails, navigate]);
 
-    fetchFee();
-  }, [applicationDetails]);
+  useEffect(() => {
+    if (applicationFeeData?.data?.fee_amount !== undefined) {
+      setAmount(applicationFeeData.data.fee_amount);
+    }
+  }, [applicationFeeData]);
 
   const [showSepaDialog, setShowSepaDialog] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -185,13 +195,14 @@ export default function PaymentConfirm() {
     const nameVal = isValidName(normalizedName);
     const ibanVal = isValidIban(normalizedIban);
     const bicVal = isValidBic(normalizedBic, normalizedIban);
-    const sepaVal = isValidSepaMandate(form.sepaMandateChecked);
 
     const newErrors = {
       name: nameVal.isValid ? "" : nameVal.message,
       iban: ibanVal.isValid ? "" : ibanVal.message,
       bic: bicVal.isValid ? "" : bicVal.message,
-      sepaMandateCheck: sepaVal.isValid ? "" : sepaVal.message,
+      sepaMandateCheck: form.sepaMandateChecked
+        ? ""
+        : t("license.paymentForm.sepaMandateError"),
       pay: "",
     };
 
@@ -215,6 +226,7 @@ export default function PaymentConfirm() {
     };
 
     try {
+      show();
       setLoading(true);
 
       const response = await mutation.mutateAsync({
@@ -240,22 +252,29 @@ export default function PaymentConfirm() {
       //   throw new Error("Response data mismatch");
       // }
 
+      const stateData: StateProps = {
+        amount: amount,
+        application_id: applicationId,
+        cadastral_reference: applicationDetails?.cadastral_reference,
+        license_type: applicationDetails?.license_type,
+        payment_id: response.data.id,
+        payment_date: response.data.payment_date ?? Date.now().toString(),
+        payment_status: response.data.payment_status,
+        name: normalizedName,
+        iban: normalizedIban,
+        bic: normalizedBic,
+      };
+
       navigate(`/payment/${applicationId}/done`, {
         state: {
-          application_id: applicationId,
-          payment_id: response.data.id,
-          payment_date: response.data.payment_date ?? Date.now().toString(),
-          payment_status: response.data.payment_status,
-          name: normalizedName,
-          iban: normalizedIban,
-          bic: normalizedBic,
-          amount,
+          ...stateData,
         },
       });
     } catch (err) {
       setErrors((prev) => ({ ...prev, pay: "Payment failed" }));
     } finally {
       setLoading(false);
+      hide();
     }
   };
 
@@ -264,27 +283,63 @@ export default function PaymentConfirm() {
   return (
     <div className="container mx-auto px-4 md:px-6">
       <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center">
-        {!loading ? (
+        {!loading && (
           <div className="font-inter min-w-96">
             <FormHeader
-              heading={t("paymentForm.index.headline")}
-              subHeading={t("paymentForm.index.subHeadline")}
+              heading={t("license.paymentForm.index.headline")}
+              subHeading={t("license.paymentForm.index.subHeadline")}
             />
-            <div className="relative mt-12 bg-gray-50 px-3 pt-5 pb-2 rounded-xl">
+            <div className="relative mt-12 bg-gray-50 text-mallorca-purple px-3 pt-5 pb-2 rounded-xl">
               <div className="flex justify-between items-baseline text-xl font-semibold">
-                <span>{t("paymentForm.index.amountLabel") + ": "}</span>
+                <span>{t("license.paymentForm.index.amountLabel") + ": "}</span>
                 <div className="flex flex-col items-end">
-                  <span className="text-xl font-semibold leading-none">
+                  <span className="leading-none">
                     {isFetchingAppData || isFetchingAppFee ? (
                       <div className="w-32 h-6 rounded-md overflow-hidden relative">
                         <div className="absolute inset-0 bg-linear-to-r from-gray-200 via-mallorca-purple/30 to-gray-200 animate-shimmer" />
                       </div>
                     ) : (
-                      formatAmount(amount!, t)
+                      formatAmount(amount, t) || "N/A"
                     )}
                   </span>
                   <span className="text-xs font-light italic mt-1 leading-none">
-                    {t("paymentConfirm.index.taxLabel")}
+                    {t("license.paymentForm.index.taxLabel")}
+                  </span>
+                </div>
+              </div>
+
+              <hr className="my-4 border-gray-300" />
+
+              <div className="flex justify-between items-baseline text-md font-normal">
+                <span>
+                  {t("license.paymentForm.index.cadastralIdLabel") + ": "}
+                </span>
+                <div className="flex flex-col items-end">
+                  <span className="leading-none">
+                    {isFetchingAppData ? (
+                      <div className="w-32 h-6 rounded-md overflow-hidden relative">
+                        <div className="absolute inset-0 bg-linear-to-r from-gray-200 via-mallorca-purple/30 to-gray-200 animate-shimmer" />
+                      </div>
+                    ) : (
+                      applicationDetails?.cadastral_reference || "N/A"
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-baseline text-md font-normal">
+                <span>
+                  {t("license.paymentForm.index.licenseTypeLabel") + ": "}
+                </span>
+                <div className="flex flex-col items-end">
+                  <span className="leading-none">
+                    {isFetchingAppData || isFetchingAppFee ? (
+                      <div className="w-32 h-6 rounded-md overflow-hidden relative">
+                        <div className="absolute inset-0 bg-linear-to-r from-gray-200 via-mallorca-purple/30 to-gray-200 animate-shimmer" />
+                      </div>
+                    ) : (
+                      applicationDetails?.license_type || "N/A"
+                    )}
                   </span>
                 </div>
               </div>
@@ -308,7 +363,7 @@ export default function PaymentConfirm() {
                       : "top-3.5 text-base text-mallorca-purple/50"
                   } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
                 >
-                  {t("paymentForm.index.nameLabel")}
+                  {t("license.paymentForm.index.nameLabel")}
                 </label>
                 {errors.name && (
                   <div className="text-red-500 mt-1 pl-4 text-xs">
@@ -335,7 +390,7 @@ export default function PaymentConfirm() {
                       : "top-3.5 text-base text-mallorca-purple/50"
                   } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
                 >
-                  {t("paymentForm.index.ibanLabel")}
+                  {t("license.paymentForm.index.ibanLabel")}
                 </label>
                 {errors.iban && (
                   <div className="text-red-500 mt-1 pl-4 text-xs">
@@ -363,10 +418,10 @@ export default function PaymentConfirm() {
                       : "top-3.5 text-base text-mallorca-purple/50"
                   } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
                 >
-                  {t("paymentForm.index.bicLabel")}
+                  {t("license.paymentForm.index.bicLabel")}
                   {!form.bic &&
                     !bicFocused &&
-                    t("paymentForm.index.bicLabelOptional")}
+                    t("license.paymentForm.index.bicLabelOptional")}
                 </label>
                 {errors.bic && (
                   <div className="text-red-500 my-1 pl-4 text-xs">
@@ -381,7 +436,9 @@ export default function PaymentConfirm() {
                     htmlFor="sepaMandateChecked"
                     className="px-3 text-mallorca-purple/70 text-lg"
                   >
-                    {t("paymentForm.index.acceptSepaMandateLabel.plain")}
+                    {t(
+                      "license.paymentForm.index.acceptSepaMandateLabel.plain"
+                    )}
                     <button
                       type="button"
                       onClick={(e) => {
@@ -390,7 +447,9 @@ export default function PaymentConfirm() {
                       }}
                       className="ml-1 text-mallorca-purple underline hover:text-mallorca-purple/80"
                     >
-                      {t("paymentForm.index.acceptSepaMandateLabel.button")}
+                      {t(
+                        "license.paymentForm.index.acceptSepaMandateLabel.button"
+                      )}
                     </button>
                   </label>
                 </div>
@@ -407,60 +466,66 @@ export default function PaymentConfirm() {
                 open={showSepaDialog}
                 showDownloadButton={true}
                 acceptButtonLabel={t(
-                  "paymentForm.sepaMandateDialog.acceptButtonLabel"
+                  "license.paymentForm.sepaMandateDialog.acceptButtonLabel"
                 )}
                 cancelButtonLabel={t(
-                  "paymentForm.sepaMandateDialog.cancelButtonLabel"
+                  "license.paymentForm.sepaMandateDialog.cancelButtonLabel"
                 )}
                 downloadButtonLabel={t(
-                  "paymentForm.sepaMandateDialog.downloadButtonLabel"
+                  "license.paymentForm.sepaMandateDialog.downloadButtonLabel"
                 )}
                 downloadFileName={t(
-                  "paymentForm.sepaMandateDialog.downloadFileName",
+                  "license.paymentForm.sepaMandateDialog.downloadFileName",
                   { accountHolder: form.name ? " " + form.name : "" }
                 )}
-                title={t("paymentForm.sepaMandateDialog.title") + "\n\n"}
+                title={
+                  t("license.paymentForm.sepaMandateDialog.title") + "\n\n"
+                }
                 text={
-                  t("paymentForm.sepaMandateDialog.text.line1") +
+                  t("license.paymentForm.sepaMandateDialog.text.line1") +
                   "\n\n" +
-                  t("paymentForm.sepaMandateDialog.text.line2") +
+                  t("license.paymentForm.sepaMandateDialog.text.line2") +
                   "\n" +
-                  t("paymentForm.sepaMandateDialog.text.line3") +
+                  t("license.paymentForm.sepaMandateDialog.text.line3") +
                   "\n\n" +
-                  t("paymentForm.sepaMandateDialog.text.line4") +
+                  t("license.paymentForm.sepaMandateDialog.text.line4") +
                   "\n" +
-                  t("paymentForm.sepaMandateDialog.text.line5", {
+                  t("license.paymentForm.sepaMandateDialog.text.line5", {
                     accountHolder: form.name ? form.name : "",
                   }) +
                   "\n" +
-                  t("paymentForm.sepaMandateDialog.text.line6", {
+                  t("license.paymentForm.sepaMandateDialog.text.line6", {
                     iban: form.iban ? form.iban : "",
                   }) +
                   (form.bic ? "\n" : "") +
                   (form.bic
-                    ? t("paymentForm.sepaMandateDialog.text.line7", {
+                    ? t("license.paymentForm.sepaMandateDialog.text.line7", {
                         bic: form.bic,
                       })
                     : "") +
                   "\n\n" +
-                  t("paymentForm.sepaMandateDialog.text.line8") +
+                  t("license.paymentForm.sepaMandateDialog.text.line8") +
                   "\n" +
-                  t("paymentForm.sepaMandateDialog.text.line9", {
+                  t("license.paymentForm.sepaMandateDialog.text.line9", {
                     beneficiaryName: t("app.contact.legalName"),
                   }) +
                   "\n" +
-                  t("paymentForm.sepaMandateDialog.text.line10", {
+                  t("license.paymentForm.sepaMandateDialog.text.line10", {
                     creditorId: "ES98ZZZ09999999999",
                   }) +
                   "\n" +
-                  t("paymentForm.sepaMandateDialog.text.line11", {
-                    mandateReference: "ESM-2025-00001",
+                  t("license.paymentForm.sepaMandateDialog.text.line11", {
+                    mandateReference: `ESM-${new Date().getFullYear()}-${Math.floor(
+                      Math.random() * 100_000
+                    )
+                      .toString()
+                      .padStart(5, "0")}`,
                   }) +
                   "\n\n" +
-                  t("paymentForm.sepaMandateDialog.text.line12") +
+                  t("license.paymentForm.sepaMandateDialog.text.line12") +
                   "\n\n\n" +
-                  t("paymentForm.sepaMandateDialog.text.line13", {
-                    date: formatDateLong(Date.now().toString(), t),
+                  t("license.paymentForm.sepaMandateDialog.text.line13", {
+                    date: formatDateLong(Date.now(), t),
                   }) +
                   "\n\n"
                 }
@@ -484,7 +549,7 @@ export default function PaymentConfirm() {
                   errors.pay ? "bg-mallorca-purple/75" : "bg-mallorca-purple"
                 } text-white px-10 py-2 rounded-md w-96 font-medium text-lg`}
               >
-                {t("paymentForm.index.payButtonLabel")}
+                {t("license.paymentForm.index.payButtonLabel")}
               </button>
             </div>
             {/* Finish Later Button */}
@@ -496,26 +561,15 @@ export default function PaymentConfirm() {
                   "mt-4 bg-white text-mallorca-purple  px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/50 hover:text-white border border-mallorca-purple"
                 }
               >
-                {t("paymentForm.index.cancelButtonLabel")}
+                {t("license.paymentForm.index.cancelButtonLabel")}
               </button>
-              <p className="mt-1 font-inter text-center text-gray-600 text-sm">
-                {t("paymentForm.index.cancelNote.label1")}
+              <p className="mt-3 font-inter text-center text-gray-600 text-sm">
+                {t("license.paymentForm.index.cancelNote.label1")}
               </p>
               <p className="mt-1 font-inter text-center text-gray-600 text-sm">
-                {t("paymentForm.index.cancelNote.label2")}
+                {t("license.paymentForm.index.cancelNote.label2")}
               </p>
             </div>
-          </div>
-        ) : (
-          <div className="font-inter text-center">
-            {/* Loading Screen */}
-            <div className="w-16 h-16 border-6 border-gray-200 border-t-mallorca-purple rounded-full animate-spin mx-auto" />
-            <p className="mt-6 font-light text-xl text-gray-600 relative inline-block">
-              {t("paymentForm.processing")}
-              <span className="absolute left-full">
-                <AnimatedDots speed={400} />
-              </span>
-            </p>
           </div>
         )}
       </div>
