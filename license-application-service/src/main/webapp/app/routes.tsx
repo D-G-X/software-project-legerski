@@ -19,6 +19,7 @@ import BallotDetails from "./ballot-details/ballot-details";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
+import IssuedLicensePage from "./issued-license/issued-license";
 import { ProtectedLoader } from "./common/ProtectedLoader";
 import BallotConfig from "./ballot-config/ballot-config";
 
@@ -38,6 +39,11 @@ export default function AppRoutes() {
         { path: "*", element: <Error /> },
 
         // Post login (any user)
+        {
+          path: "issued-license",
+          element: <IssuedLicensePage />,
+          loader: ProtectedLoader(["admin", "user"]),
+        },
         {
           path: "notification-settings",
           element: <NotificationSettings />,
@@ -69,7 +75,6 @@ export default function AppRoutes() {
           loader: ProtectedLoader(["user","admin"]),
         },
         {
-          path: "profile",
           element: <Profile />,
           loader: ProtectedLoader(["user", "admin"]),
         },
@@ -113,8 +118,6 @@ export default function AppRoutes() {
           path: "license-document-upload/:id",
           element: <ApplicationDocumentUpload />,
         },
-        { path: "*", element: <Error /> },
-        { path: "profile", element: <Profile /> },
         {
           path: "deleteProfile",
           element: <DeleteProfile />,
