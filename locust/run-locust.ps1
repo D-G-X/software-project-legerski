@@ -1,5 +1,10 @@
 # setup-venv.ps1
 
+$NUM_USERS=1
+$SPAWN_RATE=1 # users per second
+$RUNTIME=10 # in minutes
+$THREADS=1 # ~ number of CPU cores
+
 $CallerDir = Get-Location
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
@@ -23,7 +28,12 @@ if (-not (Test-Path "requirements.txt")) {
 
 pip install -r requirements.txt
 
-python3 .\locustfile.py
+locust -f locustfile.py \
+  --users $NUM_USERS \
+  --spawn-rate $SPAWN_RATE \
+  --run-time ${RUNTIME}m \
+  --processes $THREADS \
+  -H http://localhost:3000
 
 # Deactivate virtual environment
 deactivate

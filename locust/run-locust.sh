@@ -1,5 +1,10 @@
 #!/bin/bash
 
+NUM_USERS=1
+SPAWN_RATE=1 # users per second
+RUNTIME=10 # in minutes
+THREADS=1 # ~ number of CPU cores
+
 CALLER_DIR="$(pwd)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -22,7 +27,12 @@ fi
 
 pip install -r requirements.txt
 
-python3 ./locustfile.py
+locust -f locustfile.py \
+  --users $NUM_USERS \
+  --spawn-rate $SPAWN_RATE \
+  --run-time ${RUNTIME}m \
+  --processes $THREADS \
+  -H http://localhost:3000
 
 deactivate
 
