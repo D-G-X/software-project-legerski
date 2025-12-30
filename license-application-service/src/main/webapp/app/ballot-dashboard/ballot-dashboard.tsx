@@ -23,7 +23,7 @@ export default function BallotDashboard () {
 
     const ballots = [
         {
-            "id": "001",
+            "id": "1",
             "ballotName": "Spring Marathon 2025",
             "status": "Completed",
             "applicationPeriod": "01/10/25 - 31/10/25",
@@ -31,7 +31,7 @@ export default function BallotDashboard () {
             "totalApplications": 75240
         },
         {
-            "id": "002",
+            "id": "2",
             "ballotName": "Autumn Half-Marathon Lottery 2025",
             "status": "Upcoming",
             "applicationPeriod": "15/03/26 - 30/04/26",
@@ -39,7 +39,7 @@ export default function BallotDashboard () {
             "totalApplications": 0
         },
         {
-            "id": "003",
+            "id": "3",
             "ballotName": "Charity 5K Run",
             "status": "On Going",
             "applicationPeriod": "01/01/25 - 20/01/25",
@@ -47,7 +47,7 @@ export default function BallotDashboard () {
             "totalApplications": 12895
         },
         {
-            "id": "004",
+            "id": "4",
             "ballotName": "Spring Marathon 2026",
             "status": "Completed",
             "applicationPeriod": "01/10/25 - 31/10/25",
@@ -55,7 +55,7 @@ export default function BallotDashboard () {
             "totalApplications": 75240
         },
         {
-            "id": "005",
+            "id": "5",
             "ballotName": "Autumn Half-Marathon Lottery",
             "status": "Upcoming",
             "applicationPeriod": "15/03/26 - 30/04/26",
@@ -63,7 +63,7 @@ export default function BallotDashboard () {
             "totalApplications": 0
         },
         {
-            "id": "006",
+            "id": "6",
             "ballotName": "Charity 5K Run",
             "status": "On Going",
             "applicationPeriod": "01/01/25 - 20/01/25",
@@ -71,7 +71,7 @@ export default function BallotDashboard () {
             "totalApplications": 12895
         },
         {
-            "id": "007",
+            "id": "7",
             "ballotName": "Spring Marathon 2026",
             "status": "Completed",
             "applicationPeriod": "01/10/25 - 31/10/25",
@@ -79,7 +79,7 @@ export default function BallotDashboard () {
             "totalApplications": 75240
         },
         {
-            "id": "008",
+            "id": "8",
             "ballotName": "Autumn Half-Marathon Lottery",
             "status": "Upcoming",
             "applicationPeriod": "15/03/26 - 30/04/26",
@@ -87,7 +87,7 @@ export default function BallotDashboard () {
             "totalApplications": 0
         },
         {
-            "id": "009",
+            "id": "9",
             "ballotName": "Charity 5K Run",
             "status": "On Going",
             "applicationPeriod": "01/01/25 - 20/01/25",
@@ -95,7 +95,7 @@ export default function BallotDashboard () {
             "totalApplications": 12895
         },
         {
-            "id": "010",
+            "id": "10",
             "ballotName": "Spring Marathon 2026",
             "status": "Completed",
             "applicationPeriod": "01/10/25 - 31/10/25",
@@ -103,7 +103,7 @@ export default function BallotDashboard () {
             "totalApplications": 75240
         },
         {
-            "id": "011",
+            "id": "11",
             "ballotName": "Autumn Half-Marathon Lottery",
             "status": "Upcoming",
             "applicationPeriod": "15/03/26 - 30/04/26",

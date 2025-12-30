@@ -3,23 +3,20 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import "./ballot-applications-dashboard.css";
 import Pagination from "../common/Pagination";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 // import { useListApplications } from "app/services/applications/applications";
 // import { ApplicationResource } from "../../types";
 
 export default function BallotApplicationsDashboard() {
     const { ballotId } = useParams();
     const { t } = useTranslation();
-    const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     useDocumentTitle(t("home.index.headline"));
-
-
-
-
-
-
+    // 1. New State for Filtering
+    const [statusFilter, setStatusFilter] = useState("All");
+    // 1. States for Search and Status Filter
+    const [searchTerm, setSearchTerm] = useState("");
 
     const formatDate = (rawDate: string | undefined) => {
         if (!rawDate) return "";
@@ -32,14 +29,14 @@ export default function BallotApplicationsDashboard() {
         });
     };
 
-    function handleNewApplicationClick() {
-        navigate(`/login`);
-    }
-
+    // function handleNewApplicationClick() {
+    //     navigate(`/login`);
+    // }
+    console.log("Ballot id:" + ballotId);
     const localData = [
         {
             "id": 1,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Ahmed",
             "address": "Home",
             "phone_number": "111",
@@ -49,7 +46,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 2,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Sarah",
             "address": "Work",
             "phone_number": "222",
@@ -59,7 +56,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 3,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Kenji",
             "address": "Apartment 1B",
             "phone_number": "333",
@@ -69,7 +66,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 4,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Maria",
             "address": "Unit 20",
             "phone_number": "444",
@@ -79,7 +76,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 5,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "David",
             "address": "Cottage",
             "phone_number": "555",
@@ -89,7 +86,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 6,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Fatima",
             "address": "Farmhouse",
             "phone_number": "666",
@@ -99,7 +96,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 7,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Liam",
             "address": "Dorm 3A",
             "phone_number": "777",
@@ -109,7 +106,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 8,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Sofia",
             "address": "City Tower",
             "phone_number": "888",
@@ -119,7 +116,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 9,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Javier",
             "address": "Suburbia",
             "phone_number": "999",
@@ -129,7 +126,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 10,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Chloe",
             "address": "Penthouse",
             "phone_number": "000",
@@ -139,7 +136,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 11,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Wei",
             "address": "No. 1 Street",
             "phone_number": "101",
@@ -149,7 +146,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 12,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Hans",
             "address": "Main Road 5",
             "phone_number": "102",
@@ -159,7 +156,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 13,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Aisha",
             "address": "The Coast",
             "phone_number": "103",
@@ -169,7 +166,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 5,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "David",
             "address": "Cottage",
             "phone_number": "555",
@@ -179,7 +176,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 6,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Fatima",
             "address": "Farmhouse",
             "phone_number": "666",
@@ -189,7 +186,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 7,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Liam",
             "address": "Dorm 3A",
             "phone_number": "777",
@@ -199,7 +196,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 8,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Sofia",
             "address": "City Tower",
             "phone_number": "888",
@@ -209,7 +206,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 9,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Javier",
             "address": "Suburbia",
             "phone_number": "999",
@@ -219,7 +216,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 10,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Chloe",
             "address": "Penthouse",
             "phone_number": "000",
@@ -229,7 +226,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 11,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Wei",
             "address": "No. 1 Street",
             "phone_number": "101",
@@ -239,7 +236,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 12,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Hans",
             "address": "Main Road 5",
             "phone_number": "102",
@@ -249,7 +246,7 @@ export default function BallotApplicationsDashboard() {
         },
         {
             "id": 13,
-            "ballot_id": "001",
+            "ballot_id": "1",
             "name": "Aisha",
             "address": "The Coast",
             "phone_number": "103",
@@ -259,35 +256,79 @@ export default function BallotApplicationsDashboard() {
         }
     ];
 
-
-
     const ballotApplications = localData.filter(item => item.ballot_id === ballotId); // Filtering applications based on ballot id
-    const totalPage = Math.ceil(ballotApplications.length / itemsPerPage);
 
-    const currentData = ballotApplications.slice(
+    // 2. Combined Filter Logic
+    // This checks both the search input AND the dropdown status
+    const filteredBallotApplications = ballotApplications.filter((ballotApplication) => {
+        const matchesSearch = ballotApplication.address
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
+
+        const matchesStatus = statusFilter === "All" || ballotApplication.application_status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+    });
+
+
+
+    const totalPage = Math.ceil(filteredBallotApplications.length / itemsPerPage);
+
+    const currentData = filteredBallotApplications.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
+    // Handlers
+    const handleSearchChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
+    };
+
+    const handleFilterChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+        setStatusFilter(e.target.value);
+        setCurrentPage(1);
+    };
 
     return (
         <div className="container mx-auto px-4 md:px-6">
             <div className="relative min-h-[calc(100vh-8rem)] bg-white flex justify-center">
                 <div className="font-inter flex flex-col w-full mt-4">
-                    <h1 className="text-3xl font-bold text-mallorca-purple text-left">{t("admin-dashboard.headline")}</h1>
-                    <div className={"flex justify-between mt-2"}>
+                    <h1 className="text-3xl font-bold text-mallorca-purple text-left">{t("ballot-applications-dashboard.headline.ballot")} {ballotId} {t("ballot-applications-dashboard.headline.applications")}</h1>
+                    <div className={"flex justify-between my-4"}>
                         <Link to={"/login"} className={"text-green-500"}>{t("admin-dashboard.links.active_requests")}</Link>
-                        <button onClick={handleNewApplicationClick} className={"text-blue-500 underline"}>{t("admin-dashboard.links.ballot_management")}</button>
+                        <Link to={"/ballot-dashboard"} className={"text-blue-500 underline"}>{t("admin-dashboard.links.ballot_management")}</Link>
+                    </div>
+                    {/* 4. Search and Filter UI Bar */}
+                    <div className="flex flex-wrap items-center justify-between">
+                        {/* Search Input */}
+                        <div className="relative flex-grow max-w-sm">
+                            <input
+                                type="text"
+                                placeholder={t("Search by address...")}
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-mallorca-purple outline-none"
+                            />
+                        </div>
+                        {/* 4. Dropdown UI */}
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium">{t("Filter by Status")}:</label>
+                            <select
+                                value={statusFilter}
+                                onChange={handleFilterChange}
+                                className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-mallorca-purple w-100"
+                            >
+                                <option value="All">All</option>
+                                <option value="SUBMITTED">Submitted</option>
+                                <option value="REJECTED">Rejected</option>
+                                <option value="UPCOMING">Upcoming</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="PENDING">Pending</option>
+                            </select>
+                        </div>
                     </div>
 
-                    {/*<button*/}
-                    {/*    type="button"*/}
-                    {/*    className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 w-max"*/}
-                    {/*    onClick={handleNewApplicationClick}*/}
-                    {/*>*/}
-                    {/*    {t("dashboard.buttonLabel")}*/}
-                    {/*</button>*/}
-                    <h1>Ballot Id: {ballotId}</h1>
                     {currentData.length > 0 && (
                         <div className="mt-16 w-full">
                             <h1 className="font-bold text-xl text-mallorca-purple">

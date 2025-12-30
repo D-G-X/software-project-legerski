@@ -160,6 +160,12 @@
       "action": "Action"
     }
   },
+  "ballot-applications-dashboard": {
+    "headline": {
+      "ballot": "Ballot",
+      "applications": "Applications"
+    }
+  },
   "common": {
     "orDivider": "or"
   },
