@@ -82,7 +82,7 @@ public class AuthController implements AuthenticationApi {
             resetPasswordRequest.getEmail(),
             null,
             "Password Reset Request",
-            "Click the link to reset your password: <a href=\"https://example.com/reset?email=" + resetPasswordRequest.getEmail() + "\">Reset Password</a>"
+            "Click the link to reset your password: <a href=\"http://localhost:3000/reset-password\">Reset Password</a>"
         );
         if (!isEmailSent) {
             System.out.println("Failed to send password reset email to: " + resetPasswordRequest.getEmail());
