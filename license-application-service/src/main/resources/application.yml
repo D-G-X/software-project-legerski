@@ -54,7 +54,7 @@ error:
       5xx: ERROR
 
 keycloak:
-  url: ${KEYCLOAK_AUTH_SERVER_URL}
+  url: http://localhost:8081
   realm: license-realm
   client-id: backend-api
   client-secret: "**********"
