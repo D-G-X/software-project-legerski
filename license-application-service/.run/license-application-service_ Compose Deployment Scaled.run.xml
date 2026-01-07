@@ -3,6 +3,13 @@
     <deployment type="docker-compose.yml">
       <settings>
         <option name="commandLineOptions" value="--build" />
+        <option name="services">
+          <list>
+            <option value="frontend" />
+            <option value="backend" />
+            <option value="nginx" />
+          </list>
+        </option>
         <option name="sourceFilePath" value="license-application-service/docker-compose.yml" />
         <upScaledServices>
           <entry key="backend" value="2" />
