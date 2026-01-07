@@ -32,6 +32,7 @@ locust -f locustfile.py \
   --spawn-rate $SPAWN_RATE \
   --run-time ${RUNTIME}m \
   --processes $THREADS \
+  --loglevel DEBUG \
   -H http://localhost:3000
 
 deactivate

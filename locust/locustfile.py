@@ -1,17 +1,21 @@
 import base64
 import json
-import os
+import logging
 import random
 import string
-import uuid
-from locust import HttpUser, task, between, events, constant_throughput
+from itertools import count
+
+from locust import HttpUser, task, events, constant_throughput
 from locust.exception import StopUser
+from gevent import sleep
 
 MAX_RESPONSE_TIME_MS = 500  # Max avg response time according to requirements
 MAX_ERROR_RATE = 0.01  # Max error rate according to requirements
 
 LICENSE_TYPES = ["ETV", "ETVPL", "ETV60"]
+MAX_TRY_SEC = 30
 
+logger = logging.getLogger(__name__)
 
 def decode_jwt(token: str) -> dict:
   payload = token.split(".")[1]
@@ -24,13 +28,16 @@ class WebsiteUser(HttpUser):
   wait_time = constant_throughput(10)  # 10 tasks per second
 
   def on_start(self):
+    logger.info("User started")
+    user_counter = count(1)
     # 1 HOME
     self.client.get("/")
 
     # Generate unique user
+    user_no = next(user_counter)
     self.firstname = "Load"
     self.lastname = "Test"
-    self.email = f"locust_{uuid.uuid4()}@test.local"
+    self.email = f"locust{user_no}@test.local"
     self.password = "Locust123!"
 
     # 2 REGISTER
@@ -45,6 +52,12 @@ class WebsiteUser(HttpUser):
       name="register",
     )
     if r.status_code != 201:
+      logger.error(
+        "Registration failed: status=%s body=%s email=%s",
+        r.status_code,
+        r.text,
+        self.email,
+      )
       raise StopUser()
 
     # 3 LOGIN
@@ -114,8 +127,7 @@ class WebsiteUser(HttpUser):
       raise StopUser()
 
     # 6.2 WAIT FOR VALIDATION RESULT
-    validated = False
-    while not validated:
+    for _ in range(MAX_TRY_SEC):
       r = self.client.get(
         f"/applications/{self.application_id}/documents",
         name="check_document_validation_status",
@@ -123,7 +135,7 @@ class WebsiteUser(HttpUser):
       if r.status_code != 200:
         raise StopUser()
       if r.json()["status"] == "VERIFIED":
-        validated = True
+        break
       else:
         sleep(1)  # wait before retrying
 
@@ -132,7 +144,7 @@ class WebsiteUser(HttpUser):
       f"/applications/{self.application_id}/payments",
       json={
         "name": f"{self.firstname} {self.lastname}",
-        "iban": "DE".join(random.choices(string.digits, k=20)),
+        "iban": "DE" + "".join(random.choices(string.digits, k=20)),
         "BIC": "DEUTDEAAXXX",
       },
       name="payment_form",
@@ -140,7 +152,7 @@ class WebsiteUser(HttpUser):
     if r.status_code != 200:
       raise StopUser()
 
-    if not r.json()["id"] or r.json["status"] != "UNPAID":
+    if not r.json()["id"] or r.json()["status"] != "UNPAID":
       raise StopUser()
     self.payment_id = r.json()["id"]
 
@@ -162,4 +174,4 @@ def _(environment, **kw):
     raise SystemExit(f"❌ Avg response time too high: {avg} ms")
 
   if stats.fail_ratio > MAX_ERROR_RATE:
-    raise SystemExit(f"❌ Error rate too high: {fail_ratio / 100:.2f}%")
+    raise SystemExit(f"❌ Error rate too high: {stats.fail_ratio * 100:.2f}%")

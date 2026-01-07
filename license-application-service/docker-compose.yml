@@ -53,6 +53,7 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
     container_name: react-frontend
+    env_file: .env
     ports:
       - "80:80"
     depends_on:
