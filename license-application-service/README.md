@@ -60,7 +60,7 @@ Check that the `KEYCLOAK_CLIENT_SECRET` is properly set in `.env` file. The clie
 ### Clean-Up (only after dependency updates)
 
 1. Stop the Spring Boot **and** npm applications if running.
-2. Run `clean.sh` (Linux/macOS) or `clean.bat` (Windows) in `license-application-service`.
+2. Run `clean.sh` (Linux/macOS) or `clean.ps1` (Windows) in `license-application-service`.
 
 This removes outdated npm and maven packages.
 
