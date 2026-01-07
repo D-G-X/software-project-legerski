@@ -11,6 +11,8 @@ import {
   useCreatePayment,
   useGetApplicationFee,
 } from "app/services/payments/payments";
+import { useUpdateApplication } from "app/services/applications/applications";
+import { ApplicationStatusApiEnum } from "types/applicationStatusApiEnum";
 import ModalDialog from "../../common/modal-dialog";
 import { useNavigate, useParams } from "react-router";
 import { useGetApplication } from "app/services/applications/applications";
@@ -43,6 +45,18 @@ export default function PaymentConfirm() {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
   const mutation = useCreatePayment({
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+    },
+  });
+  const updateApplication = useUpdateApplication({
+    mutation: {
+      onError: (error) => {
+        console.error("Update application error:", error);
+      },
+    },
     axios: {
       headers: {
         Authorization: `Bearer ${auth?.accessToken}`,
@@ -132,7 +146,11 @@ export default function PaymentConfirm() {
   }, [isFetchingAppData, isFetchingAppFee, show, hide]);
 
   useEffect(() => {
-    if (!applicationDetails?.id) {
+    if (isFetchingAppData) return;
+    if (
+      !applicationDetails?.id ||
+      applicationDetails.application_status !== "DOCUMENTS_SUBMITTED"
+    ) {
       navigate("/");
       return;
     }
@@ -240,17 +258,20 @@ export default function PaymentConfirm() {
         return;
       }
 
-      // validate response consistency
-      // const isEqual =
-      //   response.data.application_id === applicationId &&
-      //   response.data.amount === amount &&
-      //   response.data.name === normalizedName &&
-      //   response.data.iban === normalizedIban &&
-      //   response.data.bic === normalizedBic;
-
-      // if (!isEqual) {
-      //   throw new Error("Response data mismatch");
-      // }
+      try {
+        await updateApplication.mutateAsync({
+          applicationId,
+          data: {
+            application_status: ApplicationStatusApiEnum.PAYMENT_RECEIVED,
+            remarks: "",
+          },
+        });
+      } catch (err) {
+        console.error(
+          "Failed to update application status after payment:",
+          err
+        );
+      }
 
       const stateData: StateProps = {
         amount: amount,
