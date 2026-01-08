@@ -84,7 +84,7 @@ services:
     ports:
       - "8090:80"
     volumes:
-      - ./nginx/be-nginx.conf:/etc/nginx/be-nginx.conf
+      - ./nginx/be-nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - backend
     networks:
