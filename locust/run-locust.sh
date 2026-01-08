@@ -33,7 +33,7 @@ locust -f locustfile.py \
   --run-time ${RUNTIME}m \
   --processes $THREADS \
   --loglevel DEBUG \
-  -H http://localhost:3000
+  -H http://localhost:8080 \
 
 deactivate
 

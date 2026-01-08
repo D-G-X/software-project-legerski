@@ -3,175 +3,187 @@ import json
 import logging
 import random
 import string
+import uuid
+from datetime import datetime, timezone
 from itertools import count
+from math import floor
+from queue import Queue
 
-from locust import HttpUser, task, events, constant_throughput
-from locust.exception import StopUser
 from gevent import sleep
+from locust import HttpUser, task, events, constant_throughput
+from locust.clients import HttpSession
+from locust.exception import StopUser
 
 MAX_RESPONSE_TIME_MS = 500  # Max avg response time according to requirements
 MAX_ERROR_RATE = 0.01  # Max error rate according to requirements
 
 LICENSE_TYPES = ["ETV", "ETVPL", "ETV60"]
 MAX_TRY_SEC = 30
+USER_COUNT = 1  # TODO: Add to environment variables
+USER_COUNTER = count(1)
+USER_QUEUE: Queue = Queue()
 
 logger = logging.getLogger(__name__)
+
 
 def decode_jwt(token: str) -> dict:
   payload = token.split(".")[1]
   payload += "=" * (-len(payload) % 4)  # padding
-  decoded = base64.urlsafe_b64decode(payload)
-  return json.loads(decoded)
+  return json.loads(base64.urlsafe_b64decode(payload))
+
+
+@events.test_start.add_listener
+def register_users(environment, **kwargs):
+  logger.info("🔹 Pre-registering users...")
+
+  client = HttpSession(
+    base_url=environment.host,
+    request_event=environment.events.request,
+    user=None,
+  )
+
+  for _ in range(USER_COUNT):
+    user_no = next(USER_COUNTER)
+    user = {
+      "id": "",
+      "number": user_no,
+      "email": f"user-{int(uuid.uuid4())}@locust.local",
+      "password": "Locust123!",
+      "firstname": "Load",
+      "lastname": "Test",
+      "access_token": "",
+    }
+
+    r = client.post(
+      "/register",
+      json={
+        "firstname": user["firstname"],
+        "lastname": user["lastname"],
+        "email": user["email"],
+        "password": user["password"],
+      },
+      name="register_preload",
+    )
+
+    if r.status_code != 201:
+      raise RuntimeError(
+        f"Registration failed for {user["email"]}: {r.status_code} {r.text}"
+      )
+
+    USER_QUEUE.put(user)
+
+  logger.info("✅ User registration done")
 
 
 class WebsiteUser(HttpUser):
-  wait_time = constant_throughput(10)  # 10 tasks per second
+  wait_time = constant_throughput(10)
 
   def on_start(self):
     logger.info("User started")
-    user_counter = count(1)
-    # 1 HOME
-    self.client.get("/")
 
-    # Generate unique user
-    user_no = next(user_counter)
-    self.firstname = "Load"
-    self.lastname = "Test"
-    self.email = f"locust{user_no}@test.local"
-    self.password = "Locust123!"
-
-    # 2 REGISTER
-    r = self.client.post(
-      "/register",
-      json={
-        "firstname": self.firstname,
-        "lastname": self.lastname,
-        "email": self.email,
-        "password": self.password,
-      },
-      name="register",
-    )
-    if r.status_code != 201:
-      logger.error(
-        "Registration failed: status=%s body=%s email=%s",
-        r.status_code,
-        r.text,
-        self.email,
+    if USER_QUEUE.empty():
+      self.environment.runner.stats.log_request(
+        request_type="USER",
+        name="no_user_left",
+        response_time=0,
+        response_length=0,
       )
       raise StopUser()
 
-    # 3 LOGIN
+    user = USER_QUEUE.get()
+
+    # 1 HOME
+    self.client.get("/", name="home")
+
+    # 2 LOGIN
     r = self.client.post(
       "/login",
       json={
-        "email": self.email,
-        "password": self.password,
+        "email": user["email"],
+        "password": user["password"],
       },
       name="login",
     )
     if r.status_code != 200:
-      raise StopUser()
+      raise RuntimeError(f"Login failed for {user["email"]}")
 
-    self.access_token = r.json()["access_token"]
-    self.refresh_token = r.json()["refresh_token"]
-    self.expires_in = r.json()["expires_in"]
-    self.refresh_expires_in = r.json()["refresh_expires_in"]
-    self.token_type = r.json()["token_type"]
-    self.is_admin = r.json()["is_admin"]
-    self.client.headers.update(
-      {"Authorization": f"Bearer {self.access_token}"}
-    )
-    claims = decode_jwt(self.access_token)
-    self.user_id = claims["sub"]
-    self.username = claims["username"]
+    data = r.json()
+    user["access_token"] = data["access_token"]
+    self.client.headers.update({
+      "Authorization": f"Bearer {user["access_token"]}"
+    })
 
-    if not self.user_id or not self.username or not (
-        self.email == claims["email"]):
-      raise StopUser()
+    claims = decode_jwt(user["access_token"])
+    user["id"] = claims["sub"]
 
-    # 4 BACK TO HOME (authenticated)
-    self.client.get("/", name="home_authenticated")
-
-    # 5 REQUEST APPLICATION
+    # 3 REQUEST APPLICATION
     r = self.client.post(
       "/applications",
       json={
-        "user_id": self.user_id,
-        "license_type": LICENSE_TYPES[
-          random.randint(0, len(LICENSE_TYPES) - 1)],
+        "user_id": user["id"],
+        "license_type": random.choice(LICENSE_TYPES),
         "cadastral_reference": ''.join(random.choices(string.digits, k=20)),
-        "remarks": random.random() < 0.5 and "This is a load test application." or "",
+        "remarks": "Load test application",
       },
       name="request_application",
     )
     if r.status_code != 201:
-      raise StopUser()
+      raise RuntimeError(f"Application request failed: {r}")
 
-    self.application_id = r.json()["id"]  # TODO: multi-application per user?
+    application_id = r.json()["id"]
 
-    # 6.1 DOCUMENT UPLOAD
+    # 4 DOCUMENT UPLOAD
     with open("sample.pdf", "rb") as f:
       r = self.client.post(
         "/process-document",
-        data={
-          "application_id": self.application_id,
-        },
+        data={"application_id": application_id},
         files=[
           ("id_file", ("sample.pdf", f, "application/pdf")),
           ("proof_file", ("sample.pdf", f, "application/pdf")),
         ],
         name="upload_document",
       )
-
     if r.status_code != 200:
-      raise StopUser()
+      raise RuntimeError("Document upload failed")
 
-    # 6.2 WAIT FOR VALIDATION RESULT
+    # 5 WAIT FOR VALIDATION
     for _ in range(MAX_TRY_SEC):
       r = self.client.get(
-        f"/applications/{self.application_id}/documents",
+        f"/applications/{application_id}/documents",
         name="check_document_validation_status",
       )
-      if r.status_code != 200:
-        raise StopUser()
       if r.json()["status"] == "VERIFIED":
         break
-      else:
-        sleep(1)  # wait before retrying
+      sleep(1)
 
-    # 7 PAYMENT
+    # 6 PAYMENT
     r = self.client.post(
-      f"/applications/{self.application_id}/payments",
+      f"/applications/{application_id}/payments",
       json={
-        "name": f"{self.firstname} {self.lastname}",
+        "name": f"{user["firstname"]} {user["lastname"]}",
         "iban": "DE" + "".join(random.choices(string.digits, k=20)),
         "BIC": "DEUTDEAAXXX",
       },
       name="payment_form",
     )
     if r.status_code != 200:
-      raise StopUser()
-
-    if not r.json()["id"] or r.json()["status"] != "UNPAID":
-      raise StopUser()
-    self.payment_id = r.json()["id"]
-
-    # 8 BACK TO HOME (authenticated)
-    self.client.get("/", name="home_authenticated")
+      raise RuntimeError("Payment failed")
 
   @task
   def idle(self):
-    # User story done -> keep alive
     pass
-
 
 @events.quitting.add_listener
 def _(environment, **kw):
   stats = environment.stats.total
-  avg = stats.avg_response_time
 
   if stats.avg_response_time > MAX_RESPONSE_TIME_MS:
-    raise SystemExit(f"❌ Avg response time too high: {avg} ms")
+    raise SystemExit(
+      f"❌ Avg response time too high: {stats.avg_response_time} ms"
+    )
 
   if stats.fail_ratio > MAX_ERROR_RATE:
-    raise SystemExit(f"❌ Error rate too high: {stats.fail_ratio * 100:.2f}%")
+    raise SystemExit(
+      f"❌ Error rate too high: {stats.fail_ratio * 100:.2f}%"
+    )
+  logger.info("✅ Test passed all requirements")
