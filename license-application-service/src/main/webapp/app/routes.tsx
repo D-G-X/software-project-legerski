@@ -19,6 +19,7 @@ import BallotDetails from "./ballot-details/ballot-details";
 import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
+import IssuedLicensePage from "./issued-license/issued-license";
 import { ProtectedLoader } from "./common/ProtectedLoader";
 import BallotConfig from "./ballot-config/ballot-config";
 
@@ -39,6 +40,11 @@ export default function AppRoutes() {
 
         // Post login (any user)
         {
+          path: "issued-license",
+          element: <IssuedLicensePage />,
+          loader: ProtectedLoader(["admin", "user"]),
+        },
+        {
           path: "notification-settings",
           element: <NotificationSettings />,
           loader: ProtectedLoader(["admin", "user"]),
@@ -46,27 +52,27 @@ export default function AppRoutes() {
         {
           path: "license-application-request/:type/:id",
           element: <RequestApplication />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user", "admin"]),
         },
         {
           path: "license-application-request",
           element: <RequestApplication />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user", "admin"]),
         },
         {
           path: "license-document-upload/:id",
           element: <ApplicationDocumentUpload />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user", "admin"]),
         },
         {
           path: "payment/:id",
           element: <PaymentForm />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user", "admin"]),
         },
         {
           path: "payment/:id/done",
           element: <PaymentConfirm />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user", "admin"]),
         },
         {
           path: "profile",
@@ -76,7 +82,7 @@ export default function AppRoutes() {
         {
           path: "deleteProfile",
           element: <DeleteProfile />,
-          loader: ProtectedLoader(["user"]),
+          loader: ProtectedLoader(["user", "admin"]),
         },
 
         // Admin-only routes
@@ -113,8 +119,6 @@ export default function AppRoutes() {
           path: "license-document-upload/:id",
           element: <ApplicationDocumentUpload />,
         },
-        { path: "*", element: <Error /> },
-        { path: "profile", element: <Profile /> },
         {
           path: "deleteProfile",
           element: <DeleteProfile />,

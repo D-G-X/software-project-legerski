@@ -3,9 +3,14 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { Upload } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
-import { useGetApplication } from "app/services/applications/applications";
+import {
+  useGetApplication,
+  useUpdateApplication,
+} from "app/services/applications/applications";
+import { ApplicationStatusApiEnum } from "types/applicationStatusApiEnum";
 import { AuthContext } from "app/common/AuthContext";
-import {isValidFile} from "../../common/validationRules";
+import { useGlobalLoader } from "app/common/GlobalLoader";
+import { isValidFile } from "../../common/validationRules";
 
 interface DocUploadForm {
   id_proof: File | null;
@@ -63,7 +68,7 @@ export default function ApplicationDocumentUpload() {
     }));
   };
 
-  const { refetch } = useGetApplication(Number(applicationID), {
+  const applicationQuery = useGetApplication(Number(applicationID), {
     query: {
       enabled: false,
     },
@@ -73,6 +78,44 @@ export default function ApplicationDocumentUpload() {
       },
     },
   });
+
+  const updateApplication = useUpdateApplication({
+    mutation: {
+      onError: (error) => {
+        console.error("Update application error:", error);
+      },
+    },
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+    },
+  });
+
+  const { show, hide } = useGlobalLoader();
+
+  React.useEffect(() => {
+    if (applicationQuery.isFetching) show();
+    else hide();
+  }, [applicationQuery.isFetching, show, hide]);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const fetchApplicationDetails = async () => {
+      const { data: applicationDetails } = await applicationQuery.refetch();
+      if (!mounted) return;
+      if (
+        applicationDetails &&
+        applicationDetails?.data?.application_status !== "DRAFT"
+      ) {
+        navigate("/", { replace: true });
+      }
+    };
+    fetchApplicationDetails();
+    return () => {
+      mounted = false;
+    };
+  }, [applicationID, navigate]);
 
   const handleSubmit = async () => {
     const newErrors: DocUploadErrors = { id_proof: "", address_proof: "" };
@@ -112,14 +155,23 @@ export default function ApplicationDocumentUpload() {
         );
       }
 
-      const applcationDetails = await refetch();
+      // Update application status to DOCUMENTS_SUBMITTED
+      try {
+        await updateApplication.mutateAsync({
+          applicationId: Number(applicationID),
+          data: {
+            application_status: ApplicationStatusApiEnum.DOCUMENTS_SUBMITTED,
+          },
+        });
+      } catch (err) {
+        console.error("Failed to update application status:", err);
+      }
 
-      // Navigate to payment
-      // have to add new status, for now the below if else will always return successful verification of documents
+      const applcationDetails = await applicationQuery.refetch();
+
       if (
-        applcationDetails.data?.data.application_status ||
         applcationDetails.data?.data.application_status ===
-          "DOCUMENTS_SUBMITTED"
+        "DOCUMENTS_SUBMITTED"
       ) {
         navigate("/payment/" + applicationID);
         alert(t("license.document_upload.success_message"));
@@ -132,6 +184,8 @@ export default function ApplicationDocumentUpload() {
       }
     } catch (err) {
       alert(t("license.document_upload.error"));
+    } finally {
+      hide();
     }
   };
 

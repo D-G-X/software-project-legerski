@@ -11,7 +11,9 @@ import useDocumentTitle from "app/common/use-document-title";
 import { Link, useNavigate, useParams } from "react-router";
 import { AuthContext } from "app/common/AuthContext";
 import { getUserIdFromToken } from "app/common/authTokenDecode";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 import {
+  useUpdateApplication,
   useCreateApplication,
   useGetApplication,
 } from "app/services/applications/applications";
@@ -75,6 +77,13 @@ export default function RequestApplication() {
       },
     },
   });
+
+  const { show, hide } = useGlobalLoader();
+
+  useEffect(() => {
+    if (userDetails.isFetching || applicationDetails.isFetching) show();
+    else hide();
+  }, [userDetails.isFetching, applicationDetails.isFetching, show, hide]);
 
   useEffect(() => {
     if (!userDetails.data) return;
@@ -161,19 +170,18 @@ export default function RequestApplication() {
   });
 
   // uncomment after APIs are ready to handle edit form
-
-  // const updateApplication = useUpdateApplication({
-  //   mutation: {
-  //     onError: (error) => {
-  //       console.error("Application creation error:", error);
-  //     },
-  //   },
-  //   axios: {
-  //     headers: {
-  //       Authorization: `Bearer ${auth?.accessToken}`,
-  //     },
-  //   },
-  // });
+  const updateApplication = useUpdateApplication({
+    mutation: {
+      onError: (error) => {
+        console.error("Application update error:", error);
+      },
+    },
+    axios: {
+      headers: {
+        Authorization: `${auth?.tokenType} ${auth?.accessToken}`,
+      },
+    },
+  });
 
   const handleSubmit = async (btn: string) => {
     let newErrors = {
@@ -197,7 +205,9 @@ export default function RequestApplication() {
     const cadastralNumValidateResult: validateResults = isValidCadastralNumber(
       form.cadastral_number
     );
-    const additionalCommentsResult: validateResults = isValidOptionalText(form.additional_comments);
+    const additionalCommentsResult: validateResults = isValidOptionalText(
+      form.additional_comments
+    );
 
     if (!firstNameValidateResult.isValid) {
       newErrors.first_name = firstNameValidateResult.message;
@@ -215,7 +225,7 @@ export default function RequestApplication() {
       newErrors.cadastral_number = cadastralNumValidateResult.message;
     }
 
-    if(!additionalCommentsResult.isValid){
+    if (!additionalCommentsResult.isValid) {
       newErrors.additional_comments = additionalCommentsResult.message;
     }
 
@@ -264,29 +274,34 @@ export default function RequestApplication() {
     });
 
     try {
-      const response = await createApplication.mutateAsync({
-        data: {
-          user_id: userID,
-          license_type: form.rental_license_type as LicenseTypeApiEnum,
-          cadastral_reference: form.cadastral_number,
-          remarks: form.additional_comments,
-        },
-      });
+      show();
+      // const response = await createApplication.mutateAsync({
+      //   data: {
+      //     user_id: userID,
+      //     license_type: form.rental_license_type as LicenseTypeApiEnum,
+      //     cadastral_reference: form.cadastral_number,
+      //     remarks: form.additional_comments,
+      //   },
+      // });
 
       // uncomment after implementation of edit users
-      // const baseData = {
-      //   license_type: form.rental_license_type as LicenseTypeApiEnum,
-      //   cadastral_reference: form.cadastral_number,
-      //   remarks: form.additional_comments,
-      // };
+      const baseData = {
+        license_type: form.rental_license_type as LicenseTypeApiEnum,
+        cadastral_reference: form.cadastral_number,
+        remarks: form.additional_comments,
+      };
 
-      // const response = ["edit"].includes(requestType)
-      //   ? await updateApplication.mutateAsync({ data: baseData })
-      //   : await createApplication.mutateAsync({
-      //       data: { ...baseData, user_id: userID },
-      //     });
+      const response = ["edit"].includes(requestType)
+        ? await updateApplication.mutateAsync({
+            applicationId: applicationId,
+            data: { ...baseData, application_status: "DRAFT" },
+          })
+        : await createApplication.mutateAsync({
+            data: { ...baseData, user_id: userID },
+          });
 
       switch (response.status) {
+        case 200:
         case 201:
           if (btn == "draft") {
             navigate("/");
@@ -297,6 +312,7 @@ export default function RequestApplication() {
 
         default:
           alert("Unexpected Error occurred");
+          navigate("/");
       }
       return true;
     } catch (error: any) {
@@ -311,11 +327,17 @@ export default function RequestApplication() {
           alert("Unauthorized Error");
           break;
 
+        case 422:
+          alert("User does not exits,");
+          break;
+
         default:
           alert(t("register.registerUserAlerts.serverError"));
           break;
       }
       return false;
+    } finally {
+      hide();
     }
   };
 
@@ -421,11 +443,11 @@ export default function RequestApplication() {
           <div className="mb-4">
             <label>
               <span className="block">
-                {t("license.request.cadastraNumber.label")}{" "}
+                {t("license.request.cadastralNumber.label")}{" "}
                 <span className="text-red-500">*</span>
               </span>
               <span className="block text-gray-400">
-                {t("license.request.cadastraNumber.description")}
+                {t("license.request.cadastralNumber.description")}
               </span>
             </label>
             <div className="mt-1">
@@ -435,7 +457,7 @@ export default function RequestApplication() {
                 type="text"
                 id="cadastral_number"
                 value={form.cadastral_number}
-                placeholder={t("license.request.cadastraNumber.placeholder")}
+                placeholder={t("license.request.cadastralNumber.placeholder")}
                 onChange={handleChange}
                 className="border border-mallorca-purple rounded-xl text-mallorca-purple focus:outline-none focus:ring-1 focus:ring-mallorca-purple w-full"
               />

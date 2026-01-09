@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { validateResults } from "app/common/utils";
-import { isValidEmail, isValidPassword } from "../common/validationRules";
+import { isValidEmail } from "../common/validationRules";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "app/common/use-document-title";
 import { FormHeader } from "app/common/headingTitle";
@@ -9,6 +9,7 @@ import { useLoginUser } from "app/services/authentication/authentication";
 import { AuthContext } from "app/common/AuthContext";
 import { useNavigate } from "react-router";
 import { Link } from "react-router";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 
 export default function Login() {
   const auth = useContext(AuthContext);
@@ -55,19 +56,26 @@ export default function Login() {
     },
   });
 
+  const { show, hide } = useGlobalLoader();
+
   const handleSubmit = async () => {
     const emailValidateResult: validateResults = isValidEmail(form.email);
-    const passwordValidateResult: validateResults = isValidPassword(
-      form.password
-    );
+
+    // redundant validation from register
+    // const passwordValidateResult: validateResults = isValidPassword(
+    //   form.password
+    // );
+
     let newErrors = { email: "", password: "", login: "" };
 
     if (!emailValidateResult.isValid) {
       newErrors.email = emailValidateResult.message;
     }
-    if (!passwordValidateResult.isValid) {
-      newErrors.password = passwordValidateResult.message;
-    }
+
+    // redundant validation from register
+    // if (!passwordValidateResult.isValid) {
+    //   newErrors.password = passwordValidateResult.message;
+    // }
 
     if (newErrors.email || newErrors.password) {
       setErrors(newErrors);
@@ -76,6 +84,8 @@ export default function Login() {
     setErrors({ email: "", password: "", login: "" });
 
     try {
+      show();
+
       const response = await loginUser.mutateAsync({
         data: {
           email: form.email,
@@ -83,51 +93,71 @@ export default function Login() {
         },
       });
 
-      // Check if login was successful
-      if (response.status === 200) {
-        const {
-          access_token,
-          refresh_token,
-          expires_in,
-          refresh_expires_in,
-          token_type,
-          is_admin,
-        } = response.data;
+      switch (response.status) {
+        case 201:
+        case 200: {
+          const {
+            access_token,
+            refresh_token,
+            expires_in,
+            refresh_expires_in,
+            token_type,
+            is_admin,
+          } = response.data;
 
-        localStorage.setItem("accessToken", access_token);
-        localStorage.setItem("refreshToken", refresh_token);
-        localStorage.setItem("accessTokenExpiry", expires_in.toString());
-        localStorage.setItem(
-          "refreshTokenExpiry",
-          refresh_expires_in ? refresh_expires_in?.toString() : ""
-        );
-        localStorage.setItem("tokenType", token_type);
-        localStorage.setItem("role", is_admin ? "admin" : "user");
+          // Persist tokens
+          localStorage.setItem("accessToken", access_token);
+          localStorage.setItem("refreshToken", refresh_token);
+          localStorage.setItem("accessTokenExpiry", expires_in.toString());
+          localStorage.setItem(
+            "refreshTokenExpiry",
+            refresh_expires_in ? refresh_expires_in.toString() : ""
+          );
+          localStorage.setItem("tokenType", token_type);
+          localStorage.setItem("role", is_admin ? "admin" : "user");
 
-        auth?.setAccessToken(access_token);
-        auth?.setRefreshToken(refresh_token);
-        auth?.setAccessTokenExpiry(expires_in);
-        auth?.setRefreshTokenExpiry(refresh_expires_in);
-        auth?.setTokenType(refresh_token);
-        auth?.setRole(is_admin ? "admin" : "user");
+          // Update auth context
+          auth?.setAccessToken(access_token);
+          auth?.setRefreshToken(refresh_token);
+          auth?.setAccessTokenExpiry(expires_in);
+          auth?.setRefreshTokenExpiry(refresh_expires_in);
+          auth?.setTokenType(token_type);
+          auth?.setRole(is_admin ? "admin" : "user");
 
-        navigate("/"); // redirect to dashboard
-      } else {
-        alert(t("login.loginUserAlerts.unexpectedResp"));
+          navigate("/"); // redirect to dashboard
+          break;
+        }
+
+        default:
+          alert(t("login.loginUserAlerts.unexpectedResp"));
+          break;
       }
     } catch (error: any) {
       const status = error?.response?.status;
 
       switch (status) {
-        case 401:
-          alert(t("login.loginUserAlerts.invalidEmail"));
-          break;
         case 400:
           alert(t("login.loginUserAlerts.badRequest"));
           break;
+
+        case 401:
+          alert(t("login.loginUserAlerts.invalidEmail")); // invalid credentials
+          break;
+
+        case 403:
+          alert(t("login.loginUserAlerts.forbidden"));
+          break;
+
+        case 500:
+          alert(t("login.loginUserAlerts.serverError"));
+          break;
+
         default:
           alert(t("login.loginUserAlerts.serverError"));
+          break;
       }
+    } finally {
+      hide();
     }
     return;
   };

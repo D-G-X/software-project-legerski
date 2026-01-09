@@ -30,7 +30,9 @@ spring:
       mail.smtp.starttls.required: true
       mail.smtp.ssl.trust: smtp.gmail.com
   config:
-    import: file:license-application-service/.env[.properties]
+    import:
+      - optional:file:license-application-service/.env # for local builds
+      - optional:file:/app/.env # for docker containers
 
 logging.level.org.jooq.Constants: off
 

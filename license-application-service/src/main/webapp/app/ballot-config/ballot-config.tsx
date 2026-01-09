@@ -5,8 +5,10 @@ import { useCreateBallotPeriod } from "app/services/ballot-periods/ballot-period
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 
 export default function BallotConfig() {
+  const { show, hide } = useGlobalLoader();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const auth = useContext(AuthContext);
@@ -81,25 +83,54 @@ export default function BallotConfig() {
     }
 
     try {
-      await createBallotPeriod({
+      show();
+      const response = await createBallotPeriod({
         data: {
           start_date: toISOStringFromDateInput(ballot_start_date),
           end_date: toISOStringFromDateInput(ballot_end_date),
         },
       });
 
-      alert(t("ballotConfig.alerts.success"));
-      navigate("/ballot-dashboard");
-    } catch (error: any) {
-      // Check for overlapping period error and handle specifically
-      if (error?.response?.data?.error_code === "OVERLAPPING_PERIOD") {
-        alert(t("ballotConfig.alerts.overlappingPeriod"));
-      } else {
-        alert(
-          error?.response?.data?.message ??
-            t("ballotConfig.alerts.creationFailed")
-        );
+      switch (response.status) {
+        case 201:
+        case 200:
+          alert(t("ballotConfig.alerts.success"));
+          navigate("/ballot-dashboard");
+          break;
+
+        default:
+          alert(t("ballotConfig.alerts.creationFailed"));
+          break;
       }
+
+      return true;
+    } catch (error: any) {
+      const status = error?.response?.status;
+
+      switch (status) {
+        case 409:
+          alert(t("ballotConfig.alerts.overlappingPeriod"));
+          break;
+
+        case 400:
+          alert(t("ballotConfig.alerts.badRequest"));
+          break;
+
+        case 401:
+          alert(t("ballotConfig.alerts.unauthorized"));
+          break;
+
+        default:
+          alert(
+            error?.response?.data?.message ??
+              t("ballotConfig.alerts.creationFailed")
+          );
+          break;
+      }
+
+      return false;
+    } finally {
+      hide();
     }
   };
   return (

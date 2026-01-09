@@ -173,9 +173,8 @@
       "previous": "Previous",
       "next": "Next"
     },
-    "ballotPeriodInfo":
-    {
-      "upcomingText" : "Upcoming Ballot Period",
+    "ballotPeriodInfo": {
+      "upcomingText": "Upcoming Ballot Period",
       "ongoingText": "Current Ballot Period",
       "closedText": "Last Ballot Period",
       "errorText": "Ballot period information currently unavailable"
@@ -266,6 +265,20 @@
   "common": {
     "orDivider": "or"
   },
+  "issued-license": {
+    "title": "Issued License",
+    "subtitle": "Your approved rental license details",
+    "licenseDetails": "License Details",
+    "licenseId": "License ID",
+    "licenseType": "License Type",
+    "status": "Status",
+    "issuedOn": "Issued On",
+    "validity": "Validity Period",
+    "propertyDetails": "Property Details",
+    "cadastralNumber": "Cadastral Number",
+    "gdprNotice": "License applies to this property only. Holder data is stored by the authority.",
+    "back": "Back"
+  },
   "login": {
     "title": "Sign in",
     "index": {
@@ -326,7 +339,7 @@
         "description": "Provide a valid email address where we can contact you regarding your application",
         "placeholder": "Email Address"
       },
-      "cadastraNumber": {
+      "cadastralNumber": {
         "label": "Cadastral Number",
         "description": "Enter the cadastral number of the property for which you are requesting a rental license.",
         "placeholder": "GDC"
@@ -419,6 +432,86 @@
         "fileTypeError": "Only PDF files are allowed",
         "fileSizeError": "File size must be less than 10 MB"
       }
+    },
+    "paymentForm": {
+      "title": "Payment",
+      "index": {
+        "headline": "Pay now",
+        "subHeadline": "SEPA direct debit",
+        "amountLabel": "Total amount",
+        "taxLabel": "no VAT applies",
+        "cadastralIdLabel": "Cadastral reference",
+        "licenseTypeLabel": "License type",
+        "nameLabel": "Account holder",
+        "ibanLabel": "IBAN",
+        "bicLabel": "BIC",
+        "bicLabelOptional": " (optional for domestic SEPA transactions)",
+        "acceptSepaMandateLabel": {
+          "plain": "I have read and accept the",
+          "button": "SEPA Mandate"
+        },
+        "payButtonLabel": "Pay now",
+        "cancelButtonLabel": "Pay later *",
+        "cancelNote": {
+          "label1": "* Your application will be saved as draft.",
+          "label2": "You can complete the payment later from your dashboard."
+        }
+      },
+      "sepaMandateDialog": {
+        "title": "SEPA Direct Debit Mandate",
+        "text": {
+          "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
+          "line2": "Note:",
+          "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
+          "line4": "Details of the payer:",
+          "line5": " –  Account holder: {{accountHolder}}",
+          "line6": " –  IBAN: {{iban}}",
+          "line7": " –  BIC: {{bic}}",
+          "line8": "Details of the payee:",
+          "line9": " –  Beneficiary: {{beneficiaryName}}",
+          "line10": " –  Creditor ID: {{creditorId}}",
+          "line11": " –  Mandate reference: {{mandateReference}}",
+          "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
+          "line13": "Issuing date: {{date}}"
+        },
+        "acceptButtonLabel": "Accept",
+        "cancelButtonLabel": "Cancel",
+        "downloadButtonLabel": "Download",
+        "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
+      },
+      "sepaMandateError": "You must read and accept the SEPA mandate",
+      "processing": "Processing payment"
+    },
+    "paymentConfirm": {
+      "title": "Payment Done",
+      "index": {
+        "headline": {
+          "success": "Payment Received",
+          "failure": "Payment Failed"
+        },
+        "subHeadline": {
+          "success": "Your payment data has been received.",
+          "failure": "Your payment data could not be stored. Please try again."
+        },
+        "amountLabel": "Total amount",
+        "taxLabel": "no VAT applies",
+        "paymentIdLabel": "Payment ID",
+        "applicationIdLabel": "Application ID",
+        "cadastralIdLabel": "Cadastral reference",
+        "licenseTypeLabel": "License type",
+        "nameLabel": "Account holder",
+        "ibanLabel": "IBAN",
+        "bicLabel": "BIC",
+        "bicOptional": "not required",
+        "dateLabel": "Payment date",
+        "sendReceiptLabel": "Send payment receipt to",
+        "receiptSentLabel": "Payment receipt sent!",
+        "leaveButtonLabel": {
+          "success": "Back to Dashboard",
+          "failure": "Try Again"
+        }
+      },
+      "processing": "Processing payment..."
     },
     "list": {
       "headline": "Licenses",
@@ -519,81 +612,6 @@
       "invalid": "BIC is invalid",
       "valid": "BIC is valid"
     }
-  },
-  "paymentForm": {
-    "title": "Payment",
-    "index": {
-      "headline": "Pay now",
-      "subHeadline": "SEPA direct debit",
-      "amountLabel": "Total amount",
-      "nameLabel": "Account holder",
-      "ibanLabel": "IBAN",
-      "bicLabel": "BIC",
-      "bicLabelOptional": " (optional for domestic SEPA transactions)",
-      "acceptSepaMandateLabel": {
-        "plain": "I have read and accept the",
-        "button": "SEPA Mandate"
-      },
-      "payButtonLabel": "Pay now",
-      "cancelButtonLabel": "Pay later and return to dashboard",
-      "cancelNote": {
-        "label1": "Your application will be saved as draft",
-        "label2": "you can complete the payment later from your dashboard."
-      }
-    },
-    "sepaMandateDialog": {
-      "title": "SEPA Direct Debit Mandate",
-      "text": {
-        "line1": "I hereby authorize the payee to collect payments from my bank account by direct debit. I also hereby authorize my bank to redeem any direct debits charged to my account by the payee.",
-        "line2": "Note:",
-        "line3": "I can request a refund of the debited amount within eight weeks of the debit date. The terms and conditions agreed with my bank apply here.",
-        "line4": "Details of the payer:",
-        "line5": " –  Account holder: {{accountHolder}}",
-        "line6": " –  IBAN: {{iban}}",
-        "line7": " –  BIC: {{bic}}",
-        "line8": "Details of the payee:",
-        "line9": " –  Beneficiary: {{beneficiaryName}}",
-        "line10": " –  Creditor ID: {{creditorId}}",
-        "line11": " –  Mandate reference: {{mandateReference}}",
-        "line12": "I have read the SEPA direct debit mandate and issue it as legally binding.",
-        "line13": "Issuing date: {{date}}"
-      },
-      "acceptButtonLabel": "Accept",
-      "cancelButtonLabel": "Cancel",
-      "downloadButtonLabel": "Download",
-      "downloadFileName": "SEPA Direct Debit Mandate{{accountHolder}}"
-    },
-    "sepaMandateError": "You must read and accept the SEPA mandate",
-    "processing": "Processing payment"
-  },
-  "paymentConfirm": {
-    "title": "Payment Done",
-    "index": {
-      "headline": {
-        "success": "Payment Received",
-        "failure": "Payment Failed"
-      },
-      "subHeadline": {
-        "success": "Your payment data has been received.",
-        "failure": "Your payment data could not be stored. Please try again."
-      },
-      "amountLabel": "Total amount",
-      "taxLabel": "no VAT applies",
-      "paymentIdLabel": "Payment ID",
-      "applicationIdLabel": "Application ID",
-      "nameLabel": "Account holder",
-      "ibanLabel": "IBAN",
-      "bicLabel": "BIC",
-      "bicOptional": "not required",
-      "dateLabel": "Payment date",
-      "sendReceiptLabel": "Send payment receipt to",
-      "receiptSentLabel": "Payment receipt sent!",
-      "leaveButtonLabel": {
-        "success": "Back to Dashboard",
-        "failure": "Try Again"
-      }
-    },
-    "processing": "Processing payment..."
   },
   "error": {
     "page": {
@@ -697,6 +715,11 @@
   },
   "profile": {
     "title": "Profile",
+    "loading": "Loading…",
+    "updating": "Updating…",
+    "updatingPassword": "Updating password…",
+    "updateSuccess": "Your changes have been saved.",
+    "passwordUpdated": "Your password has been updated.",
     "accountInformation": "Account Information",
     "changePassword": "Change Password",
     "notificationSettings": "Notification Settings",
@@ -732,7 +755,12 @@
     "alerts": {
       "unexpectedError": "An unexpected error occurred. Please try again later.",
       "emailInvalid": "Invalid email address.",
-      "passwordInvalid": "Password must contain at least one special character, one uppercase letter, and one number."
+      "passwordInvalid": "Password must contain at least one special character, one uppercase letter, and one number.",
+      "success": "Profile updated successfully.",
+      "invalidRequest": "Invalid request. Please check your input.",
+      "unauthorized": "Unauthorized request. Please sign in.",
+      "userNotFound": "User not found.",
+      "failed": "Failed to update profile. Please try again later."
     }
   },
   "deleteProfile": {
@@ -741,7 +769,14 @@
     "warningMessage": "By deleting this account, you won’t be able to access the system.",
     "yesDelete": "Yes, Delete",
     "cancel": "No, Cancel",
-    "loading": "Deleting..."
+    "loading": "Deleting...",
+    "alerts": {
+      "success": "Your account has been deleted successfully.",
+      "unauthorized": "Unauthorized request. Please sign in.",
+      "forbidden": "You do not have permission to perform this action.",
+      "userNotFound": "User not found.",
+      "failed": "Failed to delete account. Please try again later."
+    }
   },
   "select": {
     "empty": {
@@ -1014,6 +1049,7 @@
     },
     "buttons": {
       "publish": "Publish Ballot",
+      "publishing": "Publishing...",
       "cancel": "Cancel"
     },
     "alerts": {
@@ -1023,6 +1059,8 @@
       "sameStartEndDate": "Start date and end date cannot be the same.",
       "startDateAfterEndDate": "Start date cannot be later than end date.",
       "endDateTooLate": "End date cannot be more than 6 months after the start date.",
+      "badRequest": "Bad request. Please check your input.",
+      "unauthorized": "Unauthorized request. Please sign in.",
       "success": "Ballot period created successfully!",
       "overlappingPeriod": "The specified start and end dates overlap with an existing ballot period.",
       "creationFailed": "Failed to create ballot period."
