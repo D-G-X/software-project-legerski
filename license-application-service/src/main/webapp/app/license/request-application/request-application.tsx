@@ -302,6 +302,7 @@ export default function RequestApplication() {
 
       switch (response.status) {
         case 200:
+        case 201:
           if (btn == "draft") {
             navigate("/");
             break;
@@ -311,6 +312,7 @@ export default function RequestApplication() {
 
         default:
           alert("Unexpected Error occurred");
+          navigate("/");
       }
       return true;
     } catch (error: any) {
