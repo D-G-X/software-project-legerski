@@ -263,6 +263,7 @@ export default function PaymentConfirm() {
           applicationId,
           data: {
             application_status: ApplicationStatusApiEnum.PAYMENT_RECEIVED,
+            remarks: "",
           },
         });
       } catch (err) {

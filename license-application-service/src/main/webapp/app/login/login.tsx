@@ -94,7 +94,6 @@ export default function Login() {
       });
 
       switch (response.status) {
-        case 201:
         case 200: {
           const {
             access_token,

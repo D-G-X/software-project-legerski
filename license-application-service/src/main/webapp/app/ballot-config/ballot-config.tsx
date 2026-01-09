@@ -92,7 +92,6 @@ export default function BallotConfig() {
       });
 
       switch (response.status) {
-        case 201:
         case 200:
           alert(t("ballotConfig.alerts.success"));
           navigate("/ballot-dashboard");

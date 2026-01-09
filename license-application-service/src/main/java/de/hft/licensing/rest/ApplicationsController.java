@@ -18,8 +18,6 @@ import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import org.jooq.DSLContext;
@@ -219,15 +217,9 @@ public class ApplicationsController implements ApplicationsApi {
   @Transactional
   public ResponseEntity<ApplicationResource> updateApplication(Integer applicationId,
       ApplicationUpdate applicationUpdate) {
-    if (applicationId == null || applicationUpdate == null) {
-      return ResponseEntity.badRequest().build();
-    }
-
-    // if no fields provided to update, return bad request
-    if (applicationUpdate.getApplicationStatus() == null
-        && applicationUpdate.getRemarks() == null
-        && applicationUpdate.getCadastralReference() == null
-        && applicationUpdate.getLicenseType() == null) {
+    if (applicationId == null || applicationUpdate == null
+        || applicationUpdate.getApplicationStatus() == null
+        || applicationUpdate.getRemarks() == null) {
       return ResponseEntity.badRequest().build();
     }
 
@@ -239,35 +231,13 @@ public class ApplicationsController implements ApplicationsApi {
         .from(Application.APPLICATION)
         .where(Application.APPLICATION.ID.eq(applicationId))
         .fetchOneInto(String.class);
-    var oldCadastral = dsl.select(Application.APPLICATION.CADASTRAL_REFERENCE)
-        .from(Application.APPLICATION)
-        .where(Application.APPLICATION.ID.eq(applicationId))
-        .fetchOneInto(String.class);
-    var oldLicenseType = dsl.select(Application.APPLICATION.LICENSE_TYPE)
-        .from(Application.APPLICATION)
-        .where(Application.APPLICATION.ID.eq(applicationId))
-        .fetchOneInto(LicenseType.class);
-
-    Map<org.jooq.Field<?>, Object> updates = new HashMap<>();
-    if (applicationUpdate.getApplicationStatus() != null) {
-      updates.put(Application.APPLICATION.APPLICATION_STATUS,
-          (ApplicationStatus) EnumMapperUtil.getPendantFromEnum(
-              applicationUpdate.getApplicationStatus()));
-    }
-    if (applicationUpdate.getRemarks() != null) {
-      updates.put(Application.APPLICATION.REMARKS, applicationUpdate.getRemarks());
-    }
-    if (applicationUpdate.getCadastralReference() != null) {
-      updates.put(Application.APPLICATION.CADASTRAL_REFERENCE, applicationUpdate.getCadastralReference());
-    }
-    if (applicationUpdate.getLicenseType() != null) {
-      updates.put(Application.APPLICATION.LICENSE_TYPE,
-          (LicenseType) EnumMapperUtil.getPendantFromEnum(applicationUpdate.getLicenseType()));
-    }
-    updates.put(Application.APPLICATION.CHANGED_AT, LocalDateTime.now());
 
     var updatedApplicationRecord = dsl.update(Application.APPLICATION)
-        .set(updates)
+        .set(Application.APPLICATION.APPLICATION_STATUS,
+            (ApplicationStatus) EnumMapperUtil.getPendantFromEnum(
+                applicationUpdate.getApplicationStatus()))
+        .set(Application.APPLICATION.REMARKS, applicationUpdate.getRemarks())
+        .set(Application.APPLICATION.CHANGED_AT, LocalDateTime.now())
         .where(Application.APPLICATION.ID.eq(applicationId))
         .returning()
         .fetchOneInto(ApplicationRecord.class);
