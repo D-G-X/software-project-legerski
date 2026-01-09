@@ -38,7 +38,7 @@ module.exports = (env, argv) => ({
       filename: 'css/[name].css'
     }),
     new Dotenv({
-      path: argv.mode === 'production' ? '.env' : '.env.development'
+      path: '.env'
     }),
     new HtmlWebpackPlugin({
       template: './src/main/webapp/index.html'

@@ -53,6 +53,7 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
     container_name: react-frontend
+    env_file: .env
     ports:
       - "80:80"
     depends_on:
@@ -65,6 +66,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
+    env_file: .env
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/government
