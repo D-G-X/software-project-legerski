@@ -12,7 +12,8 @@
 
 1. Have Docker running.
 2. When prompted: "Maven build script found `license-application-service`", accept by clicking "Load".
-3. Launch the Maven setup config: `Setup Database and API` which performs the following steps:
+3. Run `init.sh` (Linux/macOS) or `init.ps1` (Windows) in `license-application-service`. 
+4. Launch the Maven setup config: `Setup Database and API` which performs the following steps:
 
    - `docker compose up` to start the database,
    - `mvn liquibase:update` to apply database changelogs,
@@ -20,7 +21,7 @@
 
    > ⚠️ If this step fails, run `docker compose up` manually in the `license-application-service` directory and re-run the Maven setup config.
 
-4. Open the two freshly auto-generated modules:
+5. Open the two freshly auto-generated modules:
 
    - `license-application-service/target/generated-sources/jooq`
    - `license-application-service/target/generated-sources/openapi`
