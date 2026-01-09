@@ -13,6 +13,7 @@ import { AuthContext } from "app/common/AuthContext";
 import { getUserIdFromToken } from "app/common/authTokenDecode";
 import { useGlobalLoader } from "app/common/GlobalLoader";
 import {
+  useUpdateApplication,
   useCreateApplication,
   useGetApplication,
 } from "app/services/applications/applications";
@@ -169,19 +170,18 @@ export default function RequestApplication() {
   });
 
   // uncomment after APIs are ready to handle edit form
-
-  // const updateApplication = useUpdateApplication({
-  //   mutation: {
-  //     onError: (error) => {
-  //       console.error("Application creation error:", error);
-  //     },
-  //   },
-  //   axios: {
-  //     headers: {
-  //       Authorization: `Bearer ${auth?.accessToken}`,
-  //     },
-  //   },
-  // });
+  const updateApplication = useUpdateApplication({
+    mutation: {
+      onError: (error) => {
+        console.error("Application update error:", error);
+      },
+    },
+    axios: {
+      headers: {
+        Authorization: `${auth?.tokenType} ${auth?.accessToken}`,
+      },
+    },
+  });
 
   const handleSubmit = async (btn: string) => {
     let newErrors = {
@@ -275,29 +275,33 @@ export default function RequestApplication() {
 
     try {
       show();
-      const response = await createApplication.mutateAsync({
-        data: {
-          user_id: userID,
-          license_type: form.rental_license_type as LicenseTypeApiEnum,
-          cadastral_reference: form.cadastral_number,
-          remarks: form.additional_comments,
-        },
-      });
+      // const response = await createApplication.mutateAsync({
+      //   data: {
+      //     user_id: userID,
+      //     license_type: form.rental_license_type as LicenseTypeApiEnum,
+      //     cadastral_reference: form.cadastral_number,
+      //     remarks: form.additional_comments,
+      //   },
+      // });
 
       // uncomment after implementation of edit users
-      // const baseData = {
-      //   license_type: form.rental_license_type as LicenseTypeApiEnum,
-      //   cadastral_reference: form.cadastral_number,
-      //   remarks: form.additional_comments,
-      // };
+      const baseData = {
+        license_type: form.rental_license_type as LicenseTypeApiEnum,
+        cadastral_reference: form.cadastral_number,
+        remarks: form.additional_comments,
+      };
 
-      // const response = ["edit"].includes(requestType)
-      //   ? await updateApplication.mutateAsync({ data: baseData })
-      //   : await createApplication.mutateAsync({
-      //       data: { ...baseData, user_id: userID },
-      //     });
+      const response = ["edit"].includes(requestType)
+        ? await updateApplication.mutateAsync({
+            applicationId: applicationId,
+            data: { ...baseData, application_status: "DRAFT" },
+          })
+        : await createApplication.mutateAsync({
+            data: { ...baseData, user_id: userID },
+          });
 
       switch (response.status) {
+        case 200:
         case 201:
           if (btn == "draft") {
             navigate("/");
@@ -308,6 +312,7 @@ export default function RequestApplication() {
 
         default:
           alert("Unexpected Error occurred");
+          navigate("/");
       }
       return true;
     } catch (error: any) {
