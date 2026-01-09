@@ -1,6 +1,7 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.AuthenticationApi;
+import de.hft.licensing.db.tables.records.PasswordResetTokenRecord;
 import de.hft.licensing.model.ChangePasswordRequest;
 import de.hft.licensing.model.LoginRequest;
 import de.hft.licensing.model.LoginResource;
@@ -12,6 +13,7 @@ import de.hft.licensing.services.EmailService;
 import de.hft.licensing.services.KeycloakAuthService;
 import de.hft.licensing.utils.ApiFormValidator;
 import java.net.URI;
+import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -117,17 +119,40 @@ public class AuthController implements AuthenticationApi {
 
     @Override
     public ResponseEntity<Void> changeUserPassword(ChangePasswordRequest changePasswordRequest) {
+        PasswordResetTokenRecord tokenRecord = authService.getPasswordResetTokenRecord(changePasswordRequest.getToken());
         // check token validity
         // - exists
+        if (tokenRecord == null) {
+            System.out.println("Invalid password reset token: " + changePasswordRequest.getToken());
+            return ResponseEntity.badRequest().build();
+        }
         // - not expired
+        Date now = new Date();
+        Date expiresAt = java.sql.Timestamp.valueOf(tokenRecord.getExpiresAt());
+        if (now.after(expiresAt)) {
+            System.out.println("Expired password reset token for user ID: " + tokenRecord.getUserId());
+            return ResponseEntity.badRequest().build();
+        }
         // - not used
+        if (tokenRecord.getUsed()) {
+            System.out.println("Already used password reset token for user ID: " + tokenRecord.getUserId());
+            return ResponseEntity.badRequest().build();
+        }
 
+        String userEmail = authService.getEmailByUserId(UUID.fromString(tokenRecord.getUserId()));
         boolean isPasswordChanged = authService.changePassword(
-            changePasswordRequest.getEmail(),
+            userEmail,
             changePasswordRequest.getNewPassword()
         );
         if (!isPasswordChanged) {
-            System.out.println("Failed to change password for email: " + changePasswordRequest.getEmail());
+            System.out.println("Failed to change password for email: " + userEmail);
+            return ResponseEntity.status(500).build();
+        }
+
+        // mark token as used
+        boolean isTokenMarkedUsed = authService.markPasswordResetTokenAsUsed(changePasswordRequest.getToken());
+        if (!isTokenMarkedUsed) {
+            System.out.println("Failed to mark password reset token as used for token: " + changePasswordRequest.getToken());
             return ResponseEntity.status(500).build();
         }
         return ResponseEntity.ok().build();
