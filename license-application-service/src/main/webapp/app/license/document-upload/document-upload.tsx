@@ -161,6 +161,7 @@ export default function ApplicationDocumentUpload() {
           applicationId: Number(applicationID),
           data: {
             application_status: ApplicationStatusApiEnum.DOCUMENTS_SUBMITTED,
+            remarks: "Documents Uploaded Successfully",
           },
         });
       } catch (err) {

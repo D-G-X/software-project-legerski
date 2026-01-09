@@ -21,7 +21,7 @@ export default function ContactPage() {
             {t("email.title")}
             <a
               href="mailto:avisio.legal@palma.es"
-              className="text-blue-600 underline block"
+              className="text-blue-600 underline block mt-1"
             >
               avisio.legal@palma.es
             </a>

@@ -39,7 +39,7 @@ var rejectionReasons = []string{
 const callbackURL = "http://host.docker.internal:8080/validation-callback" // backend callback endpoint
 
 // Login-Konfiguration
-const loginURL = "http://host.docker.internal:8080/login"
+const loginURL = "http://localhost:8080/login"
 const loginEmail = "documentvalidator@xx.xx"
 const loginPassword = "securepassword123"
 
