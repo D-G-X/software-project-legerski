@@ -6,9 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hft.licensing.db.enums.NotificationWay;
 import de.hft.licensing.db.tables.NotificationPreferences;
-import de.hft.licensing.db.tables.PasswordResetToken;
 import de.hft.licensing.db.tables.User;
-import de.hft.licensing.db.tables.records.PasswordResetTokenRecord;
 import de.hft.licensing.model.*;
 import de.hft.licensing.utils.EnumMapperUtil;
 import org.jooq.DSLContext;
@@ -21,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -205,71 +202,6 @@ public class KeycloakAuthService {
 
         KeycloakUserRecord[] users = response.getBody();
         return users != null && users.length > 0;
-    }
-
-    public UUID getUserIdByEmail(String email) {
-        String adminToken = getAdminToken();
-        if (adminToken == null) {
-            throw new RuntimeException("Failed to obtain admin token from Keycloak");
-        }
-
-        String url = String.format("%s/admin/realms/%s/users?email=%s", keycloakUrl, realm, email);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminToken);
-
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<KeycloakUserRecord[]> response =
-                restTemplate.exchange(url, HttpMethod.GET, entity, KeycloakUserRecord[].class);
-
-        KeycloakUserRecord[] users = response.getBody();
-        if (users != null && users.length > 0) {
-            return UUID.fromString(users[0].id());
-        }
-        return null;
-    }
-
-    public String getEmailByUserId(UUID userId) {
-        KeycloakUserRecord userRecord = getUserById(userId);
-        if (userRecord != null) {
-            return userRecord.email();
-        }
-        return null;
-    }
-
-    public String createPasswordResetToken(String email) {
-        // Create a token from email and current timestamp of type varchar(255)
-        return Base64.getUrlEncoder().encodeToString((email + ":" + System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
-    }
-
-    public boolean storePasswordResetToken(UUID userId, String token) {
-        try {
-            int inserted = dsl.insertInto(PasswordResetToken.PASSWORD_RESET_TOKEN)
-                    .set(PasswordResetToken.PASSWORD_RESET_TOKEN.USER_ID, userId.toString())
-                    .set(PasswordResetToken.PASSWORD_RESET_TOKEN.TOKEN, token)
-                    .set(PasswordResetToken.PASSWORD_RESET_TOKEN.EXPIRES_AT, LocalDateTime.now().plusMinutes(10))
-                    .set(PasswordResetToken.PASSWORD_RESET_TOKEN.CREATED_AT, LocalDateTime.now())
-                    .execute();
-            return inserted > 0;
-        } catch (DataIntegrityViolationException e) {
-            System.out.println("Failed to store password reset token: " + e.getMessage());
-            return false;
-        }
-    }
-
-    public PasswordResetTokenRecord getPasswordResetTokenRecord(String token) {
-        return dsl.selectFrom(PasswordResetToken.PASSWORD_RESET_TOKEN)
-                .where(PasswordResetToken.PASSWORD_RESET_TOKEN.TOKEN.eq(token))
-                .fetchOne();
-    }
-
-    public boolean markPasswordResetTokenAsUsed(String token) {
-        int updated = dsl.update(PasswordResetToken.PASSWORD_RESET_TOKEN)
-                .set(PasswordResetToken.PASSWORD_RESET_TOKEN.USED, true)
-                .where(PasswordResetToken.PASSWORD_RESET_TOKEN.TOKEN.eq(token))
-                .execute();
-        return updated > 0;
     }
 
     public boolean changePassword(String email, String newPassword) {
