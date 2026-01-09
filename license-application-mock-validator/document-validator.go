@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -15,9 +16,9 @@ import (
 )
 
 const verifiedProbability = 90 // percentage chance of VERIFIED status
-const maxFileSize = 10          // per file in MB
-const maxPollRequests = 2       // max polling requests per second per client
-const timeout = 5               // seconds
+const maxFileSize = 10         // per file in MB
+const maxPollRequests = 2      // max polling requests per second per client
+const timeout = 5              // seconds
 
 var processDuration = []time.Duration{
 	2 * time.Second,
@@ -36,10 +37,11 @@ var rejectionReasons = []string{
 	"Page orientation or layout prevents automated scanning",
 }
 
-const callbackURL = "http://host.docker.internal:8080/validation-callback" // backend callback endpoint
+var callbackURL = "http://localhost:8080/validation-callback" // backend callback endpoint
 
 // Login-Konfiguration
-const loginURL = "http://host.docker.internal:8080/login"
+var loginURL = "http://localhost:8080/login"
+
 const loginEmail = "documentvalidator@xx.xx"
 const loginPassword = "securepassword123"
 
@@ -96,6 +98,12 @@ type LoginResponse struct {
 
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	if runningInDocker() {
+		callbackURL = "http://host.docker.internal:8080/validation-callback" // backend callback endpoint
+		loginURL = "http://host.docker.internal:8080/login"
+		log.Println("Running in Docker, adjusting URLs")
+	}
 
 	// Wrap handlers with CORS middleware
 	http.HandleFunc("/process-document", corsMiddleware(startProcessingHandler))
@@ -432,4 +440,9 @@ func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
+}
+
+func runningInDocker() bool {
+	_, err := os.Stat("/.dockerenv")
+	return err == nil
 }
