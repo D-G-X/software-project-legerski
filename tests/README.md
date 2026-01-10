@@ -16,7 +16,7 @@ This directory contains files to set up and run performance tests using Locust.
 
 Linux/macOS:
 ```bash
-./run-locust.sh
+./run-load-tests.sh
 ```
 Windows:
 ```powershell
