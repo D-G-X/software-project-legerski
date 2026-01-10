@@ -132,11 +132,13 @@
   },
   "dashboard": {
     "headline": {
-      "getStarted": "Hello {{firstName}}! Get started with a new Holiday Rental Licence",
+      "hello": "Hello {{firstName}}!",
+      "getStarted": "Get started with a new Holiday Rental Licence",
       "manageApplications": " or manage your application in one place!"
     },
     "noApplications": "You haven’t submitted any license applications yet",
     "buttonLabel": "Request new licence",
+    "noBallotRunning": "No ballot period is currently running!",
     "title": "Your Applications",
     "licenceStatus": {
       "approved": "Approved",

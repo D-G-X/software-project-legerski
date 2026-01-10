@@ -741,12 +741,14 @@ paths:
   /ballot-periods/current:
     get:
       tags: [Ballot Periods]
-      summary: Get date of current or upcoming ballot period
-      description: Retrieve the start and end dates of the current or next ballot period.
+      summary: Get date of most current
+      description: >
+        Retrieve the start and end dates of the current,
+        next (if none ongoing) or last ballot period (if none ongoing or upcoming).
       operationId: getBallotPeriod
       responses:
         "200":
-          description: Current or upcoming ballot period
+          description: Current, upcoming or last ballot period
           content:
             application/json:
               schema:

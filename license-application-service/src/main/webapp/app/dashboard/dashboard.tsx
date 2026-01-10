@@ -169,23 +169,34 @@ export function Dashboard() {
       <div className="relative flex flex-col min-h-[calc(100vh-8rem)] bg-white">
         <div className="font-inter flex flex-col items-center w-full">
           <div className="text-center mt-16 text-xl">
-            <div className="text-3xl font-bold text-mallorca-purple">
-              {t("dashboard.headline.getStarted", {
-                firstName: userData?.firstName || "User",
-              }) +
-                (applications.length > 0
-                  ? t("dashboard.headline.manageApplications")
-                  : "")}
+            <div className="flex flex-col items-center">
+              <div className="text-3xl font-bold text-mallorca-purple">
+                {t("dashboard.headline.hello", {
+                  firstName: userData?.firstName || "User",
+                })}
+              </div>
+              <div className="mt-2 text-2xl font-bold text-mallorca-purple">
+                {t("dashboard.headline.getStarted") +
+                    (applications.length > 0
+                        ? t("dashboard.headline.manageApplications")
+                        : "")}
+              </div>
             </div>
           </div>
 
-          <button
-            type="button"
-            className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 w-max"
-            onClick={handleNewApplicationClick}
-          >
-            {t("dashboard.buttonLabel")}
-          </button>
+          {ballotPeriodDetails.status === BallotStatus.RUNNING ? (
+            <button
+              type="button"
+              className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 w-max"
+              onClick={handleNewApplicationClick}
+            >
+              {t("dashboard.buttonLabel")}
+            </button>
+          ) : (
+              <div className="mt-12 text-xl font-medium px-10 py-2 rounded-md bg-gray-100 text-gray-700">
+                {t("dashboard.noBallotRunning")}
+              </div>
+          )}
 
           {currentData.length > 0 ? (
             <div className="mt-16 w-full">

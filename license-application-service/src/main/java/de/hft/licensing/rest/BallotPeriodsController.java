@@ -27,7 +27,6 @@ import static org.jooq.impl.DSL.selectOne;
 
 
 @RestController
-@PreAuthorize("hasRole('admin')")
 public class BallotPeriodsController implements BallotPeriodsApi {
     private final DefaultDSLContext dslContext;
     private final DistributionAlgorithmService distributionAlgorithmService;
