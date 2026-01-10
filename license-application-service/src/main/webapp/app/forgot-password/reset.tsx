@@ -2,14 +2,17 @@ import { FormHeader } from "app/common/headingTitle";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { validateResults } from "app/common/utils";
+import { useSearchParams } from "react-router";
 import {
   isValidPassword,
   isValidConfirmPassword,
 } from "app/common/validationRules";
 import { ResetConfirmation } from "./confirmation";
+import {changeUserPassword} from "../services/authentication/authentication";
 
 export default function ResetPassword() {
-  // const { token } = useParams<{ token: string }>();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
 
   const { t } = useTranslation();
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -39,12 +42,12 @@ export default function ResetPassword() {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const passwordValidateResult: validateResults = isValidPassword(
-      form.password
+        form.password
     );
     const confirmPasswordValidateResult: validateResults =
-      isValidConfirmPassword(form.password, form.confirm_password);
+        isValidConfirmPassword(form.password, form.confirm_password);
     let newErrors = {
       password: "",
       confirm_password: "",
@@ -68,20 +71,28 @@ export default function ResetPassword() {
       confirm_password: "",
       change_password: "",
     });
+    if (!token) {
+      setErrors(prev => ({
+        ...prev,
+        change_password: "Reset link is invalid or expired.",
+      }));
+      return false;
+    }
+    try {
+      await changeUserPassword({
+        token: token,
+        new_password: form.password,
+      });
 
-    // implement the API call for register;
-    setShowConfirmation(true);
-    return true;
-    // try {
-    //   await axios.post("/api/account/reset-password/finish", {
-    //     key: token,
-    //     newPassword: password,
-    //   });
-    // } catch (err) {
-    //   console.error("Failed to reset password", err);
-    //   setError("Link may be invalid or expired. Please try again.");
-    //   setIsLoading(false);
-    // }
+      setShowConfirmation(true);
+      return true;
+    } catch (error: any) {
+      setErrors({
+        ...errors,
+        change_password: "Reset link is invalid or expired.",
+      });
+      return false;
+    }
   };
 
   return (

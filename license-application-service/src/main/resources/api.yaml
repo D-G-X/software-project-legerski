@@ -1177,11 +1177,11 @@ components:
       type: object
       description: Request payload for changing the user's password.
       properties:
-        email:
+        token:
           type: string
-          format: email
-          description: User's email address.
-          example: john.doe@example.com
+          format: bytes
+          description: User's token.
+          example: dmFoYW4uZHVjaGVyQGljbG91ZC5jb206MTc2Nzk1ODU1OTE4MQ==
         new_password:
           type: string
           format: password
