@@ -167,16 +167,16 @@ export default function ApplicationDocumentUpload() {
         console.error("Failed to update application status:", err);
       }
 
-      const applcationDetails = await applicationQuery.refetch();
+      const applicationDetails = await applicationQuery.refetch();
 
       if (
-        applcationDetails.data?.data.application_status ===
+        applicationDetails.data?.data.application_status ===
         "DOCUMENTS_SUBMITTED"
       ) {
         navigate("/payment/" + applicationID);
         alert(t("license.document_upload.success_message"));
       } else if (
-        applcationDetails.data?.data.application_status === "REJECTED"
+        applicationDetails.data?.data.application_status === "REJECTED"
       ) {
         alert(t("license.document_upload.reject_message"));
       } else {
