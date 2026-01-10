@@ -2,6 +2,7 @@ import { FormHeader } from "app/common/headingTitle";
 import { validateResults } from "app/common/utils";
 import { isValidEmail } from "app/common/validationRules";
 import React, { useState } from "react";
+import { useGlobalLoader } from "app/common/GlobalLoader";
 import { useTranslation } from "react-i18next";
 import { RequestSent } from "./confirmation";
 import { requestPasswordReset } from "app/services/authentication/authentication";
@@ -12,10 +13,9 @@ export default function ForgotPasswordRequest() {
   const [emailError, setEmailError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { show, hide, visible } = useGlobalLoader();
 
   const handleSubmit = async () => {
-
     const emailValidateResult: validateResults = isValidEmail(email);
 
     if (!emailValidateResult.isValid) {
@@ -25,7 +25,7 @@ export default function ForgotPasswordRequest() {
 
     setEmailError("");
     setSubmitError("");
-    setLoading(true);
+    show();
 
     try {
       await requestPasswordReset({ email });
@@ -38,7 +38,7 @@ export default function ForgotPasswordRequest() {
         setSubmitError(t("forgotPassword.request.genericError"));
       }
     } finally {
-      setLoading(false);
+      hide();
     }
   };
 
@@ -88,7 +88,7 @@ export default function ForgotPasswordRequest() {
                   <button
                     type="submit"
                     onClick={handleSubmit}
-                    disabled={loading}
+                    disabled={visible}
                     className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg"
                   >
                     {t("forgotPassword.request.resetPasswordBtn")}
