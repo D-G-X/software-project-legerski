@@ -1,12 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Dot,
-  MessageSquare,
-  MessageSquareDashed,
-  Settings,
-} from "lucide-react";
-import { useNavigate } from "react-router";
+import { Dot, MessageSquare, MessageSquareDashed } from "lucide-react";
 import { formatDateLong, formatRelativeDate } from "./format";
 import { UserNotificationResource } from "../../types";
 import {
@@ -39,7 +33,7 @@ function useUpdateNotificationStatus(): UpdateNotificationResult {
 
 export default function NotificationPopup({ className = "" }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const auth = useContext(AuthContext);
   const userId = getUserIdFromToken(auth?.accessToken);
@@ -109,11 +103,6 @@ export default function NotificationPopup({ className = "" }) {
     })();
   };
 
-  function handleSettingsClick() {
-    navigate(`/notification-settings`);
-    setOpen(false);
-  }
-
   const [currentNotification, setCurrentNotification] =
     useState<UserNotificationResource>({} as UserNotificationResource);
 
@@ -166,21 +155,6 @@ export default function NotificationPopup({ className = "" }) {
 
               {/* Buttons – right */}
               <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={handleSettingsClick}
-                  className="relative inline-flex items-center group"
-                >
-                  <Settings size={20} />
-                  <span
-                    className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2
-                         mb-2 whitespace-nowrap rounded bg-black px-2 py-1 text-xs text-white
-                         opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition z-50"
-                  >
-                    {t("notifications.settingsBtn")}
-                  </span>
-                </button>
-
                 <button
                   type="button"
                   onClick={markAllAsRead}
