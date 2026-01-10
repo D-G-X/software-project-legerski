@@ -212,7 +212,7 @@ export default function Profile() {
 
       <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-8 relative">
         {/* Notification settings button */}
-        <div className="absolute right-4 top-4">
+        {/* <div className="absolute right-4 top-4">
           <button
             onClick={() => {
               navigate("/notification-settings");
@@ -221,7 +221,7 @@ export default function Profile() {
           >
             {t("profile.notificationSettings")}
           </button>
-        </div>
+        </div> */}
 
         {/* FIRST + LAST NAME */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
