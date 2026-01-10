@@ -37,11 +37,10 @@ var rejectionReasons = []string{
 	"Page orientation or layout prevents automated scanning",
 }
 
-var callbackURL = "http://localhost:8080/validation-callback" // backend callback endpoint
+const callbackURL = "http://host.docker.internal:8080/validation-callback" // backend callback endpoint
 
-// Login-Konfiguration
-var loginURL = "http://localhost:8080/login"
-
+// Login credentials for keycloak
+const loginURL = "http://host.docker.internal:8080/login"
 const loginEmail = "documentvalidator@xx.xx"
 const loginPassword = "securepassword123"
 
@@ -98,12 +97,6 @@ type LoginResponse struct {
 
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	if runningInDocker() {
-		callbackURL = "http://host.docker.internal:8080/validation-callback" // backend callback endpoint
-		loginURL = "http://host.docker.internal:8080/login"
-		log.Println("Running in Docker, adjusting URLs")
-	}
 
 	// Wrap handlers with CORS middleware
 	http.HandleFunc("/process-document", corsMiddleware(startProcessingHandler))

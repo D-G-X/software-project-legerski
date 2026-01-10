@@ -23,7 +23,7 @@ The mock document validator service listens on port `8083` and exposes the follo
 
 ```json
 {
-    "application_id": int,
+    "application_id": "int",
     "id_file": "application/pdf",
     "proof_file": "application/pdf"
 }
@@ -33,7 +33,7 @@ The service responds with a JSON object indicating the initial state of the vali
 
 ```json
 {
-    "application_id": int,
+    "application_id": "int",
     "status": "string" // only "PENDING"
 }
 ```
@@ -45,7 +45,7 @@ The response will be similar to the one above, but the status will eventually ch
 
 ```json
 {
-    "application_id": int,
+    "application_id": "int",
     "status": "string", // only "VERIFIED", "PENDING" or "REJECTED"
     "rejection_reason": "*string" // only present if status is "REJECTED"
 }
@@ -59,7 +59,7 @@ The callback payload has the following structure:
 
 ```json
 {
-    "application_id": int,
+    "application_id": "int",
     "status": "string", // only "VERIFIED" or "REJECTED"
     "rejection_reason": "*string" // only present if status is "REJECTED"
 }

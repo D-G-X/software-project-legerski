@@ -30,16 +30,27 @@
 
    > ℹ️ Right-click on the folder in the Project view -> "Mark Directory as" -> "Generated Sources Root".
 
-#### Keycloak launching
-Keycloak service is required for authentication. It is launched automatically with the database using `docker compose up` command.
+6. Backend client secret setup:
+   - Go to the [Keycloak admin console](http://localhost:8081/realms/master/protocol/openid-connect/auth?client_id=security-admin-console&redirect_uri=http%3A%2F%2Flocalhost%3A8081%2Fadmin%2Fmaster%2Fconsole%2F&state=5a67f871-4955-446e-b7a4-dcf04d1510fa&response_mode=query&response_type=code&scope=openid&nonce=bdd6a9a4-aaa7-40fa-a6dd-bd0c842c0789&code_challenge=1dG9jQi6II2K35M8kujnMSicF6yUOZfMQmZx-8BAIUI&code_challenge_method=S256) and log in with admin/admin credentials
+   - Select the `license-realm` realm from the dropdown and navigate to the `Clients` tab
+   - Select the `backend-api` client, go to the "Credentials" tab and copy the `Client Secret` value. If the secret is not visible, click on the `Regenerate` button to create a new one 
+   - Paste it to the `KEYCLOAK_CLIENT_SECRET` key in the `.env` and `application.yml` file (copy and rename .env.example, if necessary).
 
-The Keycloak admin console is accessible at [http://localhost:8081](http://localhost:8081) with the following credentials:
-- Username: `admin`
-- Password: `admin`
+   > Note that the keycloak dashboard doesn't work on Safari!
 
-Then, select the realm `license-realm` from the dropdown menu in the top-left corner, instead of `master`.
+7. Set up document validator user in Keycloak:
+   - Go to the [Keycloak admin console](http://localhost:8081/realms/master/protocol/openid-connect/auth?client_id=security-admin-console&redirect_uri=http%3A%2F%2Flocalhost%3A8081%2Fadmin%2Fmaster%2Fconsole%2F&state=5a67f871-4955-446e-b7a4-dcf04d1510fa&response_mode=query&response_type=code&scope=openid&nonce=bdd6a9a4-aaa7-40fa-a6dd-bd0c842c0789&code_challenge=1dG9jQi6II2K35M8kujnMSicF6yUOZfMQmZx-8BAIUI&code_challenge_method=S256) and log in with admin/admin credentials
+   - Select the `license-realm` realm from the dropdown and navigate to the `Users` tab
+   - Click on `Add User` and create a new user with username `documentvalidator@xx.xx` and first/last name of your choice
+   - Set the password `securepassword123` in the `Credentials` tab (make sure to disable the `Temporary` option)
+   - In the `Role Mappings` tab, click on `Assign role` and select the filter `filter by relam roles`. Select and assign the `user` role from the list.
 
-Check that the `KEYCLOAK_CLIENT_SECRET` is properly set in `.env` file. The client secret can be found in the Keycloak admin console under "**Clients**" -> `backend-api` -> "**Credentials**" tab.
+8. Set up an admin user in Keycloak:
+   - Go to the [Keycloak admin console](http://localhost:8081/realms/master/protocol/openid-connect/auth?client_id=security-admin-console&redirect_uri=http%3A%2F%2Flocalhost%3A8081%2Fadmin%2Fmaster%2Fconsole%2F&state=5a67f871-4955-446e-b7a4-dcf04d1510fa&response_mode=query&response_type=code&scope=openid&nonce=bdd6a9a4-aaa7-40fa-a6dd-bd0c842c0789&code_challenge=1dG9jQi6II2K35M8kujnMSicF6yUOZfMQmZx-8BAIUI&code_challenge_method=S256) and log in with admin/admin credentials
+   - Select the `license-realm` realm from the dropdown and navigate to the `Users` tab
+   - Click on `Add User` and create a new user with username and first/last name of your choice (make sure that the email is valid for the frontend login)
+   - Set a password of your choice in the `Credentials` tab (make sure to disable the `Temporary` option and that the password is valid for the frontend login)
+   - In the `Role Mappings` tab, click on `Assign role` and select the filter `filter by relam roles`. Select and assign the `admin` role from the list.
 
 ### Development
 
@@ -67,25 +78,9 @@ This removes outdated npm and maven packages.
 
 ---
 
-The application is now running on [localhost:3000](http://localhost:3000). All changes are immediately visible in the browser.
-
-### Authentication
-
-To be able to log in on the frontend, you need to store your personal client secret in the backend.
-
-To retrieve your client secret follow these steps:
-1. Go to the [Keycloak admin console](http://localhost:8081/realms/master/protocol/openid-connect/auth?client_id=security-admin-console&redirect_uri=http%3A%2F%2Flocalhost%3A8081%2Fadmin%2Fmaster%2Fconsole%2F&state=5a67f871-4955-446e-b7a4-dcf04d1510fa&response_mode=query&response_type=code&scope=openid&nonce=bdd6a9a4-aaa7-40fa-a6dd-bd0c842c0789&code_challenge=1dG9jQi6II2K35M8kujnMSicF6yUOZfMQmZx-8BAIUI&code_challenge_method=S256)
-2. Select the `license-realm` realm from the dropdown and navigate to the `Clients` tab
-3. Select the `backend-api` client, go to the "Credentials" tab and copy the `Client Secret` value. If the secret is not visible, click on the `Regenerate` button to create a new one
-4. Paste it to the `KEYCLOAK_CLIENT_SECRET` key in an .env file (copy and rename .env.example, if necessary)
-
-> Note that the keycloak dashboard doesn't work on Safari!
-
----
-
 ### Quick Fixes
 
-If you have issues with compiling or starting the backend, try the following steps:
+If you have issues with compiling or starting the backend, try the following steps in IntelliJ:
 
 	•	Settings/Preferences → Build, Execution, Deployment → Build Tools → Maven
 	•	Runner → “Delegate IDE build/run actions to Maven”
