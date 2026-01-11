@@ -13,7 +13,7 @@ export default function Home() {
 
   return auth?.accessToken ? (
     auth.role === "admin" ? (
-      <BallotDashboard></BallotDashboard>
+      <BallotDashboard />
     ) : (
       <Dashboard />
     )
