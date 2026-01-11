@@ -279,7 +279,7 @@ export default function Header() {
                     onClick={() => setMobileOpen(false)}
                     className="block p-2 rounded hover:bg-mallorca-purple/10 text-mallorca-purple/75"
                   >
-                    {t("nav.profile")}
+                    <UserPen size={20} />
                   </Link>
                   <button
                     onClick={() => {
