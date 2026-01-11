@@ -433,7 +433,10 @@
         "fileRequired": "Please upload all required documents to proceed",
         "fileTypeError": "Only PDF files are allowed",
         "fileSizeError": "File size must be less than 10 MB"
-      }
+      },
+      "submitButton": "Submit Documents",
+      "goBackButton": "Edit application",
+      "uploadLater": "Upload Later"
     },
     "paymentForm": {
       "title": "Payment",
