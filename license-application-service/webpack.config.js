@@ -96,9 +96,17 @@ module.exports = (env, argv) => ({
     },
     hot: true,
     static: path.resolve('./src/main/webapp'),
-    watchFiles: [
-      './src/main/webapp/**'
-    ],
+    watchFiles: ['./src/main/webapp/**'],
     open: true,
+
+    // ✅ ADD THIS
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
+    ],
   }
 });

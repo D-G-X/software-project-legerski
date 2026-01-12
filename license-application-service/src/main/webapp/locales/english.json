@@ -1126,6 +1126,18 @@
     "actions": {
       "viewApplications": "View Applications",
       "cancel": "Cancel"
+    },
+    "status": {
+      "active": "Active",
+      "upcoming": "Upcoming",
+      "closed": "Closed"
+    },
+    "loading": "Loading ballot details…",
+    "errors": {
+      "title": "Unable to load ballot",
+      "invalidId": "Invalid ballot identifier.",
+      "notFound": "The requested ballot does not exist.",
+      "generic": "Something went wrong. Please try again later."
     }
   }
 }

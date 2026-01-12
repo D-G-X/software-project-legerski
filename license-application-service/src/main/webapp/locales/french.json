@@ -1123,6 +1123,18 @@
     "actions": {
       "viewApplications": "Voir les candidatures",
       "cancel": "Annuler"
+    },
+    "status": {
+      "active": "Actif",
+      "upcoming": "À venir",
+      "closed": "Clôturé"
+    },
+    "loading": "Chargement des détails du scrutin…",
+    "errors": {
+      "title": "Impossible de charger le scrutin",
+      "invalidId": "Identifiant du scrutin invalide.",
+      "notFound": "Le scrutin demandé n’existe pas.",
+      "generic": "Une erreur s’est produite. Veuillez réessayer plus tard."
     }
   }
 }

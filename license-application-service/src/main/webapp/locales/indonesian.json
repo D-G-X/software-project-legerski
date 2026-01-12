@@ -1123,6 +1123,18 @@
     "actions": {
       "viewApplications": "Lihat Aplikasi",
       "cancel": "Batal"
+    },
+    "status": {
+      "active": "Aktif",
+      "upcoming": "Akan Datang",
+      "closed": "Ditutup"
+    },
+    "loading": "Memuat detail pemungutan suara…",
+    "errors": {
+      "title": "Gagal memuat pemungutan suara",
+      "invalidId": "Pengenal pemungutan suara tidak valid.",
+      "notFound": "Pemungutan suara yang diminta tidak ada.",
+      "generic": "Terjadi kesalahan. Silakan coba lagi nanti."
     }
   }
 }

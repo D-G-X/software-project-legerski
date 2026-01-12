@@ -1123,6 +1123,18 @@
     "actions": {
       "viewApplications": "Anträge anzeigen",
       "cancel": "Abbrechen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "upcoming": "Bevorstehend",
+      "closed": "Geschlossen"
+    },
+    "loading": "Lade Wahldetails…",
+    "errors": {
+      "title": "Wahl konnte nicht geladen werden",
+      "invalidId": "Ungültige Wahl-ID.",
+      "notFound": "Die angeforderte Wahl existiert nicht.",
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut."
     }
   }
 }

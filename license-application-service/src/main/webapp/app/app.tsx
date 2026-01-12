@@ -8,7 +8,9 @@ import ErrorBoundary from "app/error/error-boundary";
  * Provide the app layout and some general functionality.
  */
 export default function App() {
-  const { state } = useLocation();
+  const location = useLocation();
+  const { state } = location;
+  const hideNotifications = location.pathname === "/ballot-details";
   const msgSuccess = state?.msgSuccess || null;
   const msgInfo = state?.msgInfo || null;
   const msgError = state?.msgError || null;
@@ -46,7 +48,7 @@ export default function App() {
           <Outlet />
         </ErrorBoundary>
       </div>
-      <Footer />
+      {!hideNotifications && <Footer />}
     </>
   );
 }

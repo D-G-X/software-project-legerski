@@ -1123,6 +1123,18 @@
     "actions": {
       "viewApplications": "Ver solicitudes",
       "cancel": "Cancelar"
+    },
+    "status": {
+      "active": "Activo",
+      "upcoming": "Próximo",
+      "closed": "Cerrado"
+    },
+    "loading": "Cargando detalles de la votación…",
+    "errors": {
+      "title": "No se pudo cargar la votación",
+      "invalidId": "Identificador de votación no válido.",
+      "notFound": "La votación solicitada no existe.",
+      "generic": "Algo salió mal. Por favor, inténtelo de nuevo más tarde."
     }
   }
 }
