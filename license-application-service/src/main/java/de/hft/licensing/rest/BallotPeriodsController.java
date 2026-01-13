@@ -2,20 +2,25 @@ package de.hft.licensing.rest;
 
 import de.hft.licensing.api.BallotPeriodsApi;
 import de.hft.licensing.db.enums.ApplicationStatus;
+import de.hft.licensing.db.enums.PaymentStatus;
 import de.hft.licensing.db.tables.Application;
+import de.hft.licensing.db.tables.ApplicationPayment;
 import de.hft.licensing.db.tables.Ballot;
 import de.hft.licensing.db.tables.BallotPeriod;
+import de.hft.licensing.db.tables.records.ApplicationPaymentRecord;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.*;
 import de.hft.licensing.services.DistributionAlgorithmService;
+import de.hft.licensing.services.MockBankClient;
+import de.hft.licensing.services.PaymentRequestDto;
+import de.hft.licensing.services.PaymentResponseDto;
 import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,10 +35,12 @@ import static org.jooq.impl.DSL.selectOne;
 public class BallotPeriodsController implements BallotPeriodsApi {
     private final DefaultDSLContext dslContext;
     private final DistributionAlgorithmService distributionAlgorithmService;
+    private final MockBankClient mockBankClient;
 
-    public BallotPeriodsController(DefaultDSLContext dslContext, DistributionAlgorithmService distributionAlgorithmService) {
+    public BallotPeriodsController(DefaultDSLContext dslContext, DistributionAlgorithmService distributionAlgorithmService, MockBankClient mockBankClient) {
         this.dslContext = dslContext;
         this.distributionAlgorithmService = distributionAlgorithmService;
+        this.mockBankClient = mockBankClient;
     }
 
     public record BallotApiError(String code, String message) {}
@@ -172,6 +179,11 @@ public class BallotPeriodsController implements BallotPeriodsApi {
             return ResponseEntity.badRequest().build();
         }
 
+        if (result == null) {
+            System.out.println("[ERROR] - Lottery could not be run for Ballot Period ID " + periodId + ". Check if the period exists and is finished.");
+            return ResponseEntity.badRequest().build();
+        }
+
         List<ApplicationResource> selectedResources = result.selectedApplications().stream().map(record -> {
             ApplicationResource resource = new ApplicationResource();
             RecordToResourceMapperUtil.mapApplicationRecordToResource(record, resource);
@@ -184,10 +196,42 @@ public class BallotPeriodsController implements BallotPeriodsApi {
             return resource;
         }).toList();
 
+        // process payments for selected applications
+        for (ApplicationRecord app : result.selectedApplications()) {
+            Integer appId = app.getId();
+
+            ApplicationPaymentRecord pay = dslContext.selectFrom(ApplicationPayment.APPLICATION_PAYMENT)
+                    .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(appId))
+                    .fetchOneInto(ApplicationPaymentRecord.class);
+
+            if (pay == null) {
+                continue;
+            }
+
+            PaymentRequestDto req = new PaymentRequestDto(
+                    String.valueOf(appId),
+                    pay.getAmount().doubleValue(),
+                    pay.getAccountant(),
+                    pay.getIban(),
+                    pay.getBic()
+            );
+
+            PaymentResponseDto resp = mockBankClient.processPayment(req);
+
+            dslContext.update(ApplicationPayment.APPLICATION_PAYMENT)
+                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.lookupLiteral(resp.status()))
+                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, LocalDateTime.now())
+                    .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(appId))
+                    .execute();
+        }
+
         RunLotteryForBallotPeriod200Response body = new RunLotteryForBallotPeriod200Response();
         body.setSelectedApplications(selectedResources);
         body.setNotSelectedApplications(notSelectedResources);
 
+        dslContext.truncate(ApplicationPayment.APPLICATION_PAYMENT).execute();
+
         return ResponseEntity.ok(body);
     }
+
 }

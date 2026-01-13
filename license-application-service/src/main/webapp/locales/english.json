@@ -248,6 +248,30 @@
         "statusLabel": "Payment status"
       }
     },
+    "licenceStatus": {
+      "approved": "Approved",
+      "awaitingPayment": "Awaiting Payment",
+      "cancelled": "Cancelled",
+      "documentsSubmitted": "Documents Submitted",
+      "draft": "Draft",
+      "expired": "Expired",
+      "inBallot": "In Ballot",
+      "notSelected": "Not Selected",
+      "paymentReceived": "Payment Received",
+      "rejected": "Rejected",
+      "selected": "Selected",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "verificationPending": "Verification Pending"
+    },
+    "documentStatus": {
+      "verified": "Verified",
+      "rejected": "Rejected"
+    },
+    "paymentStatus": {
+      "unpaid": "Payment Received",
+      "paid": "Payment Completed"
+    },
     "buttons": {
       "renewLicenseLabel": "Renew License",
       "releaseLicenseLabel": "Release License",

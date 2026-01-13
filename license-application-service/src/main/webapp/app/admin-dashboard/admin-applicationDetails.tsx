@@ -11,7 +11,7 @@ import {Minimize2} from "lucide-react";
 import {useListPayments} from "../services/payments/payments";
 import {useDeleteLicense, useGetLicense, useListLicenses} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
-import {formatAmount, formatBic, formatDateLong, formatIban} from "../common/format";
+import {formatAmount, formatBic, formatDateLong, formatIban, getApplicationStatusColor} from "../common/format";
 import ConfirmPopup from "../common/confirmPopup";
 import {useQueryClient} from "@tanstack/react-query";
 import {AuthContext} from "../common/AuthContext";
@@ -51,21 +51,6 @@ const SHOW_PAYMENT_STATUSES = [
   "REJECTED",
   "NOT_SELECTED"
 ] as const;
-
-const BLUE_STATUSES =
-    ["SUBMITTED",
-      "UNDER_REVIEW",
-      "AWAITING_PAYMENT",
-      "APPROVED",
-      "IN_BALLOT"];
-
-const GREEN_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"]
-
-const RED_STATUSES = ["CANCELLED", "REJECTED", "NOT_SELECTED"];
-
-const GREY_STATUSES = ["DRAFT", "EXPIRED"];
-
-const ORANGE_STATUSES = ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING"];
 
 function useGetLicenseData(userId: string, applicationId: number) {
 
@@ -137,7 +122,7 @@ export default function ApplicationDetailsAdmin({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const closePopup = () => setIsPopupOpen(false);
 
-  if (!applicationData || !applicationData.id || !userId) {
+  if (!applicationData || !applicationData?.id || !userId) {
     alert("Missing application or user data");
     return null;
   }
@@ -145,16 +130,16 @@ export default function ApplicationDetailsAdmin({
   let documentData: GetApplicationDocuments200 | undefined;
   let paymentData: ApplicationPaymentResource | undefined;
 
-  if (SHOW_LICENSE_STATUSES.includes(applicationData.application_status as any)) {
-    licenseData = useGetLicenseData(userId, applicationData.id);
+  if (SHOW_LICENSE_STATUSES.includes(applicationData?.application_status as any)) {
+    licenseData = useGetLicenseData(userId, applicationData?.id);
   }
 
-  if (SHOW_DOCUMENT_STATUSES.includes(applicationData.application_status as any)) {
-    documentData = useGetDocumentData(applicationData.id);
+  if (SHOW_DOCUMENT_STATUSES.includes(applicationData?.application_status as any)) {
+    documentData = useGetDocumentData(applicationData?.id);
   }
 
-  if (SHOW_PAYMENT_STATUSES.includes(applicationData.application_status as any)) {
-    paymentData = useGetPaymentData(applicationData.id);
+  if (SHOW_PAYMENT_STATUSES.includes(applicationData?.application_status as any)) {
+    paymentData = useGetPaymentData(applicationData?.id);
   }
 
   const queryClient = useQueryClient();
@@ -176,7 +161,7 @@ export default function ApplicationDetailsAdmin({
 
   function handleReleaseLicense() {
     if (!licenseData?.id) return;
-    deleteLicense({licenseId: licenseData.id});
+    deleteLicense({licenseId: licenseData?.id});
     closePopup();
   }
 
@@ -238,29 +223,8 @@ export default function ApplicationDetailsAdmin({
                   <div className="flex justify-between min-w-lg">
                     <span>{t("applicationDetails.index.statusLabel") + ": "}</span>
                     <span
-                        className={`${
-                            // green statuses: all selected
-                            GREEN_STATUSES.includes(
-                                applicationData?.application_status
-                            )
-                                ? "text-green-800"
-                                : // blue statuses: all in-review/submitted
-                                BLUE_STATUSES.includes(applicationData?.application_status)
-                                    ? "text-blue-800"
-                                    : // orange statuses: all in-process
-                                    ORANGE_STATUSES.includes(applicationData?.application_status)
-                                        ? "text-orange-800"
-                                        : // red statuses: declined statuses
-                                        RED_STATUSES.includes(
-                                            applicationData?.application_status
-                                        )
-                                            ? "text-red-800"
-                                            : // grey statuses: draft, expired
-                                            GREY_STATUSES.includes(applicationData?.application_status)
-                                                ? "text-gray-800 "
-                                                : // fallback
-                                                "text-mallorca-purple"
-                        }`}
+                        className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-56 rounded-md 
+                              text-${getApplicationStatusColor(applicationData?.application_status)}-600 font-semibold`}
                     >{applicationData?.application_status}</span>
                   </div>
 

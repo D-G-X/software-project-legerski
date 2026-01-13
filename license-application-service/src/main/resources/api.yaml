@@ -833,6 +833,7 @@ paths:
       description: >
         Triggers the allocation (lottery) process for this ballot period,
         assigning selected status as true/false to eligible applications within the given period.
+        It is important to note, that a period has to be over.
       operationId: runLotteryForBallotPeriod
       parameters:
         - in: path
@@ -871,6 +872,8 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/ApplicationResource"
+        "400":
+          description: Bad request - invalid input data. Can be caused because period is not over yet
 
   /licenses:
     get:
@@ -1650,14 +1653,14 @@ components:
         - DOCUMENTS_SUBMITTED # Documents uploaded
         - VERIFICATION_PENDING # Awaiting verification
         - AWAITING_PAYMENT # Waiting for user payment
-        - PAYMENT_RECEIVED # Payment completed
+        - PAYMENT_RECEIVED # Payment details received
         - SUBMITTED # Application formally submitted
         - IN_BALLOT # Entered into selection/ballot
         - SELECTED # Chosen/approved via ballot
         - NOT_SELECTED # Not chosen in ballot
         - UNDER_REVIEW # In manual review process
         - APPROVED # License approved
-        - REJECTED # Application rejected
+        - REJECTED # Application rejected or payment denied
         - EXPIRED # Application expired (not continued)
         - CANCELLED # Withdrawn/cancelled by user
 
