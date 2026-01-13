@@ -40,7 +40,7 @@ export default function AppRoutes() {
 
         // Post login (any user)
         {
-          path: "issued-license",
+          path: "issued-license/:id",
           element: <IssuedLicensePage />,
           loader: ProtectedLoader(["admin", "user"]),
         },
