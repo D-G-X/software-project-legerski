@@ -1126,6 +1126,11 @@
     "actions": {
       "viewApplications": "View Applications",
       "cancel": "Cancel"
+    },
+    "status": {
+      "active": "Active",
+      "upcoming": "Upcoming",
+      "completed": "Completed"
     }
   }
 }
