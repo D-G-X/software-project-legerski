@@ -4,8 +4,8 @@ import useDocumentTitle from "../common/use-document-title";
 import "./ballot-applications-dashboard.css";
 import Pagination from "../common/Pagination";
 import { Link, useParams } from "react-router";
-// import { useListApplications } from "app/services/applications/applications";
-// import { ApplicationResource } from "../../types";
+import { useListApplications } from "app/services/applications/applications";
+import { ApplicationResource } from "../../types";
 
 export default function BallotApplicationsDashboard() {
     const { ballotId } = useParams();
@@ -17,7 +17,17 @@ export default function BallotApplicationsDashboard() {
     const [statusFilter, setStatusFilter] = useState("All");
     // 1. States for Search and Status Filter
     const [searchTerm, setSearchTerm] = useState("");
+    // Test Begin
+    const { data: response } = useListApplications({
+        user_id: "f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3",
+    });
 
+    const applications: ApplicationResource[] = Array.isArray(response?.data)
+        ? response.data
+        : [];
+    console.log("applications");
+    console.log(applications);
+    // Test End
     const formatDate = (rawDate: string | undefined) => {
         if (!rawDate) return "";
         return new Date(rawDate).toLocaleString(t("locale"), {
