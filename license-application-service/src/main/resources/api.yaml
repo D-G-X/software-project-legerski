@@ -1404,6 +1404,12 @@ components:
           format: date-time
           description: Expiry date/time of the license.
           example: 2028-07-01T10:00:00Z
+        cadastral_reference:
+          type: string
+          minLength: 20
+          maxLength: 20
+          description: Unique cadastral code (property reference).
+          example: 1234567AB9999C0001DE
       required:
         - id
         - user_id
