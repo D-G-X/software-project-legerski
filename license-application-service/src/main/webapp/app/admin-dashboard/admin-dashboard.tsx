@@ -7,7 +7,7 @@ import {ApplicationResource} from "../../types";
 import AdminApplicationDetails from "./admin-applicationDetails";
 import {AuthContext} from "../common/AuthContext";
 import {useGetBallotPeriodEntries} from "../services/ballot-periods/ballot-periods";
-import {formatDateShort, getApplicationStatusColor} from "../common/format";
+import {formatStatusLabel, formatDateShort, getApplicationStatusColor} from "../common/format";
 
 function getApplicationsForBallotPeriod(periodId: number | undefined) {
   if(!periodId) return;
@@ -109,12 +109,7 @@ export default function AdminDashboard() {
                               text-${getApplicationStatusColor(item.application_status)}-800 
                               bg-${getApplicationStatusColor(item.application_status)}-200 font-semibold`}
                         >
-                          {t(
-                              "dashboard.licenceStatus." +
-                              item.application_status
-                              .toLowerCase()
-                              .replace(/_([a-z])/g, (_, c) => c.toUpperCase()) // Camel case
-                          )}
+                          {t(formatStatusLabel("dashboard.licenceStatus.", item.application_status))}
                         </span>
                             </td>
                             <td className="w-1/5 text-left border-b border-black/10 p-[10px]" >

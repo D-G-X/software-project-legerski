@@ -17,10 +17,10 @@ import {
 } from "../services/licenses/licenses";
 import { useGetApplicationDocuments } from "../services/document-verification/document-verification";
 import {
-    formatAmount, formatApplicationStatusLabel,
-    formatBic,
-    formatDateLong,
-    formatIban, getApplicationStatusColor,
+  formatAmount, formatStatusLabel,
+  formatBic,
+  formatDateLong,
+  formatIban, getApplicationStatusColor, getDocumentStatusColor, getLicenseStatusColor,
 } from "../common/format";
 import ConfirmPopup from "../common/confirmPopup";
 import { useQueryClient } from "@tanstack/react-query";
@@ -256,7 +256,7 @@ export default function ApplicationDetails({
                   <span
                     className={`text-${getApplicationStatusColor(applicationData?.application_status)}-600 font-semibold`}
                   >
-                    {t(formatApplicationStatusLabel("dashboard.licenceStatus.", applicationData?.application_status))}
+                    {t(formatStatusLabel("applicationDetails.licenceStatus.", applicationData?.application_status))}
                   </span>
                 </div>
 
@@ -326,7 +326,10 @@ export default function ApplicationDetails({
                         {t("applicationDetails.index.license.statusLabel") +
                           ": "}
                       </span>
-                      <span>{licenseData?.license_status}</span>
+                      <span
+                          className={`text-${getLicenseStatusColor(licenseData?.license_status)}-600 font-semibold`}
+                      >{formatStatusLabel("applicationDetails.licenseStatus.", licenseData?.license_status)}
+                      </span>
                     </div>
 
                     <div className="flex justify-between min-w-lg">
@@ -363,7 +366,9 @@ export default function ApplicationDetails({
                         {t("applicationDetails.index.documents.statusLabel") +
                           ": "}
                       </span>
-                      <span>{documentData?.status}</span>
+                      <span
+                          className={`text-${getDocumentStatusColor(documentData?.status)}-600 font-semibold`}
+                      >{t(formatStatusLabel("applicationDetails.documentStatus.", documentData?.status))}</span>
                     </div>
 
                     {documentData?.rejection_reason && (

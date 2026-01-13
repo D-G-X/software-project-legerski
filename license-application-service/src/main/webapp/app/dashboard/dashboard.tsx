@@ -11,7 +11,7 @@ import { getUserIdFromToken } from "app/common/authTokenDecode";
 import { useGetUser } from "../services/users/users";
 import { InfoPopup } from "../common/infoPopup";
 import { useGetBallotPeriod } from "../services/ballot-periods/ballot-periods";
-import {formatDateShort, formatApplicationStatusLabel, getApplicationStatusColor} from "../common/format";
+import {formatDateShort, formatStatusLabel, getApplicationStatusColor} from "../common/format";
 import { useGlobalLoader } from "app/common/GlobalLoader";
 
 enum BallotStatus {
@@ -250,7 +250,7 @@ export function Dashboard() {
                               text-${getApplicationStatusColor(item.application_status)}-800 
                               bg-${getApplicationStatusColor(item.application_status)}-200 font-semibold`}
                           >
-                            {t(formatApplicationStatusLabel("dashboard.licenceStatus.", item.application_status))}
+                            {t(formatStatusLabel("dashboard.licenceStatus.", item.application_status))}
                           </span>
                         </td>
 
