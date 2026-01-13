@@ -57,7 +57,7 @@ keycloak:
   url: http://localhost:8081
   realm: license-realm
   client-id: backend-api
-  client-secret: "CLIENT_SECRET_PLACEHOLDER"
+  client-secret: "AEi2LMpmuW1TFq3jJPxHU3KjEKTOYnGO"
 
 mockbank:
   base-url: http://localhost:8082

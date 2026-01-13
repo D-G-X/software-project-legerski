@@ -211,18 +211,6 @@ export default function Profile() {
       </h2>
 
       <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-8 relative">
-        {/* Notification settings button */}
-        {/* <div className="absolute right-4 top-4">
-          <button
-            onClick={() => {
-              navigate("/notification-settings");
-            }}
-            className="px-6 py-2 bg-mallorca-purple text-white rounded-md hover:bg-mallorca-purple-dark text-sm"
-          >
-            {t("profile.notificationSettings")}
-          </button>
-        </div> */}
-
         {/* FIRST + LAST NAME */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <div className="flex flex-col">
