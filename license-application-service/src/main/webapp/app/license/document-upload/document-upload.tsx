@@ -174,7 +174,6 @@ export default function ApplicationDocumentUpload() {
         "DOCUMENTS_SUBMITTED"
       ) {
         navigate("/payment/" + applicationID);
-        alert(t("license.document_upload.success_message"));
       } else if (
         applicationDetails.data?.data.application_status === "REJECTED"
       ) {
