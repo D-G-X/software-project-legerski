@@ -229,6 +229,8 @@ public class BallotPeriodsController implements BallotPeriodsApi {
         body.setSelectedApplications(selectedResources);
         body.setNotSelectedApplications(notSelectedResources);
 
+        dslContext.truncate(ApplicationPayment.APPLICATION_PAYMENT).cascade().execute();
+
         return ResponseEntity.ok(body);
     }
 
