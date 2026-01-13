@@ -10,25 +10,27 @@ import { AuthContext } from "app/common/AuthContext";
 import { useGlobalLoader } from "app/common/GlobalLoader";
 import { useGetBallotPeriodDetails } from "app/services/ballot-periods/ballot-periods";
 import { FormHeader } from "app/common/headingTitle";
+import { TFunction } from "i18next";
 
 // Compute ballot status from start/end dates
 function getBallotStatus(
   startDate: Date,
   endDate: Date,
-  now: Date = new Date()
-): "active" | "upcoming" | "completed" {
+  now: Date = new Date(),
+  t: TFunction<"translation", "ballotDetails">
+) {
   if (
     !(startDate instanceof Date) ||
     isNaN(startDate.getTime()) ||
     !(endDate instanceof Date) ||
     isNaN(endDate.getTime())
   ) {
-    return "upcoming";
+    return t("status.upcoming");
   }
 
-  if (now >= startDate && now <= endDate) return "active";
-  if (now > endDate) return "completed";
-  return "upcoming";
+  if (now >= startDate && now <= endDate) return t("status.active");
+  if (now > endDate) return t("status.completed");
+  return t("status.upcoming");
 }
 
 // Return a Date offset by `days` after `endDate` (default 7 days)
@@ -75,30 +77,14 @@ const BallotDetails: React.FC = () => {
     const errorMessage =
       (error as any)?.response?.data?.message ||
       (error as any)?.message ||
-      "Unable to load ballot details.";
-
+      t("errors.unableToLoad");
     return (
       <div className="min-h-screen bg-white font-inter flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 text-lg font-medium">
-            Failed to load ballot details
+            {t("errors.failedToLoad")}
           </p>
           <p className="text-gray-500 mt-2 text-sm">{errorMessage}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!ballot?.start_date || !ballot?.end_date) {
-    return (
-      <div className="min-h-screen bg-white font-inter flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 text-lg font-medium">
-            Missing ballot dates
-          </p>
-          <p className="text-gray-500 mt-2 text-sm">
-            {t("errors.missingDates")}
-          </p>
         </div>
       </div>
     );
@@ -107,11 +93,8 @@ const BallotDetails: React.FC = () => {
   const startDate = new Date(ballot?.start_date as string);
   const endDate = new Date(ballot?.end_date as string);
 
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-    throw new Error("Invalid ballot dates received from backend");
-  }
-
-  const status = getBallotStatus(startDate, endDate);
+  const status = getBallotStatus(startDate, endDate, new Date(), t);
+  console.log(status);
   const drawDate = getDrawDate(endDate, 7);
 
   return (
@@ -122,7 +105,7 @@ const BallotDetails: React.FC = () => {
 
           <div className="bg-gray-50 rounded-md divide-y divide-gray-200">
             <Row label={t("overview.ballotId")}>
-              <span className="font-medium">{ballot.ballot_period_id}</span>
+              <span className="font-medium">{ballot?.ballot_period_id}</span>
             </Row>
 
             <Row label={t("overview.licenseType")}>
@@ -135,7 +118,7 @@ const BallotDetails: React.FC = () => {
 
             <Row label={t("overview.status")}>
               <span className="bg-purple-300 text-black font-medium px-4 py-1 rounded-md border border-purple-500">
-                {t(`status.${status}`)}
+                {status}
               </span>
             </Row>
           </div>
@@ -148,7 +131,7 @@ const BallotDetails: React.FC = () => {
             </Row>
 
             <Row label={t("overview.approvedCap")}>
-              <span className="font-medium">20000</span>
+              <span className="font-medium">{t("values.approvedCap")}</span>
             </Row>
           </div>
 
