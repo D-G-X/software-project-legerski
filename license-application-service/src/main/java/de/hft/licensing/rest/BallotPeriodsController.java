@@ -172,6 +172,11 @@ public class BallotPeriodsController implements BallotPeriodsApi {
             return ResponseEntity.badRequest().build();
         }
 
+        if (result == null) {
+            System.out.println("[ERROR] - Lottery could not be run for Ballot Period ID " + periodId + ". Check if the period exists and is finished.");
+            return ResponseEntity.badRequest().build();
+        }
+        
         List<ApplicationResource> selectedResources = result.selectedApplications().stream().map(record -> {
             ApplicationResource resource = new ApplicationResource();
             RecordToResourceMapperUtil.mapApplicationRecordToResource(record, resource);
