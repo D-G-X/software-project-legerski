@@ -368,6 +368,22 @@ public class KeycloakAuthService {
         return true;
     }
 
+    public boolean checkUserPassword(String email, String password) {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(email);
+        loginRequest.setPassword(password);
+
+        try {
+            LoginResource loginResource = login(loginRequest);
+            return loginResource != null && loginResource.getAccessToken() != null;
+        } catch (RestClientResponseException e) {
+            if (e.getRawStatusCode() == 400 || e.getRawStatusCode() == 401) {
+                return false;
+            }
+            throw new RuntimeException("Error while checking user password: " + e.getMessage(), e);
+        }
+    }
+
     private UUID extractUserUUIdFromLocationHeader(ResponseEntity<String> response) {
         String location = Objects.requireNonNull(response.getHeaders().get("Location")).getFirst();
         if (location != null && location.contains("/users/")) {
