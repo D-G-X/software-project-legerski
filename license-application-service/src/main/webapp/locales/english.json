@@ -265,9 +265,12 @@
       "verificationPending": "Verification Pending"
     },
     "documentStatus": {
-      "pending": "Pending",
       "verified": "Verified",
       "rejected": "Rejected"
+    },
+    "paymentStatus": {
+      "unpaid": "Payment Received",
+      "paid": "Payment Completed"
     },
     "buttons": {
       "renewLicenseLabel": "Renew License",

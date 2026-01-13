@@ -39,9 +39,16 @@ export const getLicenseStatusColor = (status: string | undefined | null): string
 export const getDocumentStatusColor = (status: string | undefined | null): string => {
   if (!status || status == "") return "gray";
 
-  if (status == "PENDING") return "blue";
   if (status == "VERIFIED") return "green";
   if (status == "REJECTED") return "red";
+  return "gray";
+}
+
+export const getPaymentStatusColor = (status: string | undefined | null): string => {
+  if (!status || status == "") return "gray";
+
+  if (status == "UNPAID") return "blue";
+  if (status == "PAID") return "green";
   return "gray";
 }
 
