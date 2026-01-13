@@ -11,13 +11,40 @@ import { useGlobalLoader } from "app/common/GlobalLoader";
 import { useGetBallotPeriodDetails } from "app/services/ballot-periods/ballot-periods";
 import { FormHeader } from "app/common/headingTitle";
 
+// Compute ballot status from start/end dates
+function getBallotStatus(
+  startDate: Date,
+  endDate: Date,
+  now: Date = new Date()
+): "active" | "upcoming" | "completed" {
+  if (
+    !(startDate instanceof Date) ||
+    isNaN(startDate.getTime()) ||
+    !(endDate instanceof Date) ||
+    isNaN(endDate.getTime())
+  ) {
+    return "upcoming";
+  }
+
+  if (now >= startDate && now <= endDate) return "active";
+  if (now > endDate) return "completed";
+  return "upcoming";
+}
+
+// Return a Date offset by `days` after `endDate` (default 7 days)
+function getDrawDate(endDate: Date, days = 7): Date {
+  const d = new Date(endDate);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
 const BallotDetails: React.FC = () => {
   const params = useParams<{ id?: string }>();
   const paramsId = params.id;
-  // parse string id to number and guard against NaN
   const parsed = paramsId ? parseInt(paramsId, 10) : NaN;
   const periodParam: number = Number.isFinite(parsed) ? parsed : -1;
   const periodEnabled = Number.isFinite(parsed);
+
   const { t } = useTranslation(undefined, { keyPrefix: "ballotDetails" });
   const auth = useContext(AuthContext);
   const { show, hide } = useGlobalLoader();
@@ -62,15 +89,7 @@ const BallotDetails: React.FC = () => {
     );
   }
 
-  if (!ballot) {
-    return (
-      <div className="min-h-screen bg-white font-inter flex items-center justify-center">
-        <div className="text-gray-500 text-lg">{t("loading")}</div>
-      </div>
-    );
-  }
-
-  if (!ballot.start_date || !ballot.end_date) {
+  if (!ballot?.start_date || !ballot?.end_date) {
     return (
       <div className="min-h-screen bg-white font-inter flex items-center justify-center">
         <div className="text-center">
@@ -85,29 +104,20 @@ const BallotDetails: React.FC = () => {
     );
   }
 
-  const startDate = new Date(ballot.start_date as string);
-  const endDate = new Date(ballot.end_date as string);
+  const startDate = new Date(ballot?.start_date as string);
+  const endDate = new Date(ballot?.end_date as string);
 
   if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
     throw new Error("Invalid ballot dates received from backend");
   }
 
-  const today = new Date();
-  let status: "active" | "upcoming" | "completed" = "upcoming";
-
-  if (today >= startDate && today <= endDate) status = "active";
-  else if (today > endDate) status = "completed";
-
-  // drawing date is 7 days after the application period end date
-  const drawDate = new Date(endDate);
-  drawDate.setDate(drawDate.getDate() + 7);
+  const status = getBallotStatus(startDate, endDate);
+  const drawDate = getDrawDate(endDate, 7);
 
   return (
     <div className="min-h-[calc(100vh-8rem)] bg-white font-inter flex items-center justify-center">
       <main className="flex-1">
         <div className="max-w-5xl mx-auto px-6 py-6">
-          {/* BALLOT OVERVIEW */}
-          {/* <h2 className="text-lg font-semibold mb-3">{t("overview.title")}</h2> */}
           <FormHeader className="mb-6" heading={t("overview.title")} />
 
           <div className="bg-gray-50 rounded-md divide-y divide-gray-200">
