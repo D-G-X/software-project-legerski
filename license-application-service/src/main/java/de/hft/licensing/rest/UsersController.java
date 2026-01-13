@@ -1,8 +1,8 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.UsersApi;
-import de.hft.licensing.db.tables.Notification;
 import de.hft.licensing.db.enums.NotificationWay;
+import de.hft.licensing.db.tables.Notification;
 import de.hft.licensing.db.tables.NotificationPreferences;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.NotificationPreferencesRecord;
@@ -13,11 +13,10 @@ import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
-import org.jooq.impl.QOM.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -38,6 +37,7 @@ public class UsersController implements UsersApi {
 
     }
 
+    // ONLY FOR ADMINISTRATION PURPOSES - DO NOT USE IN PRODUCTION
     @Override
     @AdminOnly
     @Transactional
@@ -78,7 +78,7 @@ public class UsersController implements UsersApi {
     }
 
     @Override
-    @AdminOnly
+    @PreAuthorize("@userAuthorization.canAccessUser(authentication, #userId)")
     @Transactional
     public ResponseEntity<Void> deleteUser(UUID userId) {
         if (userId == null) {

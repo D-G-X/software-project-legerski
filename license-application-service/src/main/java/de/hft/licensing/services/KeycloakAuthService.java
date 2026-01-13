@@ -15,6 +15,7 @@ import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -117,74 +118,68 @@ public class KeycloakAuthService {
     public RegisterResource register(RegisterRequest request) {
         String url = keycloakUrl + "/admin/realms/" + realm + "/users";
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        String adminToken = getAdminToken();
+        if (adminToken == null) throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        headers.setBearerAuth(adminToken);
+
         Map<String, Object> user = new LinkedHashMap<>();
         user.put("email", request.getEmail());
-        user.put("username", request.getFirstname() + request.getLastname() + request.getEmail());
+        user.put("username", request.getEmail());
         user.put("firstName", request.getFirstname());
         user.put("lastName", request.getLastname());
         user.put("enabled", true);
-        user.put("emailVerified", false);
+        user.put("emailVerified", true);
 
         Map<String, Object> credentials = new LinkedHashMap<>();
         credentials.put("type", "password");
         credentials.put("value", request.getPassword());
         credentials.put("temporary", false);
-
         user.put("credentials", new Map[]{credentials});
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        String adminToken = getAdminToken();
-        if (adminToken == null) {
-            throw new RuntimeException("Failed to obtain admin token from Keycloak");
-        }
-        headers.setBearerAuth(adminToken);
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(user, headers);
-
-        ResponseEntity<String> response =
-                restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-
-        UUID newUserUUID = extractUserUUIdFromLocationHeader(response);
-
-        RegisterResource registerResource = new RegisterResource();
         try {
-            assert newUserUUID != null;
-            int inserted = dsl.insertInto(User.USER)
-                    .set(User.USER.ID, newUserUUID.toString())
+            ResponseEntity<String> response =
+                    restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(user, headers), String.class);
+
+            UUID id = extractUserUUIdFromLocationHeader(response);
+            ensureLocalUserAndDefaults(id);
+
+            RegisterResource rr = new RegisterResource();
+            rr.setUserId(id);
+            rr.setMessage("User registered successfully");
+            return rr;
+
+        } catch (org.springframework.web.client.HttpClientErrorException.Conflict e) {
+            UUID existingId = getUserIdByEmail(request.getEmail());
+            if (existingId == null) throw new RuntimeException("User exists in Keycloak but could not be fetched by email", e);
+
+            ensureLocalUserAndDefaults(existingId);
+
+            RegisterResource rr = new RegisterResource();
+            rr.setUserId(existingId);
+            rr.setMessage("User already exists");
+            return rr;
+        }
+    }
+
+    private void ensureLocalUserAndDefaults(UUID userId) {
+        try {
+            dsl.insertInto(User.USER)
+                    .set(User.USER.ID, userId.toString())
                     .execute();
-            if (inserted == 0) {
-                System.out.println("[WARNING] - Failed to insert user with ID " + newUserUUID + " into the local database.");
-                registerResource.setUserId(null);
-                registerResource.setMessage("Failed to register user");
-            } else {
-                registerResource.setUserId(newUserUUID);
-                registerResource.setMessage("User registered successfully");
-            }
-        } catch (DataIntegrityViolationException e) {
-            System.out.println("[ERROR] - User with ID " + newUserUUID + " already exists in the local database.");
-            registerResource.setUserId(null);
-            registerResource.setMessage("User already exists");
-        }
+        } catch (DataIntegrityViolationException ignored) {}
 
-        // Create user's Notification Preferences record with default values
         try {
-            int insertedPreferences = dsl.insertInto(NotificationPreferences.NOTIFICATION_PREFERENCES)
-                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.USER_ID, newUserUUID.toString())
-                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.NOTIFICATION_WAY, (NotificationWay) EnumMapperUtil.getPendantFromEnum(NotificationWayApiEnum.NONE))
-                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.APPLICATION_UPDATES_NOTIFICATION, true)
-                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.LICENSE_RENEWAL_NOTIFICATION, true)
-                .execute();
-            if (insertedPreferences == 0) {
-                System.out.println("[WARNING] - Failed to insert notification preferences for user ID " + newUserUUID + " into the local database.");
-            } else {
-                System.out.println("[INFO] - Notification preferences for user ID " + newUserUUID + " created successfully in the local database.");
-            }
-        } catch (DataIntegrityViolationException e) {
-            System.out.println(e.getMessage());
-            System.out.println("[ERROR] - Notification preferences for user ID " + newUserUUID + " already exist in the local database.");
-        }
-        return registerResource;
+            dsl.insertInto(NotificationPreferences.NOTIFICATION_PREFERENCES)
+                    .set(NotificationPreferences.NOTIFICATION_PREFERENCES.USER_ID, userId.toString())
+                    .set(NotificationPreferences.NOTIFICATION_PREFERENCES.NOTIFICATION_WAY,
+                            (NotificationWay) EnumMapperUtil.getPendantFromEnum(NotificationWayApiEnum.NONE))
+                    .set(NotificationPreferences.NOTIFICATION_PREFERENCES.APPLICATION_UPDATES_NOTIFICATION, true)
+                    .set(NotificationPreferences.NOTIFICATION_PREFERENCES.LICENSE_RENEWAL_NOTIFICATION, true)
+                    .execute();
+        } catch (DataIntegrityViolationException ignored) {}
     }
 
     public boolean isEmailRegistered(String email) {
@@ -193,7 +188,7 @@ public class KeycloakAuthService {
             throw new RuntimeException("Failed to obtain admin token from Keycloak");
         }
 
-        String url = String.format("%s/admin/realms/%s/users?email=%s", keycloakUrl, realm, email);
+        String url = String.format("%s/admin/realms/%s/users?email=%s&exact=true", keycloakUrl, realm, email);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(adminToken);
@@ -205,6 +200,28 @@ public class KeycloakAuthService {
 
         KeycloakUserRecord[] users = response.getBody();
         return users != null && users.length > 0;
+    }
+
+    public boolean userExistsInKeycloak(UUID userId) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        String url = String.format("%s/admin/realms/%s/users/%s", keycloakUrl, realm, userId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+
+        try {
+            ResponseEntity<KeycloakUserRecord> resp =
+                    restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), KeycloakUserRecord.class);
+
+            return resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null;
+
+        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+            return false;
+        }
     }
 
     public UUID getUserIdByEmail(String email) {
@@ -236,6 +253,49 @@ public class KeycloakAuthService {
             return userRecord.email();
         }
         return null;
+    }
+
+    public boolean updateUserDetails(UUID userId,
+                                     @Nullable String newEmail,
+                                     @Nullable String newFirstName,
+                                     @Nullable String newLastName) {
+
+
+        if ((newEmail == null || newEmail.isBlank())
+                && (newFirstName == null || newFirstName.isBlank())
+                && (newLastName == null || newLastName.isBlank())) {
+            System.out.println("No fields to update for user ID: " + userId);
+            System.out.println("At least one field must be provided");
+            return false;
+        }
+
+        String adminToken = getAdminToken();
+            if (adminToken == null) {{
+                System.out.println("Failed to obtain admin token from Keycloak");
+                return false;
+            }
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+
+        String updateUrl = String.format("%s/admin/realms/%s/users/%s", keycloakUrl, realm, userId);
+
+        Map<String, Object> updatePayload = new LinkedHashMap<>();
+        if (newEmail != null && !newEmail.isBlank()) {
+            updatePayload.put("email", newEmail);
+            updatePayload.put("emailVerified", true);
+        }
+        if (newFirstName != null && !newFirstName.isBlank()) {
+            updatePayload.put("firstName", newFirstName);
+        }
+        if (newLastName != null && !newLastName.isBlank()) {
+            updatePayload.put("lastName", newLastName);
+        }
+
+        HttpEntity<Map<String, Object>> updateEntity = new HttpEntity<>(updatePayload, headers);
+        restTemplate.exchange(updateUrl, HttpMethod.PUT, updateEntity, Void.class);
+
+        return true;
     }
 
     public String createPasswordResetToken(String email) {
@@ -451,6 +511,81 @@ public class KeycloakAuthService {
         }
     }
 
+    public boolean setRole(String email, String roleName) {
+        UUID userId = getUserIdByEmail(email);
+        if (userId == null) {
+            return false;
+        }
+        return setRole(userId, roleName);
+    }
+
+    public record KeycloakRoleRepresentation(
+            String id,
+            String name,
+            Boolean composite,
+            Boolean clientRole,
+            String containerId
+    ) {}
+
+    private KeycloakRoleRepresentation ensureRealmRoleExists(String roleName, HttpHeaders headers) {
+        KeycloakRoleRepresentation role = getRealmRoleByName(roleName, headers);
+        if (role != null) return role;
+
+        String createUrl = String.format("%s/admin/realms/%s/roles", keycloakUrl, realm);
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("name", roleName);
+
+        try {
+            restTemplate.exchange(createUrl, HttpMethod.POST, new HttpEntity<>(payload, headers), Void.class);
+        } catch (org.springframework.web.client.HttpClientErrorException.Conflict e) {
+            // Role already exists (created in the meantime), ignore
+        }
+
+        role = getRealmRoleByName(roleName, headers);
+        if (role == null) {
+            throw new RuntimeException("Role could not be created/fetched: " + roleName);
+        }
+        return role;
+    }
+
+    private KeycloakRoleRepresentation getRealmRoleByName(String roleName, HttpHeaders headers) {
+        String roleUrl = String.format("%s/admin/realms/%s/roles/%s",
+                keycloakUrl,
+                realm,
+                org.springframework.web.util.UriUtils.encodePathSegment(roleName, java.nio.charset.StandardCharsets.UTF_8)
+        );
+
+        try {
+            ResponseEntity<KeycloakRoleRepresentation> resp =
+                    restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), KeycloakRoleRepresentation.class);
+            return resp.getBody();
+        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+            return null;
+        }
+    }
+
+    private boolean setRole(UUID userId, String roleName) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+        KeycloakRoleRepresentation roleRep = ensureRealmRoleExists(roleName, headers);
+
+        String url = String.format("%s/admin/realms/%s/users/%s/role-mappings/realm",
+                keycloakUrl, realm, userId);
+
+        HttpEntity<java.util.List<KeycloakRoleRepresentation>> entity =
+                new HttpEntity<>(java.util.Collections.singletonList(roleRep), headers);
+
+        restTemplate.exchange(url, org.springframework.http.HttpMethod.POST, entity, Void.class);
+        return true;
+    }
 
     public record KeycloakUserRecord(
             String id,

@@ -2,24 +2,20 @@ package de.hft.licensing.rest;
 
 import de.hft.licensing.api.AuthenticationApi;
 import de.hft.licensing.db.tables.records.PasswordResetTokenRecord;
-import de.hft.licensing.model.ChangePasswordRequest;
-import de.hft.licensing.model.LoginRequest;
-import de.hft.licensing.model.LoginResource;
-import de.hft.licensing.model.RefreshLoginRequest;
-import de.hft.licensing.model.RegisterRequest;
-import de.hft.licensing.model.RegisterResource;
-import de.hft.licensing.model.ResetPasswordRequest;
+import de.hft.licensing.model.*;
 import de.hft.licensing.services.EmailService;
 import de.hft.licensing.services.KeycloakAuthService;
+import de.hft.licensing.services.auth.AuthenticationAuthorizationService;
 import de.hft.licensing.utils.ApiFormValidator;
-import java.net.URI;
-import java.util.Date;
-import java.util.UUID;
-
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+import java.util.Date;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -29,7 +25,7 @@ public class AuthController implements AuthenticationApi {
 
   private final ApiFormValidator formValidator = new ApiFormValidator();
 
-  public AuthController(KeycloakAuthService authService) {
+  public AuthController(KeycloakAuthService authService, AuthenticationAuthorizationService authorizationService) {
     this.authService = authService;
   }
 
@@ -112,6 +108,46 @@ public class AuthController implements AuthenticationApi {
         if (!isEmailSent) {
             System.out.println("Failed to send password reset email to: " + resetPasswordRequest.getEmail());
             return ResponseEntity.status(500).build();
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @PreAuthorize("@authenticationAuthorization.userIsUserOrAdmin(authentication, #userId)")
+    public ResponseEntity<Void> changeUserDetails(UUID userId, ChangeUserdetailsRequest changeUserdetailsRequest) {
+
+        String newEmail = null;
+        String newFirstname = null;
+        String newLastname = null;
+        if (changeUserdetailsRequest.getEmail() != null && formValidator.isValidEmail(changeUserdetailsRequest.getEmail())) {
+            newEmail = changeUserdetailsRequest.getEmail();
+            if(authService.isEmailRegistered(newEmail)) {
+                System.out.println("Email already registered: " + changeUserdetailsRequest.getEmail());
+                return ResponseEntity.status(409).build();
+            }
+        } else {
+            System.out.println("Invalid email format: " + changeUserdetailsRequest.getEmail());
+            return ResponseEntity.badRequest().build();
+        }
+        if (changeUserdetailsRequest.getFirstname() != null && formValidator.isValidName(changeUserdetailsRequest.getFirstname())) {
+            newFirstname = changeUserdetailsRequest.getFirstname();
+        } else {
+            System.out.println("Invalid firstname format: " + changeUserdetailsRequest.getFirstname());
+            return ResponseEntity.badRequest().build();
+        }
+        if (changeUserdetailsRequest.getLastname() != null && formValidator.isValidName(changeUserdetailsRequest.getLastname())) {
+            newLastname = changeUserdetailsRequest.getLastname();
+        } else {
+            System.out.println("Invalid lastname format: " + changeUserdetailsRequest.getLastname());
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean updated = authService.updateUserDetails(userId, newEmail, newFirstname, newLastname);
+
+        if (!updated) {
+            System.out.println("Failed to update user details for user ID: " + userId);
+            return ResponseEntity.status(400).build();
         }
 
         return ResponseEntity.ok().build();

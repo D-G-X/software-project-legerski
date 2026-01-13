@@ -8,7 +8,7 @@
         "street": "Plaça de Cort, 1",
         "city": "Palma de Mallorca (Illes Balears)",
         "zipCode": "07001",
-        "country": "Spain"
+        "country": "Spanyol"
       },
       "email": {
         "label": "surel",
@@ -35,19 +35,19 @@
     "noNotification": "Tidak ada notifikasi untuk ditampilkan.",
     "languages": {
       "en": {
-        "name": "Bahasa Inggris",
+        "name": "Inggris",
         "iconAlt": "Ikon bahasa Inggris."
       },
       "de": {
-        "name": "Bahasa Jerman",
+        "name": "Jerman",
         "iconAlt": "Ikon bahasa Jerman."
       },
       "fr": {
-        "name": "Bahasa Prancis",
+        "name": "Prancis",
         "iconAlt": "Ikon bahasa Prancis."
       },
       "hi": {
-        "name": "Bahasa Hindi",
+        "name": "Hindi",
         "iconAlt": "Ikon bahasa Hindi."
       },
       "id": {
@@ -55,7 +55,7 @@
         "iconAlt": "Ikon bahasa Indonesia."
       },
       "es": {
-        "name": "Bahasa Spanyol",
+        "name": "Spanyol",
         "iconAlt": "Ikon bahasa Spanyol."
       }
     },
@@ -72,13 +72,13 @@
       "signout": "Keluar"
     },
     "title": "Hubungi Dukungan",
-    "subtitle": "Perlu bantuan dengan lisensi atau permohonan surat suara Anda? Kami siap membantu.",
+    "subtitle": "Butuh bantuan dengan aplikasi lisensi atau surat suara Anda? Kami siap membantu.",
     "email": {
       "title": "Dukungan Email:"
     },
     "phone": {
       "title": "Dukungan Telepon:",
-      "hours": "Senin–Jumat, 9:00–17:00 CET"
+      "hours": "Sen–Jum, 9:00–17:00 CET"
     },
     "address": {
       "title": "Alamat Kantor:"
@@ -93,7 +93,7 @@
     "markAllAsReadBtn": "Tandai semua sebagai dibaca",
     "deleteAllBtn": "Hapus semua",
     "noNotifications": "Tidak ada notifikasi",
-    "messageLabel": "Anda memiliki pembaruan pada aplikasi Anda",
+    "messageLabel": "Anda memiliki pembaruan tentang aplikasi Anda",
     "popup": {
       "title": "Notifikasi Baru",
       "id": "Application ID",
@@ -104,12 +104,14 @@
     "request": {
       "headline": "Lupa Kata Sandi",
       "subheadline": "Masukkan email terdaftar Anda untuk menerima tautan untuk mengatur ulang kata sandi Anda",
-      "resetPasswordBtn": "Atur Ulang Kata Sandi"
+      "resetPasswordBtn": "Atur Ulang Kata Sandi",
+      "emailNotRegistered": "Email ini tidak terdaftar",
+      "genericError": "Terjadi kesalahan. Silakan coba lagi nanti."
     },
     "confirmation": {
       "headline": "Terkirim !",
       "subheadline": "Tautan telah dikirim ke email Anda.",
-      "redirectToSignIn": "Kembali ke Halaman Masuk"
+      "redirectToSignIn": "Kembali ke Masuk"
     },
     "resetPassword": {
       "headline": "Buat kata sandi baru",
@@ -120,7 +122,7 @@
     },
     "resetConfirmation": {
       "headline": "Kata Sandi Berhasil Diubah !",
-      "redirectToSignIn": "Kembali ke Halaman Masuk"
+      "redirectToSignIn": "Kembali ke Masuk"
     }
   },
   "home": {
@@ -130,12 +132,14 @@
   },
   "dashboard": {
     "headline": {
-      "getStarted": "Halo {{firstName}}! Mulai permohonan Lisensi Penyewaan Liburan baru",
+      "hello": "Halo {{firstName}}!",
+      "getStarted": "Mulai dengan Lisensi Penyewaan Liburan baru",
       "manageApplications": " atau kelola aplikasi Anda di satu tempat!"
     },
     "noApplications": "Anda belum mengajukan permohonan lisensi apa pun",
     "buttonLabel": "Ajukan lisensi baru",
-    "title": "Permohonan Anda",
+    "noBallotRunning": "Tidak ada periode undian yang sedang berlangsung saat ini!",
+    "title": "Aplikasi Anda",
     "licenceStatus": {
       "approved": "Disetujui",
       "awaitingPayment": "Menunggu Pembayaran",
@@ -143,7 +147,7 @@
       "documentsSubmitted": "Dokumen Dikirim",
       "draft": "Draf",
       "expired": "Kedaluwarsa",
-      "inBallot": "Dalam Pengundian",
+      "inBallot": "Dalam undian",
       "notSelected": "Tidak Terpilih",
       "paymentReceived": "Pembayaran Diterima",
       "rejected": "Ditolak",
@@ -155,12 +159,12 @@
     "table": {
       "applicationId": "ID Aplikasi",
       "cadastalId": "ID Kadastral",
-      "requestDate": "Tanggal Permohonan",
+      "requestDate": "Tanggal Pengajuan",
       "licenceType": "Jenis Lisensi",
       "status": "Status",
       "action": {
         "title": "Aksi",
-        "value": "Detail"
+        "value": "Rincian"
       }
     },
     "pagination": {
@@ -172,10 +176,10 @@
       "next": "Berikutnya"
     },
     "ballotPeriodInfo": {
-      "upcomingText": "Periode Pengundian Mendatang",
-      "ongoingText": "Periode Pengundian Saat Ini",
-      "closedText": "Periode Pengundian Terakhir",
-      "errorText": "Informasi periode pengundian saat ini tidak tersedia"
+      "upcomingText": "Periode Undian Mendatang",
+      "ongoingText": "Periode Undian Saat Ini",
+      "closedText": "Periode Undian Terakhir",
+      "errorText": "Informasi periode undian saat ini tidak tersedia"
     }
   },
   "admin-dashboard": {
@@ -188,31 +192,31 @@
       "requester_name": "Nama Pemohon",
       "address": "Alamat",
       "phone_number": "Nomor Telepon",
-      "email": "Surel",
+      "email": "Email",
       "country": "Negara",
       "status": "Status"
     }
   },
   "ballot-dashboard": {
-    "headline": "Informasi Pemungutan Suara",
-    "createNewBallot": "Buat Pemungutan Suara Baru",
+    "headline": "Informasi Surat Suara",
+    "createNewBallot": "Buat Surat Suara Baru",
     "table": {
-      "ballotName": "Nama Pemungutan Suara",
+      "ballotName": "Nama Surat Suara",
       "status": "Status",
       "applicationPeriod": "Periode Pendaftaran (DD/MM/YYYY)",
       "drawingDate": "Tanggal Pengundian (DD/MM/YYYY)",
-      "totalApplication": "Jumlah Pendaftar",
+      "totalApplication": "Total Pendaftaran",
       "action": "Aksi"
     }
   },
   "applicationDetails": {
     "index": {
-      "headline": "Detail Permohonan",
-      "applicationIdLabel": "ID Permohonan",
+      "headline": "Detail Aplikasi",
+      "applicationIdLabel": "ID Aplikasi",
       "licenseTypeLabel": "Jenis lisensi",
-      "cadastralIdLabel": "Referensi kadaster",
-      "statusLabel": "Status permohonan",
-      "remarksLabel": "Catatan",
+      "cadastralIdLabel": "Referensi kadastral",
+      "statusLabel": "Status aplikasi",
+      "remarksLabel": "Keterangan",
       "appliedOnLabel": "Diajukan pada",
       "lastUpdatedLabel": "Terakhir diperbarui pada",
       "user": {
@@ -236,8 +240,8 @@
         "label": "Pembayaran",
         "idLabel": "ID Pembayaran",
         "amountLabel": "Jumlah",
-        "taxLabel": "Tidak dikenakan PPN",
-        "nameLabel": "Nama pemegang rekening",
+        "taxLabel": "Tidak ada PPN",
+        "nameLabel": "Pemilik rekening",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
         "dateLabel": "Tanggal pembayaran",
@@ -254,7 +258,7 @@
       "subHeadingLabel": "Apakah Anda yakin ingin melepaskan lisensi Anda saat ini?",
       "quoteTitle": "Peringatan",
       "quoteText1": "Melepaskan lisensi sewa Anda akan menghapusnya secara permanen dari akun Anda.",
-      "quoteText2": "Anda harus mengajukan permohonan baru jika ingin memperoleh lisensi lagi di masa depan.",
+      "quoteText2": "Anda harus mengajukan permohonan baru jika ingin mendapatkan lisensi lagi di masa depan.",
       "cancelButtonLabel": "Batal",
       "confirmButtonLabel": "Konfirmasi"
     },
@@ -262,6 +266,20 @@
   },
   "common": {
     "orDivider": "atau"
+  },
+  "issued-license": {
+    "title": "Izin yang Diterbitkan",
+    "subtitle": "Rincian izin sewa Anda yang disetujui",
+    "licenseDetails": "Rincian Izin",
+    "licenseId": "ID Izin",
+    "licenseType": "Jenis Izin",
+    "status": "Status",
+    "issuedOn": "Diterbitkan Pada",
+    "validity": "Masa Berlaku",
+    "propertyDetails": "Rincian Properti",
+    "cadastralNumber": "Nomor Kadastral",
+    "gdprNotice": "Izin hanya berlaku untuk properti ini. Data pemegang disimpan oleh pihak berwenang.",
+    "back": "Kembali"
   },
   "login": {
     "title": "Masuk",
@@ -273,12 +291,12 @@
       "keepMeLoggedIn": "Tetap masuk",
       "forgotPassword": "Lupa kata sandi Anda?",
       "signInButton": "Masuk",
-      "createAccountText": "Butuh akun?",
+      "createAccountText": "Perlu akun?",
       "createAccountLinkLabel": "Buat akun"
     },
     "loginUserAlerts": {
       "unexpectedResp": "Respons tak terduga dari server",
-      "invalidEmail": "Email atau kata sandi tidak valid",
+      "invalidEmail": "Surel atau kata sandi tidak valid",
       "badRequest": "Permintaan tidak valid. Silakan periksa input Anda",
       "serverError": "Terjadi kesalahan. Silakan coba lagi."
     }
@@ -287,7 +305,7 @@
     "title": "Daftar",
     "index": {
       "headline": "Daftar",
-      "subheadline": "Permintaan online untuk layanan administratif dari Mallorca Office",
+      "subheadline": "Permintaan online untuk layanan administrasi Kantor Mallorca",
       "firstNameLabel": "Nama Depan",
       "lastNameLabel": " Nama Belakang",
       "emailLabel": "Email",
@@ -299,7 +317,7 @@
     },
     "registerUserAlerts": {
       "unexpectedErr": "Terjadi kesalahan yang tidak terduga.",
-      "invalidReq": "Permintaan tidak valid. Silakan periksa input Anda",
+      "invalidReq": "Permintaan Tidak Valid. Silakan periksa input Anda",
       "unAuthReq": "Permintaan tidak sah. Anda tidak memiliki izin.",
       "userExists": "Pengguna sudah ada. Coba masuk sebagai gantinya.",
       "serverError": "Terjadi kesalahan. Silakan coba lagi."
@@ -307,20 +325,20 @@
   },
   "license": {
     "request": {
-      "title": "Formulir Permohonan Izin Sewa Properti",
+      "title": "Formulir Permintaan Izin Sewa Properti",
       "noteRequired": {
         "beforeStar": "Kolom yang ditandai dengan",
-        "afterStar": "wajib diisi"
+        "afterStar": "harus diisi"
       },
       "fullName": {
         "label": "Nama Lengkap",
-        "description": "Silakan masukkan nama lengkap Anda sebagaimana tercantum pada dokumen resmi Anda",
+        "description": "Silakan masukkan nama lengkap Anda sesuai dengan dokumen resmi Anda",
         "firstNamePlaceholder": "Nama Depan",
         "lastNamePlaceholder": "Nama Belakang"
       },
       "email": {
         "label": "Alamat Email",
-        "description": "Berikan alamat email yang valid untuk menghubungi Anda terkait permohonan Anda",
+        "description": "Berikan alamat email yang valid agar kami dapat menghubungi Anda terkait permohonan Anda",
         "placeholder": "Alamat Email"
       },
       "cadastralNumber": {
@@ -349,34 +367,34 @@
       },
       "rentalType": {
         "label": "Jenis Izin Sewa",
-        "description": "Silakan pilih jenis sewa yang Anda minati.",
+        "description": "Pilih jenis sewa yang Anda minati.",
         "types": {
           "ETV": {
             "value": "ETV",
             "label": "ETV",
-            "description": "Izin standar untuk rumah tinggal keluarga tunggal atau vila"
+            "description": "Izin standar untuk rumah keluarga tunggal atau vila"
           },
           "ETVPL": {
             "value": "ETVPL",
             "label": "ETVPL",
-            "description": "Untuk bangunan multi - unit seperti apartemen atau rumah deret"
+            "description": "Untuk bangunan multi-unit seperti apartemen atau rumah deret"
           },
           "ETV60": {
             "value": "ETV60",
             "label": "ETV60",
-            "description": "Izin terbatas yang memungkinkan hingga 60 hari sewa per tahun"
+            "description": "Izin terbatas yang memungkinkan hingga 60 hari penyewaan per tahun"
           }
         },
         "errorMissing": "Silakan pilih jenis izin sewa."
       },
       "rentalStart": {
         "label": "Perkiraan Tanggal Mulai Sewa",
-        "description": "Silakan tentukan tanggal Anda berencana mulai menyewakan properti.",
-        "errorMissing": "Silakan tentukan perkiraan tanggal mulai sewa."
+        "description": "Harap tentukan tanggal ketika Anda berencana mulai menyewakan properti.",
+        "errorMissing": "Harap tentukan perkiraan tanggal mulai sewa."
       },
       "comments": {
-        "label": "Komentar Tambahan / Catatan (Opsional)",
-        "description": "Jika Anda memiliki komentar atau informasi tambahan, silakan bagi di sini.",
+        "label": "Komentar Tambahan / Keterangan (Opsional)",
+        "description": "Jika Anda memiliki komentar atau informasi tambahan, silakan sampaikan di sini.",
         "placeholder": "Tambahkan komentar Anda di sini (maks 10k karakter)."
       },
       "personal_consent": {
@@ -391,7 +409,7 @@
       },
       "buttons": {
         "submit": "Kirim dan Unggah",
-        "draft": "Simpan Sebagai Draf"
+        "draft": "Simpan sebagai Draf"
       }
     },
     "document_upload": {
@@ -401,17 +419,17 @@
       "reject_message": "Dokumen tidak valid",
       "id_doc": {
         "label": "Bukti Identitas",
-        "description": "Unggah dokumen identifikasi yang diterbitkan pemerintah (mis. paspor, SIM) untuk verifikasi identitas.",
+        "description": "Unggah dokumen identifikasi yang dikeluarkan pemerintah (mis. paspor, SIM) untuk verifikasi identitas.",
         "errorMissing": "Dokumen identitas diperlukan"
       },
       "address_doc": {
         "label": "Bukti Alamat",
-        "description": "Unggah dokumen yang menunjukkan alamat Anda saat ini (mis. tagihan utilitas, rekening bank, perjanjian sewa).",
+        "description": "Unggah dokumen yang menunjukkan alamat Anda saat ini (mis. tagihan utilitas, laporan bank, perjanjian sewa).",
         "errorMissing": "Dokumen alamat diperlukan"
       },
       "input": {
         "buttonLabel": "Telusuri",
-        "fileSizeLabel": "Berkas dengan ukuran maksimal 10 MB — hanya PDF",
+        "fileSizeLabel": "Berkas dengan ukuran maks 10 MB — hanya PDF",
         "fileRequired": "Silakan unggah semua dokumen yang diperlukan untuk melanjutkan",
         "fileTypeError": "Hanya berkas PDF yang diperbolehkan",
         "fileSizeError": "Ukuran berkas harus kurang dari 10 MB"
@@ -421,9 +439,9 @@
       "title": "Pembayaran",
       "index": {
         "headline": "Bayar sekarang",
-        "subHeadline": "Debit langsung SEPA",
+        "subHeadline": "Debet langsung SEPA",
         "amountLabel": "Jumlah total",
-        "taxLabel": "tidak berlaku PPN",
+        "taxLabel": "tidak dikenakan PPN",
         "cadastralIdLabel": "Referensi kadastral",
         "licenseTypeLabel": "Jenis izin",
         "nameLabel": "Pemilik rekening",
@@ -435,33 +453,33 @@
           "button": "Mandat SEPA"
         },
         "payButtonLabel": "Bayar sekarang",
-        "cancelButtonLabel": "Bayar kemudian *",
+        "cancelButtonLabel": "Bayar nanti *",
         "cancelNote": {
           "label1": "* Permohonan Anda akan disimpan sebagai draf.",
           "label2": "Anda dapat menyelesaikan pembayaran nanti dari dasbor Anda."
         }
       },
       "sepaMandateDialog": {
-        "title": "Mandat Debit Langsung SEPA",
+        "title": "Mandat Debet Langsung SEPA",
         "text": {
-          "line1": "Dengan ini saya memberi wewenang kepada penerima pembayaran untuk menarik pembayaran dari rekening bank saya melalui debit langsung. Saya juga memberi wewenang kepada bank saya untuk menagih kembali setiap debit langsung yang dibebankan ke rekening saya oleh penerima pembayaran.",
+          "line1": "Dengan ini saya memberi wewenang kepada penerima pembayaran untuk menarik pembayaran dari rekening bank saya melalui debet langsung. Saya juga memberi wewenang kepada bank saya untuk menagih kembali setiap debet langsung yang dibebankan ke rekening saya oleh penerima pembayaran.",
           "line2": "Catatan:",
-          "line3": "Saya dapat meminta pengembalian dana atas jumlah yang didebit dalam waktu delapan minggu sejak tanggal debit. Syarat dan ketentuan yang disepakati dengan bank saya berlaku di sini.",
-          "line4": "Rincian pembayar:",
+          "line3": "Saya dapat meminta pengembalian dana atas jumlah yang didebet dalam waktu delapan minggu sejak tanggal debit. Syarat dan ketentuan yang disepakati dengan bank saya berlaku di sini.",
+          "line4": "Detail pembayar:",
           "line5": " –  Pemilik rekening: {{accountHolder}}",
           "line6": " –  IBAN: {{iban}}",
           "line7": " –  BIC: {{bic}}",
-          "line8": "Rincian penerima pembayaran:",
+          "line8": "Detail penerima pembayaran:",
           "line9": " –  Penerima: {{beneficiaryName}}",
-          "line10": " –  ID Kreditor: {{creditorId}}",
+          "line10": " –  ID Kreditur: {{creditorId}}",
           "line11": " –  Referensi mandat: {{mandateReference}}",
-          "line12": "Saya telah membaca mandat debit langsung SEPA dan menerbitkannya sebagai dokumen yang mengikat secara hukum.",
+          "line12": "Saya telah membaca mandat debet langsung SEPA dan menerbitkannya sebagai sah secara hukum.",
           "line13": "Tanggal penerbitan: {{date}}"
         },
         "acceptButtonLabel": "Terima",
         "cancelButtonLabel": "Batal",
         "downloadButtonLabel": "Unduh",
-        "downloadFileName": "Mandat Debit Langsung SEPA{{accountHolder}}"
+        "downloadFileName": "Mandat Debet Langsung SEPA{{accountHolder}}"
       },
       "sepaMandateError": "Anda harus membaca dan menerima mandat SEPA",
       "processing": "Memproses pembayaran"
@@ -475,10 +493,10 @@
         },
         "subHeadline": {
           "success": "Data pembayaran Anda telah diterima.",
-          "failure": "Data pembayaran Anda tidak dapat disimpan. Silakan coba lagi."
+          "failure": "Data pembayaran Anda gagal disimpan. Silakan coba lagi."
         },
         "amountLabel": "Jumlah total",
-        "taxLabel": "tidak berlaku PPN",
+        "taxLabel": "tidak dikenakan PPN",
         "paymentIdLabel": "ID Pembayaran",
         "applicationIdLabel": "ID Permohonan",
         "cadastralIdLabel": "Referensi kadastral",
@@ -488,8 +506,8 @@
         "bicLabel": "BIC",
         "bicOptional": "tidak diperlukan",
         "dateLabel": "Tanggal pembayaran",
-        "sendReceiptLabel": "Kirim bukti pembayaran ke",
-        "receiptSentLabel": "Bukti pembayaran terkirim!",
+        "sendReceiptLabel": "Kirim tanda terima pembayaran ke",
+        "receiptSentLabel": "Tanda terima pembayaran dikirim!",
         "leaveButtonLabel": {
           "success": "Kembali ke Dasbor",
           "failure": "Coba Lagi"
@@ -501,7 +519,7 @@
       "headline": "Izin",
       "createNew": "Buat Izin Baru",
       "empty": "Tidak ada izin yang ditemukan.",
-      "edit": "Ubah",
+      "edit": "Sunting",
       "delete": "Hapus"
     },
     "add": {
@@ -530,7 +548,7 @@
       "label": "Permohonan"
     },
     "edit": {
-      "headline": "Ubah Izin",
+      "headline": "Sunting Izin",
       "back": "Kembali ke daftar"
     },
     "create": {
@@ -547,13 +565,13 @@
     "name": {
       "required": "Nama wajib diisi",
       "invalid": "Nama hanya boleh berisi huruf dan spasi",
-      "minLength": "Nama harus terdiri dari minimal 2 karakter",
+      "minLength": "Nama harus minimal 2 karakter",
       "maxLength": "Nama harus kurang dari 100 karakter",
       "valid": "Nama valid"
     },
     "email": {
       "required": "Email wajib diisi",
-      "minLength": "Email harus terdiri dari minimal 5 karakter",
+      "minLength": "Email harus minimal 5 karakter",
       "maxLength": "Email harus kurang dari 255 karakter",
       "invalid": "Format email tidak valid",
       "valid": "Format email valid"
@@ -566,7 +584,7 @@
     },
     "password": {
       "required": "Kata sandi wajib diisi",
-      "minLength": "Kata sandi harus terdiri dari minimal 8 karakter",
+      "minLength": "Kata sandi harus minimal 8 karakter",
       "maxLength": "Kata sandi harus kurang dari 255 karakter",
       "specialChar": "Kata sandi harus mengandung setidaknya satu karakter khusus",
       "valid": "Kata sandi valid"
@@ -583,16 +601,16 @@
     },
     "iban": {
       "required": "IBAN wajib diisi",
-      "minLength": "IBAN harus terdiri dari minimal 15 karakter",
+      "minLength": "IBAN harus minimal 15 karakter",
       "maxLength": "IBAN harus kurang dari 35 karakter",
-      "specialChar": "IBAN tidak boleh mengandung karakter khusus apa pun",
+      "specialChar": "IBAN tidak boleh mengandung karakter khusus",
       "invalid": "IBAN tidak valid",
       "valid": "IBAN valid"
     },
     "bic": {
-      "required": "BIC wajib diisi untuk transaksi SEPA non-domestik",
+      "required": "BIC diperlukan untuk transaksi SEPA non-domestik",
       "length": "BIC harus tepat 8 atau 11 karakter",
-      "specialChar": "BIC tidak boleh mengandung karakter khusus apa pun",
+      "specialChar": "BIC tidak boleh mengandung karakter khusus",
       "invalid": "BIC tidak valid",
       "valid": "BIC valid"
     }
@@ -600,7 +618,7 @@
   "error": {
     "page": {
       "headline": "Kesalahan",
-      "message": "Halaman yang Anda cari saat ini tidak tersedia."
+      "message": "Halaman yang Anda cari tidak tersedia saat ini."
     }
   },
   "appUser": {
@@ -608,7 +626,7 @@
       "headline": "Pengguna Aplikasi",
       "createNew": "Buat Pengguna Aplikasi baru",
       "empty": "Tidak ada Pengguna Aplikasi yang ditemukan.",
-      "edit": "Sunting",
+      "edit": "Ubah",
       "delete": "Hapus"
     },
     "add": {
@@ -619,17 +637,17 @@
       "label": "Id"
     },
     "edit": {
-      "headline": "Sunting Pengguna Aplikasi",
+      "headline": "Ubah Pengguna Aplikasi",
       "back": "Kembali ke daftar"
     },
     "application": {
       "user": {
-        "referenced": "Entitas ini masih direferensikan oleh Application {{id}} melalui field User."
+        "referenced": "Entitas ini masih direferensikan oleh Aplikasi {{id}} melalui field User."
       }
     },
     "license": {
       "user": {
-        "referenced": "Entitas ini masih direferensikan oleh License {{id}} melalui field User."
+        "referenced": "Entitas ini masih direferensikan oleh Lisensi {{id}} melalui field User."
       }
     },
     "create": {
@@ -711,22 +729,22 @@
     "deleteAccount": "Hapus Akun",
     "firstName": "Nama Depan",
     "lastName": "Nama Belakang",
-    "email": "Surel",
+    "email": "Email",
     "phoneNumber": "Nomor Telepon",
     "currentPassword": "Kata Sandi Saat Ini",
     "newPassword": "Kata Sandi Baru",
     "confirmPassword": "Konfirmasi Kata Sandi",
     "error": {
-      "currentPasswordRequired": "Kata sandi saat ini wajib diisi",
-      "newPasswordRequired": "Kata sandi baru wajib diisi",
-      "confirmPasswordRequired": "Konfirmasi kata sandi wajib diisi",
+      "currentPasswordRequired": "Kata sandi saat ini diperlukan",
+      "newPasswordRequired": "Kata sandi baru diperlukan",
+      "confirmPasswordRequired": "Konfirmasi kata sandi diperlukan",
       "passwordMismatch": "Kata sandi tidak cocok",
       "passwordMinLength": "Kata sandi harus terdiri dari minimal 8 karakter"
     },
     "success": {
-      "changesSaved": "Perubahan berhasil disimpan!",
-      "passwordChanged": "Kata sandi berhasil diubah!",
-      "accountDeleted": "Akun Anda berhasil dihapus."
+      "changesSaved": "Perubahan telah berhasil disimpan!",
+      "passwordChanged": "Kata sandi telah berhasil diubah!",
+      "accountDeleted": "Akun Anda telah berhasil dihapus."
     },
     "confirmation": {
       "deleteAccount": {
@@ -776,7 +794,7 @@
   "required": "Please provide a value.",
   "maxlength": "Your value must have a length of less then ${max} characters.",
   "valid": {
-    "offsetDateTime": "Silakan berikan tanggal yang valid dengan offset, misalnya \"2026-01-23T14:55:00+01:00\"."
+    "offsetDateTime": "Harap berikan tanggal yang valid dengan offset, misalnya \"2026-01-23T14:55:00+01:00\"."
   },
   "legalNotice": {
     "lastUpdated": "Terakhir Diperbarui: 27/11/2025",
@@ -787,7 +805,7 @@
       "purposeTitle": "Tujuan Portal",
       "purposeList": [
         "Mendaftarkan dan memelihara akun pengguna",
-        "Mengajukan izin penyewaan liburan",
+        "Mengajukan izin sewa liburan",
         "Mengunggah dokumen untuk verifikasi",
         "Melacak status pengajuan",
         "Menyelesaikan pembayaran untuk biaya administrasi",
@@ -801,39 +819,39 @@
       "dataTitle": "Data yang Kami Kumpulkan",
       "dataList": [
         "Informasi Akun & Identitas (nama, email, telepon, kata sandi terenkripsi)",
-        "Informasi Properti & Pengajuan Izin (alamat, dokumen kepemilikan, salinan identitas)",
-        "Dokumen yang Diunggah (bukti identitas, bukti kepemilikan properti)",
+        "Informasi Properti & Aplikasi Izin (alamat, dokumen kepemilikan, salinan ID)",
+        "Dokumen yang Diunggah (bukti ID, bukti properti)",
         "Data Teknis (IP, browser, aktivitas login)",
         "Informasi Pembayaran (IBAN, BIC — ditangani dengan aman oleh Banco Santander)"
       ]
     },
     "cookiesTitle": "Kebijakan Cookie",
     "cookiesSection": {
-      "whatTitle": "Apa itu Cookie?",
-      "whatText": "Cookie adalah file teks kecil yang disimpan di perangkat Anda untuk meningkatkan pengalaman penjelajahan Anda.",
+      "whatTitle": "Apa Itu Cookie?",
+      "whatText": "Cookies are small text files stored on your device to enhance your browsing experience.",
       "typesTitle": "Jenis Cookie yang Kami Gunakan",
       "typesList": [
-        "Cookie Esensial — diperlukan untuk masuk, pengaturan bahasa, sesi keamanan, dan pengiriman formulir."
+        "Essential Cookies — required for login, language, security sessions, and form submissions."
       ],
       "consentTitle": "Persetujuan Cookie",
-      "consentText": "Pada kunjungan pertama Anda, Anda menerima semua cookie esensial. Ini tidak dapat dinonaktifkan."
+      "consentText": "Pada kunjungan pertama Anda, Anda menerima semua cookie esensial. Cookie ini tidak dapat dinonaktifkan."
     }
   },
   "legal": {
     "legalNoticeTitle": "Pemberitahuan Hukum",
     "lastUpdated": "Terakhir Diperbarui: 27/11/2025",
     "owner": {
-      "title": "Identifikasi Pemilik / Pengendali Situs Web",
+      "title": "Pemilik Situs / Identifikasi Pengendali",
       "description": "Portal ini dioperasikan oleh:",
       "address": "Dirección Insular de Licencias Turísticas, Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain",
       "email": "Email: avisio.legal@palma.es",
-      "laws": "Portal ini diatur oleh Undang-Undang Spanyol 34/2002 tentang Layanan Masyarakat Informasi (LSSI-CE), GDPR (Peraturan UE 2016/679), dan peraturan Baleares lain yang berlaku."
+      "laws": "Portal ini diatur oleh Undang-Undang Spanyol 34/2002 tentang Layanan Masyarakat Informasi (LSSI-CE), GDPR (EU Regulation 2016/679), dan peraturan regional Kepulauan Balear yang berlaku."
     },
     "purpose": {
       "title": "Tujuan Portal",
       "description": "Portal menyediakan layanan digital bagi pengguna dan pemilik properti di Mallorca untuk:",
       "register": "Mendaftarkan dan memelihara akun pengguna",
-      "apply": "Mengajukan izin penyewaan liburan",
+      "apply": "Mengajukan permohonan izin penyewaan liburan",
       "upload": "Mengunggah dokumen untuk verifikasi",
       "track": "Melacak status permohonan",
       "payments": "Menyelesaikan pembayaran biaya administrasi",
@@ -848,25 +866,25 @@
       "obligations": {
         "title": "Kewajiban Pengguna",
         "accurate": "Memberikan informasi yang akurat dan benar",
-        "validDocs": "Mengunggah hanya dokumen sah milik mereka",
-        "noFraud": "Menahan diri dari tindakan penipuan, berbahaya, atau ilegal",
-        "confidentiality": "Menjaga kerahasiaan kredensial masuk mereka",
-        "law": "Mematuhi semua hukum lokal, negara bagian, dan UE yang berlaku"
+        "validDocs": "Hanya mengunggah dokumen yang valid milik mereka",
+        "noFraud": "Menjauhi kegiatan penipuan, berbahaya, atau ilegal",
+        "confidentiality": "Menjaga kerahasiaan kredensial login mereka",
+        "law": "Mematuhi semua undang-undang lokal, negara bagian, dan UE yang berlaku"
       },
       "prohibited": {
         "title": "Tindakan yang Dilarang",
-        "unauthorized": "Mencoba akses tanpa otorisasi atau mengganggu keamanan",
+        "unauthorized": "Mencoba akses tidak sah atau mengganggu keamanan",
         "malware": "Mengunggah virus, malware, atau konten berbahaya",
         "bots": "Menggunakan skrip otomatis (bot) untuk membebani atau memanipulasi sistem",
-        "misrepresentation": "Menyalahartikan kepemilikan properti atau data pribadi"
+        "misrepresentation": "Memberikan informasi palsu mengenai kepemilikan properti atau data pribadi"
       },
       "ipr": {
         "title": "Hak Kekayaan Intelektual",
-        "text": "Semua konten di Portal—termasuk desain, teks, grafis, logo, ikon, dan perangkat lunak—dimiliki oleh operator Portal atau dilisensikan dari pihak ketiga. Reproduksi atau distribusi dilarang tanpa persetujuan tertulis sebelumnya."
+        "text": "Semua konten di Portal—termasuk desain, teks, grafis, logo, ikon, dan perangkat lunak—dimiliki oleh operator Portal atau dilisensikan dari pihak ketiga. Reproduksi atau distribusi dilarang tanpa izin tertulis sebelumnya."
       },
       "disclaimer": {
         "title": "Penafian Tanggung Jawab",
-        "errors": "Kesalahan dalam dokumen yang dikirim oleh pengguna",
+        "errors": "Kesalahan dalam dokumen yang diajukan oleh pengguna",
         "interruptions": "Gangguan layanan sementara",
         "thirdparty": "Masalah terkait integrasi pihak ketiga (mis. gateway pembayaran, verifikasi dokumen)",
         "delays": "Keterlambatan dalam pemrosesan administratif",
@@ -875,7 +893,7 @@
     },
     "privacy": {
       "title": "Perlindungan Data & Privasi",
-      "text": "Data pribadi diproses sesuai GDPR. Penjelasan lengkap tercantum dalam Kebijakan Privasi di bawah ini."
+      "text": "Data pribadi diproses sesuai dengan GDPR. Penjelasan lengkap terdapat dalam Kebijakan Privasi di bawah ini."
     },
     "links": {
       "title": "Tautan Eksternal",
@@ -883,7 +901,7 @@
     },
     "modifications": {
       "title": "Modifikasi",
-      "text": "Operator berhak untuk memodifikasi Pemberitahuan Hukum, Kebijakan Privasi, atau Kebijakan Cookie kapan saja. Pembaruan akan dipublikasikan pada halaman ini."
+      "text": "Operator berhak mengubah Pemberitahuan Hukum, Kebijakan Privasi, atau Kebijakan Cookie kapan saja. Pembaruan akan dipublikasikan di halaman ini."
     },
     "jurisdiction": {
       "title": "Hukum & Yurisdiksi yang Berlaku",
@@ -897,12 +915,12 @@
       "title": "Kebijakan Cookie",
       "lastUpdated": "Terakhir Diperbarui: 27/11/2025",
       "whatAreCookies": "Apa itu Cookie?",
-      "definition": "Cookie adalah berkas teks kecil yang disimpan di perangkat Anda untuk meningkatkan pengalaman penjelajahan. Mereka dapat menyimpan preferensi, status masuk, atau informasi analitik.",
+      "definition": "Cookie adalah file teks kecil yang disimpan di perangkat Anda untuk meningkatkan pengalaman menjelajah. Mereka dapat menyimpan preferensi, status login, atau informasi analitik.",
       "typesTitle": "Jenis Cookie yang Kami Gunakan",
-      "essentialTitle": "Cookie penting",
-      "essential": "Cookie penting diperlukan untuk fungsionalitas dasar seperti masuk, sesi keamanan, dan pengiriman formulir.",
+      "essentialTitle": "Cookie esensial",
+      "essential": "Cookie esensial diperlukan untuk fungsi dasar seperti login, sesi keamanan, dan pengiriman formulir.",
       "consentTitle": "Persetujuan Cookie",
-      "consentText": "Pada kunjungan pertama Anda, Anda menerima semua cookie penting. Cookie penting tidak dapat dinonaktifkan karena Portal tidak akan berfungsi tanpanya."
+      "consentText": "Saat kunjungan pertama Anda, Anda menerima semua cookie esensial. Cookie esensial tidak dapat dinonaktifkan karena Portal tidak akan berfungsi tanpa mereka."
     },
     "dataController": {
       "title": "Pengendali Data",
@@ -918,7 +936,7 @@
       "phone": "Nomor telepon",
       "password": "Kata sandi (terenkripsi)",
       "propertyInfo": "Informasi Properti & Permohonan Izin",
-      "propertyAddress": "Alamat properti / dokumen kepemilikan",
+      "propertyAddress": "Alamat properti / Dokumen kepemilikan",
       "cadastralRef": "Referensi kadastral",
       "licenseForms": "Formulir terkait izin",
       "idCopy": "Salinan paspor / KTP pribadi",
@@ -927,22 +945,22 @@
       "propertyProof": "Bukti kepemilikan properti",
       "technicalData": "Data Teknis",
       "ipAddress": "Alamat IP",
-      "browserDevice": "Detail peramban dan perangkat",
-      "loginActivity": "Aktivitas masuk",
+      "browserDevice": "Rincian peramban dan perangkat",
+      "loginActivity": "Aktivitas login",
       "usageAnalytics": "Analitik penggunaan",
       "paymentInfo": "Informasi Pembayaran",
       "accountHolder": "Nama pemegang akun",
-      "ibanBic": "IBAN / BIC (jika rekening bukan domestik)",
+      "ibanBic": "IBAN / BIC (jika akun bukan domestik)",
       "paymentProcessor": "Informasi pembayaran ditangani dengan aman oleh pemroses pembayaran pihak ketiga (Banco Santander, S.A.). Portal tidak menyimpan detail rekening bank."
     },
     "processingPurpose": {
       "title": "Tujuan Pemrosesan",
-      "description": "Data Anda diproses untuk tujuan-tujuan berikut:",
+      "description": "Data Anda diproses untuk tujuan berikut:",
       "createAccounts": "Membuat dan mengelola akun pengguna",
       "processLicenses": "Memproses permohonan izin penyewaan liburan",
       "verifyIdentity": "Verifikasi identitas dan dokumen",
       "sendNotifications": "Mengirim notifikasi dan pembaruan",
-      "ballotAlgorithm": "Menjalankan algoritme alokasi lotere",
+      "ballotAlgorithm": "Menjalankan algoritma alokasi undian",
       "generateReceipts": "Menghasilkan tanda terima dan konfirmasi pembayaran",
       "ensureSecurity": "Menjamin keamanan platform",
       "basisTitle": "Pemrosesan didasarkan pada:",
@@ -959,7 +977,7 @@
       "title": "Hak Pengguna (GDPR Bab III)",
       "description": "Anda dapat meminta:",
       "access": "Akses ke data Anda",
-      "correction": "Koreksi atau penghapusan",
+      "correction": "Perbaikan atau penghapusan",
       "restriction": "Pembatasan pemrosesan",
       "portability": "Portabilitas data",
       "objection": "Keberatan terhadap pemrosesan tertentu",
@@ -967,22 +985,22 @@
       "contact": "Permintaan dapat dikirim ke: avisio.legal@palma.es"
     },
     "security": {
-      "title": "Langkah Keamanan",
+      "title": "Langkah-langkah Keamanan",
       "description": "Kami menerapkan:",
       "accessControl": "Kontrol akses dengan JWT + Keycloak",
       "securityAssessments": "Penilaian keamanan berkala",
       "cookiesPolicy": "Kebijakan Cookie Terakhir Diperbarui: 27/11/2025",
       "paymentInfo": "Informasi pembayaran ditangani dengan aman oleh pemroses pembayaran pihak ketiga (Banco Santander, S.A.). Portal tidak menyimpan detail rekening bank.",
-      "dataRetention": "Akun pengguna aktif: disimpan selama akun aktif\nDokumen permohonan izin: disimpan selama peninjauan + periode pengarsipan yang diwajibkan secara hukum\nTanda terima pembayaran: disimpan untuk periode wajib perpajakan/pencatatan\nData log: retensi jangka pendek untuk pemantauan keamanan",
-      "noSystem": "Tidak ada sistem yang 100% aman, tetapi langkah keamanan berdasarkan praktik terbaik diterapkan."
+      "dataRetention": "Akun pengguna aktif: disimpan selama akun aktif\nDokumen permohonan izin: disimpan selama peninjauan + periode arsip yang diwajibkan secara hukum\nTanda terima pembayaran: disimpan untuk periode wajib pajak/pencatatan\nData log: retensi jangka pendek untuk pemantauan keamanan",
+      "noSystem": "Tidak ada sistem yang 100% aman, tetapi langkah-langkah keamanan praktik terbaik diterapkan."
     },
     "governingLaw": {
       "title": "Hukum yang Mengatur",
-      "description": "Untuk tujuan perundang-undangan yang berlaku, Portal ini diatur oleh:",
+      "description": "Untuk tujuan peraturan perundang-undangan yang berlaku, Portal ini diatur oleh:",
       "lssi": "Undang-Undang Spanyol 34/2002 tentang Layanan Masyarakat Informasi dan Perdagangan Elektronik (LSSI-CE)",
-      "gdpr": "Peraturan Perlindungan Data Umum (GDPR) – Peraturan UE 2016/679",
-      "regional": "Peraturan regional atau nasional relevan lain dari Kepulauan Balearic.",
-      "noAffiliation": "Tidak ada afiliasi pemerintah resmi yang diklaim kecuali dinyatakan secara tegas."
+      "gdpr": "Peraturan Umum Perlindungan Data (GDPR) – EU Regulation 2016/679",
+      "regional": "Peraturan regional atau nasional relevan lainnya dari Kepulauan Balear.",
+      "noAffiliation": "Tidak ada afiliasi pemerintah resmi yang diklaim kecuali secara eksplisit dinyatakan."
     },
     "portalObjective": {
       "title": "Tujuan Portal",
@@ -992,67 +1010,67 @@
       "title": "Kewajiban Pengguna",
       "intro": "Pengguna setuju untuk:",
       "accurateInfo": "Memberikan informasi yang akurat dan benar",
-      "validDocs": "Mengunggah hanya dokumen sah milik mereka",
-      "noFraud": "Menahan diri dari tindakan penipuan, berbahaya, atau ilegal",
-      "confidentiality": "Menjaga kerahasiaan kredensial masuk mereka",
-      "lawCompliance": "Mematuhi semua hukum lokal, negara bagian, dan UE yang berlaku"
+      "validDocs": "Hanya mengunggah dokumen yang valid milik mereka",
+      "noFraud": "Menjauhi kegiatan penipuan, berbahaya, atau ilegal",
+      "confidentiality": "Menjaga kerahasiaan kredensial login mereka",
+      "lawCompliance": "Mematuhi semua undang-undang lokal, negara bagian dan UE yang berlaku"
     },
     "prohibitedActions": {
       "title": "Tindakan yang Dilarang",
       "intro": "Pengguna tidak boleh:",
-      "unauthorizedAccess": "Mencoba akses tanpa otorisasi atau mengganggu keamanan",
+      "unauthorizedAccess": "Mencoba akses tidak sah atau mengganggu keamanan",
       "malware": "Mengunggah virus, malware, atau konten berbahaya",
       "bots": "Menggunakan skrip otomatis (bot) untuk membebani atau memanipulasi sistem",
-      "misrepresentation": "Menyalahartikan kepemilikan properti atau data pribadi"
+      "misrepresentation": "Memberikan informasi palsu mengenai kepemilikan properti atau data pribadi"
     },
     "liability": {
       "title": "Penafian Tanggung Jawab",
       "intro": "Operator Portal tidak bertanggung jawab atas:",
-      "errors": "Kesalahan dalam dokumen yang dikirim oleh pengguna",
+      "errors": "Kesalahan dalam dokumen yang diajukan oleh pengguna",
       "interruptions": "Gangguan layanan sementara",
       "thirdParty": "Integrasi pihak ketiga (gateway pembayaran, layanan verifikasi dokumen)",
       "delays": "Keterlambatan dalam pemrosesan administratif oleh otoritas",
-      "asIs": "Portal disediakan 'sebagaimana adanya,' tanpa jaminan operasi yang tidak terganggu atau bebas kesalahan"
+      "asIs": "Portal disediakan “sebagaimana adanya,” tanpa jaminan operasi yang tidak terganggu atau bebas kesalahan"
     },
     "dataRetention": {
       "title": "Periode Retensi Data",
       "activeAccounts": "Akun pengguna aktif: disimpan selama akun aktif",
       "licenseDocs": "Dokumen permohonan izin: disimpan selama peninjauan dan untuk periode pengarsipan yang diwajibkan secara hukum",
-      "paymentReceipts": "Tanda terima pembayaran: disimpan untuk periode wajib perpajakan dan pencatatan",
-      "logData": "Data log: disimpan jangka pendek untuk pemantauan keamanan"
+      "paymentReceipts": "Tanda terima pembayaran: disimpan untuk periode wajib pajak dan pencatatan",
+      "logData": "Data log: disimpan untuk jangka pendek untuk pemantauan keamanan"
     },
     "securityMeasures": {
-      "noSystem": "Tidak ada sistem yang 100% aman, tetapi langkah keamanan berdasarkan praktik terbaik diterapkan."
+      "noSystem": "Tidak ada sistem yang 100% aman, tetapi langkah-langkah keamanan praktik terbaik diterapkan."
     }
   },
   "ballotConfig": {
-    "pageTitle": "Konfigurasikan Pemungutan Suara Baru",
+    "pageTitle": "Konfigurasikan Surat Suara Baru",
     "formFields": {
       "startDate": "Tanggal Mulai:",
       "endDate": "Tanggal Selesai:"
     },
     "buttons": {
-      "publish": "Terbitkan Pemungutan Suara",
-      "publishing": "Menerbitkan...",
+      "publish": "Terbitkan Surat Suara",
+      "publishing": "Mempublikasikan...",
       "cancel": "Batal"
     },
     "alerts": {
-      "requiredDates": "Kedua tanggal mulai dan tanggal akhir wajib diisi.",
+      "requiredDates": "Tanggal mulai dan tanggal selesai harus diisi.",
       "invalidDate": "Format tanggal tidak valid. Silakan gunakan tanggal yang valid.",
       "startDateAfterToday": "Tanggal mulai harus setelah hari ini.",
-      "sameStartEndDate": "Tanggal mulai dan tanggal akhir tidak boleh sama.",
-      "startDateAfterEndDate": "Tanggal mulai tidak boleh setelah tanggal akhir.",
-      "endDateTooLate": "Tanggal akhir tidak boleh lebih dari 6 bulan setelah tanggal mulai.",
+      "sameStartEndDate": "Tanggal mulai dan tanggal selesai tidak boleh sama.",
+      "startDateAfterEndDate": "Tanggal mulai tidak boleh lebih akhir dari tanggal selesai.",
+      "endDateTooLate": "Tanggal selesai tidak boleh lebih dari 6 bulan setelah tanggal mulai.",
       "badRequest": "Permintaan tidak valid. Silakan periksa input Anda.",
       "unauthorized": "Permintaan tidak sah. Silakan masuk.",
-      "success": "Periode pemungutan suara berhasil dibuat!",
-      "overlappingPeriod": "Tanggal mulai dan tanggal akhir yang ditentukan tumpang tindih dengan periode pemungutan suara yang sudah ada.",
-      "creationFailed": "Gagal membuat periode pemungutan suara."
+      "success": "Periode surat suara berhasil dibuat!",
+      "overlappingPeriod": "Tanggal mulai dan tanggal selesai yang ditentukan tumpang tindih dengan periode surat suara yang sudah ada.",
+      "creationFailed": "Gagal membuat periode surat suara."
     }
   },
   "notificationSettings": {
     "pageTitle": "Pengaturan Notifikasi",
-    "description": "Kelola bagaimana kami mengirimkan notifikasi kepada Anda",
+    "description": "Kelola bagaimana kami mengirim pemberitahuan kepada Anda",
     "sections": {
       "appUpdates": {
         "title": "Saat aplikasi saya diperbarui:",
@@ -1060,11 +1078,11 @@
       },
       "appStatus": {
         "title": "Pembaruan Aplikasi",
-        "label": "Saat status aplikasi saya diperbarui"
+        "label": "Ketika status aplikasi saya diperbarui"
       },
       "license": {
-        "title": "Pembaruan Perpanjangan Lisensi",
-        "label": "Saat lisensi saya akan kedaluwarsa dalam 6 months"
+        "title": "Pemberitahuan Perpanjangan Lisensi",
+        "label": "Ketika lisensi saya akan kedaluwarsa dalam 6 months"
       }
     },
     "buttons": {
@@ -1073,7 +1091,7 @@
     },
     "alerts": {
       "clientError": "Terjadi Kesalahan Klien",
-      "apiPlaceholder": "Pemanggilan API harus diimplementasikan!"
+      "apiPlaceholder": "Panggilan API harus diimplementasikan!"
     }
   },
   "ballotDetails": {

@@ -51,13 +51,6 @@ public class RecordToResourceMapperUtil {
             return;
         }
         userResource.setId(UUID.fromString(userRecord.getId()));
-        //userResource.setUsername(userRecord.getUsername());
-        //userResource.setFirstName(userRecord.getFirstName());
-        //userResource.setLastName(userRecord.getLastName());
-        //userResource.setEmail(userRecord.getEmail());
-        //userResource.setCreatedTimestamp(userRecord.getCreatedAt().atOffset(ZoneOffset.UTC));
-        //userResource.setEnabled(userRecord.getEnabled());
-        //userResource.setEmailVerified(userRecord.getEmailVerified());
     }
 
     public static void mapBallotPeriodRecordToResource(BallotPeriodRecord ballotPeriodRecord, BallotPeriodResource ballotPeriodResource) {

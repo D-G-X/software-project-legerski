@@ -98,9 +98,8 @@ type LoginResponse struct {
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	// Wrap handlers with CORS middleware
-	http.HandleFunc("/process-document", corsMiddleware(startProcessingHandler))
-	http.HandleFunc("/process-document/status/", corsMiddleware(statusHandler))
+	http.HandleFunc("/process-document", loggingMiddleware(corsMiddleware(startProcessingHandler)))
+	http.HandleFunc("/process-document/status/", loggingMiddleware(corsMiddleware(statusHandler)))
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -121,6 +120,38 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		next(w, r)
+	}
+}
+
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+	bytes  int
+}
+
+func (r *statusRecorder) WriteHeader(code int) {
+	r.status = code
+	r.ResponseWriter.WriteHeader(code)
+}
+
+func (r *statusRecorder) Write(b []byte) (int, error) {
+	if r.status == 0 {
+		r.status = http.StatusOK
+	}
+	n, err := r.ResponseWriter.Write(b)
+	r.bytes += n
+	return n, err
+}
+
+func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		rec := &statusRecorder{ResponseWriter: w}
+
+		next(rec, r)
+
+		dur := time.Since(start)
+		log.Printf("%s %s -> %d (%dB) in %s", r.Method, r.URL.Path, rec.status, rec.bytes, dur)
 	}
 }
 
@@ -181,6 +212,9 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("POST /process-document received: application_id=%d id_file=%s proof_file=%s id_bytes=%d proof_bytes=%d",
+		applicationId, idHeader.Filename, proofHeader.Filename, len(idData), len(proofData))
+
 	if !isPdf(idData) {
 		reject(w, "ID document is not a valid PDF: "+idHeader.Filename)
 		return
@@ -217,10 +251,11 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func runBackgroundJob(applicationId int, idFile, proofFile, token string) {
+	log.Printf("job started: application_id=%d", applicationId)
+
 	time.Sleep(processDuration[rand.Intn(len(processDuration))])
 
 	status := getRandomStatus()
-
 	var rejectionReason *string
 
 	mu.Lock()
@@ -239,6 +274,12 @@ func runBackgroundJob(applicationId int, idFile, proofFile, token string) {
 	}
 	mu.Unlock()
 
+	if rejectionReason != nil {
+		log.Printf("job finished: application_id=%d status=%s reason=%s", applicationId, status, *rejectionReason)
+	} else {
+		log.Printf("job finished: application_id=%d status=%s", applicationId, status)
+	}
+
 	payload := CallbackPayload{
 		ApplicationId:    applicationId,
 		IdFilename:       idFile,
@@ -247,12 +288,19 @@ func runBackgroundJob(applicationId int, idFile, proofFile, token string) {
 		RejectionReason:  rejectionReason,
 	}
 
+	log.Printf("sending callback -> %s (application_id=%d status=%s)", callbackURL, applicationId, status)
+
 	if err := sendCallback(payload, token); err != nil {
 		log.Printf("callback error for application_id=%d: %v", applicationId, err)
+		return
 	}
+
+	log.Printf("callback delivered (application_id=%d)", applicationId)
 }
 
 func getAccessToken() (string, error) {
+	log.Printf("login request -> %s (email=%s)", loginURL, loginEmail)
+
 	reqBody := LoginRequest{
 		Email:    loginEmail,
 		Password: loginPassword,
@@ -288,7 +336,7 @@ func getAccessToken() (string, error) {
 	if loginResp.AccessToken == "" {
 		return "", fmt.Errorf("login response did not contain access_token")
 	}
-
+	log.Printf("login ok (expires_in=%d)", loginResp.ExpiresIn)
 	return loginResp.AccessToken, nil
 }
 
@@ -317,6 +365,7 @@ func sendCallback(p CallbackPayload, token string) error {
 		return fmt.Errorf("callback returned status %s: %s", resp.Status, string(b))
 	}
 
+	log.Printf("callback response: %s", resp.Status)
 	return nil
 }
 
