@@ -1130,13 +1130,13 @@
       "ballotYear": "Ballot year",
       "approvedCap": "Approved License Cap"
     },
+    "values": {
+      "approvedCap": 2000
+    },
     "license": {
       "etv": "ETV",
       "etvpl": "ETVPL",
       "etv60": "ETV60"
-    },
-    "status": {
-      "completed": "Completed"
     },
     "timeline": {
       "title": "Ballot Timeline",
@@ -1149,7 +1149,17 @@
     },
     "actions": {
       "viewApplications": "View Applications",
-      "cancel": "Cancel"
+      "cancel": "Back to Dashboard"
+    },
+    "status": {
+      "active": "Active",
+      "upcoming": "Upcoming",
+      "completed": "Completed"
+    },
+    "errors": {
+      "unableToLoad": "Unable to load ballot details.",
+      "failedToLoad": "Failed to load ballot details",
+      "missingDates": "Missing dates for ballot."
     }
   }
 }
