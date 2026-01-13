@@ -474,7 +474,6 @@
         "nameLabel": "Account holder",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "bicLabelOptional": " (optional for domestic SEPA transactions)",
         "acceptSepaMandateLabel": {
           "plain": "I have read and accept the",
           "button": "SEPA Mandate"
@@ -531,7 +530,6 @@
         "nameLabel": "Account holder",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "bicOptional": "not required",
         "dateLabel": "Payment date",
         "sendReceiptLabel": "Send payment receipt to",
         "receiptSentLabel": "Payment receipt sent!",
@@ -635,7 +633,7 @@
       "valid": "IBAN is valid"
     },
     "bic": {
-      "required": "BIC is required for non-domestic SEPA transactions",
+      "required": "BIC is required",
       "length": "BIC must be exactly 8 or 11 characters long",
       "specialChar": "BIC must not contain any special character",
       "invalid": "BIC is invalid",
@@ -977,7 +975,7 @@
       "usageAnalytics": "Usage analytics",
       "paymentInfo": "Payment Information",
       "accountHolder": "Account holder name",
-      "ibanBic": "IBAN / BIC (if account is non-domestic)",
+      "ibanBic": "IBAN / BIC",
       "paymentProcessor": "Payment Information is securely handled by a third-party payment processor (Banco Santander, S.A.). The Portal does not store bank account details."
     },
     "processingPurpose": {
