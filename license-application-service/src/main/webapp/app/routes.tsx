@@ -102,7 +102,7 @@ export default function AppRoutes() {
           loader: ProtectedLoader(["admin"]),
         },
         {
-          path: "ballot-details",
+          path: "ballot-details/:id",
           element: <BallotDetails />,
           loader: ProtectedLoader(["admin"]),
         },

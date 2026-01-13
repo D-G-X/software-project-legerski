@@ -1135,9 +1135,6 @@
       "etvpl": "ETVPL",
       "etv60": "ETV60"
     },
-    "status": {
-      "completed": "Completed"
-    },
     "timeline": {
       "title": "Ballot Timeline",
       "applicationPeriod": "Application Period",
@@ -1149,7 +1146,7 @@
     },
     "actions": {
       "viewApplications": "View Applications",
-      "cancel": "Cancel"
+      "cancel": "Back to Dashboard"
     },
     "status": {
       "active": "Active",
