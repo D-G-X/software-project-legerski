@@ -78,7 +78,7 @@ public class UsersController implements UsersApi {
     }
 
     @Override
-    @AdminOnly
+    @PreAuthorize("@userAuthorization.canAccessUser(authentication, #userId)")
     @Transactional
     public ResponseEntity<Void> deleteUser(UUID userId) {
         if (userId == null) {
