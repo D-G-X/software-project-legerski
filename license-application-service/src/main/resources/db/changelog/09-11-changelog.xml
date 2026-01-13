@@ -15,4 +15,17 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="application_payment_fk_ballot_period" author="Alexander">
+        <addColumn tableName="application_payment">
+            <column name="ballot_period_id" type="INT"/>
+        </addColumn>
+
+        <addForeignKeyConstraint constraintName="fk_application_payment_ballot_period"
+                                 baseTableName="application_payment"
+                                 baseColumnNames="ballot_period_id"
+                                 referencedTableName="ballot_period"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+    </changeSet>
+
 </databaseChangeLog>
