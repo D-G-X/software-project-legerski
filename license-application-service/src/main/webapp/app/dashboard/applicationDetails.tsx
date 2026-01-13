@@ -107,7 +107,7 @@ function useGetPaymentData(applicationId: number) {
     },
   });
 
-  return response?.data?.[-1]; // Get the latest payment
+  return response?.data.at(-1); // Get the latest payment
 }
 
 export default function ApplicationDetails({
@@ -121,9 +121,8 @@ export default function ApplicationDetails({
   if (!open || !applicationData) {
     console.log("ApplicationDetails: not open");
     return null;
-  } else {
-    console.log("ApplicationDetails: open");
   }
+
   const { t } = useTranslation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const openPopup = () => setIsPopupOpen(true);
@@ -192,7 +191,7 @@ export default function ApplicationDetails({
           break;
       }
     } catch (err) {
-      alert("Error occured");
+      alert("Error occurred");
     }
   }
 
@@ -502,7 +501,7 @@ export default function ApplicationDetails({
                         applicationData?.id
                       )
                     }
-                    className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 w-max"
+                    className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-8 w-max"
                   >
                     {applicationData?.application_status === "DRAFT"
                       ? "Edit"
