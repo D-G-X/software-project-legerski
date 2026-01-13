@@ -1,0 +1,31 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS"
+        logicalFilePath="db/changelog/09-11-changelog.xml">
+
+    <changeSet id="accounting_fields_application_payment" author="Alexander">
+        <addColumn tableName="application_payment">
+            <column name="accountant" type="VARCHAR(255)"/>
+            <column name="iban" type="VARCHAR(34)"/>
+            <column name="bic" type="VARCHAR(11)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="application_payment_fk_ballot_period" author="Alexander">
+        <addColumn tableName="application_payment">
+            <column name="ballot_period_id" type="INT"/>
+        </addColumn>
+
+        <addForeignKeyConstraint constraintName="fk_application_payment_ballot_period"
+                                 baseTableName="application_payment"
+                                 baseColumnNames="ballot_period_id"
+                                 referencedTableName="ballot_period"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+    </changeSet>
+
+</databaseChangeLog>

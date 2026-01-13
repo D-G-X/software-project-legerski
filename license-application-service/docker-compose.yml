@@ -38,6 +38,10 @@ services:
     ports:
       - "8082:8080"
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - app-network
 
   mock-document-validator:
     build:

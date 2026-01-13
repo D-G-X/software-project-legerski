@@ -833,6 +833,7 @@ paths:
       description: >
         Triggers the allocation (lottery) process for this ballot period,
         assigning selected status as true/false to eligible applications within the given period.
+        It is important to note, that a period has to be over.
       operationId: runLotteryForBallotPeriod
       parameters:
         - in: path
@@ -871,6 +872,8 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/ApplicationResource"
+        "400":
+          description: Bad request - invalid input data. Can be caused because period is not over yet
 
   /licenses:
     get:

@@ -20,7 +20,7 @@ import {
   formatAmount, formatStatusLabel,
   formatBic,
   formatDateLong,
-  formatIban, getApplicationStatusColor, getDocumentStatusColor, getLicenseStatusColor,
+  formatIban, getApplicationStatusColor, getDocumentStatusColor, getLicenseStatusColor, getPaymentStatusColor,
 } from "../common/format";
 import ConfirmPopup from "../common/confirmPopup";
 import { useQueryClient } from "@tanstack/react-query";
@@ -448,7 +448,9 @@ export default function ApplicationDetails({
                         {t("applicationDetails.index.payment.statusLabel") +
                           ": "}
                       </span>
-                      <span>{paymentData?.payment_status}</span>
+                      <span
+                          className={`text-${getPaymentStatusColor(paymentData?.payment_status)}-600 font-semibold`}
+                      >{t(formatStatusLabel("applicationDetails.paymentStatus.", paymentData?.payment_status))}</span>
                     </div>
                   </div>
                 </>
