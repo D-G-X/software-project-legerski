@@ -6,11 +6,9 @@ import {
   UpdateUserMutationError,
   useGetUser,
   useUpdateUser,
+  ChangePasswordForUserMutationError,
+  useChangePasswordForUser,
 } from "app/services/users/users";
-import {
-  ChangeUserPasswordMutationError,
-  useChangeUserPassword,
-} from "app/services/authentication/authentication";
 import { AuthContext } from "app/common/AuthContext";
 import { getUserIdFromToken } from "app/common/authTokenDecode";
 import { useGlobalLoader } from "app/common/GlobalLoader";
@@ -113,14 +111,14 @@ export default function Profile() {
     },
   });
 
-  const changePasswordMutation = useChangeUserPassword({
+  const changePasswordMutation = useChangePasswordForUser({
     axios: {
       headers: {
         Authorization: `Bearer ${auth?.accessToken}`,
       },
     },
     mutation: {
-      onError: (error: ChangeUserPasswordMutationError) => {
+      onError: (error: ChangePasswordForUserMutationError) => {
         const status = (error as any)?.response?.status;
 
         switch (status) {
@@ -208,8 +206,9 @@ export default function Profile() {
     try {
       show(t("profile.updatingPassword") || "Updating password…");
       await changePasswordMutation.mutateAsync({
+        userId,
         data: {
-          token: currentPassword,
+          old_password: currentPassword,
           new_password: newPassword,
         },
       });
