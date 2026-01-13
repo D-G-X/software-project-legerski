@@ -108,14 +108,7 @@ public class ApiFormValidator {
     return ibanRegex.matcher(iban).matches();
   }
 
-  public boolean isValidBic(String bic, String iban) {
-    if (iban.trim().isEmpty()) {
-      return false;
-    }
-
-    if (iban.startsWith("ES") && bic.trim().isEmpty()) {
-      return true;
-    }
+  public boolean isValidBic(String bic) {
     if (bic.trim().isEmpty()) {
       return false;
     }

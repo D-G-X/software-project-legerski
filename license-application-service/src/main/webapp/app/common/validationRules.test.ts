@@ -483,13 +483,6 @@ describe("validateBic", () => {
     expect(isValidBic(" ").isValid).toBe(false);
   });
 
-  test("should return invalid if IBAN is empty", () => {
-    expect(isValidBic("GENODES1DEH").isValid).toBe(false);
-    expect(isValidBic("GENODES1DEH").isValid).toBe(false);
-    expect(isValidBic("GENODES1DEH").isValid).toBe(false);
-    expect(isValidBic("GENODES1DEH").isValid).toBe(false);
-  });
-
   test("should return invalid if BIC is 7 chars long", () => {
     expect(isValidBic("GENODES").isValid).toBe(false);
   });
