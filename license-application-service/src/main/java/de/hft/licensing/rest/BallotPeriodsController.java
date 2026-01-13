@@ -2,6 +2,7 @@ package de.hft.licensing.rest;
 
 import de.hft.licensing.api.BallotPeriodsApi;
 import de.hft.licensing.db.enums.ApplicationStatus;
+import de.hft.licensing.db.enums.PaymentStatus;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.ApplicationPayment;
 import de.hft.licensing.db.tables.Ballot;
@@ -218,7 +219,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
             PaymentResponseDto resp = mockBankClient.processPayment(req);
 
             dslContext.update(ApplicationPayment.APPLICATION_PAYMENT)
-                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, resp.status())
+                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.lookupLiteral(resp.status()))
                     .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, LocalDateTime.now())
                     .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(appId))
                     .execute();
