@@ -245,7 +245,7 @@ func ibanValid(iban string, w http.ResponseWriter) bool {
 }
 
 func bicValid(bic string, w http.ResponseWriter) bool {
-	iban = strings.ToUpper(strings.ReplaceAll(iban, " ", ""))
+	bic = strings.ToUpper(strings.ReplaceAll(bic, " ", ""))
 
 	if bic == "" {
 		http.Error(w, "BIC cannot be empty", http.StatusBadRequest)
