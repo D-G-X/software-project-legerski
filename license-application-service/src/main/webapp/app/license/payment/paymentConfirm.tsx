@@ -104,11 +104,7 @@ export default function PaymentConfirm() {
                   {t("license.paymentConfirm.index.bicLabel") + ": "}
                 </span>
                 <span>
-                  {data.bic ? (
-                    formatBic(data.bic)
-                  ) : (
-                    <em>{t("license.paymentConfirm.index.bicOptional")}</em>
-                  )}
+                  {formatBic(data.bic)}
                 </span>
               </div>
 

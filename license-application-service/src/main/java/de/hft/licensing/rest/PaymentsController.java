@@ -50,8 +50,7 @@ public class PaymentsController implements PaymentsApi {
         applicationPaymentCreate.getBic() != null &&
         !formValidator.isValidName(applicationPaymentCreate.getName()) &&
         !formValidator.isValidIban(applicationPaymentCreate.getIban()) &&
-        !formValidator.isValidBic(applicationPaymentCreate.getBic(),
-            applicationPaymentCreate.getIban())
+        !formValidator.isValidBic(applicationPaymentCreate.getBic())
     ) {
       return ResponseEntity.badRequest().build();
     }

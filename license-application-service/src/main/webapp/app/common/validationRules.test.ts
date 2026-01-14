@@ -455,62 +455,48 @@ describe("validateIban", () => {
 // BIC Validation
 describe("validateBic", () => {
   // VALID BICS
-  test("should return valid if BIC is empty (domestic)", () => {
-    expect(isValidBic(null, "ES0123456789012").isValid).toBe(true);
-    expect(isValidBic(undefined, "ES0123456789012").isValid).toBe(true);
-    expect(isValidBic("", "ES0123456789012").isValid).toBe(true);
-    expect(isValidBic(" ", "ES0123456789012").isValid).toBe(true);
-  });
-
   test("should return valid if BIC is 8 chars long and contains first 6 letters, then 2 alphanumeric", () => {
-    expect(isValidBic("SEPADEEF", "DE0123456789012").isValid).toBe(true);
+    expect(isValidBic("SEPADEEF").isValid).toBe(true);
   });
 
   test("should return valid if BIC is 11 chars long and contains first 6 letters, then 2 alphanumeric, then 3 alphanumeric", () => {
-    expect(isValidBic("GENODES1DEH", "DE0123456789012").isValid).toBe(true);
+    expect(isValidBic("GENODES1DEH").isValid).toBe(true);
   });
 
   test("should return valid if BIC has lowercase letters", () => {
-    expect(isValidBic("genodes1deh", "DE0123456789012").isValid).toBe(true);
+    expect(isValidBic("genodes1deh").isValid).toBe(true);
   });
 
   test("should return valid if BIC has only letters in alphanumeric part", () => {
-    expect(isValidBic("GENODESIDEH", "DE0123456789012").isValid).toBe(true);
+    expect(isValidBic("GENODESIDEH").isValid).toBe(true);
   });
 
   test("should return valid if BIC has only numbers in alphanumeric part", () => {
-    expect(isValidBic("GENODE12345", "DE0123456789012").isValid).toBe(true);
+    expect(isValidBic("GENODE12345").isValid).toBe(true);
   });
 
   // INVALID BICS
-  test("should return invalid if BIC is empty (non domestic)", () => {
-    expect(isValidBic(null, "DE0123456789012").isValid).toBe(false);
-    expect(isValidBic(undefined, "DE0123456789012").isValid).toBe(false);
-    expect(isValidBic("", "DE0123456789012").isValid).toBe(false);
-    expect(isValidBic(" ", "DE0123456789012").isValid).toBe(false);
-  });
-
-  test("should return invalid if IBAN is empty", () => {
-    expect(isValidBic("GENODES1DEH", null).isValid).toBe(false);
-    expect(isValidBic("GENODES1DEH", undefined).isValid).toBe(false);
-    expect(isValidBic("GENODES1DEH", "").isValid).toBe(false);
-    expect(isValidBic("GENODES1DEH", " ").isValid).toBe(false);
+  test("should return invalid if BIC is empty", () => {
+    expect(isValidBic(null).isValid).toBe(false);
+    expect(isValidBic(undefined).isValid).toBe(false);
+    expect(isValidBic("").isValid).toBe(false);
+    expect(isValidBic(" ").isValid).toBe(false);
   });
 
   test("should return invalid if BIC is 7 chars long", () => {
-    expect(isValidBic("GENODES", "DE0123456789012").isValid).toBe(false);
+    expect(isValidBic("GENODES").isValid).toBe(false);
   });
 
   test("should return invalid if BIC is 9 chars long", () => {
-    expect(isValidBic("GENODES1D", "DE0123456789012").isValid).toBe(false);
+    expect(isValidBic("GENODES1D").isValid).toBe(false);
   });
 
   test("should return invalid if BIC is 10 chars long", () => {
-    expect(isValidBic("GENODES1DE", "DE0123456789012").isValid).toBe(false);
+    expect(isValidBic("GENODES1DE").isValid).toBe(false);
   });
 
   test("should return invalid if BIC is 12 chars long", () => {
-    expect(isValidBic("GENODES1DEHI", "DE0123456789012").isValid).toBe(false);
+    expect(isValidBic("GENODES1DEHI").isValid).toBe(false);
   });
 
   // UNICODE FULL TEST
