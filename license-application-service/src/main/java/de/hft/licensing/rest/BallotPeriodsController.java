@@ -47,6 +47,34 @@ public class BallotPeriodsController implements BallotPeriodsApi {
 
     @Override
     @AdminOnly
+    public ResponseEntity<List<BallotPeriodResource>> listBallotPeriods() {
+        List<BallotPeriodRecord> ballotPeriodRecords = dslContext.selectFrom(BallotPeriod.BALLOT_PERIOD)
+                .orderBy(BallotPeriod.BALLOT_PERIOD.ID.desc())
+                .fetchInto(BallotPeriodRecord.class);
+
+        List<BallotPeriodResource> ballotPeriodResources = ballotPeriodRecords.stream().map(record -> {
+            BallotPeriodResource resource = new BallotPeriodResource();
+            RecordToResourceMapperUtil.mapBallotPeriodRecordToResource(record, resource);
+            return resource;
+        }).toList();
+
+        // Set amount of applications for each ballot period
+        for (BallotPeriodResource resource : ballotPeriodResources) {
+            Integer applicationCount = dslContext.fetchCount(
+                    dslContext.select()
+                            .from(BallotPeriod.BALLOT_PERIOD)
+                            .join(Ballot.BALLOT)
+                                .on(Ballot.BALLOT.BALLOT_PERIOD_ID.eq(BallotPeriod.BALLOT_PERIOD.ID))
+                            .where(BallotPeriod.BALLOT_PERIOD.ID.eq(resource.getBallotPeriodId()))
+            );
+            resource.setTotalApplications(applicationCount);
+        }
+
+        return ResponseEntity.ok(ballotPeriodResources);
+    }
+
+    @Override
+    @AdminOnly
     @Transactional
     public ResponseEntity<BallotPeriodResource> createBallotPeriod(CreateBallotPeriodRequest createBallotPeriodRequest) {
         if (createBallotPeriodRequest == null
