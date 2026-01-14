@@ -132,7 +132,7 @@ export default function BallotDashboard() {
 
                       <td className="w-1/5 border-b border-black/10 p-2.5 text-center">
                         <span
-                          className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-56 rounded-md font-semibold ${statusClass}`}
+                          className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-[140px] truncate rounded-md font-semibold ${statusClass}`}
                         >
                           {localizedStatus}
                         </span>

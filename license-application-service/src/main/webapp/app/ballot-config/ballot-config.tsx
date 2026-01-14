@@ -95,7 +95,7 @@ export default function BallotConfig() {
         case 201:
         case 200:
           alert(t("ballotConfig.alerts.success"));
-          navigate("/ballot-dashboard");
+          navigate("/");
           break;
 
         default:
