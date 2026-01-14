@@ -1141,6 +1141,8 @@
     "overview": {
       "title": "Ballot Overview",
       "ballotId": "Ballot Id",
+      "subtitle": "Ballot Details",
+      "applicationPeriod": "Application Period (DD/MM/YYYY)",
       "licenseType": "License Type",
       "status": "Status",
       "ballotYear": "Ballot year",

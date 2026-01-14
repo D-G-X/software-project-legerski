@@ -9,7 +9,10 @@ import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import Pagination from "../common/Pagination";
 import DUMMY_APPLICATIONS from "./mock-applications";
+import { useGetBallotPeriodDetails } from "app/services/ballot-periods/ballot-periods";
+import { formatDateShort } from "app/common/format";
 import { getApplicationStatusColor } from "../common/format";
+import { getBallotStatus, getStatusClass } from "app/common/ballotUtils";
 import { ChevronLeft, FileText } from "lucide-react";
 import AdminApplicationDetails from "app/admin-dashboard/admin-applicationDetails";
 
@@ -26,6 +29,19 @@ function BallotApplications() {
   const navigate = useNavigate();
 
   useDocumentTitle(t("ballotDetails.overview.title"));
+
+  const { data: ballotDetails, isFetching: isBallotFetching } =
+    useGetBallotPeriodDetails(periodParam, {
+      axios: {
+        headers: {
+          Authorization: `Bearer ${auth?.accessToken}`,
+        },
+      },
+      query: {
+        enabled: periodEnabled,
+        select: (res) => res.data,
+      },
+    });
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -50,8 +66,8 @@ function BallotApplications() {
     applications.length > 0 ? applications : DUMMY_APPLICATIONS;
 
   useEffect(() => {
-    isFetching ? show() : hide();
-  }, [isFetching, show, hide]);
+    isFetching || isBallotFetching ? show() : hide();
+  }, [isFetching, isBallotFetching, show, hide]);
 
   const sorted = [...displayApplications].sort(
     (a, b) => Number(a.id) - Number(b.id)
@@ -72,11 +88,24 @@ function BallotApplications() {
     setSelectedEntry(null);
   };
 
+  const ballotStart = ballotDetails?.start_date
+    ? new Date(ballotDetails.start_date)
+    : undefined;
+  const ballotEnd = ballotDetails?.end_date
+    ? new Date(ballotDetails.end_date)
+    : undefined;
+  const ballotStatus =
+    ballotStart && ballotEnd
+      ? getBallotStatus(ballotStart, ballotEnd, new Date(), t)
+      : t("ballotStatus.upcoming");
+  const ballotStatusClass = getStatusClass(ballotStatus);
+
   return (
     <div className="min-h-[calc(100vh-8rem)] w-[90%] mx-[5%] border border-transparent">
       <div className="relative bg-white w-full">
         <div className={"w-full my-8 flex justify-between items-end"}>
-          <FormHeader heading={t("ballotDetails.overview.title")} />
+          <FormHeader heading={t("ballotApplications.title")} />
+
           <div>
             <button
               onClick={() => navigate(`/ballot-details/${periodParam}`)}
@@ -85,6 +114,49 @@ function BallotApplications() {
               <ChevronLeft />
               Back
             </button>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-md p-4 pt-2 mb-4">
+          <div className="flex flex-wrap gap-6 items-center justify-between">
+            <div className="text-center w-[15%]">
+              <div className="text-black/60">
+                {t("ballotDetails.overview.ballotId")}
+              </div>
+              <div className="font-medium">
+                {ballotDetails?.ballot_period_id ?? periodParam}
+              </div>
+            </div>
+
+            <div className="text-center w-[15%]">
+              <div className="text-black/60">
+                {t("ballotDetails.overview.applicationPeriod")}
+              </div>
+              <div className="font-medium">
+                {formatDateShort(ballotDetails?.start_date, t)} —{" "}
+                {formatDateShort(ballotDetails?.end_date, t)}
+              </div>
+            </div>
+
+            <div className="text-center w-[15%]">
+              <div className="text-black/60">
+                {t("ballot-dashboard.table.totalApplication")}
+              </div>
+              <div className="font-medium">{displayApplications.length}</div>
+            </div>
+
+            <div className="text-center w-[15%]">
+              <div className="text-black/60">
+                {t("ballotDetails.overview.status")}
+              </div>
+              <div>
+                <div
+                  className={`font-medium px-3 py-1 rounded-md w-full ${ballotStatusClass}`}
+                >
+                  {ballotStatus}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
