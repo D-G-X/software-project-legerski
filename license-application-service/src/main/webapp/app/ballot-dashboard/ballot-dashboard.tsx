@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import Pagination from "../common/Pagination";
@@ -11,9 +11,12 @@ import {
 } from "app/common/ballotUtils";
 import { FormHeader } from "app/common/headingTitle";
 import { ExternalLink } from "lucide-react";
+import { useListBallotPeriods } from "app/services/ballot-periods/ballot-periods";
+import { AuthContext } from "app/common/AuthContext";
 
 export default function BallotDashboard() {
   const { t } = useTranslation();
+  const auth = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1); // This state is to hold number of the current page in pagination table
   const itemsPerPage = 10; // This state is to hold number of items per page in pagination table
   useDocumentTitle(t("home.index.headline"));
@@ -23,36 +26,38 @@ export default function BallotDashboard() {
     navigate(`/ballot-config`);
   }
 
-  const ballots = [
-    {
-      ballot_period_id: 16,
-      start_date: "2025-01-01T01:00:00Z",
-      end_date: "2025-01-31T02:00:00Z",
-      totalApplications: 75240,
+  const { data: ballotsRaw } = useListBallotPeriods({
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
     },
-    {
-      ballot_period_id: 17,
-      start_date: "2026-01-01T01:00:00Z",
-      end_date: "2026-01-31T02:00:00Z",
-      totalApplications: 75240,
+    query: {
+      select: (res) => res.data,
+      enabled: true,
     },
-    {
-      ballot_period_id: 18,
-      start_date: "2026-03-01T01:00:00Z",
-      end_date: "2026-03-31T02:00:00Z",
-      totalApplications: 75240,
-    },
-  ];
+  });
 
-  const totalPage = Math.ceil(ballots.length / itemsPerPage);
+  const ballots = ballotsRaw ?? [];
+  const sortedBallots = [...ballots].sort(
+    (a, b) => Number(a.ballot_period_id) - Number(b.ballot_period_id)
+  );
 
-  const currentData = ballots.slice(
+  const totalPage = Math.ceil(sortedBallots.length / itemsPerPage);
+
+  const currentData = sortedBallots.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
   return (
-    <div className={"min-h-[calc(100vh-8rem)] w-[90%] mx-[5%]"}>
+    // added border becoz the div is not taking proper content height if there is no border
+    // weird af :)
+    <div
+      className={
+        "min-h-[calc(100vh-8rem)] w-[90%] mx-[5%] border border-transparent"
+      }
+    >
       <div className="relative bg-white w-full">
         <div className={"w-full my-8 flex justify-between items-end"}>
           <FormHeader heading={t("ballot-dashboard.headline")} />
