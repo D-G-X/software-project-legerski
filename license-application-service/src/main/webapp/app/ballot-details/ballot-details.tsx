@@ -10,35 +10,11 @@ import { AuthContext } from "app/common/AuthContext";
 import { useGlobalLoader } from "app/common/GlobalLoader";
 import { useGetBallotPeriodDetails } from "app/services/ballot-periods/ballot-periods";
 import { FormHeader } from "app/common/headingTitle";
-import { TFunction } from "i18next";
-
-// Compute ballot status from start/end dates
-function getBallotStatus(
-  startDate: Date,
-  endDate: Date,
-  now: Date = new Date(),
-  t: TFunction<"translation", "ballotDetails">
-) {
-  if (
-    !(startDate instanceof Date) ||
-    isNaN(startDate.getTime()) ||
-    !(endDate instanceof Date) ||
-    isNaN(endDate.getTime())
-  ) {
-    return t("status.upcoming");
-  }
-
-  if (now >= startDate && now <= endDate) return t("status.active");
-  if (now > endDate) return t("status.completed");
-  return t("status.upcoming");
-}
-
-// Return a Date offset by `days` after `endDate` (default 7 days)
-function getDrawDate(endDate: Date, days = 7): Date {
-  const d = new Date(endDate);
-  d.setDate(d.getDate() + days);
-  return d;
-}
+import {
+  getBallotStatus,
+  getDrawDate,
+  getStatusClass,
+} from "app/common/ballotUtils";
 
 const BallotDetails: React.FC = () => {
   const params = useParams<{ id?: string }>();
@@ -47,7 +23,7 @@ const BallotDetails: React.FC = () => {
   const periodParam: number = Number.isFinite(parsed) ? parsed : -1;
   const periodEnabled = Number.isFinite(parsed);
 
-  const { t } = useTranslation(undefined, { keyPrefix: "ballotDetails" });
+  const { t } = useTranslation();
   const auth = useContext(AuthContext);
   const { show, hide } = useGlobalLoader();
   const navigate = useNavigate();
@@ -77,12 +53,12 @@ const BallotDetails: React.FC = () => {
     const errorMessage =
       (error as any)?.response?.data?.message ||
       (error as any)?.message ||
-      t("errors.unableToLoad");
+      t("ballotDetails.errors.unableToLoad");
     return (
       <div className="min-h-screen bg-white font-inter flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 text-lg font-medium">
-            {t("errors.failedToLoad")}
+            {t("ballotDetails.errors.failedToLoad")}
           </p>
           <p className="text-gray-500 mt-2 text-sm">{errorMessage}</p>
         </div>
@@ -94,30 +70,36 @@ const BallotDetails: React.FC = () => {
   const endDate = new Date(ballot?.end_date as string);
 
   const status = getBallotStatus(startDate, endDate, new Date(), t);
-  console.log(status);
+  const statusClass = getStatusClass(status);
   const drawDate = getDrawDate(endDate, 7);
 
   return (
     <div className="min-h-[calc(100vh-8rem)] bg-white font-inter flex items-center justify-center">
       <main className="flex-1">
         <div className="max-w-5xl mx-auto px-6 py-6">
-          <FormHeader className="mb-6" heading={t("overview.title")} />
+          <FormHeader
+            className="mb-6"
+            heading={t("ballotDetails.overview.title")}
+          />
 
           <div className="bg-gray-50 rounded-md divide-y divide-gray-200">
-            <Row label={t("overview.ballotId")}>
+            <Row label={t("ballotDetails.overview.ballotId")}>
               <span className="font-medium">{ballot?.ballot_period_id}</span>
             </Row>
 
             <Row label={t("overview.licenseType")}>
               <div className="flex gap-2">
-                <Pill>{t("license.etv")}</Pill>
-                <Pill>{t("license.etvpl")}</Pill>
-                <Pill>{t("license.etv60")}</Pill>
+                <Pill>{t("ballotDetails.license.etv")}</Pill>
+                <Pill>{t("ballotDetails.license.etvpl")}</Pill>
+                <Pill>{t("ballotDetails.license.etv60")}</Pill>
               </div>
             </Row>
 
-            <Row label={t("overview.status")}>
-              <span className="bg-purple-300 text-black font-medium px-4 py-1 rounded-md border border-purple-500">
+            <Row label={t("ballotDetails.overview.status")}>
+              {/* implement status class */}
+              <span
+                className={`font-medium px-4 py-1 rounded-md ${statusClass}`}
+              >
                 {status}
               </span>
             </Row>
@@ -126,29 +108,31 @@ const BallotDetails: React.FC = () => {
           <div className="h-3" />
 
           <div className="bg-gray-50 rounded-md divide-y divide-gray-200">
-            <Row label={t("overview.ballotYear")}>
+            <Row label={t("ballotDetails.overview.ballotYear")}>
               <ValuePill>{startDate.getFullYear()}</ValuePill>
             </Row>
 
-            <Row label={t("overview.approvedCap")}>
-              <span className="font-medium">{t("values.approvedCap")}</span>
+            <Row label={t("ballotDetails.overview.approvedCap")}>
+              <span className="font-medium">
+                {t("ballotDetails.values.approvedCap")}
+              </span>
             </Row>
           </div>
 
           {/* BALLOT TIMELINE */}
           <h2 className="text-lg font-semibold mt-8 mb-3">
-            {t("timeline.title")}
+            {t("ballotDetails.timeline.title")}
           </h2>
 
           <div className="bg-gray-50 rounded-md divide-y divide-gray-200">
-            <Row label={t("timeline.applicationPeriod")}>
+            <Row label={t("ballotDetails.timeline.applicationPeriod")}>
               <ValuePill>
                 {startDate.toLocaleDateString()} –{" "}
                 {endDate.toLocaleDateString()}
               </ValuePill>
             </Row>
 
-            <Row label={t("timeline.drawingDate")}>
+            <Row label={t("ballotDetails.timeline.drawingDate")}>
               <ValuePill>{drawDate.toLocaleDateString()}</ValuePill>
             </Row>
           </div>
@@ -160,14 +144,14 @@ const BallotDetails: React.FC = () => {
                 onClick={() => navigate("/ballot-entries")}
                 className="w-48 bg-mallorca-purple text-white px-6 py-2 rounded-lg font-medium text-center"
               >
-                {t("actions.viewApplications")}
+                {t("ballotDetails.actions.viewApplications")}
               </button>
 
               <button
                 onClick={() => navigate("/")}
                 className="w-48 border border-gray-400 px-6 py-2 rounded-lg font-medium text-center"
               >
-                {t("actions.cancel")}
+                {t("ballotDetails.actions.cancel")}
               </button>
             </div>
           </div>
