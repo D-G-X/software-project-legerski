@@ -87,7 +87,7 @@ const BallotDetails: React.FC = () => {
               <span className="font-medium">{ballot?.ballot_period_id}</span>
             </Row>
 
-            <Row label={t("overview.licenseType")}>
+            <Row label={t("ballotDetails.overview.licenseType")}>
               <div className="flex gap-2">
                 <Pill>{t("ballotDetails.license.etv")}</Pill>
                 <Pill>{t("ballotDetails.license.etvpl")}</Pill>

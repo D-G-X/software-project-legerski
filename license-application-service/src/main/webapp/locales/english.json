@@ -209,6 +209,19 @@
       "action": "Details"
     }
   },
+  "ballotApplications": {
+    "title": "Ballot Applications",
+    "table": {
+      "applicationId": "Application ID",
+      "licenseType": "License Type",
+      "cadastralNumber": "Cadastral Number",
+      "appliedAt": "Applied On",
+      "status": "Status",
+      "action": "View Application",
+      "view": "View"
+    },
+    "noEligible": "There are no eligible applications in ballot"
+  },
   "ballotStatus": {
     "active": "Active",
     "upcoming": "Upcoming",
