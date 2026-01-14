@@ -166,10 +166,6 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                 .and(Application.APPLICATION.APPLICATION_STATUS.eq(ApplicationStatus.submitted))
                 .fetchInto(ApplicationRecord.class);
 
-        if (applicationRecords.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         List<ApplicationResource> applicationResources = applicationRecords.stream().map(applicationRecord -> {
             ApplicationResource applicationResource = new ApplicationResource();
             RecordToResourceMapperUtil.mapApplicationRecordToResource(applicationRecord, applicationResource);

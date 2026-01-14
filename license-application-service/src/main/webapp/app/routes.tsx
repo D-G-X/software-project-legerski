@@ -16,12 +16,12 @@ import DeleteProfile from "./delete-profile/deleteProfile";
 import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
 import BallotDetails from "./ballot-details/ballot-details";
-import AdminDashboard from "./admin-dashboard/admin-dashboard";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
 import NotificationSettings from "./notification-setting/notification-setting";
 import IssuedLicensePage from "./issued-license/issued-license";
 import { ProtectedLoader } from "./common/ProtectedLoader";
 import BallotConfig from "./ballot-config/ballot-config";
+import BallotApplications from "./ballot-applications/ballot-applications";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
@@ -86,11 +86,11 @@ export default function AppRoutes() {
         },
 
         // Admin-only routes
-        {
-          path: "admin-dashboard",
-          element: <AdminDashboard />,
-          loader: ProtectedLoader(["admin"]),
-        },
+        // {
+        //   path: "admin-dashboard",
+        //   element: <AdminDashboard />,
+        //   loader: ProtectedLoader(["admin"]),
+        // },
         {
           path: "ballot-config",
           element: <BallotConfig />,
@@ -104,6 +104,11 @@ export default function AppRoutes() {
         {
           path: "ballot-details/:id",
           element: <BallotDetails />,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-applications/:id",
+          element: <BallotApplications />,
           loader: ProtectedLoader(["admin"]),
         },
         {
