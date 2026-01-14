@@ -11,6 +11,7 @@ import Pagination from "../common/Pagination";
 import DUMMY_APPLICATIONS from "./mock-applications";
 import { getApplicationStatusColor } from "../common/format";
 import { ChevronLeft, FileText } from "lucide-react";
+import AdminApplicationDetails from "app/admin-dashboard/admin-applicationDetails";
 
 function BallotApplications() {
   const params = useParams<{ id?: string }>();
@@ -61,6 +62,15 @@ function BallotApplications() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // State for Application Details Modal
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<any>(null);
+
+  const closeDetails = () => {
+    setIsDetailsOpen(false);
+    setSelectedEntry(null);
+  };
 
   return (
     <div className="min-h-[calc(100vh-8rem)] w-[90%] mx-[5%] border border-transparent">
@@ -143,7 +153,10 @@ function BallotApplications() {
                         <td className="w-1/6 border-b border-black/10 p-2.5 px-15 text-center">
                           <button
                             className="text-mallorca-purple underline cursor-pointer hover:bg-mallorca-purple/25 p-1 rounded"
-                            onClick={() => navigate(`/applications/${item.id}`)}
+                            onClick={() => {
+                              setSelectedEntry(item);
+                              setIsDetailsOpen(true);
+                            }}
                           >
                             <FileText />
                           </button>
@@ -173,6 +186,17 @@ function BallotApplications() {
             numberOfItems={displayApplications.length}
           />
         </div>
+      </div>
+      <div>
+        {/* Application Details Modal */}
+        {isDetailsOpen && (
+          <AdminApplicationDetails
+            open={isDetailsOpen}
+            userId={selectedEntry?.user_id}
+            applicationData={selectedEntry}
+            onClose={closeDetails}
+          />
+        )}
       </div>
     </div>
   );
