@@ -2,6 +2,7 @@ package de.hft.licensing.rest;
 
 import de.hft.licensing.api.LicensesApi;
 import de.hft.licensing.db.enums.LicenseStatus;
+import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.License;
 import de.hft.licensing.db.tables.records.LicenseRecord;
 import de.hft.licensing.model.LicenseResource;
@@ -67,9 +68,20 @@ public class LicensesController implements LicensesApi {
                 .where(License.LICENSE.ID.eq(licenseId))
                 .fetchOneInto(LicenseRecord.class);
 
+        var cadastralReference = dsl
+                .select(Application.APPLICATION.CADASTRAL_REFERENCE)
+                .from(License.LICENSE)
+                .join(Application.APPLICATION)
+                .on(License.LICENSE.APPLICATION_ID.eq(Application.APPLICATION.ID))
+                .where(License.LICENSE.ID.eq(licenseId))
+                .fetchOne(Application.APPLICATION.CADASTRAL_REFERENCE);
+
         if (dbLicense != null){
             LicenseResource apiLicense = new LicenseResource();
             RecordToResourceMapperUtil.mapLicenseRecordToResource(dbLicense, apiLicense);
+            if(cadastralReference != null) {
+                apiLicense.setCadastralReference(cadastralReference);
+            }
             return ResponseEntity.ok(apiLicense);
         }
         return ResponseEntity.notFound().build();
@@ -110,8 +122,19 @@ public class LicensesController implements LicensesApi {
         }
 
         for(LicenseRecord dbLicense : dbLicenses){
+            var cadastralReference = dsl
+                    .select(Application.APPLICATION.CADASTRAL_REFERENCE)
+                    .from(License.LICENSE)
+                    .join(Application.APPLICATION)
+                    .on(License.LICENSE.APPLICATION_ID.eq(Application.APPLICATION.ID))
+                    .where(License.LICENSE.ID.eq(dbLicense.getId()))
+                    .fetchOne(Application.APPLICATION.CADASTRAL_REFERENCE);
+
             LicenseResource apiLicense = new LicenseResource();
             RecordToResourceMapperUtil.mapLicenseRecordToResource(dbLicense, apiLicense);
+            if (cadastralReference != null) {
+                apiLicense.setCadastralReference(cadastralReference);
+            }
             apiLicenses.add(apiLicense);
         }
 

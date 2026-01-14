@@ -143,6 +143,33 @@ paths:
         "400":
           description: Bad request - invalid input data
 
+  /change-userdetails:
+    post:
+      tags: [ Authentication ]
+      summary: Change user details
+      description: Change the lastname or the email of a user
+      operationId: changeUserDetails
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeUserdetailsRequest"
+      responses:
+        "201":
+          description: Details changed successfully
+        "400":
+          description: Bad request - invalid input data
+        "409":
+          description: Conflict - email already in use
+
   /users:
     get:
       tags: [Users]
@@ -699,6 +726,22 @@ paths:
           description: Application not found
 
   /ballot-periods:
+    get:
+      tags: [Ballot Periods]
+      summary: List all ballot periods
+      description: Retrieve a list of all ballot periods, including their start and end dates.
+      operationId: listBallotPeriods
+      responses:
+        "200":
+          description: List of ballot periods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BallotPeriodResource"
+        "401":
+          description: Unauthorized
     post:
       tags: [Ballot Periods]
       summary: Create a ballot period
@@ -806,6 +849,7 @@ paths:
       description: >
         Triggers the allocation (lottery) process for this ballot period,
         assigning selected status as true/false to eligible applications within the given period.
+        It is important to note, that a period has to be over.
       operationId: runLotteryForBallotPeriod
       parameters:
         - in: path
@@ -844,6 +888,8 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/ApplicationResource"
+        "400":
+          description: Bad request - invalid input data. Can be caused because period is not over yet
 
   /licenses:
     get:
@@ -1165,6 +1211,33 @@ components:
           description: Confirmation message.
           example: User registered successfully. Please verify your email to activate the account.
 
+    ChangeUserdetailsRequest:
+      type: object
+      description: Request payload for user details change.
+      additionalProperties: false
+      minProperties: 2
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: User's unique identifier.
+          example: f28d1d3b-9bcb-4a74-a65a-2fede2b0a6c3
+        firstname:
+          type: string
+          description: User's new first name.
+          example: John
+        lastname:
+          type: string
+          description: User's new last name.
+          example: Doe
+        email:
+          type: string
+          format: email
+          description: User's new email address.
+          example: johndoe@email.com
+      required:
+        - userId
+
     ResetPasswordRequest:
       type: object
       description: Request payload for initiating a password reset.
@@ -1350,6 +1423,12 @@ components:
           format: date-time
           description: Expiry date/time of the license.
           example: 2028-07-01T10:00:00Z
+        cadastral_reference:
+          type: string
+          minLength: 20
+          maxLength: 20
+          description: Unique cadastral code (property reference).
+          example: 1234567AB9999C0001DE
       required:
         - id
         - user_id
@@ -1590,14 +1669,14 @@ components:
         - DOCUMENTS_SUBMITTED # Documents uploaded
         - VERIFICATION_PENDING # Awaiting verification
         - AWAITING_PAYMENT # Waiting for user payment
-        - PAYMENT_RECEIVED # Payment completed
+        - PAYMENT_RECEIVED # Payment details received
         - SUBMITTED # Application formally submitted
         - IN_BALLOT # Entered into selection/ballot
         - SELECTED # Chosen/approved via ballot
         - NOT_SELECTED # Not chosen in ballot
         - UNDER_REVIEW # In manual review process
         - APPROVED # License approved
-        - REJECTED # Application rejected
+        - REJECTED # Application rejected or payment denied
         - EXPIRED # Application expired (not continued)
         - CANCELLED # Withdrawn/cancelled by user
 
@@ -1685,6 +1764,9 @@ components:
           type: string
           format: date-time
           description: Ballot period end, ISO 8601 format
+        totalApplications:
+          type: integer
+          description: Total number of applications received in this ballot period
 
     CurrentBallotPeriodResource:
       type: object

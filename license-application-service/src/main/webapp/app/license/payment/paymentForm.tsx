@@ -212,7 +212,7 @@ export default function PaymentConfirm() {
     // validations
     const nameVal = isValidName(normalizedName);
     const ibanVal = isValidIban(normalizedIban);
-    const bicVal = isValidBic(normalizedBic, normalizedIban);
+    const bicVal = isValidBic(normalizedBic);
 
     const newErrors = {
       name: nameVal.isValid ? "" : nameVal.message,
@@ -230,11 +230,6 @@ export default function PaymentConfirm() {
     }
 
     setErrors({ name: "", iban: "", bic: "", sepaMandateCheck: "", pay: "" });
-
-    // ES IBAN → clear BIC if invalid
-    if (normalizedIban.startsWith("ES") && !bicVal.isValid) {
-      setForm((prev) => ({ ...prev, bic: "" }));
-    }
 
     const postData: ApplicationPaymentCreate = {
       application_id: applicationId,
@@ -438,10 +433,9 @@ export default function PaymentConfirm() {
                       : "top-3.5 text-base text-mallorca-purple/50"
                   } peer-focus:-top-2 peer-focus:text-xs peer-focus:text-mallorca-purple`}
                 >
-                  {t("license.paymentForm.index.bicLabel")}
                   {!form.bic &&
                     !bicFocused &&
-                    t("license.paymentForm.index.bicLabelOptional")}
+                    t("license.paymentForm.index.bicLabel")}
                 </label>
                 {errors.bic && (
                   <div className="text-red-500 my-1 pl-4 text-xs">

@@ -8,7 +8,7 @@ import {
   LicenseResource,
   UserResource,
 } from "../../types";
-import { Minimize2 } from "lucide-react";
+import {CircleX} from "lucide-react";
 import { useListPayments } from "../services/payments/payments";
 import {
   useDeleteLicense,
@@ -17,10 +17,10 @@ import {
 } from "../services/licenses/licenses";
 import { useGetApplicationDocuments } from "../services/document-verification/document-verification";
 import {
-  formatAmount,
+  formatAmount, formatStatusLabel,
   formatBic,
   formatDateLong,
-  formatIban,
+  formatIban, getApplicationStatusColor, getDocumentStatusColor, getLicenseStatusColor, getPaymentStatusColor,
 } from "../common/format";
 import ConfirmPopup from "../common/confirmPopup";
 import { useQueryClient } from "@tanstack/react-query";
@@ -35,50 +35,36 @@ interface ApplicationDetailsProps {
   onRenew: () => void;
 }
 
-const SHOW_LICENSE_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"] as const;
+const SHOW_LICENSE_STATUSES = ["SELECTED"] as const;
 
 const SHOW_DOCUMENT_STATUSES = [
-  "SELECTED",
-  "PAYMENT_RECEIVED",
-  "SUBMITTED",
-  "UNDER_REVIEW",
-  "AWAITING_PAYMENT",
-  "APPROVED",
-  "IN_BALLOT",
-  "CANCELLED",
-  "REJECTED",
-  "NOT_SELECTED",
   "DOCUMENTS_SUBMITTED",
   "VERIFICATION_PENDING",
+  "AWAITING_PAYMENT",
+  "PAYMENT_RECEIVED",
+  "SUBMITTED",
+  "IN_BALLOT",
+  "SELECTED",
+  "NOT_SELECTED",
+  "UNDER_REVIEW",
+  "APPROVED",
+  "REJECTED",
+  "EXPIRED",
+  "CANCELLED",
 ] as const;
 
 const SHOW_PAYMENT_STATUSES = [
-  "SELECTED",
   "PAYMENT_RECEIVED",
   "SUBMITTED",
-  "UNDER_REVIEW",
-  "APPROVED",
   "IN_BALLOT",
-  "CANCELLED",
-  "REJECTED",
+  "SELECTED",
   "NOT_SELECTED",
-] as const;
-
-const BLUE_STATUSES = [
-  "SUBMITTED",
   "UNDER_REVIEW",
-  "AWAITING_PAYMENT",
   "APPROVED",
-  "IN_BALLOT",
-];
-
-const GREEN_STATUSES = ["SELECTED", "PAYMENT_RECEIVED"];
-
-const RED_STATUSES = ["CANCELLED", "REJECTED", "NOT_SELECTED"];
-
-const GREY_STATUSES = ["DRAFT", "EXPIRED"];
-
-const ORANGE_STATUSES = ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING"];
+  "REJECTED",
+  "EXPIRED",
+  "CANCELLED",
+] as const;
 
 function useGetLicenseData(userId: string, applicationId: number) {
   const { data: listResponse } = useListLicenses({ user_id: userId });
@@ -121,7 +107,7 @@ function useGetPaymentData(applicationId: number) {
     },
   });
 
-  return response?.data?.[-1]; // Get the latest payment
+  return response?.data.at(-1); // Get the latest payment
 }
 
 export default function ApplicationDetails({
@@ -135,15 +121,14 @@ export default function ApplicationDetails({
   if (!open || !applicationData) {
     console.log("ApplicationDetails: not open");
     return null;
-  } else {
-    console.log("ApplicationDetails: open");
   }
+
   const { t } = useTranslation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const openPopup = () => setIsPopupOpen(true);
   const closePopup = () => setIsPopupOpen(false);
 
-  if (!applicationData || !userData || !applicationData.id || !userData.id) {
+  if (!applicationData || !userData || !applicationData?.id || !userData?.id) {
     alert("Missing application or user data");
     return null;
   }
@@ -152,21 +137,21 @@ export default function ApplicationDetails({
   let paymentData: ApplicationPaymentResource | undefined;
 
   if (
-    SHOW_LICENSE_STATUSES.includes(applicationData.application_status as any)
+    SHOW_LICENSE_STATUSES.includes(applicationData?.application_status as any)
   ) {
-    licenseData = useGetLicenseData(userData.id, applicationData.id);
+    licenseData = useGetLicenseData(userData?.id, applicationData?.id);
   }
 
   if (
-    SHOW_DOCUMENT_STATUSES.includes(applicationData.application_status as any)
+    SHOW_DOCUMENT_STATUSES.includes(applicationData?.application_status as any)
   ) {
-    documentData = useGetDocumentData(applicationData.id);
+    documentData = useGetDocumentData(applicationData?.id);
   }
 
   if (
-    SHOW_PAYMENT_STATUSES.includes(applicationData.application_status as any)
+    SHOW_PAYMENT_STATUSES.includes(applicationData?.application_status as any)
   ) {
-    paymentData = useGetPaymentData(applicationData.id);
+    paymentData = useGetPaymentData(applicationData?.id);
   }
 
   const queryClient = useQueryClient();
@@ -188,7 +173,7 @@ export default function ApplicationDetails({
 
   function handleReleaseLicense() {
     if (!licenseData?.id) return;
-    deleteLicense({ licenseId: licenseData.id });
+    deleteLicense({ licenseId: licenseData?.id });
     closePopup();
   }
 
@@ -206,7 +191,7 @@ export default function ApplicationDetails({
           break;
       }
     } catch (err) {
-      alert("Error occured");
+      alert("Error occurred");
     }
   }
 
@@ -222,14 +207,14 @@ export default function ApplicationDetails({
       <div className="absolute inset-0" onClick={onClose} />
 
       <div className="container mx-auto px-4 md:px-6">
-        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex items-center justify-center rounded-xl overflow-y-auto">
+        <div className="relative min-h-[calc(50vh-8rem)] bg-white flex items-center justify-center rounded-xl overflow-y-auto">
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute flex top-4 right-4 items-center justify-center cursor-pointer px-3 py-1 rounded-md border
+            className="absolute flex top-4 left-4 items-center justify-center cursor-pointer px-2 py-2 rounded-full
              text-mallorca-purple/75 hover:bg-mallorca-purple/10"
           >
-            <Minimize2 />
+            <CircleX size={36} />
           </button>
           <div className="font-inter text-center">
             <div className="font-inter max-w-[calc(100vb-8rem)]">
@@ -269,37 +254,9 @@ export default function ApplicationDetails({
                     {t("applicationDetails.index.statusLabel") + ": "}
                   </span>
                   <span
-                    className={`${
-                      // green statuses: all selected
-                      GREEN_STATUSES.includes(
-                        applicationData?.application_status
-                      )
-                        ? "text-green-800"
-                        : // blue statuses: all in-review/submitted
-                        BLUE_STATUSES.includes(
-                            applicationData?.application_status
-                          )
-                        ? "text-blue-800"
-                        : // orange statuses: all in-process
-                        ORANGE_STATUSES.includes(
-                            applicationData?.application_status
-                          )
-                        ? "text-orange-800"
-                        : // red statuses: declined statuses
-                        RED_STATUSES.includes(
-                            applicationData?.application_status
-                          )
-                        ? "text-red-800"
-                        : // grey statuses: draft, expired
-                        GREY_STATUSES.includes(
-                            applicationData?.application_status
-                          )
-                        ? "text-gray-800 "
-                        : // fallback
-                          "text-mallorca-purple"
-                    }`}
+                    className={`text-${getApplicationStatusColor(applicationData?.application_status)}-600 font-semibold`}
                   >
-                    {applicationData?.application_status}
+                    {t(formatStatusLabel("applicationDetails.licenceStatus.", applicationData?.application_status))}
                   </span>
                 </div>
 
@@ -328,7 +285,7 @@ export default function ApplicationDetails({
               </div>
 
               {/* User fields */}
-              <div className="text-lg mt-4 text-mallorca-purple/70">
+              <div className="text-lg text-left mt-6 text-mallorca-purple/70 font-semibold">
                 {t("applicationDetails.index.user.label")}
               </div>
               <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
@@ -352,7 +309,7 @@ export default function ApplicationDetails({
                 applicationData?.application_status as any
               ) && (
                 <>
-                  <div className="text-lg mt-4 text-mallorca-purple/70">
+                  <div className="text-lg text-left mt-6 text-mallorca-purple/70 font-semibold">
                     {t("applicationDetails.index.license.label")}
                   </div>
 
@@ -369,7 +326,10 @@ export default function ApplicationDetails({
                         {t("applicationDetails.index.license.statusLabel") +
                           ": "}
                       </span>
-                      <span>{licenseData?.license_status}</span>
+                      <span
+                          className={`text-${getLicenseStatusColor(licenseData?.license_status)}-600 font-semibold`}
+                      >{formatStatusLabel("applicationDetails.licenseStatus.", licenseData?.license_status)}
+                      </span>
                     </div>
 
                     <div className="flex justify-between min-w-lg">
@@ -396,7 +356,7 @@ export default function ApplicationDetails({
                 applicationData?.application_status as any
               ) && (
                 <>
-                  <div className="text-lg mt-4 text-mallorca-purple/70">
+                  <div className="text-lg text-left mt-6 text-mallorca-purple/70 font-semibold">
                     {t("applicationDetails.index.documents.label")}
                   </div>
 
@@ -406,7 +366,9 @@ export default function ApplicationDetails({
                         {t("applicationDetails.index.documents.statusLabel") +
                           ": "}
                       </span>
-                      <span>{documentData?.status}</span>
+                      <span
+                          className={`text-${getDocumentStatusColor(documentData?.status)}-600 font-semibold`}
+                      >{t(formatStatusLabel("applicationDetails.documentStatus.", documentData?.status))}</span>
                     </div>
 
                     {documentData?.rejection_reason && (
@@ -428,7 +390,7 @@ export default function ApplicationDetails({
                 applicationData?.application_status as any
               ) && (
                 <>
-                  <div className="text-lg mt-4 text-mallorca-purple/70">
+                  <div className="text-lg text-left mt-6 text-mallorca-purple/70 font-semibold">
                     {t("applicationDetails.index.payment.label")}
                   </div>
 
@@ -486,7 +448,9 @@ export default function ApplicationDetails({
                         {t("applicationDetails.index.payment.statusLabel") +
                           ": "}
                       </span>
-                      <span>{paymentData?.payment_status}</span>
+                      <span
+                          className={`text-${getPaymentStatusColor(paymentData?.payment_status)}-600 font-semibold`}
+                      >{t(formatStatusLabel("applicationDetails.paymentStatus.", paymentData?.payment_status))}</span>
                     </div>
                   </div>
                 </>
@@ -502,10 +466,12 @@ export default function ApplicationDetails({
                 )}
               </div>
 
-              <div className="my-12 flex flex-line items-center jusify-center gap-4">
-                {licenseData?.id && (
+              <div className="my-8 flex flex-line items-center justify-center gap-4">
+                {/* Renew License Button */}
+                {["APPROVED", "EXPIRED"].includes(
+                    applicationData?.application_status
+                ) && (
                   <>
-                    {/* Renew License Button */}
                     <button
                       type="submit"
                       onClick={onRenew}
@@ -516,6 +482,9 @@ export default function ApplicationDetails({
                       {t("applicationDetails.buttons.renewLicenseLabel")}
                     </button>
                     {/* Release License Button */}
+                    {["APPROVED"].includes(
+                        applicationData?.application_status
+                    ) && (
                     <button
                       type="submit"
                       onClick={openPopup}
@@ -525,24 +494,23 @@ export default function ApplicationDetails({
                     >
                       {t("applicationDetails.buttons.releaseLicenseLabel")}
                     </button>
+                    )}
                   </>
                 )}
-              </div>
 
-              <div className="mt-2 mb-4">
                 {["DRAFT", "DOCUMENTS_SUBMITTED"].includes(
-                  applicationData.application_status
+                  applicationData?.application_status
                 ) && (
                   <button
                     onClick={() =>
                       handleCompleteApplication(
-                        applicationData.application_status,
-                        applicationData.id
+                        applicationData?.application_status,
+                        applicationData?.id
                       )
                     }
-                    className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 w-max"
+                    className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-8 w-max"
                   >
-                    {applicationData.application_status === "DRAFT"
+                    {applicationData?.application_status === "DRAFT"
                       ? "Edit"
                       : "Complete Payment"}
                   </button>

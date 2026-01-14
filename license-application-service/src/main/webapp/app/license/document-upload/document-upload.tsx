@@ -174,7 +174,6 @@ export default function ApplicationDocumentUpload() {
         "DOCUMENTS_SUBMITTED"
       ) {
         navigate("/payment/" + applicationID);
-        alert(t("license.document_upload.success_message"));
       } else if (
         applicationDetails.data?.data.application_status === "REJECTED"
       ) {
@@ -190,7 +189,7 @@ export default function ApplicationDocumentUpload() {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] px-5 xl:px-15 pt-4 bg-white">
+    <div className="h-[calc(100vh-8rem)] px-5 xl:px-15 pt-4 bg-white overflow-auto">
       <h1 className="text-mallorca-purple font-semibold tracking-wide text-2xl text-center py-4">
         {t("license.request.title")}
       </h1>
@@ -289,13 +288,33 @@ export default function ApplicationDocumentUpload() {
         </div>
       </div>
 
-      <div className="text-center">
-        <button
-          className="p-2 bg-mallorca-purple rounded-xl text-white w-full lg:w-[75%] xl:w-[50%] cursor-pointer"
-          onClick={handleSubmit}
-        >
-          Submit Documents
-        </button>
+      <div className="flex justify-center my-8">
+        <div className="w-full lg:w-[75%] xl:w-[50%]">
+          <div className="flex flex-col lg:flex-row items-center gap-3">
+            <button
+              className="p-2 bg-mallorca-purple border-2 border-mallorca-purple rounded-xl text-white w-full lg:flex-1 hover:bg-mallorca-red/75 hover:border-mallorca-red"
+              onClick={handleSubmit}
+            >
+              {t("license.document_upload.submitButton")}
+            </button>
+            <button
+              className="p-2  bg-mallorca-purple/75 border-2 border-mallorca-purple text-white rounded-xl w-full lg:flex-1 hover:bg-mallorca-red/75 hover:border-mallorca-red hover:text-white"
+              onClick={() => {
+                navigate(`/license-application-request/edit/${applicationID}`);
+              }}
+            >
+              {t("license.document_upload.goBackButton")}
+            </button>
+            <button
+              className="p-2 text-mallorca-purple border-2 border-mallorca-purple rounded-xl bg-white w-full lg:flex-1 hover:bg-mallorca-red/75 hover:border-mallorca-red hover:text-white"
+              onClick={() => {
+                navigate(`/`);
+              }}
+            >
+              {t("license.document_upload.uploadLater")}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

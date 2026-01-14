@@ -11,7 +11,7 @@ import { getUserIdFromToken } from "app/common/authTokenDecode";
 import { useGetUser } from "../services/users/users";
 import { InfoPopup } from "../common/infoPopup";
 import { useGetBallotPeriod } from "../services/ballot-periods/ballot-periods";
-import { formatDateShort } from "../common/format";
+import {formatDateShort, formatStatusLabel, getApplicationStatusColor} from "../common/format";
 import { useGlobalLoader } from "app/common/GlobalLoader";
 
 enum BallotStatus {
@@ -246,50 +246,11 @@ export function Dashboard() {
                         </td>
                         <td className="w-1/5 text-left border-b border-black/10 p-2.5">
                           <span
-                            className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-56 rounded-md ${
-                              // green
-                              ["SELECTED", "PAYMENT_RECEIVED"].includes(
-                                item.application_status
-                              )
-                                ? "text-green-800 bg-green-200"
-                                : // blue
-                                [
-                                    "SUBMITTED",
-                                    "UNDER_REVIEW",
-                                    "AWAITING_PAYMENT",
-                                    "APPROVED",
-                                    "IN_BALLOT",
-                                  ].includes(item.application_status)
-                                ? "text-blue-800 bg-blue-200"
-                                : [
-                                    "CANCELLED",
-                                    "REJECTED",
-                                    "NOT_SELECTED",
-                                  ].includes(item.application_status)
-                                ? "text-red-800 bg-red-200"
-                                : // grey
-                                ["DRAFT", "EXPIRED"].includes(
-                                    item.application_status
-                                  )
-                                ? "text-gray-800 bg-gray-200"
-                                : // orange (all in-process)
-                                [
-                                    "DOCUMENTS_SUBMITTED",
-                                    "VERIFICATION_PENDING",
-                                  ].includes(item.application_status)
-                                ? "text-orange-800 bg-orange-200"
-                                : // fallback
-                                  "text-mallorca-purple bg-mallorca-purple/10"
-                            }`}
+                              className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-56 rounded-md 
+                              text-${getApplicationStatusColor(item.application_status)}-800 
+                              bg-${getApplicationStatusColor(item.application_status)}-200 font-semibold`}
                           >
-                            {t(
-                              "dashboard.licenceStatus." +
-                                item.application_status
-                                  .toLowerCase()
-                                  .replace(/_([a-z])/g, (_, c) =>
-                                    c.toUpperCase()
-                                  ) // Camel case
-                            )}
+                            {t(formatStatusLabel("dashboard.licenceStatus.", item.application_status))}
                           </span>
                         </td>
 
@@ -320,7 +281,7 @@ export function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="mt-16 w-full text-mallorca-purple/25 text-5xl flex justify-center items-center h-full">
+            <div className="mt-48 w-full text-mallorca-purple/25 text-5xl flex justify-center items-center h-full">
               {t("dashboard.noApplications")}
             </div>
           )}

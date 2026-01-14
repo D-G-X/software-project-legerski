@@ -12,18 +12,23 @@ import de.hft.licensing.model.ApplicationPaymentCreate;
 import de.hft.licensing.model.ApplicationPaymentResource;
 import de.hft.licensing.utils.ApiFormValidator;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
-import java.math.BigDecimal;
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @RestController
 public class PaymentsController implements PaymentsApi {
+
+  private final int ETV_amount = 3500;
+  private final int ETVPL_amount = 875;
+  private final int ETV60_amount = 290;
 
   private final DSLContext dsl;
   private final ApiFormValidator formValidator = new ApiFormValidator();
@@ -45,8 +50,7 @@ public class PaymentsController implements PaymentsApi {
         applicationPaymentCreate.getBic() != null &&
         !formValidator.isValidName(applicationPaymentCreate.getName()) &&
         !formValidator.isValidIban(applicationPaymentCreate.getIban()) &&
-        !formValidator.isValidBic(applicationPaymentCreate.getBic(),
-            applicationPaymentCreate.getIban())
+        !formValidator.isValidBic(applicationPaymentCreate.getBic())
     ) {
       return ResponseEntity.badRequest().build();
     }
@@ -101,9 +105,6 @@ public class PaymentsController implements PaymentsApi {
 
   @Override
   public ResponseEntity<ApplicationFeeResource> getApplicationFee(Integer applicationId) {
-    final int ETV_amount = 3500;
-    final int ETVPL_amount = 875;
-    final int ETV60_amount = 290;
 
     if (applicationId == null) {
       return ResponseEntity.badRequest().build();

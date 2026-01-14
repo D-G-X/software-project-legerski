@@ -201,13 +201,18 @@
     "headline": "Ballot Information",
     "createNewBallot": "Create New Ballot",
     "table": {
-      "ballotName": "Ballot Name",
+      "ballotID": "Ballot ID",
       "status": "Status",
       "applicationPeriod": "Application Period (DD/MM/YYYY)",
       "drawingDate": "Drawing Date (DD/MM/YYYY)",
       "totalApplication": "Total Application",
-      "action": "Action"
+      "action": "Details"
     }
+  },
+  "ballotStatus": {
+    "active": "Active",
+    "upcoming": "Upcoming",
+    "completed": "Completed"
   },
   "applicationDetails": {
     "index": {
@@ -247,6 +252,30 @@
         "dateLabel": "Payment date",
         "statusLabel": "Payment status"
       }
+    },
+    "licenceStatus": {
+      "approved": "Approved",
+      "awaitingPayment": "Awaiting Payment",
+      "cancelled": "Cancelled",
+      "documentsSubmitted": "Documents Submitted",
+      "draft": "Draft",
+      "expired": "Expired",
+      "inBallot": "In Ballot",
+      "notSelected": "Not Selected",
+      "paymentReceived": "Payment Received",
+      "rejected": "Rejected",
+      "selected": "Selected",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "verificationPending": "Verification Pending"
+    },
+    "documentStatus": {
+      "verified": "Verified",
+      "rejected": "Rejected"
+    },
+    "paymentStatus": {
+      "unpaid": "Payment Received",
+      "paid": "Payment Completed"
     },
     "buttons": {
       "renewLicenseLabel": "Renew License",
@@ -433,7 +462,10 @@
         "fileRequired": "Please upload all required documents to proceed",
         "fileTypeError": "Only PDF files are allowed",
         "fileSizeError": "File size must be less than 10 MB"
-      }
+      },
+      "submitButton": "Submit Documents",
+      "goBackButton": "Edit application",
+      "uploadLater": "Upload Later"
     },
     "paymentForm": {
       "title": "Payment",
@@ -447,7 +479,6 @@
         "nameLabel": "Account holder",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "bicLabelOptional": " (optional for domestic SEPA transactions)",
         "acceptSepaMandateLabel": {
           "plain": "I have read and accept the",
           "button": "SEPA Mandate"
@@ -504,7 +535,6 @@
         "nameLabel": "Account holder",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "bicOptional": "not required",
         "dateLabel": "Payment date",
         "sendReceiptLabel": "Send payment receipt to",
         "receiptSentLabel": "Payment receipt sent!",
@@ -608,7 +638,7 @@
       "valid": "IBAN is valid"
     },
     "bic": {
-      "required": "BIC is required for non-domestic SEPA transactions",
+      "required": "BIC is required",
       "length": "BIC must be exactly 8 or 11 characters long",
       "specialChar": "BIC must not contain any special character",
       "invalid": "BIC is invalid",
@@ -950,7 +980,7 @@
       "usageAnalytics": "Usage analytics",
       "paymentInfo": "Payment Information",
       "accountHolder": "Account holder name",
-      "ibanBic": "IBAN / BIC (if account is non-domestic)",
+      "ibanBic": "IBAN / BIC",
       "paymentProcessor": "Payment Information is securely handled by a third-party payment processor (Banco Santander, S.A.). The Portal does not store bank account details."
     },
     "processingPurpose": {
@@ -1103,13 +1133,13 @@
       "ballotYear": "Ballot year",
       "approvedCap": "Approved License Cap"
     },
+    "values": {
+      "approvedCap": 2000
+    },
     "license": {
       "etv": "ETV",
       "etvpl": "ETVPL",
       "etv60": "ETV60"
-    },
-    "status": {
-      "completed": "Completed"
     },
     "timeline": {
       "title": "Ballot Timeline",
@@ -1122,7 +1152,17 @@
     },
     "actions": {
       "viewApplications": "View Applications",
-      "cancel": "Cancel"
+      "cancel": "Back to Dashboard"
+    },
+    "status": {
+      "active": "Active",
+      "upcoming": "Upcoming",
+      "completed": "Completed"
+    },
+    "errors": {
+      "unableToLoad": "Unable to load ballot details.",
+      "failedToLoad": "Failed to load ballot details",
+      "missingDates": "Missing dates for ballot."
     }
   }
 }
