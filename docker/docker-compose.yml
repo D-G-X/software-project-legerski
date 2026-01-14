@@ -1,0 +1,77 @@
+version: "3.9"
+
+networks:
+  license-application-network:
+    driver: bridge
+
+volumes:
+  kc_db:
+
+services:
+  postgres:
+    image: postgres:18.0
+    environment:
+      POSTGRES_DB: government
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: P4ssword!
+    volumes:
+      - kc_db:/var/lib/postgresql/data
+    networks:
+      - license-application-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    command: start-dev --import-realm
+    environment:
+      KC_FEATURES: scripts
+      KC_SCRIPTS_UPLOAD_ENABLED: "true"
+    depends_on:
+      - postgres
+    volumes:
+      - ./keycloak-import/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    expose:
+      - "8080"
+    networks:
+      - license-application-network
+
+  backend:
+    image: license-application-backend:latest
+    env_file:
+      - .env
+    deploy:
+      replicas: 2
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    expose:
+      - "8080"
+    depends_on:
+      - postgres
+      - keycloak
+    networks:
+      - license-application-network
+
+  mock-bank:
+    image: mock-bank:latest
+    expose:
+      - "8080"
+    networks:
+      - license-application-network
+
+  mock-document-validator:
+    image: mock-document-validator:latest
+    expose:
+      - "8080"
+    networks:
+      - license-application-network
+
+  nginx:
+    image: nginx:1.27
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - mock-document-validator
+    networks:
+      - license-application-network
