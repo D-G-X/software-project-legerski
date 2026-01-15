@@ -23,14 +23,16 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.0
-    command: start-dev --import-realm
+    command: start-dev --import-realm --features=scripts
     environment:
+      #KEYCLOAK_ADMIN: admin
+      #KEYCLOAK_ADMIN_PASSWORD: admin
       KC_FEATURES: scripts
       KC_SCRIPTS_UPLOAD_ENABLED: "true"
     depends_on:
       - postgres
     volumes:
-      - ./keycloak-import/realm-export.json:/opt/keycloak/data/import/realm-export.json
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
     expose:
       - "8080"
     ports:
