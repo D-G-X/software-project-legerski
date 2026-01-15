@@ -22,6 +22,12 @@ public class PaymentsControllerService {
         this.dslContext = dslContext;
     }
 
+    /**
+     * Calculates the fee amount based on the application ID.
+     *
+     * @param applicationId the ID of the application
+     * @return the calculated fee amount
+     */
     public BigDecimal calculateFeeAmount(Integer applicationId) {
         ApplicationRecord appRecord = dslContext.select()
                 .from(Application.APPLICATION)
