@@ -18,7 +18,7 @@ public class SchedulerDslService {
     }
 
     public int expireLicenses() {
-        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
         return dsl.update(License.LICENSE)
                 .set(License.LICENSE.LICENSE_STATUS, LicenseStatus.expired)
                 .where(License.LICENSE.LICENSE_STATUS.eq(LicenseStatus.active))

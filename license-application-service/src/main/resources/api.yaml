@@ -796,6 +796,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CurrentBallotPeriodResource"
+        "204":
+          description: No active ballot periods found
 
   /ballot-periods/{period_id}:
     get:

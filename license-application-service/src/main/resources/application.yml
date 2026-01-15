@@ -65,3 +65,6 @@ keycloak:
 
 mockbank:
   base-url: ${MOCK_BANK_BASE_URL}
+
+gdpr:
+  pepper: "mX0u6m5+7wGv3cK7m7f3bQp5m9w1a7Y8QmZQzHqv2mA="

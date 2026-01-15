@@ -87,7 +87,7 @@ const BallotDetails: React.FC = () => {
               <span className="font-medium">{ballot?.ballot_period_id}</span>
             </Row>
 
-            <Row label={t("overview.licenseType")}>
+            <Row label={t("ballotDetails.overview.licenseType")}>
               <div className="flex gap-2">
                 <Pill>{t("ballotDetails.license.etv")}</Pill>
                 <Pill>{t("ballotDetails.license.etvpl")}</Pill>
@@ -141,7 +141,9 @@ const BallotDetails: React.FC = () => {
           <div className="border-t bg-white mt-8">
             <div className="max-w-5xl mx-auto px-1 py-4 flex gap-4">
               <button
-                onClick={() => navigate("/ballot-entries")}
+                onClick={() =>
+                  navigate(`/ballot-applications/${ballot?.ballot_period_id}`)
+                }
                 className="w-48 bg-mallorca-purple text-white px-6 py-2 rounded-lg font-medium text-center"
               >
                 {t("ballotDetails.actions.viewApplications")}

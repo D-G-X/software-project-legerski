@@ -15,6 +15,7 @@ import org.jooq.Condition;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import java.util.List;
 @Service
 public class BallotDslService {
 
-    private static final ApplicationStatus STATUS_SUBMITTED = ApplicationStatus.submitted;
+    private static final ApplicationStatus STATUS_PAYMENT_RECEIVED = ApplicationStatus.payment_received;
     private static final ApplicationStatus STATUS_APPROVED  = ApplicationStatus.approved;
     private static final ApplicationStatus STATUS_REJECTED  = ApplicationStatus.rejected;
 
@@ -33,24 +34,26 @@ public class BallotDslService {
 
     private final DefaultDSLContext dsl;
 
-    public void insertApplicationInBallotTableAsSelected(int periodId, ApplicationRecord app) {
-        dsl.insertInto(Ballot.BALLOT)
-                .set(Ballot.BALLOT.BALLOT_PERIOD_ID, periodId)
-                .set(Ballot.BALLOT.APPLICATION_ID, app.getId())
+    /**
+     * Updates the ballot table to mark the given application as selected for the specified ballot period.
+     *
+     * @param periodId The ID of the ballot period.
+     * @param app      The application record to be marked as selected.
+     */
+    public void updateApplicationInBallotTableToSelected(int periodId, ApplicationRecord app) {
+        dsl.update(Ballot.BALLOT)
                 .set(Ballot.BALLOT.SELECTED, true)
+                .where(Ballot.BALLOT.APPLICATION_ID.eq(app.getId()))
+                .and(Ballot.BALLOT.BALLOT_PERIOD_ID.eq(periodId))
                 .execute();
 
     }
 
-    public void insertApplicationInBallotTableAsRejected(int periodId, ApplicationRecord app) {
-        dsl.insertInto(Ballot.BALLOT)
-                .set(Ballot.BALLOT.BALLOT_PERIOD_ID, periodId)
-                .set(Ballot.BALLOT.APPLICATION_ID, app.getId())
-                .set(Ballot.BALLOT.SELECTED, false)
-                .execute();
-
-    }
-
+    /**
+     * Updates the status of the given application to "approved".
+     *
+     * @param app The application record to be updated.
+     */
     public void updateApplicationStatusToApproved(ApplicationRecord app){
         dsl.update(Application.APPLICATION)
                 .set(Application.APPLICATION.APPLICATION_STATUS, STATUS_APPROVED)
@@ -58,6 +61,11 @@ public class BallotDslService {
                 .execute();
     }
 
+    /**
+     * Updates the status of the given application to "rejected".
+     *
+     * @param app The application record to be updated.
+     */
     public void updateApplicationStatusToRejected(ApplicationRecord app){
         dsl.update(Application.APPLICATION)
                 .set(Application.APPLICATION.APPLICATION_STATUS, STATUS_REJECTED)
@@ -65,9 +73,16 @@ public class BallotDslService {
                 .execute();
     }
 
-    public void createLicenseForApplication(ApplicationRecord applicationRecord, LicenseTypeApiEnum licenseType){
+    /**
+     * Creates a license for the given application.
+     *
+     * @param applicationRecord The application record for which the license is to be created.
+     * @param licenseType       The type of license to be created.
+     * @return The number of affected rows (should be 1 if successful).
+     */
+    public int createLicenseForApplication(ApplicationRecord applicationRecord, LicenseTypeApiEnum licenseType){
         LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
-        dsl.insertInto(License.LICENSE)
+        return dsl.insertInto(License.LICENSE)
                 .set(License.LICENSE.USER_ID, applicationRecord.getUserId())
                 .set(License.LICENSE.APPLICATION_ID, applicationRecord.getId())
                 .set(License.LICENSE.LICENSE_TYPE, (LicenseType) EnumMapperUtil.getPendantFromEnum(licenseType))
@@ -77,9 +92,17 @@ public class BallotDslService {
                 .execute();
     }
 
+    /**
+     * Retrieves candidate applications based on the specified criteria.
+     *
+     * @param startDate   The start date of the application period.
+     * @param endDate     The end date of the application period.
+     * @param licenseType The type of license to filter by (can be null).
+     * @return A list of candidate application records.
+     */
     public List<ApplicationRecord> getCandidateApplications (LocalDateTime startDate, LocalDateTime endDate, LicenseTypeApiEnum licenseType){
-        // all applications with status SUBMITTED and applied in period, if type != null filter by type
-        Condition condition = Application.APPLICATION.APPLICATION_STATUS.eq(STATUS_SUBMITTED)
+        // all applications with status payment_received and applied in period, if type != null filter by type
+        Condition condition = Application.APPLICATION.APPLICATION_STATUS.eq(STATUS_PAYMENT_RECEIVED)
                 .and(Application.APPLICATION.APPLIED_AT.le(endDate))
                 .and(Application.APPLICATION.APPLIED_AT.ge(startDate));
         if (licenseType != null) {
@@ -93,19 +116,39 @@ public class BallotDslService {
         );
     }
 
+    /**
+     * Retrieves a ballot period by its ID.
+     *
+     * @param periodId The ID of the ballot period.
+     * @return The BallotPeriodRecord corresponding to the given ID.
+     */
     public BallotPeriodRecord getBallotPeriodById(int periodId){
         return dsl.selectFrom(BallotPeriod.BALLOT_PERIOD)
                 .where(BallotPeriod.BALLOT_PERIOD.ID.eq(periodId))
                 .fetchOneInto(BallotPeriodRecord.class);
     }
 
+    /**
+     * Deletes applications from the database. Should be used with caution.
+     *
+     * @param applications List of ApplicationRecord objects to be deleted.
+     */
     public void deleteApplications(List<ApplicationRecord> applications) {
         List<Integer> appIds = new ArrayList<>();
         for (ApplicationRecord app : applications) {
             appIds.add(app.getId());
         }
+    }
 
-
+    public int getCurrentBallotPeriodId() {
+        var ballotPeriodRecord = dsl.selectFrom(BallotPeriod.BALLOT_PERIOD)
+                .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(LocalDateTime.now(Clock.systemUTC())))
+                .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(LocalDateTime.now(Clock.systemUTC())))
+                .fetchOne();
+        if(ballotPeriodRecord == null){
+            return 0;
+        }
+        return ballotPeriodRecord.getId();
     }
 
 }

@@ -1,7 +1,10 @@
 package de.hft.licensing.utils;
 
+import org.springframework.stereotype.Service;
+
 import java.util.regex.Pattern;
 
+@Service
 public class ApiFormValidator {
 
   // Regex for names: letters (including accented), marks, apostrophes, hyphens, single spaces
