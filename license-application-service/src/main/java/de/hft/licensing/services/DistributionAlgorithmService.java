@@ -11,8 +11,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,7 +50,7 @@ public class DistributionAlgorithmService {
             return null;
         }
 
-        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
         if (now.isBefore(period.getEndDate())) {
             log.error("Lottery run failed: Ballot period with ID {} is not over yet.", periodId);
             return null;

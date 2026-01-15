@@ -15,6 +15,7 @@ import org.jooq.Condition;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -141,8 +142,8 @@ public class BallotDslService {
 
     public int getCurrentBallotPeriodId() {
         var ballotPeriodRecord = dsl.selectFrom(BallotPeriod.BALLOT_PERIOD)
-                .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(LocalDateTime.now()))
-                .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(LocalDateTime.now()))
+                .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(LocalDateTime.now(Clock.systemUTC())))
+                .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(LocalDateTime.now(Clock.systemUTC())))
                 .fetchOne();
         if(ballotPeriodRecord == null){
             return 0;

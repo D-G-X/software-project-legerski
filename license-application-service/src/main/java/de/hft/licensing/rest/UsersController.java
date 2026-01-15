@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.net.URI;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -283,7 +284,7 @@ public class UsersController implements UsersApi {
         }
 
         dsl.update(Notification.NOTIFICATION)
-                .set(Notification.NOTIFICATION.READ_AT, LocalDateTime.now())
+                .set(Notification.NOTIFICATION.READ_AT, LocalDateTime.now(Clock.systemUTC()))
                 .where(Notification.NOTIFICATION.ID.eq(id))
                 .execute();
 
