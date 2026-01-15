@@ -42,8 +42,8 @@ public class BallotDslService {
     public void updateApplicationInBallotTableToSelected(int periodId, ApplicationRecord app) {
         dsl.update(Ballot.BALLOT)
                 .set(Ballot.BALLOT.SELECTED, true)
-                .where(String.valueOf(Ballot.BALLOT.APPLICATION_ID), app.getId())
-                .and(String.valueOf(Ballot.BALLOT.BALLOT_PERIOD_ID), periodId)
+                .where(Ballot.BALLOT.APPLICATION_ID.eq(app.getId()))
+                .and(Ballot.BALLOT.BALLOT_PERIOD_ID.eq(periodId))
                 .execute();
 
     }
@@ -137,8 +137,17 @@ public class BallotDslService {
         for (ApplicationRecord app : applications) {
             appIds.add(app.getId());
         }
+    }
 
-
+    public int getCurrentBallotPeriodId() {
+        var ballotPeriodRecord = dsl.selectFrom(BallotPeriod.BALLOT_PERIOD)
+                .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(LocalDateTime.now()))
+                .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(LocalDateTime.now()))
+                .fetchOne();
+        if(ballotPeriodRecord == null){
+            return 0;
+        }
+        return ballotPeriodRecord.getId();
     }
 
 }
