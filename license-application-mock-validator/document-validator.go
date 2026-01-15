@@ -40,7 +40,7 @@ var rejectionReasons = []string{
 const callbackURL = "http://license-application-backend:8080/validation-callback" // backend callback endpoint
 
 // Login credentials for keycloak
-const loginURL = "http://keycloak:8080/login"
+const loginURL = "http://license-application-backend:8080/login"
 const loginEmail = "documentvalidator@xx.xx"
 const loginPassword = "securepassword123"
 
@@ -97,6 +97,9 @@ type LoginResponse struct {
 
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	http.HandleFunc("/process-document", loggingMiddleware(startProcessingHandler))
+	http.HandleFunc("/process-document/status/", loggingMiddleware(statusHandler))
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
