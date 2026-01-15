@@ -74,8 +74,7 @@ class DistributionAlgorithmServiceTest {
         assertTrue(result.selectedApplications().isEmpty());
         assertTrue(result.notSelectedApplications().isEmpty());
 
-        verify(dslService, never()).insertApplicationInBallotTableAsSelected(anyInt(), any());
-        verify(dslService, never()).insertApplicationInBallotTableAsRejected(anyInt(), any());
+        verify(dslService, never()).updateApplicationInBallotTableToSelected(anyInt(), any());
         verify(dslService, never()).createLicenseForApplication(any(), any());
         verify(dslService, never()).updateApplicationStatusToApproved(any());
     }
@@ -102,8 +101,7 @@ class DistributionAlgorithmServiceTest {
         assertEquals(3, result.selectedApplications().size());
         assertEquals(2, result.notSelectedApplications().size());
 
-        verify(dslService, times(maxAccepted)).insertApplicationInBallotTableAsSelected(eq(periodId), any());
-        verify(dslService, times(candidates.size() - maxAccepted)).insertApplicationInBallotTableAsRejected(eq(periodId), any());
+        verify(dslService, times(maxAccepted)).updateApplicationInBallotTableToSelected(eq(periodId), any());
         verify(dslService, times(maxAccepted)).createLicenseForApplication(any(), any());
         verify(dslService, times(maxAccepted)).updateApplicationStatusToApproved(any());
         verify(dslService, times(candidates.size() - maxAccepted)).updateApplicationStatusToRejected(any());
@@ -140,8 +138,7 @@ class DistributionAlgorithmServiceTest {
         assertEquals(2L, countsByUser.get("A"));
         assertEquals(2L, countsByUser.get("B"));
 
-        verify(dslService, times(maxAccepted)).insertApplicationInBallotTableAsSelected(eq(periodId), any());
-        verify(dslService, times(candidates.size() - maxAccepted)).insertApplicationInBallotTableAsRejected(eq(periodId), any());
+        verify(dslService, times(maxAccepted)).updateApplicationInBallotTableToSelected(eq(periodId), any());
         verify(dslService, times(maxAccepted)).createLicenseForApplication(any(), any());
         verify(dslService, times(maxAccepted)).updateApplicationStatusToApproved(any());
         verify(dslService, times(candidates.size() - maxAccepted)).updateApplicationStatusToRejected(any());
