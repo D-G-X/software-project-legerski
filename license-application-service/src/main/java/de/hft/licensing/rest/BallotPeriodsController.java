@@ -1,7 +1,6 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.BallotPeriodsApi;
-import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.PaymentStatus;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.ApplicationPayment;
@@ -169,13 +168,8 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                 .join(Application.APPLICATION)
                     .on(Ballot.BALLOT.APPLICATION_ID.eq(Application.APPLICATION.ID))
                 .where(BallotPeriod.BALLOT_PERIOD.ID.eq(periodId))
-                .and(Application.APPLICATION.APPLICATION_STATUS.eq(ApplicationStatus.submitted))
                 .fetchInto(ApplicationRecord.class);
 
-        if (applicationRecords.isEmpty()) {
-            log.warn("No applications found for Ballot Period ID {}", periodId);
-            return ResponseEntity.notFound().build();
-        }
 
         List<ApplicationResource> applicationResources = applicationRecords.stream().map(applicationRecord -> {
             ApplicationResource applicationResource = new ApplicationResource();
