@@ -123,20 +123,20 @@ public class BallotPeriodsController implements BallotPeriodsApi {
 
     @Override
     public ResponseEntity<CurrentBallotPeriodResource> getBallotPeriod() {
+        LocalDateTime nowUtc = LocalDateTime.now(ZoneOffset.UTC);
         BallotPeriodRecord ballotPeriodRecord = dslContext
                 .selectFrom(BallotPeriod.BALLOT_PERIOD)
-                .orderBy(BallotPeriod.BALLOT_PERIOD.ID.desc())
-                .limit(1)
+                .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(nowUtc))
+                .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(nowUtc))
                 .fetchOneInto(BallotPeriodRecord.class);
 
-        CurrentBallotPeriodResource currentBallotPeriodResource = new CurrentBallotPeriodResource();
-        if(ballotPeriodRecord != null){
-            RecordToResourceMapperUtil.mapCurrentBallotPeriodRecordToResource(ballotPeriodRecord, currentBallotPeriodResource);
-        } else {
-            log.info("No ballot periods found in the system.");
-            return ResponseEntity.notFound().build();
-        }
 
+        if(ballotPeriodRecord == null){
+            log.warn("There is no active ballot period at the moment: {}", nowUtc);
+            return ResponseEntity.noContent().build();
+        }
+        CurrentBallotPeriodResource currentBallotPeriodResource = new CurrentBallotPeriodResource();
+        RecordToResourceMapperUtil.mapCurrentBallotPeriodRecordToResource(ballotPeriodRecord, currentBallotPeriodResource);
         return ResponseEntity.ok(currentBallotPeriodResource);
     }
 
