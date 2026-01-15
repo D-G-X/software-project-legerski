@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -205,7 +206,9 @@ public class KeycloakAuthService {
                     .set(NotificationPreferences.NOTIFICATION_PREFERENCES.APPLICATION_UPDATES_NOTIFICATION, true)
                     .set(NotificationPreferences.NOTIFICATION_PREFERENCES.LICENSE_RENEWAL_NOTIFICATION, true)
                     .execute();
-        } catch (DataIntegrityViolationException ignored) {}
+        } catch (Exception e) {
+            log.error("Failed to insert default notification preferences for user ID: {}", userId, e);
+        }
     }
 
     /**
@@ -380,8 +383,8 @@ public class KeycloakAuthService {
             int inserted = dsl.insertInto(PasswordResetToken.PASSWORD_RESET_TOKEN)
                     .set(PasswordResetToken.PASSWORD_RESET_TOKEN.USER_ID, userId.toString())
                     .set(PasswordResetToken.PASSWORD_RESET_TOKEN.TOKEN, token)
-                    .set(PasswordResetToken.PASSWORD_RESET_TOKEN.EXPIRES_AT, LocalDateTime.now().plusMinutes(10))
-                    .set(PasswordResetToken.PASSWORD_RESET_TOKEN.CREATED_AT, LocalDateTime.now())
+                    .set(PasswordResetToken.PASSWORD_RESET_TOKEN.EXPIRES_AT, LocalDateTime.now(Clock.systemUTC()).plusMinutes(10))
+                    .set(PasswordResetToken.PASSWORD_RESET_TOKEN.CREATED_AT, LocalDateTime.now(Clock.systemUTC()))
                     .execute();
             return inserted > 0;
         } catch (DataIntegrityViolationException e) {

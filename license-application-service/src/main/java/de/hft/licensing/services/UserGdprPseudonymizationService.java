@@ -32,6 +32,12 @@ public class UserGdprPseudonymizationService {
         }
     }
 
+    /**
+     * Pseudonymizes a user ID across all tables in the database.
+     *
+     * @param oldUserId the original user ID to be pseudonymized
+     * @return the new pseudonymized user ID, or null if an error occurred
+     */
     @Transactional
     public String pseudonymizeUserIdEverywhere(UUID oldUserId) {
         if (oldUserId == null) {
@@ -114,7 +120,12 @@ public class UserGdprPseudonymizationService {
         return newId;
     }
 
-
+    /**
+     * Generates a pseudonymized UUID string using HMAC-SHA256.
+     *
+     * @param oldId the original user ID
+     * @return the pseudonymized UUID string
+     */
     private String hmacToUuidString(String oldId) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");

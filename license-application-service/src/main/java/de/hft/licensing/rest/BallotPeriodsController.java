@@ -1,7 +1,6 @@
 package de.hft.licensing.rest;
 
 import de.hft.licensing.api.BallotPeriodsApi;
-import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.PaymentStatus;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.ApplicationPayment;
@@ -27,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.jooq.impl.DSL.selectOne;
@@ -38,7 +37,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     private final DefaultDSLContext dslContext;
     private final DistributionAlgorithmService distributionAlgorithmService;
     private final MockBankClient mockBankClient;
-    private static final Logger log = LicensingLoggerFactory.getLogger(ApplicationsController.class);
+    private static final Logger log = LicensingLoggerFactory.getLogger(BallotPeriodsController.class);
 
     public BallotPeriodsController(DefaultDSLContext dslContext, DistributionAlgorithmService distributionAlgorithmService, MockBankClient mockBankClient) {
         this.dslContext = dslContext;
@@ -82,15 +81,16 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                 || createBallotPeriodRequest.getStartDate() == null
                 || createBallotPeriodRequest.getEndDate() == null
                 || createBallotPeriodRequest.getStartDate().isAfter(createBallotPeriodRequest.getEndDate())) {
+            log.warn("Invalid ballot period creation request: {}", createBallotPeriodRequest);
             return ResponseEntity.badRequest().build();
         }
 
         LocalDateTime newStart = createBallotPeriodRequest.getStartDate()
-                .atZoneSameInstant(ZoneId.systemDefault())
+                .atZoneSameInstant(ZoneOffset.UTC)
                 .toLocalDateTime();
 
         LocalDateTime newEnd = createBallotPeriodRequest.getEndDate()
-                .atZoneSameInstant(ZoneId.systemDefault())
+                .atZoneSameInstant(ZoneOffset.UTC)
                 .toLocalDateTime();
 
         boolean overlaps = dslContext.fetchExists(
@@ -101,6 +101,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
         );
 
         if (overlaps) {
+            log.warn("Attempted to create overlapping ballot period: {} - {}", newStart, newEnd);
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
@@ -111,6 +112,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                 .fetchOneInto(BallotPeriodRecord.class);
 
         if (ballotPeriodRecord == null) {
+            log.error("Failed to create ballot period: {} - {}", newStart, newEnd);
             return ResponseEntity.status(500).build();
         }
 
@@ -121,18 +123,20 @@ public class BallotPeriodsController implements BallotPeriodsApi {
 
     @Override
     public ResponseEntity<CurrentBallotPeriodResource> getBallotPeriod() {
+        LocalDateTime nowUtc = LocalDateTime.now(ZoneOffset.UTC);
         BallotPeriodRecord ballotPeriodRecord = dslContext
                 .selectFrom(BallotPeriod.BALLOT_PERIOD)
-                .orderBy(BallotPeriod.BALLOT_PERIOD.ID.desc())
-                .limit(1)
+                .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(nowUtc))
+                .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(nowUtc))
                 .fetchOneInto(BallotPeriodRecord.class);
 
-        CurrentBallotPeriodResource currentBallotPeriodResource = new CurrentBallotPeriodResource();
 
-        if(ballotPeriodRecord != null){
-            RecordToResourceMapperUtil.mapCurrentBallotPeriodRecordToResource(ballotPeriodRecord, currentBallotPeriodResource);
+        if(ballotPeriodRecord == null){
+            log.warn("There is no active ballot period at the moment: {}", nowUtc);
+            return ResponseEntity.noContent().build();
         }
-
+        CurrentBallotPeriodResource currentBallotPeriodResource = new CurrentBallotPeriodResource();
+        RecordToResourceMapperUtil.mapCurrentBallotPeriodRecordToResource(ballotPeriodRecord, currentBallotPeriodResource);
         return ResponseEntity.ok(currentBallotPeriodResource);
     }
 
@@ -164,12 +168,8 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                 .join(Application.APPLICATION)
                     .on(Ballot.BALLOT.APPLICATION_ID.eq(Application.APPLICATION.ID))
                 .where(BallotPeriod.BALLOT_PERIOD.ID.eq(periodId))
-                .and(Application.APPLICATION.APPLICATION_STATUS.eq(ApplicationStatus.submitted))
                 .fetchInto(ApplicationRecord.class);
 
-        if (applicationRecords.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
 
         List<ApplicationResource> applicationResources = applicationRecords.stream().map(applicationRecord -> {
             ApplicationResource applicationResource = new ApplicationResource();
@@ -188,6 +188,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
             RunLotteryForBallotPeriodRequest runLotteryForBallotPeriodRequest) {
 
         if (periodId == null || periodId <= 0) {
+            log.warn("Invalid period ID provided for lottery: {}", periodId);
             return ResponseEntity.badRequest().build();
         }
 
@@ -203,20 +204,21 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                     licensesToDistribute
             );
         } catch (IllegalArgumentException e) {
+            log.error("Error running lottery for Ballot Period ID {}: {}", periodId, e.getMessage());
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
+            log.error("Error running lottery for Ballot Period ID {}: {}", periodId, e.getMessage());
             return ResponseEntity.badRequest().build();
         }
 
         if (result == null) {
-            System.out.println("Lottery could not be run for Ballot Period ID " + periodId + ". Check if the period exists and is finished.");
+            log.error("Lottery could not be run for Ballot Period ID {}. Check if the period exists and is finished.", periodId);
             return ResponseEntity.badRequest().build();
         }
 
         List<ApplicationResource> selectedResources = result.selectedApplications().stream().map(record -> {
             ApplicationResource resource = new ApplicationResource();
             RecordToResourceMapperUtil.mapApplicationRecordToResource(record, resource);
-
             try {
                 dslContext.update(Ballot.BALLOT)
                         .set(Ballot.BALLOT.SELECTED, true)
@@ -225,8 +227,7 @@ public class BallotPeriodsController implements BallotPeriodsApi {
                         .execute();
             } catch (Exception e) {
                 log.error("Failed to map application ID {} to resource: {}", record.getId(), e.getMessage());
-}
-
+            }
             return resource;
         }).toList();
 
@@ -258,9 +259,13 @@ public class BallotPeriodsController implements BallotPeriodsApi {
 
             PaymentResponseDto resp = mockBankClient.processPayment(req);
 
+            PaymentStatus paymentStatus = PaymentStatus.unpaid;
+            if (resp.status().equals("approved")) {
+                paymentStatus = PaymentStatus.paid;
+            }
+
             dslContext.update(ApplicationPayment.APPLICATION_PAYMENT)
-                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.lookupLiteral(resp.status()))
-                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, LocalDateTime.now())
+                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, paymentStatus)
                     .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(appId))
                     .execute();
         }
