@@ -7,10 +7,8 @@
           <option name="delegateBuildToMaven" value="false" />
           <option name="environmentProperties">
             <map>
-              <entry key="POSTGRES_DATABASE" value="government" />
               <entry key="POSTGRES_PASSWORD" value="P4ssword!" />
-              <entry key="POSTGRES_SCHEMA" value="licensing" />
-              <entry key="POSTGRES_URL" value="jdbc:postgresql://postgres:5432/government" />
+              <entry key="POSTGRES_URL" value="jdbc:postgresql://localhost:5433/government" />
               <entry key="POSTGRES_USER" value="postgres" />
             </map>
           </option>
