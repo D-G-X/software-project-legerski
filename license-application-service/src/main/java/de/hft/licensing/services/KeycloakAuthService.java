@@ -9,9 +9,11 @@ import de.hft.licensing.db.tables.NotificationPreferences;
 import de.hft.licensing.db.tables.PasswordResetToken;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.PasswordResetTokenRecord;
+import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.*;
 import de.hft.licensing.utils.EnumMapperUtil;
 import org.jooq.DSLContext;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 public class KeycloakAuthService {
 
     private final DSLContext dsl;
+    private final Logger log = LicensingLoggerFactory.getLogger(KeycloakAuthService.class);
 
     public KeycloakAuthService(DSLContext dsl) {
         this.dsl = dsl;
@@ -50,6 +53,12 @@ public class KeycloakAuthService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Retrieve access token from Keycloak with user login credentials
+     *
+     * @param request LoginRequest containing user email and password
+     * @return LoginResource containing access token and refresh token
+     */
     public LoginResource login(LoginRequest request) {
         String url = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 
@@ -79,11 +88,16 @@ public class KeycloakAuthService {
             boolean isAdmin = tokenHasAdminRole(loginResource.getAccessToken());
             loginResource.setIsAdmin(isAdmin);
         }
-
+        log.info("User logged in: {}, isAdmin: {}", request.getEmail(), loginResource != null && Boolean.TRUE.equals(loginResource.getIsAdmin()));
         return loginResource;
     }
 
-
+    /**
+     * Refresh access token using refresh token
+     *
+     * @param refreshLoginRequest RefreshLoginRequest containing refresh token
+     * @return LoginResource containing new access token and refresh token
+     */
     public LoginResource refreshLogin(RefreshLoginRequest refreshLoginRequest) {
         String url = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 
@@ -115,6 +129,12 @@ public class KeycloakAuthService {
         return loginResource;
     }
 
+    /**
+     * Register a new user in Keycloak
+     *
+     * @param request RegisterRequest containing user details
+     * @return RegisterResource containing user ID and message
+     */
     public RegisterResource register(RegisterRequest request) {
         String url = keycloakUrl + "/admin/realms/" + realm + "/users";
 
@@ -164,6 +184,12 @@ public class KeycloakAuthService {
         }
     }
 
+    /**
+     * Ensure that a local user record and default notification preferences exist
+     * for the given user ID.
+     *
+     * @param userId UUID of the user
+     */
     private void ensureLocalUserAndDefaults(UUID userId) {
         try {
             dsl.insertInto(User.USER)
@@ -182,6 +208,12 @@ public class KeycloakAuthService {
         } catch (DataIntegrityViolationException ignored) {}
     }
 
+    /**
+     * Check if an email is already registered in Keycloak
+     *
+     * @param email Email address to check
+     * @return true if email is registered, false otherwise
+     */
     public boolean isEmailRegistered(String email) {
         String adminToken = getAdminToken();
         if (adminToken == null) {
@@ -202,6 +234,12 @@ public class KeycloakAuthService {
         return users != null && users.length > 0;
     }
 
+    /**
+     * Check if a user exists in Keycloak by user ID
+     *
+     * @param userId UUID of the user
+     * @return true if user exists, false otherwise
+     */
     public boolean userExistsInKeycloak(UUID userId) {
         String adminToken = getAdminToken();
         if (adminToken == null) {
@@ -224,6 +262,12 @@ public class KeycloakAuthService {
         }
     }
 
+    /**
+     * Get user ID by email from Keycloak
+     *
+     * @param email Email address of the user
+     * @return UUID of the user if found, null otherwise
+     */
     public UUID getUserIdByEmail(String email) {
         String adminToken = getAdminToken();
         if (adminToken == null) {
@@ -247,6 +291,12 @@ public class KeycloakAuthService {
         return null;
     }
 
+    /**
+     * Get email by user ID from Keycloak
+     *
+     * @param userId UUID of the user
+     * @return Email address of the user if found, null otherwise
+     */
     public String getEmailByUserId(UUID userId) {
         KeycloakUserRecord userRecord = getUserById(userId);
         if (userRecord != null) {
@@ -255,6 +305,15 @@ public class KeycloakAuthService {
         return null;
     }
 
+    /**
+     * Update user details in Keycloak
+     *
+     * @param userId UUID of the user
+     * @param newEmail New email address (nullable)
+     * @param newFirstName New first name (nullable)
+     * @param newLastName New last name (nullable)
+     * @return true if update was successful, false otherwise
+     */
     public boolean updateUserDetails(UUID userId,
                                      @Nullable String newEmail,
                                      @Nullable String newFirstName,
@@ -298,11 +357,24 @@ public class KeycloakAuthService {
         return true;
     }
 
+    /**
+     * Create a password reset token for the given email
+     *
+     * @param email Email address of the user
+     * @return Generated password reset token
+     */
     public String createPasswordResetToken(String email) {
         // Create a token from email and current timestamp of type varchar(255)
         return Base64.getUrlEncoder().encodeToString((email + ":" + System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Store password reset token in the database
+     *
+     * @param userId UUID of the user
+     * @param token Password reset token
+     * @return true if storage was successful, false otherwise
+     */
     public boolean storePasswordResetToken(UUID userId, String token) {
         try {
             int inserted = dsl.insertInto(PasswordResetToken.PASSWORD_RESET_TOKEN)
@@ -318,12 +390,24 @@ public class KeycloakAuthService {
         }
     }
 
+    /**
+     * Retrieve password reset token record from the database
+     *
+     * @param token Password reset token
+     * @return PasswordResetTokenRecord if found, null otherwise
+     */
     public PasswordResetTokenRecord getPasswordResetTokenRecord(String token) {
         return dsl.selectFrom(PasswordResetToken.PASSWORD_RESET_TOKEN)
                 .where(PasswordResetToken.PASSWORD_RESET_TOKEN.TOKEN.eq(token))
                 .fetchOne();
     }
 
+    /**
+     * Mark a password reset token as used in the database
+     *
+     * @param token Password reset token
+     * @return true if update was successful, false otherwise
+     */
     public boolean markPasswordResetTokenAsUsed(String token) {
         int updated = dsl.update(PasswordResetToken.PASSWORD_RESET_TOKEN)
                 .set(PasswordResetToken.PASSWORD_RESET_TOKEN.USED, true)
@@ -332,6 +416,13 @@ public class KeycloakAuthService {
         return updated > 0;
     }
 
+    /**
+     * Change user password in Keycloak
+     *
+     * @param email Email address of the user
+     * @param newPassword New password to set
+     * @return true if password change was successful, false otherwise
+     */
     public boolean changePassword(String email, String newPassword) {
         String adminToken = getAdminToken();
         if (adminToken == null) {
@@ -368,6 +459,12 @@ public class KeycloakAuthService {
         return true;
     }
 
+    /**
+     * Extract user UUID from Keycloak Location header
+     *
+     * @param response ResponseEntity containing Location header
+     * @return UUID of the user if found, null otherwise
+     */
     private UUID extractUserUUIdFromLocationHeader(ResponseEntity<String> response) {
         String location = Objects.requireNonNull(response.getHeaders().get("Location")).getFirst();
         if (location != null && location.contains("/users/")) {
@@ -376,6 +473,11 @@ public class KeycloakAuthService {
         return null;
     }
 
+    /**
+     * Obtain admin access token from Keycloak
+     *
+     * @return Admin access token as String
+     */
     private String getAdminToken() {
         String url = keycloakUrl + "/realms/master/protocol/openid-connect/token";
 
@@ -401,6 +503,12 @@ public class KeycloakAuthService {
         return responseBody != null ? (String) responseBody.get("access_token") : null;
     }
 
+    /**
+     * Get user details by user ID from Keycloak
+     *
+     * @param userId UUID of the user
+     * @return KeycloakUserRecord if found, null otherwise
+     */
     public KeycloakUserRecord getUserById(UUID userId) {
         String adminToken = getAdminToken();
         if (adminToken == null) {
@@ -423,6 +531,13 @@ public class KeycloakAuthService {
 
         return response.getBody();
     }
+
+    /**
+     * Update user information in Keycloak
+     *
+     * @param userId UUID of the user
+     * @param request UpdateUserRequest containing updated user details
+     */
     public void updateUser(UUID userId, UpdateUserRequest request) {
         String adminToken = getAdminToken();
         if (adminToken == null) {
@@ -455,6 +570,12 @@ public class KeycloakAuthService {
         restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
     }
 
+    /**
+     * Delete user from Keycloak by user ID
+     *
+     * @param userId UUID of the user
+     * @return true if deletion was successful, false if user not found
+     */
     public boolean deleteUserInKeycloak(UUID userId) {
         String adminToken = getAdminToken();
         if (adminToken == null) {
@@ -479,6 +600,12 @@ public class KeycloakAuthService {
         }
     }
 
+    /**
+     * Map UpdateUserRequestCredentialsInner to KeycloakCredentialRecord
+     *
+     * @param src UpdateUserRequestCredentialsInner object
+     * @return Mapped KeycloakCredentialRecord object
+     */
     private KeycloakCredentialRecord mapCredential(UpdateUserRequestCredentialsInner src) {
         return new KeycloakCredentialRecord(
                 src.getType().getValue(),
@@ -487,6 +614,12 @@ public class KeycloakAuthService {
         );
     }
 
+    /**
+     * Check if the access token has the "admin" role
+     *
+     * @param accessToken JWT access token
+     * @return true if token has admin role, false otherwise
+     */
     private boolean tokenHasAdminRole(String accessToken) {
         try {
             String[] parts = accessToken.split("\\.");
@@ -511,6 +644,13 @@ public class KeycloakAuthService {
         }
     }
 
+    /**
+     * Set role for user by email
+     *
+     * @param email Email address of the user
+     * @param roleName Name of the role to set
+     * @return true if role was set successfully, false otherwise
+     */
     public boolean setRole(String email, String roleName) {
         UUID userId = getUserIdByEmail(email);
         if (userId == null) {
@@ -519,6 +659,9 @@ public class KeycloakAuthService {
         return setRole(userId, roleName);
     }
 
+    /**
+     * Keycloak role representation
+     */
     public record KeycloakRoleRepresentation(
             String id,
             String name,
@@ -527,6 +670,13 @@ public class KeycloakAuthService {
             String containerId
     ) {}
 
+    /**
+     * Ensure that a realm role exists in Keycloak, create it if it does not exist
+     *
+     * @param roleName Name of the role
+     * @param headers HttpHeaders with authorization
+     * @return KeycloakRoleRepresentation of the ensured role
+     */
     private KeycloakRoleRepresentation ensureRealmRoleExists(String roleName, HttpHeaders headers) {
         KeycloakRoleRepresentation role = getRealmRoleByName(roleName, headers);
         if (role != null) return role;
@@ -549,6 +699,13 @@ public class KeycloakAuthService {
         return role;
     }
 
+    /**
+     * Get realm role by name from Keycloak
+     *
+     * @param roleName Name of the role
+     * @param headers HttpHeaders with authorization
+     * @return KeycloakRoleRepresentation if found, null otherwise
+     */
     private KeycloakRoleRepresentation getRealmRoleByName(String roleName, HttpHeaders headers) {
         String roleUrl = String.format("%s/admin/realms/%s/roles/%s",
                 keycloakUrl,
@@ -565,6 +722,13 @@ public class KeycloakAuthService {
         }
     }
 
+    /**
+     * Set role for user by user ID
+     *
+     * @param userId UUID of the user
+     * @param roleName Name of the role to set
+     * @return true if role was set successfully, false otherwise
+     */
     private boolean setRole(UUID userId, String roleName) {
         String adminToken = getAdminToken();
         if (adminToken == null) {
@@ -587,6 +751,7 @@ public class KeycloakAuthService {
         return true;
     }
 
+    /** Data Records */
     public record KeycloakUserRecord(
             String id,
             String username,
