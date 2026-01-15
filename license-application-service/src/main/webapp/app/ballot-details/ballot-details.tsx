@@ -208,19 +208,17 @@ const BallotDetails: React.FC = () => {
                 {t("ballotDetails.actions.cancel")}
               </button>
 
-              <button
-                onClick={handleBallotLottery}
-                disabled={
-                  isLotteryRunning || status !== t("ballotStatus.completed")
-                }
-                className={`w-48 border-2 px-6 py-2 rounded-lg hover:cursor-pointer font-medium text-center bg-mallorca-red/75 text-white border-mallorca-red hover:bg-mallorca-red ${
-                  isLotteryRunning || status !== t("ballotStatus.completed")
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-              >
-                {t("ballotDetails.actions.triggerBallot")}
-              </button>
+              {status === "Completed" && (
+                <button
+                  onClick={handleBallotLottery}
+                  disabled={isLotteryRunning}
+                  className={`w-48 border-2 px-6 py-2 rounded-lg hover:cursor-pointer font-medium text-center bg-mallorca-red/75 text-white border-mallorca-red hover:bg-mallorca-red ${
+                    isLotteryRunning ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {t("ballotDetails.actions.triggerBallot")}
+                </button>
+              )}
             </div>
           </div>
         </div>
