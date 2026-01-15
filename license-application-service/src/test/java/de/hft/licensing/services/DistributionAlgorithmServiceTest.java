@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +51,8 @@ class DistributionAlgorithmServiceTest {
         int periodId = 2;
 
         BallotPeriodRecord period = new BallotPeriodRecord();
-        period.setStartDate(LocalDateTime.now().minusDays(1));
-        period.setEndDate(LocalDateTime.now().plusMinutes(10));
+        period.setStartDate(LocalDateTime.now(Clock.systemUTC()).minusDays(1));
+        period.setEndDate(LocalDateTime.now(Clock.systemUTC()).plusMinutes(10));
 
         when(dslService.getBallotPeriodById(periodId)).thenReturn(period);
 
@@ -148,8 +149,8 @@ class DistributionAlgorithmServiceTest {
 
     private void stubFinishedPeriod(int periodId) {
         BallotPeriodRecord period = new BallotPeriodRecord();
-        period.setStartDate(LocalDateTime.now().minusDays(10));
-        period.setEndDate(LocalDateTime.now().minusDays(1));
+        period.setStartDate(LocalDateTime.now(Clock.systemUTC()).minusDays(10));
+        period.setEndDate(LocalDateTime.now(Clock.systemUTC()).minusDays(1));
 
         when(dslService.getBallotPeriodById(periodId)).thenReturn(period);
     }
