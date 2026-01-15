@@ -36,8 +36,7 @@ spring:
       mail.smtp.ssl.trust: ${MAIL_HOST}
   config:
     import:
-      - optional:file:license-application-service/.env # for local builds
-      - optional:file:/app/.env # for docker containers
+      - file:/app/.env
 
 logging.level.org.jooq.Constants: off
 
