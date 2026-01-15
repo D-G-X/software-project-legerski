@@ -258,9 +258,13 @@ public class BallotPeriodsController implements BallotPeriodsApi {
 
             PaymentResponseDto resp = mockBankClient.processPayment(req);
 
+            PaymentStatus paymentStatus = PaymentStatus.unpaid;
+            if (resp.status().equals("approved")) {
+                paymentStatus = PaymentStatus.paid;
+            }
+
             dslContext.update(ApplicationPayment.APPLICATION_PAYMENT)
-                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.lookupLiteral(resp.status()))
-                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, LocalDateTime.now())
+                    .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, paymentStatus)
                     .where(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID.eq(appId))
                     .execute();
         }

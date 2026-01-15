@@ -11,6 +11,7 @@ import de.hft.licensing.model.ApplicationFeeResource;
 import de.hft.licensing.model.ApplicationPaymentCreate;
 import de.hft.licensing.model.ApplicationPaymentResource;
 import de.hft.licensing.services.PaymentsControllerService;
+import de.hft.licensing.services.dslService.BallotDslService;
 import de.hft.licensing.utils.ApiFormValidator;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
@@ -32,11 +33,13 @@ public class PaymentsController implements PaymentsApi {
   private final int ETV60_amount = 290;
 
   private final DSLContext dsl;
+  private final BallotDslService ballotDslService;
   private final ApiFormValidator formValidator;
   private final PaymentsControllerService paymentsControllerService;
 
-  public PaymentsController(DSLContext dsl, ApiFormValidator formValidator, PaymentsControllerService paymentsControllerService) {
+  public PaymentsController(DSLContext dsl, BallotDslService ballotDslService, ApiFormValidator formValidator, PaymentsControllerService paymentsControllerService) {
     this.dsl = dsl;
+      this.ballotDslService = ballotDslService;
       this.formValidator = formValidator;
       this.paymentsControllerService = paymentsControllerService;
   }
@@ -67,6 +70,7 @@ public class PaymentsController implements PaymentsApi {
         .set(ApplicationPayment.APPLICATION_PAYMENT.BIC, applicationPaymentCreate.getBic())
         .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
         .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
+        .set(ApplicationPayment.APPLICATION_PAYMENT.BALLOT_PERIOD_ID, ballotDslService.getCurrentBallotPeriodId())
         .returning()
         .fetchOneInto(ApplicationPaymentRecord.class);
 
