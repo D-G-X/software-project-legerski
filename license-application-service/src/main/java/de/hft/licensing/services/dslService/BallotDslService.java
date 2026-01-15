@@ -33,6 +33,12 @@ public class BallotDslService {
 
     private final DefaultDSLContext dsl;
 
+    /**
+     * Updates the ballot table to mark the given application as selected for the specified ballot period.
+     *
+     * @param periodId The ID of the ballot period.
+     * @param app      The application record to be marked as selected.
+     */
     public void updateApplicationInBallotTableToSelected(int periodId, ApplicationRecord app) {
         dsl.update(Ballot.BALLOT)
                 .set(Ballot.BALLOT.SELECTED, true)
@@ -42,6 +48,11 @@ public class BallotDslService {
 
     }
 
+    /**
+     * Updates the status of the given application to "approved".
+     *
+     * @param app The application record to be updated.
+     */
     public void updateApplicationStatusToApproved(ApplicationRecord app){
         dsl.update(Application.APPLICATION)
                 .set(Application.APPLICATION.APPLICATION_STATUS, STATUS_APPROVED)
@@ -49,6 +60,11 @@ public class BallotDslService {
                 .execute();
     }
 
+    /**
+     * Updates the status of the given application to "rejected".
+     *
+     * @param app The application record to be updated.
+     */
     public void updateApplicationStatusToRejected(ApplicationRecord app){
         dsl.update(Application.APPLICATION)
                 .set(Application.APPLICATION.APPLICATION_STATUS, STATUS_REJECTED)
@@ -56,9 +72,16 @@ public class BallotDslService {
                 .execute();
     }
 
-    public void createLicenseForApplication(ApplicationRecord applicationRecord, LicenseTypeApiEnum licenseType){
+    /**
+     * Creates a license for the given application.
+     *
+     * @param applicationRecord The application record for which the license is to be created.
+     * @param licenseType       The type of license to be created.
+     * @return The number of affected rows (should be 1 if successful).
+     */
+    public int createLicenseForApplication(ApplicationRecord applicationRecord, LicenseTypeApiEnum licenseType){
         LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
-        dsl.insertInto(License.LICENSE)
+        return dsl.insertInto(License.LICENSE)
                 .set(License.LICENSE.USER_ID, applicationRecord.getUserId())
                 .set(License.LICENSE.APPLICATION_ID, applicationRecord.getId())
                 .set(License.LICENSE.LICENSE_TYPE, (LicenseType) EnumMapperUtil.getPendantFromEnum(licenseType))
@@ -68,6 +91,14 @@ public class BallotDslService {
                 .execute();
     }
 
+    /**
+     * Retrieves candidate applications based on the specified criteria.
+     *
+     * @param startDate   The start date of the application period.
+     * @param endDate     The end date of the application period.
+     * @param licenseType The type of license to filter by (can be null).
+     * @return A list of candidate application records.
+     */
     public List<ApplicationRecord> getCandidateApplications (LocalDateTime startDate, LocalDateTime endDate, LicenseTypeApiEnum licenseType){
         // all applications with status payment_received and applied in period, if type != null filter by type
         Condition condition = Application.APPLICATION.APPLICATION_STATUS.eq(STATUS_PAYMENT_RECEIVED)
@@ -84,12 +115,23 @@ public class BallotDslService {
         );
     }
 
+    /**
+     * Retrieves a ballot period by its ID.
+     *
+     * @param periodId The ID of the ballot period.
+     * @return The BallotPeriodRecord corresponding to the given ID.
+     */
     public BallotPeriodRecord getBallotPeriodById(int periodId){
         return dsl.selectFrom(BallotPeriod.BALLOT_PERIOD)
                 .where(BallotPeriod.BALLOT_PERIOD.ID.eq(periodId))
                 .fetchOneInto(BallotPeriodRecord.class);
     }
 
+    /**
+     * Deletes applications from the database. Should be used with caution.
+     *
+     * @param applications List of ApplicationRecord objects to be deleted.
+     */
     public void deleteApplications(List<ApplicationRecord> applications) {
         List<Integer> appIds = new ArrayList<>();
         for (ApplicationRecord app : applications) {
