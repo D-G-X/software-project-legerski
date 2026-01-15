@@ -65,4 +65,4 @@ keycloak:
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
 mockbank:
-  base-url: ${MOCKBANK_BASE_URL}
+  base-url: ${MOCK_BANK_BASE_URL}

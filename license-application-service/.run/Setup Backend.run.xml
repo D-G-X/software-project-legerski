@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Setup Local" type="MavenRunConfiguration" factoryName="Maven">
+  <configuration default="false" name="Setup Backend" type="MavenRunConfiguration" factoryName="Maven">
     <MavenSettings>
       <option name="myGeneralSettings" />
       <option name="myRunnerSettings">
@@ -9,7 +9,8 @@
             <map>
               <entry key="POSTGRES_DATABASE" value="government" />
               <entry key="POSTGRES_PASSWORD" value="P4ssword!" />
-              <entry key="POSTGRES_URL" value="jdbc:postgresql://localhost:5433/government" />
+              <entry key="POSTGRES_SCHEMA" value="licensing" />
+              <entry key="POSTGRES_URL" value="jdbc:postgresql://postgres:5432/government" />
               <entry key="POSTGRES_USER" value="postgres" />
             </map>
           </option>
@@ -30,7 +31,7 @@
           </option>
           <option name="goals">
             <list>
-              <option value="compile" />
+              <option value="package" />
             </list>
           </option>
           <option name="multimoduleDir" />
@@ -47,7 +48,7 @@
       </option>
     </MavenSettings>
     <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Docker Compose Local" run_configuration_type="docker-deploy" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Docker Compose Init" run_configuration_type="docker-deploy" />
       <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/license-application-service/pom.xml" goal="liquibase:update" />
     </method>
   </configuration>

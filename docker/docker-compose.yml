@@ -40,8 +40,9 @@ services:
     networks:
       - license-application-network
 
-  backend:
+  license-application-backend:
     image: license-application-backend:latest
+    pull_policy: never
     build:
       context: ../license-application-service
       dockerfile: Dockerfile
@@ -67,8 +68,8 @@ services:
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
 
-      MOCKBANK_BASE_URL: ${MOCKBANK_BASE_URL}
-      MOCKDOCUMENTVALIDATOR_BASE_URL: ${MOCKDOCUMENTVALIDATOR_BASE_URL}
+      MOCK_BANK_BASE_URL: ${MOCK_BANK_BASE_URL}
+      MOCK_VALIDATOR_BASE_URL: ${MOCK_VALIDATOR_BASE_URL}
     expose:
       - "8080"
     depends_on:
@@ -79,6 +80,7 @@ services:
 
   mock-bank:
     image: mock-bank:latest
+    pull_policy: never
     build:
       context: ../license-application-mock-bank
       dockerfile: Dockerfile
@@ -91,6 +93,7 @@ services:
 
   mock-document-validator:
     image: mock-document-validator:latest
+    pull_policy: never
     build:
       context: ../license-application-mock-validator
       dockerfile: Dockerfile
@@ -108,7 +111,10 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - backend
+      - postgres
+      - keycloak
+      - license-application-backend
+      - mock-bank
       - mock-document-validator
     networks:
       - license-application-network
