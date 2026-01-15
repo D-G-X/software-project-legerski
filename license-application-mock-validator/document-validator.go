@@ -37,10 +37,10 @@ var rejectionReasons = []string{
 	"Page orientation or layout prevents automated scanning",
 }
 
-const callbackURL = "http://host.docker.internal:8080/validation-callback" // backend callback endpoint
+const callbackURL = "http://license-application-backend:8080/validation-callback" // backend callback endpoint
 
 // Login credentials for keycloak
-const loginURL = "http://host.docker.internal:8080/login"
+const loginURL = "http://license-application-backend:8080/login"
 const loginEmail = "documentvalidator@xx.xx"
 const loginPassword = "securepassword123"
 
@@ -98,29 +98,11 @@ type LoginResponse struct {
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	http.HandleFunc("/process-document", loggingMiddleware(corsMiddleware(startProcessingHandler)))
-	http.HandleFunc("/process-document/status/", loggingMiddleware(corsMiddleware(statusHandler)))
+	http.HandleFunc("/process-document", loggingMiddleware(startProcessingHandler))
+	http.HandleFunc("/process-document/status/", loggingMiddleware(statusHandler))
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-// corsMiddleware ensures CORS headers are sent for all responses, including errors
-func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Always set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000") // React frontend
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-		// Handle preflight requests
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next(w, r)
-	}
 }
 
 type statusRecorder struct {

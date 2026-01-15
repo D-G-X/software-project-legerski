@@ -1,0 +1,121 @@
+networks:
+  license-application-network:
+    driver: bridge
+
+volumes:
+  kc_db:
+
+services:
+  postgres:
+    image: postgres:18.0
+    environment:
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    expose:
+      - "5432"
+    ports:
+      - "5433:5432"
+    volumes:
+      - kc_db:/var/lib/postgresql/18/data
+    networks:
+      - license-application-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    command: start-dev --import-realm --features=scripts
+    environment:
+      #KEYCLOAK_ADMIN: admin
+      #KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_FEATURES: scripts
+      KC_SCRIPTS_UPLOAD_ENABLED: "true"
+    depends_on:
+      - postgres
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    expose:
+      - "8080"
+    ports:
+      - "8081:8080"
+    networks:
+      - license-application-network
+
+  license-application-backend:
+    image: license-application-backend:latest
+    pull_policy: never
+    build:
+      context: ../license-application-service
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 1
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
+      SPRINGDOC_SWAGGER_UI_OAUTH2_REDIRECT_URL: ${SPRINGDOC_SWAGGER_UI_OAUTH2_REDIRECT_URL}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      GDPR_PEPPER: ${GDPR_PEPPER}
+
+      POSTGRES_URL: ${POSTGRES_URL}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
+
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+
+      MOCK_BANK_BASE_URL: ${MOCK_BANK_BASE_URL}
+      MOCK_VALIDATOR_BASE_URL: ${MOCK_VALIDATOR_BASE_URL}
+    expose:
+      - "8080"
+    depends_on:
+      - postgres
+      - keycloak
+    networks:
+      - license-application-network
+
+  mock-bank:
+    image: mock-bank:latest
+    pull_policy: never
+    build:
+      context: ../license-application-mock-bank
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    ports:
+      - "8082:8080"
+    networks:
+      - license-application-network
+
+  mock-document-validator:
+    image: mock-document-validator:latest
+    pull_policy: never
+    build:
+      context: ../license-application-mock-validator
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    ports:
+      - "8083:8080"
+    networks:
+      - license-application-network
+
+  nginx:
+    image: nginx:1.27
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - postgres
+      - keycloak
+      - license-application-backend
+      - mock-bank
+      - mock-document-validator
+    networks:
+      - license-application-network
