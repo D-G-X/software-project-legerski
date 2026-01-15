@@ -10,6 +10,7 @@ import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.model.ApplicationFeeResource;
 import de.hft.licensing.model.ApplicationPaymentCreate;
 import de.hft.licensing.model.ApplicationPaymentResource;
+import de.hft.licensing.services.PaymentsControllerService;
 import de.hft.licensing.utils.ApiFormValidator;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
@@ -31,10 +32,13 @@ public class PaymentsController implements PaymentsApi {
   private final int ETV60_amount = 290;
 
   private final DSLContext dsl;
-  private final ApiFormValidator formValidator = new ApiFormValidator();
+  private final ApiFormValidator formValidator;
+  private final PaymentsControllerService paymentsControllerService;
 
-  public PaymentsController(DSLContext dsl) {
+  public PaymentsController(DSLContext dsl, ApiFormValidator formValidator, PaymentsControllerService paymentsControllerService) {
     this.dsl = dsl;
+      this.formValidator = formValidator;
+      this.paymentsControllerService = paymentsControllerService;
   }
 
   @Override
@@ -57,8 +61,10 @@ public class PaymentsController implements PaymentsApi {
     LocalDateTime now = LocalDateTime.now();
     var dbPayment = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
         .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
-        .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT,
-            new BigDecimal("99.99")) //TODO: add amount to model and DB
+        .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT,paymentsControllerService.calculateFeeAmount(applicationId))
+        .set(ApplicationPayment.APPLICATION_PAYMENT.ACCOUNTANT, applicationPaymentCreate.getName())
+        .set(ApplicationPayment.APPLICATION_PAYMENT.IBAN, applicationPaymentCreate.getIban())
+        .set(ApplicationPayment.APPLICATION_PAYMENT.BIC, applicationPaymentCreate.getBic())
         .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
         .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
         .returning()
