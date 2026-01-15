@@ -34,9 +34,6 @@ spring:
       mail.smtp.starttls.enable: true
       mail.smtp.starttls.required: true
       mail.smtp.ssl.trust: ${MAIL_HOST}
-  config:
-    import:
-      - file:/app/.env
 
 logging.level.org.jooq.Constants: off
 
@@ -67,4 +64,4 @@ mockbank:
   base-url: ${MOCK_BANK_BASE_URL}
 
 gdpr:
-  pepper: "mX0u6m5+7wGv3cK7m7f3bQp5m9w1a7Y8QmZQzHqv2mA="
+  pepper: ${GDPR_PEPPER}
