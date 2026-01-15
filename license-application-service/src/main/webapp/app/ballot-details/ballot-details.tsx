@@ -112,7 +112,7 @@ const BallotDetails: React.FC = () => {
 
   const handleBallotLottery = () => {
     // Allow API call only when status is "Completed"
-    if (status !== t("ballotStatus.completed")) {
+    if (status !== "Completed") {
       alert(
         t("ballotDetails.errors.cannotTriggerLottery") ||
           "Lottery can only be run after the ballot period has completed"
