@@ -5,9 +5,11 @@ import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseType;
 import de.hft.licensing.db.enums.VerificationStatus;
 import de.hft.licensing.db.tables.Application;
+import de.hft.licensing.db.tables.Ballot;
 import de.hft.licensing.db.tables.BallotPeriod;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
+import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.ApplicationCreate;
 import de.hft.licensing.model.ApplicationResource;
 import de.hft.licensing.model.ApplicationStatusApiEnum;
@@ -15,16 +17,8 @@ import de.hft.licensing.model.ApplicationUpdate;
 import de.hft.licensing.utils.ApiFormValidator;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,11 +29,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.*;
+
 @RestController
 public class ApplicationsController implements ApplicationsApi {
 
   private final DSLContext dsl;
-  private static final Logger log = LoggerFactory.getLogger(ApplicationsController.class);
+  private static final Logger log = LicensingLoggerFactory.getLogger(ApplicationsController.class);
   private final ApiFormValidator formValidator = new ApiFormValidator();
 
   public ApplicationsController(DSLContext dsl, Validator validator) {
@@ -103,7 +101,25 @@ public class ApplicationsController implements ApplicationsApi {
       return ResponseEntity.status(500).build();
     }
 
-    // TODO: if active ballot period add SUBMITTED to ballotperiod
+    try {
+      Integer currentBallotPeriodId = dsl.select(BallotPeriod.BALLOT_PERIOD.ID)
+              .from(BallotPeriod.BALLOT_PERIOD)
+              .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(now))
+              .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(now))
+              .fetchOneInto(Integer.class);
+
+      dsl.insertInto(Ballot.BALLOT)
+              .set(Ballot.BALLOT.BALLOT_PERIOD_ID, currentBallotPeriodId)
+              .set(Ballot.BALLOT.APPLICATION_ID, dbRecord.getId())
+              .set(Ballot.BALLOT.SELECTED, false)
+              .execute();
+
+    } catch (Exception e) {
+      log.error("Error while creating ballot entry for application ID {}: {}", dbRecord.getId(),
+          e.getMessage());
+      return ResponseEntity.status(500).build();
+    }
+
 
     // map DB record -> API model and convert enums explicitly
     ApplicationResource apiResource = new ApplicationResource();
