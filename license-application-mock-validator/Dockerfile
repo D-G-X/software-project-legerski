@@ -1,11 +1,20 @@
 FROM golang:1.22-alpine AS builder
 
-WORKDIR /app
+WORKDIR /build
 COPY . .
-RUN go build -o mock-document-validator document-validator.go
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -o mock-validator ./document-validator.go
+
 
 FROM alpine:3.19
+
 WORKDIR /app
-COPY --from=builder /app/mock-document-validator .
+RUN apk add --no-cache ca-certificates
+RUN addgroup -S app && adduser -S app -G app
+USER app
+
+COPY --from=builder /build/mock-validator .
+
 EXPOSE 8080
-CMD ["./mock-document-validator"]
+ENTRYPOINT ["./mock-validator"]

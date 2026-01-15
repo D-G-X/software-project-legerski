@@ -10,10 +10,13 @@ COPY pom.xml .
 RUN mvn -B -e -C dependency:go-offline
 
 # copy source code
-COPY src ./src
+COPY . .
 
-# build application
-RUN mvn -B clean package -DskipTests
+# build application (skip tests, liquibase and codegen generation)
+RUN mvn -B clean package \
+  -DskipTests \
+  -Dliquibase.skip=true \
+  -Djooq.codegen.skip=true
 
 
 # =========================
@@ -23,7 +26,7 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Security: create non-root user
+# security: create non-root user
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
