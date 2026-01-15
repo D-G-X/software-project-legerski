@@ -7,12 +7,16 @@ import de.hft.licensing.db.tables.NotificationPreferences;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.NotificationPreferencesRecord;
 import de.hft.licensing.db.tables.records.UserRecord;
+import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.*;
 import de.hft.licensing.services.KeycloakAuthService;
+import de.hft.licensing.services.UserGdprPseudonymizationService;
 import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.slf4j.Logger;
+import org.springframework.boot.actuate.logging.LoggersEndpoint;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,11 +34,13 @@ public class UsersController implements UsersApi {
 
     private final DSLContext dsl;
     private final KeycloakAuthService keycloakAuthService;
+    private final UserGdprPseudonymizationService userGdprPseudonymizationService;
+    private final Logger log = LicensingLoggerFactory.getLogger(UsersController.class);
 
-    public UsersController(DSLContext dsl, KeycloakAuthService keycloakAuthService) {
+    public UsersController(DSLContext dsl, KeycloakAuthService keycloakAuthService, UserGdprPseudonymizationService userGdprPseudonymizationService, LoggersEndpoint loggersEndpoint) {
         this.keycloakAuthService = keycloakAuthService;
         this.dsl = dsl;
-
+        this.userGdprPseudonymizationService = userGdprPseudonymizationService;
     }
 
     // ONLY FOR ADMINISTRATION PURPOSES - DO NOT USE IN PRODUCTION
@@ -43,6 +49,7 @@ public class UsersController implements UsersApi {
     @Transactional
     public ResponseEntity<Void> createUser(CreateUserRequest createUserRequest) {
         if (createUserRequest == null || createUserRequest.getSchema() == null || createUserRequest.getSchema().getUsername() == null) {
+            log.error("Invalid create user request received.");
             return ResponseEntity.badRequest().build();
         }
 
@@ -62,17 +69,20 @@ public class UsersController implements UsersApi {
                     .set(NotificationPreferences.NOTIFICATION_PREFERENCES.LICENSE_RENEWAL_NOTIFICATION, true)
                     .execute();
             if (insertedPreferences == 0) {
-                System.out.println("[WARNING] - Failed to insert notification preferences for user ID " + id + " into the local database.");
+                log.warn("Failed to insert notification preferences for user ID {} into the local database.", id);
             } else {
-                System.out.println("[INFO] - Notification preferences for user ID " + id + " created successfully in the local database.");
+                log.info("Notification preferences for user ID {} created successfully in the local database.", id);
             }
 
             if (insertedUser > 0) {
+                log.info("User record with ID {} created successfully in the local database.", id);
                 return ResponseEntity.created(URI.create("/users/" + id)).build();
             } else {
+                log.error("Failed to insert user record with ID {} into the local database.", id);
                 return ResponseEntity.status(500).build();
             }
         } catch (DataIntegrityViolationException e) {
+            log.error("Data integrity violation while creating user record with ID {}: {}", id, e.getMessage());
             return ResponseEntity.status(409).build();
         }
     }
@@ -82,6 +92,7 @@ public class UsersController implements UsersApi {
     @Transactional
     public ResponseEntity<Void> deleteUser(UUID userId) {
         if (userId == null) {
+            log.error("Invalid user ID provided for deletion.");
             return ResponseEntity.badRequest().build();
         }
 
@@ -91,6 +102,7 @@ public class UsersController implements UsersApi {
                         .where(User.USER.ID.eq(userId.toString()))
         );
         if (!exists) {
+            log.warn("User ID {} not found in local database for deletion.", userId);
             return ResponseEntity.notFound().build();
         }
 
@@ -98,20 +110,29 @@ public class UsersController implements UsersApi {
         try {
             deletedInKeycloak = keycloakAuthService.deleteUserInKeycloak(userId);
         } catch (RuntimeException e) {
+            log.error("Error occurred while deleting user ID {} in Keycloak: {}", userId, e.getMessage());
             return ResponseEntity.status(502).build();
         }
 
         if (!deletedInKeycloak) {
+            log.error("Failed to delete user ID {} in Keycloak.", userId);
             return ResponseEntity.notFound().build();
         }
 
-        int deletedRows = dsl.deleteFrom(User.USER)
-                .where(User.USER.ID.eq(userId.toString()))
-                .execute();
+        userGdprPseudonymizationService.pseudonymizeUserIdEverywhere(userId);
 
-        if (deletedRows == 0) {
+        boolean deleted = !dsl.fetchExists(
+                dsl.selectOne()
+                        .from(User.USER)
+                        .where(User.USER.ID.eq(userId.toString()))
+        );
+
+        if (!deleted) {
+            log.error("Failed to delete user ID {} from local database.", userId);
             return ResponseEntity.status(500).build();
         }
+
+        log.info("User ID {} successfully deleted from both Keycloak and local database.", userId);
 
         return ResponseEntity.noContent().build();
     }
