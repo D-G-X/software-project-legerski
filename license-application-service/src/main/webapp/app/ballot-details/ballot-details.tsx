@@ -8,13 +8,14 @@ import ValuePill from "app/common/ballot-details-ui/ValuePill";
 
 import { AuthContext } from "app/common/AuthContext";
 import { useGlobalLoader } from "app/common/GlobalLoader";
-import { useGetBallotPeriodDetails } from "app/services/ballot-periods/ballot-periods";
-import { FormHeader } from "app/common/headingTitle";
 import {
-  getBallotStatus,
-  getDrawDate,
-  getStatusClass,
-} from "app/common/ballotUtils";
+  useGetBallotPeriodDetails,
+  useRunLotteryForBallotPeriod,
+  getGetBallotPeriodDetailsQueryKey,
+} from "app/services/ballot-periods/ballot-periods";
+import { useQueryClient } from "@tanstack/react-query";
+import { FormHeader } from "app/common/headingTitle";
+import { getBallotStatus, getStatusClass } from "app/common/ballotUtils";
 
 const BallotDetails: React.FC = () => {
   const params = useParams<{ id?: string }>();
@@ -71,7 +72,54 @@ const BallotDetails: React.FC = () => {
 
   const status = getBallotStatus(startDate, endDate, new Date(), t);
   const statusClass = getStatusClass(status);
-  const drawDate = getDrawDate(endDate, 7);
+  // const drawDate = getDrawDate(endDate, 7);
+
+  const queryClient = useQueryClient();
+
+  const { mutate: runLottery, isPending: isLotteryRunning } =
+    useRunLotteryForBallotPeriod({
+      mutation: {
+        onSuccess: async () => {
+          try {
+            await queryClient.invalidateQueries({
+              queryKey: getGetBallotPeriodDetailsQueryKey(periodParam),
+            });
+          } catch (e) {
+            // ignore
+          }
+          alert(
+            t("ballotDetails.messages.lotterySuccess") ||
+              "Lottery run successfully"
+          );
+        },
+        onError: (err: any) => {
+          console.error(err);
+          alert(
+            t("ballotDetails.errors.lotteryFailed") || "Running lottery failed"
+          );
+        },
+      },
+      axios: {
+        headers: {
+          Authorization: `Bearer ${auth?.accessToken}`,
+        },
+      },
+    });
+
+  const handleBallotLottery = () => {
+    // Allow API call only when status is "Completed"
+    if (status !== "Completed") {
+      alert(
+        t("ballotDetails.errors.cannotTriggerLottery") ||
+          "Lottery can only be run after the ballot period has completed"
+      );
+      return;
+    }
+
+    if (!periodEnabled) return;
+
+    runLottery({ periodId: periodParam, data: {} });
+  };
 
   return (
     <div className="min-h-[calc(100vh-8rem)] bg-white font-inter flex items-center justify-center">
@@ -132,9 +180,9 @@ const BallotDetails: React.FC = () => {
               </ValuePill>
             </Row>
 
-            <Row label={t("ballotDetails.timeline.drawingDate")}>
+            {/* <Row label={t("ballotDetails.timeline.drawingDate")}>
               <ValuePill>{drawDate.toLocaleDateString()}</ValuePill>
-            </Row>
+            </Row> */}
           </div>
 
           {/* ACTION BUTTONS */}
@@ -144,17 +192,29 @@ const BallotDetails: React.FC = () => {
                 onClick={() =>
                   navigate(`/ballot-applications/${ballot?.ballot_period_id}`)
                 }
-                className="w-48 bg-mallorca-purple text-white px-6 py-2 rounded-lg font-medium text-center"
+                className="w-48 border-2 border-mallorca-purple hover:cursor-pointer bg-mallorca-purple hover:bg-mallorca-purple/75 text-white px-6 py-2 rounded-lg font-medium text-center"
               >
                 {t("ballotDetails.actions.viewApplications")}
               </button>
 
               <button
                 onClick={() => navigate("/")}
-                className="w-48 border border-gray-400 px-6 py-2 rounded-lg font-medium text-center"
+                className="w-48 border-2 border-mallorca-purple hover:cursor-pointer hover:text-white hover:bg-mallorca-purple/75 px-6 py-2 rounded-lg font-medium text-center"
               >
                 {t("ballotDetails.actions.cancel")}
               </button>
+
+              {status === "Completed" && (
+                <button
+                  onClick={handleBallotLottery}
+                  disabled={isLotteryRunning}
+                  className={`w-48 border-2 px-6 py-2 rounded-lg hover:cursor-pointer font-medium text-center bg-mallorca-red/75 text-white border-mallorca-red hover:bg-mallorca-red ${
+                    isLotteryRunning ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {t("ballotDetails.actions.triggerBallot")}
+                </button>
+              )}
             </div>
           </div>
         </div>

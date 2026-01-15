@@ -8,7 +8,6 @@ import { FormHeader } from "app/common/headingTitle";
 import { useTranslation } from "react-i18next";
 import useDocumentTitle from "../common/use-document-title";
 import Pagination from "../common/Pagination";
-import DUMMY_APPLICATIONS from "./mock-applications";
 import { useGetBallotPeriodDetails } from "app/services/ballot-periods/ballot-periods";
 import { formatDateShort } from "app/common/format";
 import { getApplicationStatusColor } from "../common/format";
@@ -61,9 +60,7 @@ function BallotApplications() {
     }
   );
 
-  const applications = applicationsRaw ?? [];
-  const displayApplications =
-    applications.length > 0 ? applications : DUMMY_APPLICATIONS;
+  const displayApplications = applicationsRaw ?? [];
 
   useEffect(() => {
     isFetching || isBallotFetching ? show() : hide();
