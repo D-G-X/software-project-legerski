@@ -12,6 +12,7 @@ import de.hft.licensing.model.*;
 import de.hft.licensing.services.KeycloakAuthService;
 import de.hft.licensing.services.UserGdprPseudonymizationService;
 import de.hft.licensing.services.auth.AdminOnly;
+import de.hft.licensing.services.dslService.UserDslService;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
@@ -33,14 +34,16 @@ import java.util.UUID;
 public class UsersController implements UsersApi {
 
     private final DSLContext dsl;
+    private final UserDslService userDslService;
     private final KeycloakAuthService keycloakAuthService;
     private final UserGdprPseudonymizationService userGdprPseudonymizationService;
     private final Logger log = LicensingLoggerFactory.getLogger(UsersController.class);
 
-    public UsersController(DSLContext dsl, KeycloakAuthService keycloakAuthService, UserGdprPseudonymizationService userGdprPseudonymizationService, LoggersEndpoint loggersEndpoint) {
+    public UsersController(DSLContext dsl, KeycloakAuthService keycloakAuthService, UserGdprPseudonymizationService userGdprPseudonymizationService, LoggersEndpoint loggersEndpoint, UserDslService userDslService) {
         this.keycloakAuthService = keycloakAuthService;
         this.dsl = dsl;
         this.userGdprPseudonymizationService = userGdprPseudonymizationService;
+        this.userDslService = userDslService;
     }
 
     // ONLY FOR ADMINISTRATION PURPOSES - DO NOT USE IN PRODUCTION
@@ -119,7 +122,11 @@ public class UsersController implements UsersApi {
             return ResponseEntity.notFound().build();
         }
 
-        userGdprPseudonymizationService.pseudonymizeUserIdEverywhere(userId);
+        String result = userGdprPseudonymizationService.pseudonymizeUserIdEverywhere(userId);
+        if (result == null){
+            log.warn("User ID {} could not be pseudonymized in all relevant tables.", userId);
+            log.warn("Manual cleanup may be required for user ID {} in some tables.", userId);
+        }
 
         boolean deleted = !dsl.fetchExists(
                 dsl.selectOne()
@@ -133,6 +140,9 @@ public class UsersController implements UsersApi {
         }
 
         log.info("User ID {} successfully deleted from both Keycloak and local database.", userId);
+
+        int updatedApplicationCount = userDslService.setApplicationStatusToCancelled(userId.toString());
+        log.info("Updated application status to 'cancelled' for {} applications associated to pseudonymized user.", updatedApplicationCount);
 
         return ResponseEntity.noContent().build();
     }
