@@ -6,7 +6,7 @@ type FormHeaderProps = {
   className?: string;        // optional
 };
 
-export function FormHeader({ heading, subHeading, className = "" }: FormHeaderProps) {
+export function FormHeader({heading, subHeading, className = ""}: FormHeaderProps) {
   return (
       <div className={className}>
         <div className="text-4xl font-bold text-mallorca-purple">

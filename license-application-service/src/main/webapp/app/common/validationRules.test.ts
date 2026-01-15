@@ -1,16 +1,20 @@
 import {
-  bicRegex,
-  cadastralNumberRegex, dateRegex,
-  emailRegex, ibanRegex, isValidBic,
-  isValidCadastralNumber,
-  isValidConfirmPassword,
-  isValidDateString,
-  isValidEmail,
-  isValidIban,
-  isValidName, isValidOptionalText,
-  isValidPassword,
-  nameRegex,
-  passwordRegex
+    bicRegex,
+    cadastralNumberRegex,
+    dateRegex,
+    emailRegex,
+    ibanRegex,
+    isValidBic,
+    isValidCadastralNumber,
+    isValidConfirmPassword,
+    isValidDateString,
+    isValidEmail,
+    isValidIban,
+    isValidName,
+    isValidOptionalText,
+    isValidPassword,
+    nameRegex,
+    passwordRegex
 } from "./validationRules";
 
 // Name Validation

@@ -1,6 +1,7 @@
-import { refreshLogin } from "app/services/authentication/authentication";
-import React, { createContext, useState, ReactNode, useEffect } from "react";
-import { setAccessTokenHeader, setRefreshHandler } from "./axios-config";
+import {refreshLogin} from "app/services/authentication/authentication";
+import React, {createContext, ReactNode, useEffect, useState} from "react";
+import {setAccessTokenHeader, setRefreshHandler} from "./axios-config";
+
 interface AuthContextType {
   role: string | null;
   accessToken: string | null;
@@ -20,17 +21,17 @@ interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
+    undefined
 );
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({children}: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [accessTokenExpiry, setAccessTokenExpiry] = useState<number | null>(
-    null
+      null
   );
   const [refreshTokenExpiry, setRefreshTokenExpiry] = useState<
-    number | null | undefined
+      number | null | undefined
   >(null);
   const [tokenType, setTokenType] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshAccessToken = async () => {
     if (!refreshToken) return null;
     try {
-      const resp = await refreshLogin({ refresh_token: refreshToken });
+      const resp = await refreshLogin({refresh_token: refreshToken});
       const {
         access_token,
         refresh_token,
@@ -79,8 +80,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       if (typeof refresh_expires_in !== "undefined") {
         localStorage.setItem(
-          "refreshTokenExpiry",
-          refresh_expires_in ? String(refresh_expires_in) : ""
+            "refreshTokenExpiry",
+            refresh_expires_in ? String(refresh_expires_in) : ""
         );
         setRefreshTokenExpiry(refresh_expires_in);
       }
@@ -101,25 +102,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [refreshToken]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        accessToken,
-        refreshToken,
-        accessTokenExpiry,
-        refreshTokenExpiry,
-        tokenType,
-        role,
-        setAccessToken,
-        setRefreshToken,
-        signOut,
-        setAccessTokenExpiry,
-        setRefreshTokenExpiry,
-        setTokenType,
-        refreshAccessToken,
-        setRole,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+      <AuthContext.Provider
+          value={{
+            accessToken,
+            refreshToken,
+            accessTokenExpiry,
+            refreshTokenExpiry,
+            tokenType,
+            role,
+            setAccessToken,
+            setRefreshToken,
+            signOut,
+            setAccessTokenExpiry,
+            setRefreshTokenExpiry,
+            setTokenType,
+            refreshAccessToken,
+            setRole,
+          }}
+      >
+        {children}
+      </AuthContext.Provider>
   );
 };

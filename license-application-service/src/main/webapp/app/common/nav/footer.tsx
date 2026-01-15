@@ -2,8 +2,8 @@ import React, {useContext} from "react";
 import {useTranslation} from "react-i18next";
 import {Link} from "react-router";
 import {Scale, Users} from "lucide-react";
-import NotificationPopup from "./NotificationPopup";
-import {AuthContext} from "./AuthContext";
+import NotificationPopup from "../NotificationPopup";
+import {AuthContext} from "../auth/AuthContext";
 
 export default function Footer() {
   const auth = useContext(AuthContext);
@@ -23,7 +23,7 @@ export default function Footer() {
                     text-mallorca-purple/75 hover:bg-mallorca-purple/10"
                 />
             ) : (
-                <div />
+                <div/>
             )}
 
             {/* Right side */}

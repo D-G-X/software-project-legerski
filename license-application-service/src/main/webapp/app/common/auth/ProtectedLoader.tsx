@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import {redirect} from "react-router";
 
 export const ProtectedLoader = (allowedRoles?: string[]) => {
   return () => {
@@ -10,9 +10,9 @@ export const ProtectedLoader = (allowedRoles?: string[]) => {
     }
 
     if (
-      allowedRoles &&
-      allowedRoles.length > 0 &&
-      !allowedRoles.includes(role ?? "")
+        allowedRoles &&
+        allowedRoles.length > 0 &&
+        !allowedRoles.includes(role ?? "")
     ) {
       return redirect("/error"); // redirect if role not allowed
     }

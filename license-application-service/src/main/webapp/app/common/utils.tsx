@@ -1,3 +1,6 @@
+import {useTranslation} from "react-i18next";
+import {useEffect} from "react";
+
 type Unit = "second" | "minute" | "hour" | "day" | "month" | "year";
 
 const BLUE_STATUSES = [
@@ -17,14 +20,14 @@ const ORANGE_STATUSES = ["DOCUMENTS_SUBMITTED", "VERIFICATION_PENDING", "AWAITIN
 
 
 export const getApplicationStatusColor = (status: string | undefined | null): string => {
-    if (!status || status == "") return "gray";
+  if (!status || status == "") return "gray";
 
-    if (BLUE_STATUSES.includes(status)) return "blue";
-    if (GREEN_STATUSES.includes(status)) return "green";
-    if (RED_STATUSES.includes(status)) return "red";
-    if (GRAY_STATUSES.includes(status)) return "gray";
-    if (ORANGE_STATUSES.includes(status)) return "orange";
-    return "gray";
+  if (BLUE_STATUSES.includes(status)) return "blue";
+  if (GREEN_STATUSES.includes(status)) return "green";
+  if (RED_STATUSES.includes(status)) return "red";
+  if (GRAY_STATUSES.includes(status)) return "gray";
+  if (ORANGE_STATUSES.includes(status)) return "orange";
+  return "gray";
 }
 
 export const getLicenseStatusColor = (status: string | undefined | null): string => {
@@ -32,7 +35,8 @@ export const getLicenseStatusColor = (status: string | undefined | null): string
 
   // TODO: confirm status values and add missing
   if (status == "ACTIVE") return "green";
-  if (status == "EXPIRED") return "red";
+  if (status == "SUSPENDED") return "red";
+  if (status == "EXPIRED") return "gray";
   return "gray";
 }
 
@@ -176,4 +180,34 @@ export const formatRelativeDate = (rawIso: string | undefined, rawLocale: string
   }
 
   return timeFormat.format(0, "second");
+};
+
+export const getDateWithDelta = (deltaInDays: number): string => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + deltaInDays);
+  return date.toISOString().slice(0, 10);
+};
+
+export const toISOStringFromDateInput = (dateString: string): string => {
+  // dateString must be YYYY-MM-DD
+  const [year, month, day] = dateString.split("-").map(Number);
+
+  // Create UTC date to avoid timezone shift
+  const utcDate = new Date(Date.UTC(year!, month! - 1, day, 0, 0, 0));
+
+  return utcDate.toISOString();
+};
+
+export const useDocumentTitle = (title?: string) => {
+  const {t} = useTranslation();
+  const titleSuffix = t('app.title');
+
+  useEffect(() => {
+    if (title) {
+      document.title = title + ' - ' + titleSuffix;
+    } else {
+      document.title = titleSuffix;
+    }
+  }, [title]);
 };

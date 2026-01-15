@@ -1,16 +1,15 @@
 import React, {useContext, useState} from "react";
 import {useTranslation} from "react-i18next";
-import useDocumentTitle from "../common/use-document-title";
+import {formatDateShort, formatStatusLabel, getApplicationStatusColor, useDocumentTitle} from "../common/utils";
 import Pagination from "../common/Pagination";
 import {Link, useNavigate} from "react-router";
 import {ApplicationResource} from "../../types";
 import AdminApplicationDetails from "./admin-applicationDetails";
-import {AuthContext} from "../common/AuthContext";
+import {AuthContext} from "../common/auth/AuthContext";
 import {useGetBallotPeriodEntries} from "../services/ballot-periods/ballot-periods";
-import {formatStatusLabel, formatDateShort, getApplicationStatusColor} from "../common/format";
 
 function getApplicationsForBallotPeriod(periodId: number | undefined) {
-  if(!periodId) return;
+  if (!periodId) return;
   const auth = useContext(AuthContext);
   const {data: response} = useGetBallotPeriodEntries(periodId,
       {
@@ -83,27 +82,27 @@ export default function AdminDashboard() {
                     <table className="mt-8 text-lg dashboard-table text-mallorca-purple">
                       <thead>
                       <tr>
-                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.requester_name")}</th>
-                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.address")}</th>
-                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.phone_number")}</th>
-                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.email")}</th>
-                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.country")}</th>
-                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal" >{t("admin-dashboard.table.status")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("admin-dashboard.table.requester_name")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("admin-dashboard.table.address")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("admin-dashboard.table.phone_number")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("admin-dashboard.table.email")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("admin-dashboard.table.country")}</th>
+                        <th className="w-1/5 text-left border-b border-black/10 p-2.5 text-black/30 font-normal">{t("admin-dashboard.table.status")}</th>
                       </tr>
                       </thead>
                       <tbody>
                       {currentData.map((item) => (
                           <tr key={item.id}>
-                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.user_id}</td>
-                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.license_type}</td>
-                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.cadastral_reference}</td>
-                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{formatDateShort(item.applied_at, t)}</td>
-                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{formatDateShort(item.changed_at, t)}</td>
-                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.application_status}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{item.user_id}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{item.license_type}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{item.cadastral_reference}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{formatDateShort(item.applied_at, t)}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{formatDateShort(item.changed_at, t)}</td>
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">{item.application_status}</td>
                             {(item.remarks && (
-                                <td className="w-1/5 text-left border-b border-black/10 p-2.5" >{item.remarks}</td>
+                                <td className="w-1/5 text-left border-b border-black/10 p-2.5">{item.remarks}</td>
                             ))}
-                            <td className="w-1/5 text-left border-b border-black/10 p-2.5" >
+                            <td className="w-1/5 text-left border-b border-black/10 p-2.5">
                         <span
                             className={`inline-flex items-center justify-center text-center p-1 px-4 min-w-56 rounded-md 
                               text-${getApplicationStatusColor(item.application_status)}-800 
@@ -112,7 +111,7 @@ export default function AdminDashboard() {
                           {t(formatStatusLabel("dashboard.licenceStatus.", item.application_status))}
                         </span>
                             </td>
-                            <td className="w-1/5 text-left border-b border-black/10 p-[10px]" >
+                            <td className="w-1/5 text-left border-b border-black/10 p-[10px]">
                               <button
                                   key={item.id}
                                   onClick={() => openDetails(item)}

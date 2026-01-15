@@ -1,5 +1,5 @@
 import React from "react";
-import { downloadPdfOfficialDocument } from "./download-pdf";
+import {downloadPdfOfficialDocument} from "./downloadPdf";
 
 interface ModalDialogProps {
   open: boolean;
@@ -55,7 +55,8 @@ export default function ModalDialog({
           </h2>
 
           {/* Text content */}
-          <div className="max-h-200 overflow-y-auto text-mallorca-purple/90 whitespace-pre-line border border-mallorca-purple/20 rounded p-3">
+          <div
+              className="max-h-200 overflow-y-auto text-mallorca-purple/90 whitespace-pre-line border border-mallorca-purple/20 rounded p-3">
             {text}
           </div>
 

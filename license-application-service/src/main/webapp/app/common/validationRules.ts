@@ -258,7 +258,7 @@ export const isValidBic = (bic: string | undefined | null) => {
 };
 
 export const isValidDateString = (value: string | undefined | null): boolean => {
-  if(!value || value.trim() === "")
+  if (!value || value.trim() === "")
     return false;
 
   if (!dateRegex.test(value))

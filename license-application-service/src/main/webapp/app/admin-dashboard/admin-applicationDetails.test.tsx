@@ -2,13 +2,13 @@ import React from "react";
 import AdminApplicationDetails from "./admin-applicationDetails";
 
 test("should create", () => {
-  const { container } = renderWithRouter(
-    <AdminApplicationDetails
-      open={false}
-      userId={""}
-      applicationData={undefined}
-      onClose={jest.fn()}
-    />
+  const {container} = renderWithRouter(
+      <AdminApplicationDetails
+          open={false}
+          userId={""}
+          applicationData={undefined}
+          onClose={jest.fn()}
+      />
   );
 
   expect(container).toBeTruthy();

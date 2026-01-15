@@ -1,4 +1,4 @@
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
 export function getUserIdFromToken(token?: string | null) {
   if (!token) return null;

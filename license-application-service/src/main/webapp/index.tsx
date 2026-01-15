@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from "react";
+import React, {useContext, useEffect} from "react";
 import ReactDOM from "react-dom/client";
-import { initReactI18next } from "react-i18next";
+import {initReactI18next} from "react-i18next";
 import i18n from "i18next";
 import axios from "axios";
 import english from "./locales/english.json";
@@ -10,10 +10,10 @@ import hindi from "./locales/hindi.json";
 import indonesian from "./locales/indonesian.json";
 import spanish from "./locales/spanish.json";
 import AppRoutes from "./app/routes";
-import { AuthContext, AuthProvider } from "./app/common/AuthContext";
+import {AuthContext, AuthProvider} from "./app/common/auth/AuthContext";
 import "./index.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { GlobalLoaderProvider } from "app/common/GlobalLoader";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {GlobalLoaderProvider} from "app/common/GlobalLoader";
 
 const queryClient = new QueryClient();
 
@@ -37,7 +37,7 @@ const AppInitializer = () => {
     if (storedRole) auth?.setRole(storedRole);
   }, [auth]);
 
-  return <AppRoutes />;
+  return <AppRoutes/>;
 };
 
 i18n.use(initReactI18next).init({
@@ -73,13 +73,13 @@ axios.defaults.baseURL = process.env.API_PATH;
 const root = document.getElementById("root")!!;
 
 ReactDOM.createRoot(root).render(
-  <React.StrictMode>
-    <GlobalLoaderProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AppInitializer />
-        </AuthProvider>
-      </QueryClientProvider>
-    </GlobalLoaderProvider>
-  </React.StrictMode>
+    <React.StrictMode>
+      <GlobalLoaderProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <AppInitializer/>
+          </AuthProvider>
+        </QueryClientProvider>
+      </GlobalLoaderProvider>
+    </React.StrictMode>
 );
