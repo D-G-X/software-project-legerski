@@ -10,6 +10,7 @@ import de.hft.licensing.db.tables.BallotPeriod;
 import de.hft.licensing.db.tables.records.ApplicationPaymentRecord;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
+import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.*;
 import de.hft.licensing.services.DistributionAlgorithmService;
 import de.hft.licensing.services.MockBankClient;
@@ -19,6 +20,7 @@ import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.jooq.impl.DefaultDSLContext;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,14 +38,13 @@ public class BallotPeriodsController implements BallotPeriodsApi {
     private final DefaultDSLContext dslContext;
     private final DistributionAlgorithmService distributionAlgorithmService;
     private final MockBankClient mockBankClient;
+    private static final Logger log = LicensingLoggerFactory.getLogger(ApplicationsController.class);
 
     public BallotPeriodsController(DefaultDSLContext dslContext, DistributionAlgorithmService distributionAlgorithmService, MockBankClient mockBankClient) {
         this.dslContext = dslContext;
         this.distributionAlgorithmService = distributionAlgorithmService;
         this.mockBankClient = mockBankClient;
     }
-
-    public record BallotApiError(String code, String message) {}
 
     @Override
     @AdminOnly
@@ -208,13 +209,24 @@ public class BallotPeriodsController implements BallotPeriodsApi {
         }
 
         if (result == null) {
-            System.out.println("[ERROR] - Lottery could not be run for Ballot Period ID " + periodId + ". Check if the period exists and is finished.");
+            System.out.println("Lottery could not be run for Ballot Period ID " + periodId + ". Check if the period exists and is finished.");
             return ResponseEntity.badRequest().build();
         }
 
         List<ApplicationResource> selectedResources = result.selectedApplications().stream().map(record -> {
             ApplicationResource resource = new ApplicationResource();
             RecordToResourceMapperUtil.mapApplicationRecordToResource(record, resource);
+
+            try {
+                dslContext.update(Ballot.BALLOT)
+                        .set(Ballot.BALLOT.SELECTED, true)
+                        .where(Ballot.BALLOT.APPLICATION_ID.eq(record.getId()))
+                        .and(Ballot.BALLOT.BALLOT_PERIOD_ID.eq(periodId))
+                        .execute();
+            } catch (Exception e) {
+                log.error("Failed to map application ID {} to resource: {}", record.getId(), e.getMessage());
+}
+
             return resource;
         }).toList();
 
