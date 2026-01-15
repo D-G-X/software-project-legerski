@@ -13,6 +13,12 @@ public class MockBankClient {
         this.webClient = builder.baseUrl(baseUrl).build();
     }
 
+    /**
+     * Calls the mock bank service to process a payment.
+     *
+     * @param req the payment request data
+     * @return the payment response data
+     */
     public PaymentResponseDto processPayment(PaymentRequestDto req) {
         return webClient.post()
                 .uri("/process-payment")
