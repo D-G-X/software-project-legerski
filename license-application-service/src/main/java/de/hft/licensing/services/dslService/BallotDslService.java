@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 public class BallotDslService {
 
-    private static final ApplicationStatus STATUS_SUBMITTED = ApplicationStatus.submitted;
+    private static final ApplicationStatus STATUS_PAYMENT_RECEIVED = ApplicationStatus.payment_received;
     private static final ApplicationStatus STATUS_APPROVED  = ApplicationStatus.approved;
     private static final ApplicationStatus STATUS_REJECTED  = ApplicationStatus.rejected;
 
@@ -33,20 +33,11 @@ public class BallotDslService {
 
     private final DefaultDSLContext dsl;
 
-    public void insertApplicationInBallotTableAsSelected(int periodId, ApplicationRecord app) {
-        dsl.insertInto(Ballot.BALLOT)
-                .set(Ballot.BALLOT.BALLOT_PERIOD_ID, periodId)
-                .set(Ballot.BALLOT.APPLICATION_ID, app.getId())
+    public void updateApplicationInBallotTableToSelected(int periodId, ApplicationRecord app) {
+        dsl.update(Ballot.BALLOT)
                 .set(Ballot.BALLOT.SELECTED, true)
-                .execute();
-
-    }
-
-    public void insertApplicationInBallotTableAsRejected(int periodId, ApplicationRecord app) {
-        dsl.insertInto(Ballot.BALLOT)
-                .set(Ballot.BALLOT.BALLOT_PERIOD_ID, periodId)
-                .set(Ballot.BALLOT.APPLICATION_ID, app.getId())
-                .set(Ballot.BALLOT.SELECTED, false)
+                .where(String.valueOf(Ballot.BALLOT.APPLICATION_ID), app.getId())
+                .and(String.valueOf(Ballot.BALLOT.BALLOT_PERIOD_ID), periodId)
                 .execute();
 
     }
@@ -78,8 +69,8 @@ public class BallotDslService {
     }
 
     public List<ApplicationRecord> getCandidateApplications (LocalDateTime startDate, LocalDateTime endDate, LicenseTypeApiEnum licenseType){
-        // all applications with status SUBMITTED and applied in period, if type != null filter by type
-        Condition condition = Application.APPLICATION.APPLICATION_STATUS.eq(STATUS_SUBMITTED)
+        // all applications with status payment_received and applied in period, if type != null filter by type
+        Condition condition = Application.APPLICATION.APPLICATION_STATUS.eq(STATUS_PAYMENT_RECEIVED)
                 .and(Application.APPLICATION.APPLIED_AT.le(endDate))
                 .and(Application.APPLICATION.APPLIED_AT.ge(startDate));
         if (licenseType != null) {
