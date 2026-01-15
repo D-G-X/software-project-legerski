@@ -4,6 +4,7 @@ import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.LicenseTypeApiEnum;
 import de.hft.licensing.services.dslService.BallotDslService;
+import de.hft.licensing.utils.EnumMapperUtil;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 public class DistributionAlgorithmService {
 
-    private static final int DEFAULT_MAX_ACCEPTED_APPLICATIONS = 20_000;
+    private static final int DEFAULT_MAX_ACCEPTED_APPLICATIONS = 100;
 
     private final BallotDslService dslService;
 
@@ -102,13 +103,12 @@ public class DistributionAlgorithmService {
 
 
         for (ApplicationRecord app : selected) {
-            dslService.insertApplicationInBallotTableAsSelected(periodId, app);
-            createLicenseForApplication(app, licenseType);
+            dslService.updateApplicationInBallotTableToSelected(periodId, app);
+            createLicenseForApplication(app);
             dslService.updateApplicationStatusToApproved(app);
         }
 
         for (ApplicationRecord app : notSelected) {
-            dslService.insertApplicationInBallotTableAsRejected(periodId, app);
             dslService.updateApplicationStatusToRejected(app);
         }
 
@@ -116,10 +116,9 @@ public class DistributionAlgorithmService {
     }
 
 
-    private void createLicenseForApplication(ApplicationRecord applicationRecord,
-                                             @Nullable LicenseTypeApiEnum licenseType) {
+    private void createLicenseForApplication(ApplicationRecord applicationRecord) {
+        LicenseTypeApiEnum licenseType = EnumMapperUtil.getPendantFromEnum(applicationRecord.getLicenseType());
         dslService.createLicenseForApplication(applicationRecord, licenseType);
-
     }
 
     public record LotteryResult(List<ApplicationRecord> selectedApplications,
