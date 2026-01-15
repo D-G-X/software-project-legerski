@@ -1167,7 +1167,11 @@
     },
     "actions": {
       "viewApplications": "View Applications",
-      "cancel": "Back to Dashboard"
+      "cancel": "Back to Dashboard",
+      "triggerBallot": "Trigger Ballot"
+    },
+    "messages": {
+      "lotterySuccess": "Lottery run successfully"
     },
     "status": {
       "active": "Active",
@@ -1175,6 +1179,8 @@
       "completed": "Completed"
     },
     "errors": {
+      "lotteryFailed": "Running lottery failed",
+      "cannotTriggerLottery": "Lottery can only be run after the ballot period has completed",
       "unableToLoad": "Unable to load ballot details.",
       "failedToLoad": "Failed to load ballot details",
       "missingDates": "Missing dates for ballot."
