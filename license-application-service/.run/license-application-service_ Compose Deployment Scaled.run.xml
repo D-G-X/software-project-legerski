@@ -10,7 +10,7 @@
             <option value="nginx" />
           </list>
         </option>
-        <option name="sourceFilePath" value="license-application-service/docker-compose.yml" />
+        <option name="sourceFilePath" value="docker/docker-compose.yml" />
         <upScaledServices>
           <entry key="backend" value="2" />
         </upScaledServices>

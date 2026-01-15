@@ -40,9 +40,6 @@ services:
 
   backend:
     image: license-application-backend:latest
-    build:
-      context: ../license-application-service
-      dockerfile: Dockerfile
     env_file:
       - .env
     deploy:

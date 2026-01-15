@@ -1,51 +1,49 @@
 spring:
   application:
     name: licensing
-
   liquibase:
     change-log: db/master-changelog.xml
     default-schema: licensing
     liquibase-schema: public
     enabled: true
-
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
-
+          issuer-uri: http://localhost:8081/realms/license-realm
+  docker:
+    compose:
+      lifecycle-management: start-only
+      file: license-application-service/docker-compose.yml
   jooq:
     sql-dialect: postgres
 
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    debug: false
+    host: smtp.gmail.com
+    port: 587
+    username: projectlegerski@gmail.com
+    password: earm afra dnfn vnpp
+    debug: true
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
       mail.smtp.starttls.required: true
-      mail.smtp.ssl.trust: ${MAIL_HOST:smtp.gmail.com}
-
+      mail.smtp.ssl.trust: smtp.gmail.com
   config:
     import:
-      - optional:file:license-application-service/.env    # local
-      - optional:file:/app/.env                           # docker
+      - optional:file:license-application-service/.env # for local builds
+      - optional:file:/app/.env # for docker containers
 
-logging:
-  level:
-    org.jooq.Constants: off
+logging.level.org.jooq.Constants: off
 
 springdoc:
   swagger-ui:
     operations-sorter: alpha
     oauth:
-      client-id: ${KEYCLOAK_CLIENT_ID:backend-api}
-      client-secret: ${KEYCLOAK_CLIENT_SECRET}
+      client-id: backend-api
+      client-secret: "CLIENT_SECRET_PLACEHOLDER"
       use-pkce-with-authorization-code-grant: true
-    oauth2-redirect-url: ${SWAGGER_REDIRECT_URL:http://localhost:8080/swagger-ui/oauth2-redirect.html}
+    oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
 
 error:
   handling:
@@ -56,10 +54,10 @@ error:
       5xx: ERROR
 
 keycloak:
-  url: ${KEYCLOAK_URL}
-  realm: ${KEYCLOAK_REALM:license-realm}
-  client-id: ${KEYCLOAK_CLIENT_ID:backend-api}
-  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+  url: http://localhost:8081
+  realm: license-realm
+  client-id: backend-api
+  client-secret: "CLIENT_SECRET_PLACEHOLDER"
 
 mockbank:
-  base-url: ${MOCKBANK_BASE_URL}
+  base-url: http://localhost:8082

@@ -2,6 +2,8 @@
 
 CALLER_DIR="$(pwd)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+TARGET_DIR="target"
 NODE_MODULES_DIR="node_modules"
 SERVICES_DIR="src/main/webapp/app/services"
 TYPES_DIR="src/main/webapp/types"
@@ -19,7 +21,11 @@ fi
 
 git clean -fd
 
-docker compose -f ./docker-compose.yml down --volumes --remove-orphans
+docker compose -f ../docker/docker-compose.yml down --volumes --remove-orphans
+
+if [ -d TARGET_DIR ]; then
+  rm -rf TARGET_DIR
+fi
 
 if [ -d $NODE_MODULES_DIR ]; then
   rm -rf $NODE_MODULES_DIR
