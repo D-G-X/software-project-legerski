@@ -15,11 +15,7 @@ import {
 } from "app/services/ballot-periods/ballot-periods";
 import { useQueryClient } from "@tanstack/react-query";
 import { FormHeader } from "app/common/headingTitle";
-import {
-  getBallotStatus,
-  getDrawDate,
-  getStatusClass,
-} from "app/common/ballotUtils";
+import { getBallotStatus, getStatusClass } from "app/common/ballotUtils";
 
 const BallotDetails: React.FC = () => {
   const params = useParams<{ id?: string }>();
@@ -76,7 +72,7 @@ const BallotDetails: React.FC = () => {
 
   const status = getBallotStatus(startDate, endDate, new Date(), t);
   const statusClass = getStatusClass(status);
-  const drawDate = getDrawDate(endDate, 7);
+  // const drawDate = getDrawDate(endDate, 7);
 
   const queryClient = useQueryClient();
 
@@ -184,9 +180,9 @@ const BallotDetails: React.FC = () => {
               </ValuePill>
             </Row>
 
-            <Row label={t("ballotDetails.timeline.drawingDate")}>
+            {/* <Row label={t("ballotDetails.timeline.drawingDate")}>
               <ValuePill>{drawDate.toLocaleDateString()}</ValuePill>
-            </Row>
+            </Row> */}
           </div>
 
           {/* ACTION BUTTONS */}
