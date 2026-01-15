@@ -19,12 +19,8 @@ import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.RestController;
@@ -175,24 +171,7 @@ public class ApplicationsController implements ApplicationsApi {
   @PreAuthorize("@applicationAuthorization.canListApplications(authentication, #userId)")
   public ResponseEntity<List<ApplicationResource>> listApplications(UUID userId,
       ApplicationStatusApiEnum applicationStatus) {
-    // Get current authenticated user
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (!(authentication instanceof JwtAuthenticationToken jwt)) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-    // Maps roles from JWT token
-    boolean isAdmin = jwt.getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
-    // Extract the user ID from Keycloak token: "sub" claim
-    UUID currentUserId = UUID.fromString(jwt.getToken().getSubject());
-    // Enforce: normal users can only see their own applications
-    if (userId != null && !isAdmin && !userId.equals(currentUserId)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    } else if (!isAdmin) {
-      userId = currentUserId;
-    }
-
-    List<ApplicationRecord> result = null;
+    List<ApplicationRecord> result;
     // no filters
     if (userId == null && applicationStatus == null) {
       result = dsl.select()
