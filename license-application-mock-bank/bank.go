@@ -16,7 +16,7 @@ import (
 
 const successProbability = 99 // percentage chance of SUCCESS status
 
-const callbackURL = "http://host.docker.internal:8080/payment-callback" // <— Ziel für deinen Backend Callback
+const callbackURL = "http://license-application-backend:8080/payment-callback" // <— Ziel für deinen Backend Callback
 
 var processDuration = []time.Duration{
 	5 * time.Millisecond,

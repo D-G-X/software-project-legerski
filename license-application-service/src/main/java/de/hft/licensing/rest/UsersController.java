@@ -17,7 +17,6 @@ import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
-import org.springframework.boot.actuate.logging.LoggersEndpoint;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,7 +39,7 @@ public class UsersController implements UsersApi {
     private final UserGdprPseudonymizationService userGdprPseudonymizationService;
     private final Logger log = LicensingLoggerFactory.getLogger(UsersController.class);
 
-    public UsersController(DSLContext dsl, KeycloakAuthService keycloakAuthService, UserGdprPseudonymizationService userGdprPseudonymizationService, LoggersEndpoint loggersEndpoint, UserDslService userDslService) {
+    public UsersController(DSLContext dsl, KeycloakAuthService keycloakAuthService, UserGdprPseudonymizationService userGdprPseudonymizationService, UserDslService userDslService) {
         this.keycloakAuthService = keycloakAuthService;
         this.dsl = dsl;
         this.userGdprPseudonymizationService = userGdprPseudonymizationService;
