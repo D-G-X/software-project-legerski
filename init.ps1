@@ -1,5 +1,6 @@
 $CallerDir = Get-Location
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$DockerDir = Join-Path $ScriptDir "docker"
 
 Set-Location $ScriptDir
 
