@@ -15,6 +15,7 @@ import org.springframework.http.*;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
@@ -169,6 +170,31 @@ public class AuthService {
         OK,
         NOT_FOUND,
         INTERNAL_ERROR
+    }
+
+    @Transactional
+    public boolean deleteUserInKeycloak(UUID userId) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        String url = String.format("%s/admin/realms/%s/users/%s", keycloakUrl, realm, userId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
+            return true;
+        } catch (RestClientResponseException e) {
+            if (e.getRawStatusCode() == 404) {
+                return false;
+            }
+            throw new RuntimeException("Failed to delete user in Keycloak: " + e.getMessage(), e);
+        }
     }
 
     @Transactional
