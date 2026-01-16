@@ -31,33 +31,34 @@ export const getApplicationStatusColor = (status: string | undefined | null): st
 }
 
 export const getLicenseStatusColor = (status: string | undefined | null): string => {
-  if (!status || status == "") return "gray";
+  console.log("License status:", status);
+  if (!status || status === "") return "gray";
 
-  // TODO: confirm status values and add missing
-  if (status == "ACTIVE") return "green";
-  if (status == "SUSPENDED") return "red";
-  if (status == "EXPIRED") return "gray";
+  if (status === "ACTIVE") return "green";
+  if (status === "SUSPENDED") return "red";
+  if (status === "EXPIRED") return "gray";
   return "gray";
 }
 
 export const getDocumentStatusColor = (status: string | undefined | null): string => {
-  if (!status || status == "") return "gray";
+  if (!status || status === "") return "gray";
 
-  if (status == "VERIFIED") return "green";
-  if (status == "REJECTED") return "red";
+  if (status === "VERIFIED") return "green";
+  if (status === "PENDING") return "blue";
+  if (status === "REJECTED") return "red";
   return "gray";
 }
 
 export const getPaymentStatusColor = (status: string | undefined | null): string => {
-  if (!status || status == "") return "gray";
+  if (!status || status === "") return "gray";
 
-  if (status == "UNPAID") return "blue";
-  if (status == "PAID") return "green";
+  if (status === "UNPAID") return "blue";
+  if (status === "PAID") return "green";
   return "gray";
 }
 
 export const formatStatusLabel = (rawFixed: string, rawVariable: string | undefined | null): string => {
-  if (!rawVariable || rawFixed == '') return rawFixed;
+  if (!rawVariable || rawFixed == '') return rawFixed + rawVariable;
   return rawFixed + rawVariable.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase()) // Camel case
 }
 

@@ -266,7 +266,7 @@
         "statusLabel": "Payment status"
       }
     },
-    "licenceStatus": {
+    "applicationStatus": {
       "approved": "Approved",
       "awaitingPayment": "Awaiting Payment",
       "cancelled": "Cancelled",
@@ -282,13 +282,22 @@
       "underReview": "Under Review",
       "verificationPending": "Verification Pending"
     },
+    "licenseStatus": {
+      "active": "Active",
+      "suspended": "Suspended",
+      "expired": "Expired",
+      "undefined": "Undefined"
+    },
     "documentStatus": {
       "verified": "Verified",
-      "rejected": "Rejected"
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "undefined": "Undefined"
     },
     "paymentStatus": {
       "unpaid": "Payment Received",
-      "paid": "Payment Completed"
+      "paid": "Payment Completed",
+      "undefined": "Undefined"
     },
     "buttons": {
       "renewLicenseLabel": "Renew License",
@@ -303,6 +312,23 @@
       "quoteText2": "You will need to submit a new application if you wish to obtain a license again in the future.",
       "cancelButtonLabel": "Cancel",
       "confirmButtonLabel": "Confirm"
+    },
+    "licenseCertificate": {
+      "fileName": "License Certificate {{firstName}} {{lastName}}",
+      "title": "License Certificate for {{licenseType}}",
+      "text": {
+        "line1": "This document officially certifies that a rental license has been duly issued to {{firstName}} {{lastName}}.",
+        "line2": "The license applies to the property identified below and authorizes its use in accordance with the applicable legal framework.",
+        "line3": "License ID: {{licenseId}}",
+        "line4": "License Type: {{licenseType}}",
+        "line5": "Cadastral Reference: {{cadastralReference}}",
+        "line6": "Date of Issue: {{issuedAt}}",
+        "line7": "Valid Until: {{expiresAt}}.",
+        "line8": "The license has been granted in accordance with the regulations and administrative provisions in force as established by {{legalName}}.",
+        "line9": "The license holder is responsible for ensuring ongoing compliance with all applicable legal, regulatory, and administrative requirements throughout the validity period.",
+        "line10": "This license has been issued electronically and is valid without a physical signature or seal.",
+        "line11": "Generated on: {{generationDate}}"
+      }
     },
     "loading": "Loading"
   },

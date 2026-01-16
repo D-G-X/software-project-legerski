@@ -417,28 +417,6 @@
     },
     "notBefore" : 0,
     "groups" : [ ]
-  }, {
-    "id" : "cf103a83-a785-4b7e-adec-04c5287ec99e",
-    "username" : "xyz@gmail.com",
-    "firstName" : "xyz",
-    "lastName" : "xyz",
-    "email" : "xyz@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1765847669980,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "79565ec8-364f-4143-a5c4-d50d897f21ca",
-      "type" : "password",
-      "createdDate" : 1765847670010,
-      "secretData" : "{\"value\":\"DkNZT0DMBlAlSyWIGg7EBDu3e44NIh8U+SkXcn/bpmM=\",\"salt\":\"VLnOw5UYmjT8bMzbYKEK+Q==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "default-roles-license-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
   } ],
   "scopeMappings" : [ {
     "clientScope" : "offline_access",

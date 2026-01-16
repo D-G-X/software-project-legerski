@@ -10,7 +10,7 @@ import {
 } from "../../types";
 import {CircleX} from "lucide-react";
 import {useListPayments} from "../services/payments/payments";
-import {useDeleteLicense, useGetLicense, useListLicenses,} from "../services/licenses/licenses";
+import {deleteLicense, useGetLicense, useListLicenses,} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
 import {
   formatAmount,
@@ -24,9 +24,10 @@ import {
   getPaymentStatusColor,
 } from "../common/utils";
 import ConfirmPopup from "../common/confirmPopup";
-import {useQueryClient} from "@tanstack/react-query";
 import {AuthContext} from "../common/auth/AuthContext";
 import {useNavigate} from "react-router";
+import {downloadPdfOfficialDocument} from "../common/downloadPdf";
+import {useQueryClient} from "@tanstack/react-query";
 
 interface ApplicationDetailsProps {
   open: boolean;
@@ -36,7 +37,7 @@ interface ApplicationDetailsProps {
   onRenew: () => void;
 }
 
-const SHOW_LICENSE_STATUSES = ["SELECTED"] as const;
+const SHOW_LICENSE_STATUSES = ["APPROVED"] as const;
 
 const SHOW_DOCUMENT_STATUSES = [
   "DOCUMENTS_SUBMITTED",
@@ -68,12 +69,20 @@ const SHOW_PAYMENT_STATUSES = [
 ] as const;
 
 function useGetLicenseData(userId: string, applicationId: number) {
-  const {data: listResponse} = useListLicenses({user_id: userId});
+  const auth = useContext(AuthContext);
+  const {data: listResponse} = useListLicenses({user_id: userId},
+      {
+        axios: {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        },
+      }
+  );
 
   const licenses = listResponse?.data ?? [];
   const matching = licenses.find((lic) => lic.application_id === applicationId);
 
-  const auth = useContext(AuthContext);
   const {data: licenseResponse} = useGetLicense(matching?.id ?? -1, {
     axios: {
       headers: {
@@ -119,6 +128,9 @@ export default function ApplicationDetails({
                                              onRenew,
                                            }: ApplicationDetailsProps) {
   const navigate = useNavigate();
+  const auth = useContext(AuthContext);
+  const queryClient = useQueryClient();
+
   if (!open || !applicationData) {
     console.log("ApplicationDetails: not open");
     return null;
@@ -155,26 +167,17 @@ export default function ApplicationDetails({
     paymentData = useGetPaymentData(applicationData?.id);
   }
 
-  const queryClient = useQueryClient();
-
-  const {mutate: deleteLicense} = useDeleteLicense({
-    mutation: {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({queryKey: ["listLicenses"]});
-        await queryClient.invalidateQueries({queryKey: ["getLicense"]});
-
-        closePopup();
-      },
-      onError: (err) => {
-        console.error(err);
-        alert("Error while releasing license");
-      },
-    },
-  });
-
-  function handleReleaseLicense() {
+  async function handleReleaseLicense() {
     if (!licenseData?.id) return;
-    deleteLicense({licenseId: licenseData?.id});
+
+    await deleteLicense(licenseData.id, {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+    });
+
+    await queryClient.invalidateQueries();
+
     closePopup();
   }
 
@@ -195,6 +198,76 @@ export default function ApplicationDetails({
       alert("Error occurred");
     }
   }
+
+  function timeToRenew(expires_at: string | undefined): boolean {
+    if (!expires_at) return false;
+
+    const now = new Date();
+    const expires = new Date(expires_at);
+
+    if (expires <= now) return true;
+
+    const sixMonthsFromNow = new Date(now);
+    sixMonthsFromNow.setMonth(now.getMonth() + 6);
+
+    return expires <= sixMonthsFromNow;
+  }
+
+  const onDownload = async () => {
+    await downloadPdfOfficialDocument({
+      downloadFileName: t(
+          "applicationDetails.licenseCertificate.fileName",
+          {
+            firstName: userData?.firstName ?? "",
+            lastName: userData?.lastName ?? "",
+          }
+      ),
+      title: t("applicationDetails.licenseCertificate.title", {
+        licenseType: applicationData?.license_type ?? "Unknown Type",
+      }),
+      text: t("applicationDetails.licenseCertificate.text.line1",
+              {
+                firstName: userData?.firstName ?? "",
+                lastName: userData?.lastName ?? "",
+              })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line2")
+          + "\n\n"
+          + t("applicationDetails.licenseCertificate.text.line3", {
+            licenseId: licenseData?.id ?? "Unknown ID",
+          })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line4", {
+            licenseType: applicationData?.license_type ?? "Unknown Type",
+          })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line5", {
+            cadastralReference: applicationData?.cadastral_reference ?? "Unknown Reference",
+          })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line6", {
+            issuedAt: formatDateLong(licenseData?.issued_at, t) ?? "Unknown Date",
+          })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line7", {
+            expiresAt: formatDateLong(licenseData?.expires_at, t) ?? "Unknown Date",
+          })
+          + "\n\n"
+          + t("applicationDetails.licenseCertificate.text.line8", {
+            legalName: t("app.contact.legalName")
+          })
+          + "\n\n"
+          + t("applicationDetails.licenseCertificate.text.line9")
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line10")
+          + "\n\n"
+          + t("applicationDetails.licenseCertificate.text.line11", {
+            generationDate: formatDateLong(new Date().toISOString(), t),
+          }),
+      t,
+    })
+    ;
+  };
 
   return (
       <div
@@ -219,7 +292,7 @@ export default function ApplicationDetails({
               <CircleX size={36}/>
             </button>
             <div className="font-inter text-center">
-              <div className="font-inter max-w-[calc(100vb-8rem)]">
+              <div className="font-inter min-w-80vb max-w-200vb">
                 <FormHeader
                     heading={t("applicationDetails.index.headline")}
                     subHeading={t("")}
@@ -258,7 +331,7 @@ export default function ApplicationDetails({
                     <span
                         className={`text-${getApplicationStatusColor(applicationData?.application_status)}-600 font-semibold`}
                     >
-                    {t(formatStatusLabel("applicationDetails.licenceStatus.", applicationData?.application_status))}
+                    {t(formatStatusLabel("applicationDetails.applicationStatus.", applicationData?.application_status))}
                   </span>
                   </div>
 
@@ -330,7 +403,7 @@ export default function ApplicationDetails({
                       </span>
                           <span
                               className={`text-${getLicenseStatusColor(licenseData?.license_status)}-600 font-semibold`}
-                          >{formatStatusLabel("applicationDetails.licenseStatus.", licenseData?.license_status)}
+                          >{t(formatStatusLabel("applicationDetails.licenseStatus.", licenseData?.license_status))}
                       </span>
                         </div>
 
@@ -469,37 +542,49 @@ export default function ApplicationDetails({
                 </div>
 
                 <div className="my-8 flex flex-line items-center justify-center gap-4">
-                  {/* Renew License Button */}
-                  {["APPROVED", "EXPIRED"].includes(
-                      applicationData?.application_status
-                  ) && (
-                      <>
+                  <>
+                    {/* Renew License Button */}
+                    {["ACTIVE", "EXPIRED"].includes(
+                        licenseData?.license_status ?? ""
+                    ) && timeToRenew(licenseData?.expires_at) && (
                         <button
                             type="submit"
                             onClick={onRenew}
-                            className={`bg-mallorca-purple text-white px-10 py-2 rounded-md ${
-                                licenseData?.id ? "w-64" : "w-96"
-                            } font-medium text-lg`}
+                            className={"bg-mallorca-purple text-white px-10 py-2 rounded-md min-w-48 max-w-96 font-medium text-lg hover:bg-mallorca-purple/90"}
                         >
                           {t("applicationDetails.buttons.renewLicenseLabel")}
                         </button>
-                        {/* Release License Button */}
-                        {["APPROVED"].includes(
-                            applicationData?.application_status
-                        ) && (
-                            <button
-                                type="submit"
-                                onClick={openPopup}
-                                className={`bg-red-500 text-white  px-10 py-2 rounded-md ${
-                                    licenseData?.id ? "w-64" : "w-96"
-                                } font-medium text-lg hover:bg-red-700  border-red-950`}
-                            >
-                              {t("applicationDetails.buttons.releaseLicenseLabel")}
-                            </button>
-                        )}
-                      </>
-                  )}
+                    )}
 
+                    {/* Release License Button */}
+                    {["ACTIVE"].includes(
+                        licenseData?.license_status ?? ""
+                    ) && (
+
+                        <button
+                            type="submit"
+                            onClick={openPopup}
+                            className={"bg-red-500 text-white  px-10 py-2 rounded-md min-w-48 max-w-96 font-medium text-lg hover:bg-red-700"}
+                        >
+                          {t("applicationDetails.buttons.releaseLicenseLabel")}
+                        </button>
+                    )}
+
+                    {/* Download License Button */}
+                    {["ACTIVE"].includes(
+                        licenseData?.license_status ?? ""
+                    ) && (
+                        <button
+                            type="submit"
+                            onClick={onDownload}
+                            className={"bg-mallorca-purple text-white  px-10 py-2 rounded-md min-w-48 max-w-96 font-medium text-lg hover:bg-mallorca-purple/90"}
+                        >
+                          {t("applicationDetails.buttons.downloadLabel")}
+                        </button>
+                    )}
+                  </>
+
+                  {/* Edit Application Button */}
                   {["DRAFT", "DOCUMENTS_SUBMITTED"].includes(
                       applicationData?.application_status
                   ) && (
