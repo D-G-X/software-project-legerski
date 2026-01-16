@@ -7,13 +7,17 @@ import de.hft.licensing.db.tables.NotificationPreferences;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.NotificationPreferencesRecord;
 import de.hft.licensing.db.tables.records.UserRecord;
+import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.*;
 import de.hft.licensing.services.KeycloakAuthService;
+import de.hft.licensing.services.UserGdprPseudonymizationService;
 import de.hft.licensing.services.auth.AdminOnly;
 import de.hft.licensing.utils.ApiFormValidator;
+import de.hft.licensing.services.dslService.UserDslService;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.slf4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.net.URI;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -31,12 +36,16 @@ import java.util.UUID;
 public class UsersController implements UsersApi {
 
     private final DSLContext dsl;
+    private final UserDslService userDslService;
     private final KeycloakAuthService keycloakAuthService;
+    private final UserGdprPseudonymizationService userGdprPseudonymizationService;
+    private final Logger log = LicensingLoggerFactory.getLogger(UsersController.class);
 
-    public UsersController(DSLContext dsl, KeycloakAuthService keycloakAuthService) {
+    public UsersController(DSLContext dsl, KeycloakAuthService keycloakAuthService, UserGdprPseudonymizationService userGdprPseudonymizationService, UserDslService userDslService) {
         this.keycloakAuthService = keycloakAuthService;
         this.dsl = dsl;
-
+        this.userGdprPseudonymizationService = userGdprPseudonymizationService;
+        this.userDslService = userDslService;
     }
 
     // ONLY FOR ADMINISTRATION PURPOSES - DO NOT USE IN PRODUCTION
@@ -45,6 +54,7 @@ public class UsersController implements UsersApi {
     @Transactional
     public ResponseEntity<Void> createUser(CreateUserRequest createUserRequest) {
         if (createUserRequest == null || createUserRequest.getSchema() == null || createUserRequest.getSchema().getUsername() == null) {
+            log.error("Invalid create user request received.");
             return ResponseEntity.badRequest().build();
         }
 
@@ -64,17 +74,20 @@ public class UsersController implements UsersApi {
                     .set(NotificationPreferences.NOTIFICATION_PREFERENCES.LICENSE_RENEWAL_NOTIFICATION, true)
                     .execute();
             if (insertedPreferences == 0) {
-                System.out.println("[WARNING] - Failed to insert notification preferences for user ID " + id + " into the local database.");
+                log.warn("Failed to insert notification preferences for user ID {} into the local database.", id);
             } else {
-                System.out.println("[INFO] - Notification preferences for user ID " + id + " created successfully in the local database.");
+                log.info("Notification preferences for user ID {} created successfully in the local database.", id);
             }
 
             if (insertedUser > 0) {
+                log.info("User record with ID {} created successfully in the local database.", id);
                 return ResponseEntity.created(URI.create("/users/" + id)).build();
             } else {
+                log.error("Failed to insert user record with ID {} into the local database.", id);
                 return ResponseEntity.status(500).build();
             }
         } catch (DataIntegrityViolationException e) {
+            log.error("Data integrity violation while creating user record with ID {}: {}", id, e.getMessage());
             return ResponseEntity.status(409).build();
         }
     }
@@ -84,6 +97,7 @@ public class UsersController implements UsersApi {
     @Transactional
     public ResponseEntity<Void> deleteUser(UUID userId) {
         if (userId == null) {
+            log.error("Invalid user ID provided for deletion.");
             return ResponseEntity.badRequest().build();
         }
 
@@ -93,6 +107,7 @@ public class UsersController implements UsersApi {
                         .where(User.USER.ID.eq(userId.toString()))
         );
         if (!exists) {
+            log.warn("User ID {} not found in local database for deletion.", userId);
             return ResponseEntity.notFound().build();
         }
 
@@ -100,20 +115,36 @@ public class UsersController implements UsersApi {
         try {
             deletedInKeycloak = keycloakAuthService.deleteUserInKeycloak(userId);
         } catch (RuntimeException e) {
+            log.error("Error occurred while deleting user ID {} in Keycloak: {}", userId, e.getMessage());
             return ResponseEntity.status(502).build();
         }
 
         if (!deletedInKeycloak) {
+            log.error("Failed to delete user ID {} in Keycloak.", userId);
             return ResponseEntity.notFound().build();
         }
 
-        int deletedRows = dsl.deleteFrom(User.USER)
-                .where(User.USER.ID.eq(userId.toString()))
-                .execute();
+        String result = userGdprPseudonymizationService.pseudonymizeUserIdEverywhere(userId);
+        if (result == null){
+            log.warn("User ID {} could not be pseudonymized in all relevant tables.", userId);
+            log.warn("Manual cleanup may be required for user ID {} in some tables.", userId);
+        }
 
-        if (deletedRows == 0) {
+        boolean deleted = !dsl.fetchExists(
+                dsl.selectOne()
+                        .from(User.USER)
+                        .where(User.USER.ID.eq(userId.toString()))
+        );
+
+        if (!deleted) {
+            log.error("Failed to delete user ID {} from local database.", userId);
             return ResponseEntity.status(500).build();
         }
+
+        log.info("User ID {} successfully deleted from both Keycloak and local database.", userId);
+
+        int updatedApplicationCount = userDslService.setApplicationStatusToCancelled(userId.toString());
+        log.info("Updated application status to 'cancelled' for {} applications associated to pseudonymized user.", updatedApplicationCount);
 
         return ResponseEntity.noContent().build();
     }
@@ -254,7 +285,7 @@ public class UsersController implements UsersApi {
         }
 
         dsl.update(Notification.NOTIFICATION)
-                .set(Notification.NOTIFICATION.READ_AT, LocalDateTime.now())
+                .set(Notification.NOTIFICATION.READ_AT, LocalDateTime.now(Clock.systemUTC()))
                 .where(Notification.NOTIFICATION.ID.eq(id))
                 .execute();
 

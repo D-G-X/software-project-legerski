@@ -10,14 +10,15 @@
 
 ### Quick Start
 
-1. Have Docker running.
-2. Launch the `docker compose up` command in the `license-application-service` directory to build and start the mock document validator service. 
+The mock document validator service is automatically started with the backend docker-compose setup.
+
+To start the backend including the mock services, follow the Readme in the backend directory.
 
 ### Usage
 
 #### Client call to the mock document validator service
 
-The mock document validator service listens on port `8083` and exposes the following endpoint:
+The mock document validator service listens internally on `mock-document-validator:8080` and exposes the following endpoint:
 
 - `POST /process-document`: Simulates processing a document validation. Expects a JSON payload with the following structure:
 
@@ -74,7 +75,7 @@ You can test the mock document validator service using `curl` or any API testing
 Here’s an example `curl` command:
 
 ```bash
-curl -X POST http://localhost:8083/process-document \
+curl -X POST http://localhost:8080/process-document \
   -F "application_id=123" \
   -F "id_file=@./sample.pdf" \
   -F "proof_file=@./sample.pdf"
@@ -92,7 +93,7 @@ This should return a response similar to:
 You can then check the status of the document verification using the `application_id`:
 
 ```bash
-curl http://localhost:8083/process-document/status/{YOUR_APPLICATION_ID}
+curl http://localhost:8080/process-document/status/{YOUR_APPLICATION_ID}
 ```
 
 > Replace `{YOUR_APPLICATION_ID}` with the actual `application_id` received from the previous response.

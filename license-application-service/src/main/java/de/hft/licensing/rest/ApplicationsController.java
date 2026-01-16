@@ -5,9 +5,11 @@ import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseType;
 import de.hft.licensing.db.enums.VerificationStatus;
 import de.hft.licensing.db.tables.Application;
+import de.hft.licensing.db.tables.Ballot;
 import de.hft.licensing.db.tables.BallotPeriod;
 import de.hft.licensing.db.tables.User;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
+import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.ApplicationCreate;
 import de.hft.licensing.model.ApplicationResource;
 import de.hft.licensing.model.ApplicationStatusApiEnum;
@@ -15,31 +17,24 @@ import de.hft.licensing.model.ApplicationUpdate;
 import de.hft.licensing.utils.ApiFormValidator;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @RestController
 public class ApplicationsController implements ApplicationsApi {
 
   private final DSLContext dsl;
-  private static final Logger log = LoggerFactory.getLogger(ApplicationsController.class);
+  private static final Logger log = LicensingLoggerFactory.getLogger(ApplicationsController.class);
   private final ApiFormValidator formValidator = new ApiFormValidator();
 
   public ApplicationsController(DSLContext dsl, Validator validator) {
@@ -53,23 +48,25 @@ public class ApplicationsController implements ApplicationsApi {
       ApplicationCreate applicationCreate) {
     if (applicationCreate == null || applicationCreate.getUserId() == null
         || applicationCreate.getLicenseType() == null) {
+      log.warn("Invalid application creation request: missing required fields");
       return ResponseEntity.badRequest().build();
     }
     if (applicationCreate.getCadastralReference() != null &&
         !formValidator.isValidCadastralNumber(applicationCreate.getCadastralReference())) {
+        log.warn("Invalid application creation request: invalid cadastral reference format");
       return ResponseEntity.badRequest().build();
     }
-
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime nowUtc = LocalDateTime.now(Clock.systemUTC());
+    
     boolean ballotPeriodActive = dsl.fetchExists(
         dsl.selectOne()
             .from(BallotPeriod.BALLOT_PERIOD)
-            .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(now))
-            .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(now))
+            .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(nowUtc))
+            .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(nowUtc))
     );
 
     if (!ballotPeriodActive) {
-      // no active ballot period
+      log.warn("Attempted to create application outside of active ballot period");
       return ResponseEntity.status(409).build();
     }
 
@@ -79,18 +76,16 @@ public class ApplicationsController implements ApplicationsApi {
             .where(User.USER.ID.eq(applicationCreate.getUserId().toString()))
     );
     if (!userExists) {
-      // client provided a user_id that does not exist
+        log.warn("Attempted to create application for non-existing user ID {}", applicationCreate.getUserId());
       return ResponseEntity.status(422).build();
     }
-
-    now = LocalDateTime.now();
 
     // insert and return DB record (jooq DB record, not API model record)
     var dbRecord = dsl.insertInto(Application.APPLICATION)
         .set(Application.APPLICATION.USER_ID, applicationCreate.getUserId().toString())
         .set(Application.APPLICATION.APPLICATION_STATUS, ApplicationStatus.draft)
-        .set(Application.APPLICATION.APPLIED_AT, now)
-        .set(Application.APPLICATION.CHANGED_AT, now)
+        .set(Application.APPLICATION.APPLIED_AT, nowUtc)
+        .set(Application.APPLICATION.CHANGED_AT, nowUtc)
         .set(Application.APPLICATION.CADASTRAL_REFERENCE, applicationCreate.getCadastralReference())
         .set(Application.APPLICATION.LICENSE_TYPE,
             (LicenseType) EnumMapperUtil.getPendantFromEnum(applicationCreate.getLicenseType()))
@@ -100,10 +95,29 @@ public class ApplicationsController implements ApplicationsApi {
         .fetchOneInto(ApplicationRecord.class);
 
     if (dbRecord == null) {
+        log.error("Error while creating application for user ID {}", applicationCreate.getUserId());
       return ResponseEntity.status(500).build();
     }
 
-    // TODO: if active ballot period add SUBMITTED to ballotperiod
+    try {
+      Integer currentBallotPeriodId = dsl.select(BallotPeriod.BALLOT_PERIOD.ID)
+              .from(BallotPeriod.BALLOT_PERIOD)
+              .where(BallotPeriod.BALLOT_PERIOD.START_DATE.le(nowUtc))
+              .and(BallotPeriod.BALLOT_PERIOD.END_DATE.ge(nowUtc))
+              .fetchOneInto(Integer.class);
+
+      dsl.insertInto(Ballot.BALLOT)
+              .set(Ballot.BALLOT.BALLOT_PERIOD_ID, currentBallotPeriodId)
+              .set(Ballot.BALLOT.APPLICATION_ID, dbRecord.getId())
+              .set(Ballot.BALLOT.SELECTED, false)
+              .execute();
+
+    } catch (Exception e) {
+      log.error("Error while creating ballot entry for application ID {}: {}", dbRecord.getId(),
+          e.getMessage());
+      return ResponseEntity.status(500).build();
+    }
+
 
     // map DB record -> API model and convert enums explicitly
     ApplicationResource apiResource = new ApplicationResource();
@@ -157,24 +171,7 @@ public class ApplicationsController implements ApplicationsApi {
   @PreAuthorize("@applicationAuthorization.canListApplications(authentication, #userId)")
   public ResponseEntity<List<ApplicationResource>> listApplications(UUID userId,
       ApplicationStatusApiEnum applicationStatus) {
-    // Get current authenticated user
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (!(authentication instanceof JwtAuthenticationToken jwt)) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-    // Maps roles from JWT token
-    boolean isAdmin = jwt.getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
-    // Extract the user ID from Keycloak token: "sub" claim
-    UUID currentUserId = UUID.fromString(jwt.getToken().getSubject());
-    // Enforce: normal users can only see their own applications
-    if (userId != null && !isAdmin && !userId.equals(currentUserId)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    } else if (!isAdmin) {
-      userId = currentUserId;
-    }
-
-    List<ApplicationRecord> result = null;
+    List<ApplicationRecord> result;
     // no filters
     if (userId == null && applicationStatus == null) {
       result = dsl.select()
@@ -230,6 +227,8 @@ public class ApplicationsController implements ApplicationsApi {
         && applicationUpdate.getLicenseType() == null) {
       return ResponseEntity.badRequest().build();
     }
+    
+    LocalDateTime nowUtc = LocalDateTime.now(Clock.systemUTC());
 
     var oldStatus = dsl.select(Application.APPLICATION.APPLICATION_STATUS)
         .from(Application.APPLICATION)
@@ -239,20 +238,10 @@ public class ApplicationsController implements ApplicationsApi {
         .from(Application.APPLICATION)
         .where(Application.APPLICATION.ID.eq(applicationId))
         .fetchOneInto(String.class);
-    var oldCadastral = dsl.select(Application.APPLICATION.CADASTRAL_REFERENCE)
-        .from(Application.APPLICATION)
-        .where(Application.APPLICATION.ID.eq(applicationId))
-        .fetchOneInto(String.class);
-    var oldLicenseType = dsl.select(Application.APPLICATION.LICENSE_TYPE)
-        .from(Application.APPLICATION)
-        .where(Application.APPLICATION.ID.eq(applicationId))
-        .fetchOneInto(LicenseType.class);
 
     Map<org.jooq.Field<?>, Object> updates = new HashMap<>();
     if (applicationUpdate.getApplicationStatus() != null) {
-      updates.put(Application.APPLICATION.APPLICATION_STATUS,
-          (ApplicationStatus) EnumMapperUtil.getPendantFromEnum(
-              applicationUpdate.getApplicationStatus()));
+      updates.put(Application.APPLICATION.APPLICATION_STATUS,EnumMapperUtil.getPendantFromEnum(applicationUpdate.getApplicationStatus()));
     }
     if (applicationUpdate.getRemarks() != null) {
       updates.put(Application.APPLICATION.REMARKS, applicationUpdate.getRemarks());
@@ -261,10 +250,9 @@ public class ApplicationsController implements ApplicationsApi {
       updates.put(Application.APPLICATION.CADASTRAL_REFERENCE, applicationUpdate.getCadastralReference());
     }
     if (applicationUpdate.getLicenseType() != null) {
-      updates.put(Application.APPLICATION.LICENSE_TYPE,
-          (LicenseType) EnumMapperUtil.getPendantFromEnum(applicationUpdate.getLicenseType()));
+      updates.put(Application.APPLICATION.LICENSE_TYPE,EnumMapperUtil.getPendantFromEnum(applicationUpdate.getLicenseType()));
     }
-    updates.put(Application.APPLICATION.CHANGED_AT, LocalDateTime.now());
+    updates.put(Application.APPLICATION.CHANGED_AT, nowUtc);
 
     var updatedApplicationRecord = dsl.update(Application.APPLICATION)
         .set(updates)
@@ -277,22 +265,34 @@ public class ApplicationsController implements ApplicationsApi {
       RecordToResourceMapperUtil.mapApplicationRecordToResource(updatedApplicationRecord,
           updatedApplicationResource);
 
-      // Logger
-      var logs = String.format("Updated application with ID %d:", updatedApplicationRecord.getId());
-      if (oldStatus != updatedApplicationRecord.getApplicationStatus()) {
-        var oldStatusName = oldStatus != null ? oldStatus.name() : "null";
-        logs += String.format(" status updated from %s to %s;", oldStatusName,
-            updatedApplicationRecord.getApplicationStatus().name());
-      }
-      if (!Objects.equals(oldRemarks, updatedApplicationRecord.getRemarks())) {
-        logs += String.format(" remarks updated from '%s' to '%s';", oldRemarks,
-            updatedApplicationRecord.getRemarks());
-      }
+      var logs = getString(updatedApplicationRecord, oldStatus, oldRemarks);
       log.info(logs);
-
       return ResponseEntity.ok(updatedApplicationResource);
     }
+    log.error("Attempted to update non-existing application with ID {}", applicationId);
     return ResponseEntity.notFound().build();
+  }
+
+  /**
+   * Generates log string for updated application record.
+   *
+   * @param updatedApplicationRecord The updated application record.
+   * @param oldStatus                The old application status.
+   * @param oldRemarks               The old remarks.
+   * @return The log string.
+   */
+  private static String getString(ApplicationRecord updatedApplicationRecord, ApplicationStatus oldStatus, String oldRemarks) {
+    var logs = String.format("Updated application with ID %d:", updatedApplicationRecord.getId());
+    if (oldStatus != updatedApplicationRecord.getApplicationStatus()) {
+      var oldStatusName = oldStatus != null ? oldStatus.name() : "null";
+      logs += String.format(" status updated from %s to %s;", oldStatusName,
+          updatedApplicationRecord.getApplicationStatus().name());
+    }
+    if (!Objects.equals(oldRemarks, updatedApplicationRecord.getRemarks())) {
+      logs += String.format(" remarks updated from '%s' to '%s';", oldRemarks,
+          updatedApplicationRecord.getRemarks());
+    }
+    return logs;
   }
 
 }

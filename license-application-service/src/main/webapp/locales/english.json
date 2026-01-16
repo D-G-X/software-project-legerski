@@ -201,13 +201,31 @@
     "headline": "Ballot Information",
     "createNewBallot": "Create New Ballot",
     "table": {
-      "ballotName": "Ballot Name",
+      "ballotID": "Ballot ID",
       "status": "Status",
       "applicationPeriod": "Application Period (DD/MM/YYYY)",
       "drawingDate": "Drawing Date (DD/MM/YYYY)",
       "totalApplication": "Total Application",
-      "action": "Action"
+      "action": "Details"
     }
+  },
+  "ballotApplications": {
+    "title": "Ballot Applications",
+    "table": {
+      "applicationId": "Application ID",
+      "licenseType": "License Type",
+      "cadastralNumber": "Cadastral Number",
+      "appliedAt": "Applied On",
+      "status": "Status",
+      "action": "View Application",
+      "view": "View"
+    },
+    "noEligible": "There are no eligible applications in ballot"
+  },
+  "ballotStatus": {
+    "active": "Active",
+    "upcoming": "Upcoming",
+    "completed": "Completed"
   },
   "applicationDetails": {
     "index": {
@@ -474,7 +492,6 @@
         "nameLabel": "Account holder",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "bicLabelOptional": " (optional for domestic SEPA transactions)",
         "acceptSepaMandateLabel": {
           "plain": "I have read and accept the",
           "button": "SEPA Mandate"
@@ -531,7 +548,6 @@
         "nameLabel": "Account holder",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "bicOptional": "not required",
         "dateLabel": "Payment date",
         "sendReceiptLabel": "Send payment receipt to",
         "receiptSentLabel": "Payment receipt sent!",
@@ -635,7 +651,7 @@
       "valid": "IBAN is valid"
     },
     "bic": {
-      "required": "BIC is required for non-domestic SEPA transactions",
+      "required": "BIC is required",
       "length": "BIC must be exactly 8 or 11 characters long",
       "specialChar": "BIC must not contain any special character",
       "invalid": "BIC is invalid",
@@ -977,7 +993,7 @@
       "usageAnalytics": "Usage analytics",
       "paymentInfo": "Payment Information",
       "accountHolder": "Account holder name",
-      "ibanBic": "IBAN / BIC (if account is non-domestic)",
+      "ibanBic": "IBAN / BIC",
       "paymentProcessor": "Payment Information is securely handled by a third-party payment processor (Banco Santander, S.A.). The Portal does not store bank account details."
     },
     "processingPurpose": {
@@ -1125,6 +1141,8 @@
     "overview": {
       "title": "Ballot Overview",
       "ballotId": "Ballot Id",
+      "subtitle": "Ballot Details",
+      "applicationPeriod": "Application Period (DD/MM/YYYY)",
       "licenseType": "License Type",
       "status": "Status",
       "ballotYear": "Ballot year",
@@ -1149,7 +1167,11 @@
     },
     "actions": {
       "viewApplications": "View Applications",
-      "cancel": "Back to Dashboard"
+      "cancel": "Back to Dashboard",
+      "triggerBallot": "Trigger Ballot"
+    },
+    "messages": {
+      "lotterySuccess": "Lottery run successfully"
     },
     "status": {
       "active": "Active",
@@ -1157,6 +1179,8 @@
       "completed": "Completed"
     },
     "errors": {
+      "lotteryFailed": "Running lottery failed",
+      "cannotTriggerLottery": "Lottery can only be run after the ballot period has completed",
       "unableToLoad": "Unable to load ballot details.",
       "failedToLoad": "Failed to load ballot details",
       "missingDates": "Missing dates for ballot."

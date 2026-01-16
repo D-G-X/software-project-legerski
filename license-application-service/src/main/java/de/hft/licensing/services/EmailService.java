@@ -26,8 +26,13 @@ public class EmailService {
     }
 
     /**
-     * Static method to send an email using TO, CC, SUBJECT and HTML BODY.
-     * Returns true on successful submission, false on failure.
+     * Sends an email with the specified parameters.
+     *
+     * @param to      Recipient email address.
+     * @param cc      CC email address (can be null).
+     * @param subject Subject of the email.
+     * @param body    Body content of the email (HTML format).
+     * @return true if the email was sent successfully, false otherwise.
      */
     public static boolean sendEmail(String to, String cc, String subject, String body) {
         if (staticMailSender == null) {

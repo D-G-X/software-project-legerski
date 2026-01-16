@@ -770,6 +770,22 @@ paths:
           description: Application not found
 
   /ballot-periods:
+    get:
+      tags: [Ballot Periods]
+      summary: List all ballot periods
+      description: Retrieve a list of all ballot periods, including their start and end dates.
+      operationId: listBallotPeriods
+      responses:
+        "200":
+          description: List of ballot periods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BallotPeriodResource"
+        "401":
+          description: Unauthorized
     post:
       tags: [Ballot Periods]
       summary: Create a ballot period
@@ -824,6 +840,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CurrentBallotPeriodResource"
+        "204":
+          description: No active ballot periods found
 
   /ballot-periods/{period_id}:
     get:
@@ -1139,8 +1157,8 @@ components:
       description: OAuth2 with Keycloak JWT Bearer tokens.
       flows:
         authorizationCode:
-          authorizationUrl: http://localhost:8081/realms/license-realm/protocol/openid-connect/auth
-          tokenUrl: http://localhost:8081/realms/license-realm/protocol/openid-connect/token
+          authorizationUrl: http://localhost:8080/auth/realms/license-realm/protocol/openid-connect/auth
+          tokenUrl: http://localhost:8080/auth/realms/license-realm/protocol/openid-connect/token
           scopes:
             openid: OpenID Connect scope
             profile: Profile information access
@@ -1792,6 +1810,9 @@ components:
           type: string
           format: date-time
           description: Ballot period end, ISO 8601 format
+        totalApplications:
+          type: integer
+          description: Total number of applications received in this ballot period
 
     CurrentBallotPeriodResource:
       type: object

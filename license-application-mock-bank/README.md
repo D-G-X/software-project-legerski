@@ -10,14 +10,15 @@
 
 ### Quick Start
 
-1. Have Docker running.
-2. Launch the `docker compose up` command in the `license-application-service` directory to build and start the mock bank service. 
+The mock bank service is automatically started with the backend docker-compose setup.
+
+To start the backend including the mock services, follow the Readme in the backend directory.
 
 ### Usage
 
 #### Client call to the mock bank service
 
-The mock bank service listens on port `8082` and exposes the following endpoint:
+The mock bank service listens internally on `mock-bank:8080` and exposes the following endpoint:
 
 - `POST /process-payment`: Simulates processing a payment. Expects a JSON payload with the following structure:
 
@@ -27,7 +28,7 @@ The mock bank service listens on port `8082` and exposes the following endpoint:
     "amount": "number",
     "name": "string",
     "iban": "string",
-    "bic": "string" // optional for Spanish IBANs
+    "bic": "string"
 }
 ```
 > Rate limiting may apply to this endpoint.
@@ -60,14 +61,14 @@ The callback payload has the following structure:
 
 Rejection probability, delay and max file size (per file) can be configured in `bank.go`.
 
-### Testing the Service
+### Testing the Service (Docker Exec Only)
 
 You can test the mock bank service using `curl` or any API testing tool like Postman or simply the terminal.
 
 Here’s an example `curl` command:
 
 ```bash
-curl -X POST http://localhost:8082/process-payment \
+curl -X POST http://mock-bank:8080/process-payment \
   -H "Content-Type: application/json" \
   -d '{
     "application_id": "123",

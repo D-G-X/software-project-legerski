@@ -10,9 +10,13 @@ import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.model.ApplicationFeeResource;
 import de.hft.licensing.model.ApplicationPaymentCreate;
 import de.hft.licensing.model.ApplicationPaymentResource;
+import de.hft.licensing.services.PaymentsControllerService;
+import de.hft.licensing.services.dslService.BallotDslService;
 import de.hft.licensing.utils.ApiFormValidator;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,21 +24,28 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 public class PaymentsController implements PaymentsApi {
 
+  private static final Logger log = LoggerFactory.getLogger(PaymentsController.class);
   private final int ETV_amount = 3500;
   private final int ETVPL_amount = 875;
   private final int ETV60_amount = 290;
 
   private final DSLContext dsl;
-  private final ApiFormValidator formValidator = new ApiFormValidator();
+  private final BallotDslService ballotDslService;
+  private final ApiFormValidator formValidator;
+  private final PaymentsControllerService paymentsControllerService;
 
-  public PaymentsController(DSLContext dsl) {
+  public PaymentsController(DSLContext dsl, BallotDslService ballotDslService, ApiFormValidator formValidator, PaymentsControllerService paymentsControllerService) {
     this.dsl = dsl;
+      this.ballotDslService = ballotDslService;
+      this.formValidator = formValidator;
+      this.paymentsControllerService = paymentsControllerService;
   }
 
   @Override
@@ -43,6 +54,7 @@ public class PaymentsController implements PaymentsApi {
   public ResponseEntity<ApplicationPaymentResource> createPayment(Integer applicationId,
       ApplicationPaymentCreate applicationPaymentCreate) {
     if (applicationId == null || applicationPaymentCreate.getApplicationId() == null) {
+      log.error("Application ID is null");
       return ResponseEntity.badRequest().build();
     }
     if (applicationPaymentCreate.getName() != null &&
@@ -50,24 +62,29 @@ public class PaymentsController implements PaymentsApi {
         applicationPaymentCreate.getBic() != null &&
         !formValidator.isValidName(applicationPaymentCreate.getName()) &&
         !formValidator.isValidIban(applicationPaymentCreate.getIban()) &&
-        !formValidator.isValidBic(applicationPaymentCreate.getBic(),
-            applicationPaymentCreate.getIban())
+        !formValidator.isValidBic(applicationPaymentCreate.getBic())
     ) {
+      log.error("Validation failed for payment creation");
       return ResponseEntity.badRequest().build();
     }
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
     var dbPayment = dsl.insertInto(ApplicationPayment.APPLICATION_PAYMENT)
         .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_DATE, now)
-        .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT,
-            new BigDecimal("99.99")) //TODO: add amount to model and DB
+        .set(ApplicationPayment.APPLICATION_PAYMENT.AMOUNT,paymentsControllerService.calculateFeeAmount(applicationId))
+        .set(ApplicationPayment.APPLICATION_PAYMENT.ACCOUNTANT, applicationPaymentCreate.getName())
+        .set(ApplicationPayment.APPLICATION_PAYMENT.IBAN, applicationPaymentCreate.getIban())
+        .set(ApplicationPayment.APPLICATION_PAYMENT.BIC, applicationPaymentCreate.getBic())
         .set(ApplicationPayment.APPLICATION_PAYMENT.APPLICATION_ID, applicationId)
         .set(ApplicationPayment.APPLICATION_PAYMENT.PAYMENT_STATUS, PaymentStatus.unpaid)
+        .set(ApplicationPayment.APPLICATION_PAYMENT.BALLOT_PERIOD_ID, ballotDslService.getCurrentBallotPeriodId())
         .returning()
         .fetchOneInto(ApplicationPaymentRecord.class);
 
     if (dbPayment == null) {
+        log.error("Failed to create payment record for application ID {}", applicationId);
       return ResponseEntity.status(500).build();
     }
+    log.info("Created payment record with ID {} for application ID {}", dbPayment.getId(), applicationId);
 
     ApplicationPaymentResource apiPayment = new ApplicationPaymentResource();
     RecordToResourceMapperUtil.mapApplicationPaymentRecordToResource(dbPayment, apiPayment);

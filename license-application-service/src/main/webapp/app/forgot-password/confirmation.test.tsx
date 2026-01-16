@@ -1,8 +1,8 @@
 import React from "react";
-import { ResetConfirmation } from "./confirmation";
+import {ResetConfirmation} from "./confirmation";
 
 test("should create", () => {
-  const { container } = renderWithRouter(<ResetConfirmation />);
+  const {container} = renderWithRouter(<ResetConfirmation/>);
 
   expect(container).toBeTruthy();
 });

@@ -3,6 +3,7 @@
 $CallerDir = Get-Location
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
+$TargetDir      = "target"
 $NodeModulesDir = "node_modules"
 $ServicesDir    = "src/main/webapp/app/services"
 $TypesDir       = "src/main/webapp/types"
@@ -20,7 +21,11 @@ Write-Host "Cleaning up build artifacts and temporary files..."
 
 git clean -fd
 
-docker compose -f ./docker-compose.yml down --volumes --remove-orphans
+docker compose -f ../docker/docker-compose.yml down --volumes --remove-orphans
+
+if (Test-Path $TargetDir) {
+    Remove-Item -Recurse -Force $TargetDir
+}
 
 if (Test-Path $NodeModulesDir) {
     Remove-Item -Recurse -Force $NodeModulesDir

@@ -11,10 +11,10 @@ import {Minimize2} from "lucide-react";
 import {useListPayments} from "../services/payments/payments";
 import {useDeleteLicense, useGetLicense, useListLicenses} from "../services/licenses/licenses";
 import {useGetApplicationDocuments} from "../services/document-verification/document-verification";
-import {formatAmount, formatBic, formatDateLong, formatIban, getApplicationStatusColor} from "../common/format";
+import {formatAmount, formatBic, formatDateLong, formatIban, getApplicationStatusColor} from "../common/utils";
 import ConfirmPopup from "../common/confirmPopup";
 import {useQueryClient} from "@tanstack/react-query";
-import {AuthContext} from "../common/AuthContext";
+import {AuthContext} from "../common/auth/AuthContext";
 
 interface ApplicationDetailsProps {
   open: boolean;
