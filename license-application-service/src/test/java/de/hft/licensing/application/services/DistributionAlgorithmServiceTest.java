@@ -1,7 +1,6 @@
-package de.hft.licensing.services;
+package de.hft.licensing.application.services;
 
 import de.hft.licensing.application.repository.DistributionAlgorithmDslService;
-import de.hft.licensing.application.services.DistributionAlgorithmService;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.LicenseTypeApiEnum;
