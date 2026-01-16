@@ -12,12 +12,14 @@ import de.hft.licensing.model.*;
 import de.hft.licensing.services.KeycloakAuthService;
 import de.hft.licensing.services.UserGdprPseudonymizationService;
 import de.hft.licensing.services.auth.AdminOnly;
+import de.hft.licensing.utils.ApiFormValidator;
 import de.hft.licensing.services.dslService.UserDslService;
 import de.hft.licensing.utils.EnumMapperUtil;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -328,5 +330,42 @@ public class UsersController implements UsersApi {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    @Override
+    @PreAuthorize("@userAuthorization.canAccessUser(authentication, #userId)")
+    public ResponseEntity<Void> changePasswordForUser(UUID userId, ChangePasswordForUserRequest changePasswordRequest) {
+        if (userId == null || changePasswordRequest == null || changePasswordRequest.getNewPassword() == null || changePasswordRequest.getOldPassword() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Check userId exists
+        String userEmail = keycloakAuthService.getEmailByUserId(userId);
+        if (userEmail == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Check old password correctness
+        boolean oldPasswordCorrect = keycloakAuthService.checkUserPassword(userEmail, changePasswordRequest.getOldPassword());
+        if (!oldPasswordCorrect) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        // Validate new password
+        ApiFormValidator apiFormValidator = new ApiFormValidator();
+        if (!apiFormValidator.isValidPassword(changePasswordRequest.getNewPassword())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            boolean changed = keycloakAuthService.changePassword(userEmail, changePasswordRequest.getNewPassword());
+            if (changed) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (RestClientResponseException e) {
+            return ResponseEntity.status(e.getRawStatusCode()).build();
+        }
     }
 }

@@ -375,6 +375,50 @@ paths:
         "404":
           description: User not found
 
+  /users/{userId}/change-password:
+    post:
+      tags: [Users]
+      summary: Change password for a user.
+      description: Change the password for a specific user.
+      operationId: changePasswordForUser
+      security:
+        - KeycloakOAuth2: [openid]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                  format: password
+                  description: User's current password.
+                  example: oldsecurepassword123
+                new_password:
+                  type: string
+                  format: password
+                  description: User's new desired password.
+                  example: newsecurepassword456
+      responses:
+        "201":
+          description: Password changed successfully
+        "400":
+          description: Bad request - invalid input data
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden - incorrect old password
+        "404":
+          description: User not found
+
   /users/notifications/{id}:
     patch:
       tags: [Users]

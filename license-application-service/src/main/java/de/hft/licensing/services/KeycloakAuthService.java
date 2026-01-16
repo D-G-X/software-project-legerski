@@ -462,6 +462,22 @@ public class KeycloakAuthService {
         return true;
     }
 
+    public boolean checkUserPassword(String email, String password) {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(email);
+        loginRequest.setPassword(password);
+
+        try {
+            LoginResource loginResource = login(loginRequest);
+            return loginResource != null && loginResource.getAccessToken() != null;
+        } catch (RestClientResponseException e) {
+            if (e.getRawStatusCode() == 400 || e.getRawStatusCode() == 401) {
+                return false;
+            }
+            throw new RuntimeException("Error while checking user password: " + e.getMessage(), e);
+        }
+    }
+
     /**
      * Extract user UUID from Keycloak Location header
      *
