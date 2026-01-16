@@ -1,6 +1,7 @@
-package de.hft.licensing.application.repository;
+package de.hft.licensing.application.services;
 
-import de.hft.licensing.application.services.ApplicationService;
+
+import de.hft.licensing.application.repository.ApplicationDslService;
 import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseType;
 import de.hft.licensing.db.tables.Application;
@@ -22,7 +23,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
