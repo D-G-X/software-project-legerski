@@ -201,13 +201,31 @@
     "headline": "Ballot Information",
     "createNewBallot": "Create New Ballot",
     "table": {
-      "ballotName": "Ballot Name",
+      "ballotID": "Ballot ID",
       "status": "Status",
       "applicationPeriod": "Application Period (DD/MM/YYYY)",
       "drawingDate": "Drawing Date (DD/MM/YYYY)",
       "totalApplication": "Total Application",
-      "action": "Action"
+      "action": "Details"
     }
+  },
+  "ballotApplications": {
+    "title": "Ballot Applications",
+    "table": {
+      "applicationId": "Application ID",
+      "licenseType": "License Type",
+      "cadastralNumber": "Cadastral Number",
+      "appliedAt": "Applied On",
+      "status": "Status",
+      "action": "View Application",
+      "view": "View"
+    },
+    "noEligible": "There are no eligible applications in ballot"
+  },
+  "ballotStatus": {
+    "active": "Active",
+    "upcoming": "Upcoming",
+    "completed": "Completed"
   },
   "applicationDetails": {
     "index": {
@@ -222,7 +240,8 @@
       "user": {
         "label": "Applicant",
         "nameLabel": "Name",
-        "emailLabel": "Email address"
+        "emailLabel": "Email address",
+        "idLabel": "User ID"
       },
       "license": {
         "label": "License details",
@@ -248,6 +267,39 @@
         "statusLabel": "Payment status"
       }
     },
+    "applicationStatus": {
+      "approved": "Approved",
+      "awaitingPayment": "Awaiting Payment",
+      "cancelled": "Cancelled",
+      "documentsSubmitted": "Documents Submitted",
+      "draft": "Draft",
+      "expired": "Expired",
+      "inBallot": "In Ballot",
+      "notSelected": "Not Selected",
+      "paymentReceived": "Payment Received",
+      "rejected": "Rejected",
+      "selected": "Selected",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "verificationPending": "Verification Pending"
+    },
+    "licenseStatus": {
+      "active": "Active",
+      "suspended": "Suspended",
+      "expired": "Expired",
+      "undefined": "Undefined"
+    },
+    "documentStatus": {
+      "verified": "Verified",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "undefined": "Undefined"
+    },
+    "paymentStatus": {
+      "unpaid": "Payment Received",
+      "paid": "Payment Completed",
+      "undefined": "Undefined"
+    },
     "buttons": {
       "renewLicenseLabel": "Renew License",
       "releaseLicenseLabel": "Release License",
@@ -261,6 +313,23 @@
       "quoteText2": "You will need to submit a new application if you wish to obtain a license again in the future.",
       "cancelButtonLabel": "Cancel",
       "confirmButtonLabel": "Confirm"
+    },
+    "licenseCertificate": {
+      "fileName": "License Certificate {{firstName}} {{lastName}}",
+      "title": "License Certificate for {{licenseType}}",
+      "text": {
+        "line1": "This document officially certifies that a rental license has been duly issued to {{firstName}} {{lastName}}.",
+        "line2": "The license applies to the property identified below and authorizes its use in accordance with the applicable legal framework.",
+        "line3": "License ID: {{licenseId}}",
+        "line4": "License Type: {{licenseType}}",
+        "line5": "Cadastral Reference: {{cadastralReference}}",
+        "line6": "Date of Issue: {{issuedAt}}",
+        "line7": "Valid Until: {{expiresAt}}.",
+        "line8": "The license has been granted in accordance with the regulations and administrative provisions in force as established by {{legalName}}.",
+        "line9": "The license holder is responsible for ensuring ongoing compliance with all applicable legal, regulatory, and administrative requirements throughout the validity period.",
+        "line10": "This license has been issued electronically and is valid without a physical signature or seal.",
+        "line11": "Generated on: {{generationDate}}"
+      }
     },
     "loading": "Loading"
   },
@@ -450,7 +519,6 @@
         "nameLabel": "Account holder",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "bicLabelOptional": " (optional for domestic SEPA transactions)",
         "acceptSepaMandateLabel": {
           "plain": "I have read and accept the",
           "button": "SEPA Mandate"
@@ -507,7 +575,6 @@
         "nameLabel": "Account holder",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "bicOptional": "not required",
         "dateLabel": "Payment date",
         "sendReceiptLabel": "Send payment receipt to",
         "receiptSentLabel": "Payment receipt sent!",
@@ -611,7 +678,7 @@
       "valid": "IBAN is valid"
     },
     "bic": {
-      "required": "BIC is required for non-domestic SEPA transactions",
+      "required": "BIC is required",
       "length": "BIC must be exactly 8 or 11 characters long",
       "specialChar": "BIC must not contain any special character",
       "invalid": "BIC is invalid",
@@ -953,7 +1020,7 @@
       "usageAnalytics": "Usage analytics",
       "paymentInfo": "Payment Information",
       "accountHolder": "Account holder name",
-      "ibanBic": "IBAN / BIC (if account is non-domestic)",
+      "ibanBic": "IBAN / BIC",
       "paymentProcessor": "Payment Information is securely handled by a third-party payment processor (Banco Santander, S.A.). The Portal does not store bank account details."
     },
     "processingPurpose": {
@@ -1101,18 +1168,20 @@
     "overview": {
       "title": "Ballot Overview",
       "ballotId": "Ballot Id",
+      "subtitle": "Ballot Details",
+      "applicationPeriod": "Application Period (DD/MM/YYYY)",
       "licenseType": "License Type",
       "status": "Status",
       "ballotYear": "Ballot year",
       "approvedCap": "Approved License Cap"
     },
+    "values": {
+      "approvedCap": 2000
+    },
     "license": {
       "etv": "ETV",
       "etvpl": "ETVPL",
       "etv60": "ETV60"
-    },
-    "status": {
-      "completed": "Completed"
     },
     "timeline": {
       "title": "Ballot Timeline",
@@ -1125,7 +1194,23 @@
     },
     "actions": {
       "viewApplications": "View Applications",
-      "cancel": "Cancel"
+      "cancel": "Back to Dashboard",
+      "triggerBallot": "Trigger Ballot"
+    },
+    "messages": {
+      "lotterySuccess": "Lottery run successfully"
+    },
+    "status": {
+      "active": "Active",
+      "upcoming": "Upcoming",
+      "completed": "Completed"
+    },
+    "errors": {
+      "lotteryFailed": "Running lottery failed",
+      "cannotTriggerLottery": "Lottery can only be run after the ballot period has completed",
+      "unableToLoad": "Unable to load ballot details.",
+      "failedToLoad": "Failed to load ballot details",
+      "missingDates": "Missing dates for ballot."
     }
   }
 }

@@ -1,6 +1,11 @@
 spring:
   application:
     name: licensing
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   liquibase:
     change-log: db/master-changelog.xml
     default-schema: licensing
@@ -10,7 +15,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8081/realms/license-realm
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
   docker:
     compose:
       lifecycle-management: start-only
@@ -19,20 +24,16 @@ spring:
     sql-dialect: postgres
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: projectlegerski@gmail.com
-    password: earm afra dnfn vnpp
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     debug: true
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
       mail.smtp.starttls.required: true
-      mail.smtp.ssl.trust: smtp.gmail.com
-  config:
-    import:
-      - optional:file:license-application-service/.env # for local builds
-      - optional:file:/app/.env # for docker containers
+      mail.smtp.ssl.trust: ${MAIL_HOST}
 
 logging.level.org.jooq.Constants: off
 
@@ -41,9 +42,9 @@ springdoc:
     operations-sorter: alpha
     oauth:
       client-id: backend-api
-      client-secret: "CLIENT_SECRET_PLACEHOLDER"
+      client-secret: ${KEYCLOAK_CLIENT_SECRET}
       use-pkce-with-authorization-code-grant: true
-    oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
+    oauth2-redirect-url: ${SPRINGDOC_SWAGGER_UI_OAUTH2_REDIRECT_URL}
 
 error:
   handling:
@@ -54,7 +55,13 @@ error:
       5xx: ERROR
 
 keycloak:
-  url: http://localhost:8081
-  realm: license-realm
-  client-id: backend-api
-  client-secret: "CLIENT_SECRET_PLACEHOLDER"
+  url: ${KEYCLOAK_URL}
+  realm: ${KEYCLOAK_REALM}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+
+mockbank:
+  base-url: ${MOCK_BANK_BASE_URL}
+
+gdpr:
+  pepper: ${GDPR_PEPPER}

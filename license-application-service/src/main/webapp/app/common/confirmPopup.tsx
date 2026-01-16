@@ -45,7 +45,7 @@ export default function ReleaseLicensePopup({
               <TriangleAlert/>
               <p className="font-medium italic">{quoteTitle}</p>
             </div>
-            <div className="pl-2 mt-2 text-gray-700">
+            <div className="pl-2 mt-2 text-gray-700 text-left">
               {(quoteText ?? []).map((line, idx) => (
                   <p key={idx}>{line}</p>
               ))}

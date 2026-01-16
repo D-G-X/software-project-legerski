@@ -1,22 +1,25 @@
 @import "tailwindcss";
+
 @plugin '@tailwindcss/forms';
 
 @theme {
-  --color-mallorca-purple: #351341;
-  --color-mallorca-yellow: #f6dc33;
-  --color-mallorca-red: #c52f20;
-  --color-matte-grey: #2c2c2c;
-  --font-inter: "Inter", sans-serif;
+    --color-mallorca-purple: #351341;
+    --color-mallorca-yellow: #f6dc33;
+    --color-mallorca-red: #c52f20;
+    --color-matte-grey: #2c2c2c;
+    --font-inter: "Inter", sans-serif;
 }
 
 @layer utilities {
-  .text-stroke-1 {
-    -webkit-text-stroke: 5px white;
-  }
-  .text-stroke-3 {
-    -webkit-text-stroke: 15px white;
-  }
-  .text-stroke-5 {
-    -webkit-text-stroke: 25px white;
-  }
+    .text-stroke-1 {
+        -webkit-text-stroke: 5px white;
+    }
+
+    .text-stroke-3 {
+        -webkit-text-stroke: 15px white;
+    }
+
+    .text-stroke-5 {
+        -webkit-text-stroke: 25px white;
+    }
 }

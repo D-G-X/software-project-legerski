@@ -1,7 +1,10 @@
 package de.hft.licensing.utils;
 
+import org.springframework.stereotype.Service;
+
 import java.util.regex.Pattern;
 
+@Service
 public class ApiFormValidator {
 
   // Regex for names: letters (including accented), marks, apostrophes, hyphens, single spaces
@@ -108,14 +111,7 @@ public class ApiFormValidator {
     return ibanRegex.matcher(iban).matches();
   }
 
-  public boolean isValidBic(String bic, String iban) {
-    if (iban.trim().isEmpty()) {
-      return false;
-    }
-
-    if (iban.startsWith("ES") && bic.trim().isEmpty()) {
-      return true;
-    }
+  public boolean isValidBic(String bic) {
     if (bic.trim().isEmpty()) {
       return false;
     }

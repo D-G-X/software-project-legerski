@@ -238,13 +238,7 @@ export const isValidIban = (iban: string | undefined | null) => {
   return {isValid: true, message: t("validation.iban.valid")};
 };
 
-export const isValidBic = (bic: string | undefined | null, iban: string | undefined | null) => {
-  if (!iban || iban.trim() === "")
-    return {isValid: false, message: t("validation.iban.required")};
-
-  if (iban.slice(0, 2) === 'ES' && (!bic || bic.trim() === ""))
-    return {isValid: true, message: t("validation.bic.valid")};
-
+export const isValidBic = (bic: string | undefined | null) => {
   if (!bic || bic.trim() === "")
     return {isValid: false, message: t("validation.bic.required")};
 
@@ -264,7 +258,7 @@ export const isValidBic = (bic: string | undefined | null, iban: string | undefi
 };
 
 export const isValidDateString = (value: string | undefined | null): boolean => {
-  if(!value || value.trim() === "")
+  if (!value || value.trim() === "")
     return false;
 
   if (!dateRegex.test(value))

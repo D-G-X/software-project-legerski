@@ -17,6 +17,9 @@ public class RecordToResourceMapperUtil {
         applicationPaymentResource.setAmount(applicationPaymentRecord.getAmount());
         applicationPaymentResource.setPaymentDate(applicationPaymentRecord.getPaymentDate().atOffset(ZoneOffset.UTC));
         applicationPaymentResource.setPaymentStatus(EnumMapperUtil.getPendantFromEnum(applicationPaymentRecord.getPaymentStatus()));
+        applicationPaymentResource.setName(applicationPaymentRecord.getAccountant());
+        applicationPaymentResource.setIban(applicationPaymentRecord.getIban());
+        applicationPaymentResource.setBic(applicationPaymentRecord.getBic());
     }
 
     public static void mapApplicationRecordToResource(ApplicationRecord applicationRecord, ApplicationResource applicationResource) {

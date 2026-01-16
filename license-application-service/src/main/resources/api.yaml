@@ -375,6 +375,50 @@ paths:
         "404":
           description: User not found
 
+  /users/{userId}/change-password:
+    post:
+      tags: [Users]
+      summary: Change password for a user.
+      description: Change the password for a specific user.
+      operationId: changePasswordForUser
+      security:
+        - KeycloakOAuth2: [openid]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                  format: password
+                  description: User's current password.
+                  example: oldsecurepassword123
+                new_password:
+                  type: string
+                  format: password
+                  description: User's new desired password.
+                  example: newsecurepassword456
+      responses:
+        "201":
+          description: Password changed successfully
+        "400":
+          description: Bad request - invalid input data
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden - incorrect old password
+        "404":
+          description: User not found
+
   /users/notifications/{id}:
     patch:
       tags: [Users]
@@ -726,6 +770,22 @@ paths:
           description: Application not found
 
   /ballot-periods:
+    get:
+      tags: [Ballot Periods]
+      summary: List all ballot periods
+      description: Retrieve a list of all ballot periods, including their start and end dates.
+      operationId: listBallotPeriods
+      responses:
+        "200":
+          description: List of ballot periods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BallotPeriodResource"
+        "401":
+          description: Unauthorized
     post:
       tags: [Ballot Periods]
       summary: Create a ballot period
@@ -780,6 +840,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CurrentBallotPeriodResource"
+        "204":
+          description: No active ballot periods found
 
   /ballot-periods/{period_id}:
     get:
@@ -833,6 +895,7 @@ paths:
       description: >
         Triggers the allocation (lottery) process for this ballot period,
         assigning selected status as true/false to eligible applications within the given period.
+        It is important to note, that a period has to be over.
       operationId: runLotteryForBallotPeriod
       parameters:
         - in: path
@@ -871,6 +934,8 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/ApplicationResource"
+        "400":
+          description: Bad request - invalid input data. Can be caused because period is not over yet
 
   /licenses:
     get:
@@ -1092,8 +1157,8 @@ components:
       description: OAuth2 with Keycloak JWT Bearer tokens.
       flows:
         authorizationCode:
-          authorizationUrl: http://localhost:8081/realms/license-realm/protocol/openid-connect/auth
-          tokenUrl: http://localhost:8081/realms/license-realm/protocol/openid-connect/token
+          authorizationUrl: http://localhost:8080/auth/realms/license-realm/protocol/openid-connect/auth
+          tokenUrl: http://localhost:8080/auth/realms/license-realm/protocol/openid-connect/token
           scopes:
             openid: OpenID Connect scope
             profile: Profile information access
@@ -1650,14 +1715,14 @@ components:
         - DOCUMENTS_SUBMITTED # Documents uploaded
         - VERIFICATION_PENDING # Awaiting verification
         - AWAITING_PAYMENT # Waiting for user payment
-        - PAYMENT_RECEIVED # Payment completed
+        - PAYMENT_RECEIVED # Payment details received
         - SUBMITTED # Application formally submitted
         - IN_BALLOT # Entered into selection/ballot
         - SELECTED # Chosen/approved via ballot
         - NOT_SELECTED # Not chosen in ballot
         - UNDER_REVIEW # In manual review process
         - APPROVED # License approved
-        - REJECTED # Application rejected
+        - REJECTED # Application rejected or payment denied
         - EXPIRED # Application expired (not continued)
         - CANCELLED # Withdrawn/cancelled by user
 
@@ -1745,6 +1810,9 @@ components:
           type: string
           format: date-time
           description: Ballot period end, ISO 8601 format
+        totalApplications:
+          type: integer
+          description: Total number of applications received in this ballot period
 
     CurrentBallotPeriodResource:
       type: object

@@ -1,14 +1,15 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
-import useDocumentTitle from "../common/use-document-title";
 import {
   UpdateUserMutationError,
   useGetUser,
   useUpdateUser,
+  ChangePasswordForUserMutationError,
+  useChangePasswordForUser,
 } from "app/services/users/users";
-import { AuthContext } from "app/common/AuthContext";
-import { getUserIdFromToken } from "app/common/authTokenDecode";
+import { AuthContext } from "app/common/auth/AuthContext";
+import { getUserIdFromToken } from "app/common/auth/authTokenDecode";
 import { useGlobalLoader } from "app/common/GlobalLoader";
 import {
   isValidName,
@@ -16,6 +17,7 @@ import {
   isValidPassword,
   isValidConfirmPassword,
 } from "app/common/validationRules";
+import { useDocumentTitle } from "app/common/utils";
 
 export default function Profile() {
   const auth = useContext(AuthContext);
@@ -109,6 +111,35 @@ export default function Profile() {
     },
   });
 
+  const changePasswordMutation = useChangePasswordForUser({
+    axios: {
+      headers: {
+        Authorization: `Bearer ${auth?.accessToken}`,
+      },
+    },
+    mutation: {
+      onError: (error: ChangePasswordForUserMutationError) => {
+        const status = (error as any)?.response?.status;
+
+        switch (status) {
+          case 400:
+            alert(t("profile.alerts.invalidRequest"));
+            break;
+
+          case 401:
+            alert(t("profile.alerts.unauthorized"));
+            break;
+
+          default:
+            alert(t("profile.alerts.failed"));
+            break;
+        }
+
+        console.error(error);
+      },
+    },
+  });
+
   const handleUpdateDetails = async () => {
     const firstNameValidation = isValidName(user.firstName);
     const lastNameValidation = isValidName(user.lastName);
@@ -174,16 +205,11 @@ export default function Profile() {
 
     try {
       show(t("profile.updatingPassword") || "Updating password…");
-      await updateUserMutation.mutateAsync({
+      await changePasswordMutation.mutateAsync({
         userId,
         data: {
-          credentials: [
-            {
-              type: "password",
-              value: newPassword,
-              temporary: false,
-            },
-          ],
+          old_password: currentPassword,
+          new_password: newPassword,
         },
       });
       // double alerts
@@ -211,18 +237,6 @@ export default function Profile() {
       </h2>
 
       <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-8 relative">
-        {/* Notification settings button */}
-        {/* <div className="absolute right-4 top-4">
-          <button
-            onClick={() => {
-              navigate("/notification-settings");
-            }}
-            className="px-6 py-2 bg-mallorca-purple text-white rounded-md hover:bg-mallorca-purple-dark text-sm"
-          >
-            {t("profile.notificationSettings")}
-          </button>
-        </div> */}
-
         {/* FIRST + LAST NAME */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <div className="flex flex-col">

@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin(origins = "*")
 public class AuthController implements AuthenticationApi {
 
   private final KeycloakAuthService authService;

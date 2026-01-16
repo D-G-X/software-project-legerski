@@ -476,69 +476,55 @@ public class ApiFormValidatorTest {
     // VALID BICS
 
     @Test
-    void shouldReturnValidIfBicIsEmptyDomestic() {
-      assertTrue(validator.isValidBic("", "ES0123456789012"));
-      assertTrue(validator.isValidBic(" ", "ES0123456789012"));
-    }
-
-    @Test
     void shouldReturnValidIfBicIs8CharsLong() {
-      assertTrue(validator.isValidBic("SEPADEEF", "DE0123456789012"));
+      assertTrue(validator.isValidBic("SEPADEEF"));
     }
 
     @Test
     void shouldReturnValidIfBicIs11CharsLong() {
-      assertTrue(validator.isValidBic("GENODES1DEH", "DE0123456789012"));
+      assertTrue(validator.isValidBic("GENODES1DEH"));
     }
 
     @Test
     void shouldReturnValidIfBicHasLowercaseLetters() {
-      assertTrue(validator.isValidBic("genodes1deh", "DE0123456789012"));
+      assertTrue(validator.isValidBic("genodes1deh"));
     }
 
     @Test
     void shouldReturnValidIfBicHasOnlyLettersInAlphanumericPart() {
-      assertTrue(validator.isValidBic("GENODESIDEH", "DE0123456789012"));
+      assertTrue(validator.isValidBic("GENODESIDEH"));
     }
 
     @Test
     void shouldReturnValidIfBicHasOnlyNumbersInAlphanumericPart() {
-      assertTrue(validator.isValidBic("GENODE12345", "DE0123456789012"));
+      assertTrue(validator.isValidBic("GENODE12345"));
     }
 
     // INVALID BICS
 
     @Test
-    void shouldReturnInvalidIfBicIsEmptyNonDomestic() {
-      assertFalse(validator.isValidBic("", "DE0123456789012"));
-      assertFalse(validator.isValidBic(" ", "DE0123456789012"));
-    }
-
-    @Test
-    void shouldReturnInvalidIfIbanIsEmpty() {
-      assertFalse(validator.isValidBic("GENODES1DEH", ""));
-      assertFalse(validator.isValidBic("GENODES1DEH", " "));
+    void shouldReturnInvalidIfBicIsEmpty() {
+      assertFalse(validator.isValidBic(""));
+      assertFalse(validator.isValidBic(" "));
     }
 
     @Test
     void shouldReturnInvalidIfBicIs7CharsLong() {
-      assertFalse(validator.isValidBic("GENODES", "DE0123456789012"));
+      assertFalse(validator.isValidBic("GENODES"));
     }
 
     @Test
     void shouldReturnInvalidIfBicIs9CharsLong() {
-      assertFalse(validator.isValidBic("GENODES1D", "DE0123456789012"));
+      assertFalse(validator.isValidBic("GENODES1D"));
     }
 
     @Test
     void shouldReturnInvalidIfBicIs10CharsLong() {
-      assertFalse(validator.isValidBic("GENODES1DE", "DE0123456789012"));
+      assertFalse(validator.isValidBic("GENODES1DE"));
     }
 
     @Test
-    void shouldReturnInvalidIfBicIs12CharsLong() {
-      assertFalse(validator.isValidBic("GENODES1DEHI", "DE0123456789012"));
-    }
+    void shouldReturnInvalidIfBicIs12CharsLong() {assertFalse(validator.isValidBic("GENODES1DEHI"));}
 
     // UNICODE FULL TEST
 

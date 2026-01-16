@@ -16,7 +16,7 @@ import (
 
 const successProbability = 99 // percentage chance of SUCCESS status
 
-const callbackURL = "http://host.docker.internal:8080/payment-callback" // <— Ziel für deinen Backend Callback
+const callbackURL = "http://license-application-backend:8080/payment-callback" // <— Ziel für deinen Backend Callback
 
 var processDuration = []time.Duration{
 	5 * time.Millisecond,
@@ -64,7 +64,7 @@ type PaymentRequest struct {
 	Amount        float64 `json:"amount"`
 	Name          string  `json:"name"`
 	IBAN          string  `json:"iban"`
-	BIC           *string `json:"bic"` // optional for Spanish IBANs
+	BIC           string  `json:"bic"`
 }
 
 // PaymentResponse Outgoing payment response
@@ -127,7 +127,7 @@ func main() {
 			return
 		}
 
-		if !bicValid(req.BIC, req.IBAN, w) {
+		if !bicValid(req.BIC, w) {
 			http.Error(w, "BIC format invalid", http.StatusBadRequest)
 			return
 		}
@@ -244,22 +244,11 @@ func ibanValid(iban string, w http.ResponseWriter) bool {
 	return true
 }
 
-func bicValid(bicPtr *string, iban string, w http.ResponseWriter) bool {
-	iban = strings.ToUpper(strings.ReplaceAll(iban, " ", ""))
-	bic := ""
-	if bicPtr != nil {
-		cleaned := strings.ToUpper(strings.ReplaceAll(*bicPtr, " ", ""))
-		if cleaned != "" {
-			bic = cleaned
-		}
-	}
-
-	if strings.HasPrefix(iban, "ES") {
-		return true
-	}
+func bicValid(bic string, w http.ResponseWriter) bool {
+	bic = strings.ToUpper(strings.ReplaceAll(bic, " ", ""))
 
 	if bic == "" {
-		http.Error(w, "BIC required for non-Spanish IBANs", http.StatusBadRequest)
+		http.Error(w, "BIC cannot be empty", http.StatusBadRequest)
 		return false
 	}
 
