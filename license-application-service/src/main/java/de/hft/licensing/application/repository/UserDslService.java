@@ -11,12 +11,18 @@ import de.hft.licensing.model.NotificationPreferencesUpdate;
 import de.hft.licensing.model.NotificationWayApiEnum;
 import de.hft.licensing.model.UserNotificationResource;
 import de.hft.licensing.utils.EnumMapperUtil;
+import org.jooq.Field;
+import org.jooq.Record3;
+import org.jooq.Result;
+import org.jooq.Table;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import static org.jooq.impl.DSL.*;
 
 @Service
 public class UserDslService {
@@ -62,6 +68,28 @@ public class UserDslService {
         return dsl.update(de.hft.licensing.db.tables.Application.APPLICATION)
                 .set(de.hft.licensing.db.tables.Application.APPLICATION.APPLICATION_STATUS, CANCELLED)
                 .where(de.hft.licensing.db.tables.Application.APPLICATION.USER_ID.eq(userId))
+                .execute();
+    }
+
+    public Result<Record3<String, String, String>> getAllUserIdCellsInDb (Field<String> TABLE_SCHEMA, Field<String> TABLE_NAME, Field<String> UDT_NAME) {
+        return dsl.select(TABLE_SCHEMA, TABLE_NAME, UDT_NAME)
+                .from(table(name("information_schema", "columns")))
+                .where(field(name("column_name"), String.class).eq("user_id"))
+                .and(field(name("table_schema"), String.class).notIn("pg_catalog", "information_schema"))
+                .and(not(TABLE_SCHEMA.eq("public").and(TABLE_NAME.eq("user"))))
+                .fetch();
+    }
+
+    public <T> void updateTableFieldsWithNewValue (Table<?> table, Field<T> col, T oldUserId, T newId) {
+         dsl.update(table)
+                .set(col, newId)
+                .where(col.eq(oldUserId))
+                .execute();
+    }
+
+    public int deleteUser(String userId) {
+        return dsl.deleteFrom(User.USER)
+                .where(User.USER.ID.eq(userId))
                 .execute();
     }
 
