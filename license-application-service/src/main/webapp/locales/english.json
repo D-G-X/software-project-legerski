@@ -240,7 +240,8 @@
       "user": {
         "label": "Applicant",
         "nameLabel": "Name",
-        "emailLabel": "Email address"
+        "emailLabel": "Email address",
+        "idLabel": "User ID"
       },
       "license": {
         "label": "License details",

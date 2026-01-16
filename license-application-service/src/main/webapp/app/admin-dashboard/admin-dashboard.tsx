@@ -142,14 +142,16 @@ export default function AdminDashboard() {
         </div>
         <div>
           {/* Application Details Modal */}
-          {isDetailsOpen && (
-              <AdminApplicationDetails
-                  open={isDetailsOpen}
-                  userId={selectedEntry?.user_id}
-                  applicationData={selectedEntry}
-                  onClose={closeDetails}
-              />
-          )}
+          {isDetailsOpen &&
+              selectedEntry?.user_id &&
+              (
+                  <AdminApplicationDetails
+                      open={isDetailsOpen}
+                      applicationData={selectedEntry}
+                      userId={selectedEntry?.user_id}
+                      onClose={closeDetails}
+                  />
+              )}
         </div>
       </div>
   );
