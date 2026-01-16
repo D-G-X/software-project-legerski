@@ -197,6 +197,95 @@ public class AuthService {
         }
     }
 
+    private KeycloakCredentialRecord mapCredential(UpdateUserRequestCredentialsInner src) {
+        return new KeycloakCredentialRecord(
+                src.getType().getValue(),
+                src.getValue(),
+                Boolean.TRUE.equals(src.getTemporary())
+        );
+    }
+
+    @Transactional
+    public void updateUser(UUID userId, UpdateUserRequest request) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        String url = String.format("%s/admin/realms/%s/users/%s", keycloakUrl, realm, userId);
+
+        String firstName  = request.getFirstName();
+        String lastName   = request.getLastName();
+        String email      = request.getEmail();
+        Boolean enabled   = request.getEnabled();
+
+        List<KeycloakCredentialRecord> credentials = null;
+        if (request.getCredentials() != null && !request.getCredentials().isEmpty()) {
+            credentials = request.getCredentials().stream()
+                    .map(this::mapCredential)
+                    .toList();
+        }
+
+        KeycloakUserUpdateRecord payload =
+                new KeycloakUserUpdateRecord(firstName, lastName, email, enabled, credentials);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<KeycloakUserUpdateRecord> entity = new HttpEntity<>(payload, headers);
+
+        restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
+    }
+
+    @Transactional
+    public boolean setRole(String email, String roleName) {
+        UUID userId = getUserIdByEmail(email);
+        if (userId == null) {
+            return false;
+        }
+        return setRole(userId, roleName);
+    }
+
+    private boolean setRole(UUID userId, String roleName) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+        KeycloakRoleRepresentation roleRep = ensureRealmRoleExists(roleName, headers);
+
+        String url = String.format("%s/admin/realms/%s/users/%s/role-mappings/realm",
+                keycloakUrl, realm, userId);
+
+        HttpEntity<java.util.List<KeycloakRoleRepresentation>> entity =
+                new HttpEntity<>(java.util.Collections.singletonList(roleRep), headers);
+
+        restTemplate.exchange(url, org.springframework.http.HttpMethod.POST, entity, Void.class);
+        return true;
+    }
+
+    @Transactional
+    public boolean checkUserPassword(String email, String password) {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(email);
+        loginRequest.setPassword(password);
+
+        try {
+            LoginResource loginResource = login(loginRequest);
+            return loginResource != null && loginResource.getAccessToken() != null;
+        } catch (RestClientResponseException e) {
+            if (e.getRawStatusCode() == 400 || e.getRawStatusCode() == 401) {
+                return false;
+            }
+            throw new RuntimeException("Error while checking user password: " + e.getMessage(), e);
+        }
+    }
+
     @Transactional
     public RequestPasswordResetResult requestPasswordReset(String email) {
         boolean isEmailRegistered = isEmailRegistered(email);
@@ -536,6 +625,90 @@ public class AuthService {
             return false;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    /**
+     * Check if a user exists in Keycloak by user ID
+     *
+     * @param userId UUID of the user
+     * @return true if user exists, false otherwise
+     */
+    public boolean userExistsInKeycloak(UUID userId) {
+        String adminToken = getAdminToken();
+        if (adminToken == null) {
+            throw new RuntimeException("Failed to obtain admin token from Keycloak");
+        }
+
+        String url = String.format("%s/admin/realms/%s/users/%s", keycloakUrl, realm, userId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+
+        try {
+            ResponseEntity<KeycloakUserRecord> resp =
+                    restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), KeycloakUserRecord.class);
+
+            return resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null;
+
+        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+            return false;
+        }
+    }
+
+    /**
+     * Keycloak role representation
+     */
+    public record KeycloakRoleRepresentation(
+            String id,
+            String name,
+            Boolean composite,
+            Boolean clientRole,
+            String containerId
+    ) {}
+
+    /**
+     * Ensure that a realm role exists in Keycloak, create it if it does not exist
+     *
+     * @param roleName Name of the role
+     * @param headers HttpHeaders with authorization
+     * @return KeycloakRoleRepresentation of the ensured role
+     */
+    private KeycloakRoleRepresentation ensureRealmRoleExists(String roleName, HttpHeaders headers) {
+        KeycloakRoleRepresentation role = getRealmRoleByName(roleName, headers);
+        if (role != null) return role;
+
+        String createUrl = String.format("%s/admin/realms/%s/roles", keycloakUrl, realm);
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("name", roleName);
+
+        try {
+            restTemplate.exchange(createUrl, HttpMethod.POST, new HttpEntity<>(payload, headers), Void.class);
+        } catch (org.springframework.web.client.HttpClientErrorException.Conflict e) {
+            // Role already exists (created in the meantime), ignore
+        }
+
+        role = getRealmRoleByName(roleName, headers);
+        if (role == null) {
+            throw new RuntimeException("Role could not be created/fetched: " + roleName);
+        }
+        return role;
+    }
+
+    private KeycloakRoleRepresentation getRealmRoleByName(String roleName, HttpHeaders headers) {
+        String roleUrl = String.format("%s/admin/realms/%s/roles/%s",
+                keycloakUrl,
+                realm,
+                org.springframework.web.util.UriUtils.encodePathSegment(roleName, java.nio.charset.StandardCharsets.UTF_8)
+        );
+
+        try {
+            ResponseEntity<KeycloakRoleRepresentation> resp =
+                    restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), KeycloakRoleRepresentation.class);
+            return resp.getBody();
+        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+            return null;
         }
     }
 

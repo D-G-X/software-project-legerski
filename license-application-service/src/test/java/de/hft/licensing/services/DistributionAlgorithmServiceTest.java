@@ -1,9 +1,9 @@
 package de.hft.licensing.services;
 
+import de.hft.licensing.application.services.DistributionAlgorithmService;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.LicenseTypeApiEnum;
-import de.hft.licensing.services.dslService.BallotDslService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
