@@ -31,7 +31,6 @@ export const getApplicationStatusColor = (status: string | undefined | null): st
 }
 
 export const getLicenseStatusColor = (status: string | undefined | null): string => {
-  console.log("License status:", status);
   if (!status || status === "") return "gray";
 
   if (status === "ACTIVE") return "green";

@@ -190,14 +190,14 @@ export default function ApplicationDetails({
 
     setLicenseReleased(true);
 
-    await queryClient.invalidateQueries({
-      queryKey: ["licenses"],
-    });
+    queryClient.removeQueries({queryKey: ["getLicense", licenseData.id]});
+
+    await queryClient.invalidateQueries({queryKey: ["listLicenses"]});
 
     setIsPopupOpen(false);
   }
 
-  function handleCompleteApplication(
+  function handleFinishApplication(
       status: string,
       applicationId: number
   ) {
@@ -228,14 +228,52 @@ export default function ApplicationDetails({
       downloadFileName: t(
           "applicationDetails.licenseCertificate.fileName",
           {
-            firstName: userData.firstName,
-            lastName: userData.lastName,
+            firstName: userData?.firstName ?? "",
+            lastName: userData?.lastName ?? "",
           }
       ),
       title: t("applicationDetails.licenseCertificate.title", {
-        licenseType: applicationData.license_type,
+        licenseType: applicationData?.license_type ?? "Unknown Type",
       }),
-      text: "...", // unverändert aus deinem Original
+      text: t("applicationDetails.licenseCertificate.text.line1",
+              {
+                firstName: userData?.firstName ?? "",
+                lastName: userData?.lastName ?? "",
+              })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line2")
+          + "\n\n"
+          + t("applicationDetails.licenseCertificate.text.line3", {
+            licenseId: licenseData?.id ?? "Unknown ID",
+          })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line4", {
+            licenseType: applicationData?.license_type ?? "Unknown Type",
+          })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line5", {
+            cadastralReference: applicationData?.cadastral_reference ?? "Unknown Reference",
+          })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line6", {
+            issuedAt: formatDateLong(licenseData?.issued_at, t) ?? "Unknown Date",
+          })
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line7", {
+            expiresAt: formatDateLong(licenseData?.expires_at, t) ?? "Unknown Date",
+          })
+          + "\n\n"
+          + t("applicationDetails.licenseCertificate.text.line8", {
+            legalName: t("app.contact.legalName")
+          })
+          + "\n\n"
+          + t("applicationDetails.licenseCertificate.text.line9")
+          + "\n"
+          + t("applicationDetails.licenseCertificate.text.line10")
+          + "\n\n"
+          + t("applicationDetails.licenseCertificate.text.line11", {
+            generationDate: formatDateLong(new Date().toISOString(), t),
+          }),
       t,
     });
   };
@@ -351,51 +389,51 @@ export default function ApplicationDetails({
                 </div>
 
                 {/* License fields */}
-                {SHOW_LICENSE_STATUSES.includes(
-                    applicationData?.application_status as any
-                ) && (
-                    <>
-                      <div className="text-lg text-left mt-6 text-mallorca-purple/70 font-semibold">
-                        {t("applicationDetails.index.license.label")}
-                      </div>
+                {SHOW_LICENSE_STATUSES.includes(applicationData?.application_status as any) &&
+                    !licenseReleased &&
+                    Boolean(licenseData?.id) && (
+                        <>
+                          <div className="text-lg text-left mt-6 text-mallorca-purple/70 font-semibold">
+                            {t("applicationDetails.index.license.label")}
+                          </div>
 
-                      <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
-                        <div className="flex justify-between min-w-lg">
+                          <div className="bg-gray-50 rounded-lg p-6 mt-2 shadow space-y-2.5 text-gray-700">
+                            <div className="flex justify-between min-w-lg">
                       <span>
                         {t("applicationDetails.index.license.idLabel") + ": "}
                       </span>
-                          <span>{licenseData?.id}</span>
-                        </div>
+                              <span>{licenseData?.id}</span>
+                            </div>
 
-                        <div className="flex justify-between min-w-lg">
+                            <div className="flex justify-between min-w-lg">
                       <span>
                         {t("applicationDetails.index.license.statusLabel") +
                             ": "}
                       </span>
-                          <span
-                              className={`text-${getLicenseStatusColor(licenseData?.license_status)}-600 font-semibold`}
-                          >{t(formatStatusLabel("applicationDetails.licenseStatus.", licenseData?.license_status))}
+                              <span
+                                  className={`text-${getLicenseStatusColor(licenseData?.license_status)}-600 font-semibold`}
+                              >{t(formatStatusLabel("applicationDetails.licenseStatus.", licenseData?.license_status))}
                       </span>
-                        </div>
+                            </div>
 
-                        <div className="flex justify-between min-w-lg">
+                            <div className="flex justify-between min-w-lg">
                       <span>
                         {t("applicationDetails.index.license.issuedOnLabel") +
                             ": "}
                       </span>
-                          <span>{formatDateLong(licenseData?.issued_at, t)}</span>
-                        </div>
+                              <span>{formatDateLong(licenseData?.issued_at, t)}</span>
+                            </div>
 
-                        <div className="flex justify-between min-w-lg">
+                            <div className="flex justify-between min-w-lg">
                       <span>
                         {t("applicationDetails.index.license.expiresOnLabel") +
                             ": "}
                       </span>
-                          <span>{formatDateLong(licenseData?.expires_at, t)}</span>
-                        </div>
-                      </div>
-                    </>
-                )}
+                              <span>{formatDateLong(licenseData?.expires_at, t)}</span>
+                            </div>
+                          </div>
+                        </>
+                    )}
 
                 {/* Document fields */}
                 {SHOW_DOCUMENT_STATUSES.includes(
@@ -516,43 +554,47 @@ export default function ApplicationDetails({
                   <>
                     {/* Renew License Button */}
                     {["ACTIVE", "EXPIRED"].includes(
-                        licenseData?.license_status ?? ""
-                    ) && timeToRenew(licenseData?.expires_at) && (
-                        <button
-                            type="submit"
-                            onClick={onRenew}
-                            className={"bg-mallorca-purple text-white px-10 py-2 rounded-md min-w-48 max-w-96 font-medium text-lg hover:bg-mallorca-purple/90"}
-                        >
-                          {t("applicationDetails.buttons.renewLicenseLabel")}
-                        </button>
-                    )}
+                            licenseData?.license_status ?? ""
+                        ) && timeToRenew(licenseData?.expires_at)
+                        && !licenseReleased && (
+                            <button
+                                type="submit"
+                                onClick={onRenew}
+                                className={"bg-mallorca-purple text-white px-10 py-2 rounded-md min-w-48 max-w-96 font-medium text-lg hover:bg-mallorca-purple/90"}
+                            >
+                              {t("applicationDetails.buttons.renewLicenseLabel")}
+                            </button>
+                        )}
 
                     {/* Release License Button */}
                     {["ACTIVE"].includes(
-                        licenseData?.license_status ?? ""
-                    ) && (
+                            licenseData?.license_status ?? ""
+                        ) && !licenseReleased
+                        && (
 
-                        <button
-                            type="submit"
-                            onClick={() => setIsPopupOpen(true)}
-                            className={"bg-red-500 text-white  px-10 py-2 rounded-md min-w-48 max-w-96 font-medium text-lg hover:bg-red-700"}
-                        >
-                          {t("applicationDetails.buttons.releaseLicenseLabel")}
-                        </button>
-                    )}
+                            <button
+                                type="submit"
+                                onClick={() => setIsPopupOpen(true)}
+                                className={"bg-red-500 text-white  px-10 py-2 rounded-md min-w-48 max-w-96 font-medium text-lg hover:bg-red-700"}
+                            >
+                              {t("applicationDetails.buttons.releaseLicenseLabel")}
+                            </button>
+                        )}
 
                     {/* Download License Button */}
                     {["ACTIVE"].includes(
-                        licenseData?.license_status ?? ""
-                    ) && (
-                        <button
-                            type="submit"
-                            onClick={onDownload}
-                            className={"bg-mallorca-purple text-white  px-10 py-2 rounded-md min-w-48 max-w-96 font-medium text-lg hover:bg-mallorca-purple/90"}
-                        >
-                          {t("applicationDetails.buttons.downloadLabel")}
-                        </button>
-                    )}
+                            licenseData?.license_status ?? ""
+                        ) &&
+                        !licenseReleased
+                        && (
+                            <button
+                                type="submit"
+                                onClick={onDownload}
+                                className={"bg-mallorca-purple text-white  px-10 py-2 rounded-md min-w-48 max-w-96 font-medium text-lg hover:bg-mallorca-purple/90"}
+                            >
+                              {t("applicationDetails.buttons.downloadLabel")}
+                            </button>
+                        )}
                   </>
 
                   {/* Edit Application Button */}
@@ -561,7 +603,7 @@ export default function ApplicationDetails({
                   ) && (
                       <button
                           onClick={() =>
-                              handleCompleteApplication(
+                              handleFinishApplication(
                                   applicationData?.application_status,
                                   applicationData?.id
                               )
