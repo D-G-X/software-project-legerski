@@ -1,5 +1,6 @@
 package de.hft.licensing.services;
 
+import de.hft.licensing.application.repository.DistributionAlgorithmDslService;
 import de.hft.licensing.application.services.DistributionAlgorithmService;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
@@ -25,7 +26,7 @@ class DistributionAlgorithmServiceTest {
 
 
     @Mock
-    private BallotDslService dslService;
+    private DistributionAlgorithmDslService dslService;
 
     private DistributionAlgorithmService service;
 
