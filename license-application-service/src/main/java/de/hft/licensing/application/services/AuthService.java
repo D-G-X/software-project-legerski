@@ -29,10 +29,14 @@ import java.util.stream.Collectors;
 public class AuthService {
 
     private final AuthDslService repository;
+    private final EmailService emailService;
     private final Logger log = LicensingLoggerFactory.getLogger(AuthService.class);
+    private final RestTemplate restTemplate;
 
-    public AuthService(AuthDslService repository) {
+    public AuthService(AuthDslService repository, EmailService emailService, RestTemplate restTemplate) {
         this.repository = repository;
+        this.emailService = emailService;
+        this.restTemplate = restTemplate;
     }
 
     @Value("${keycloak.realm}")
@@ -47,7 +51,6 @@ public class AuthService {
     @Value("${keycloak.client-secret}")
     private String clientSecret;
 
-    private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ApiFormValidator formValidator = new ApiFormValidator();
 
@@ -312,7 +315,7 @@ public class AuthService {
             return RequestPasswordResetResult.INTERNAL_ERROR;
         }
 
-        boolean isEmailSent = EmailService.sendEmail(
+        boolean isEmailSent = emailService.sendEmail(
                 email,
                 null,
                 "Password Reset Request",
