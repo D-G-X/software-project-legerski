@@ -165,15 +165,17 @@ export default function ApplicationDetails({
   const queryClient = useQueryClient();
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [licenseReleased, setLicenseReleased] = useState(false);
 
   if (!open || !applicationData || !userData) {
     return null;
   }
 
   const licenseData = useGetLicenseData(
-      userData.id,
-      applicationData.id
+      licenseReleased ? undefined : userData.id,
+      licenseReleased ? undefined : applicationData.id
   );
+
   const documentData = useGetDocumentData(applicationData.id);
   const paymentData = useGetPaymentData(applicationData.id);
 
@@ -186,7 +188,12 @@ export default function ApplicationDetails({
       },
     });
 
-    await queryClient.invalidateQueries();
+    setLicenseReleased(true);
+
+    await queryClient.invalidateQueries({
+      queryKey: ["licenses"],
+    });
+
     setIsPopupOpen(false);
   }
 
