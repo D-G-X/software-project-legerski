@@ -34,7 +34,7 @@ public class EmailService {
      * @param body    Body content of the email (HTML format).
      * @return true if the email was sent successfully, false otherwise.
      */
-    public static boolean sendEmail(String to, String cc, String subject, String body) {
+    public boolean sendEmail(String to, String cc, String subject, String body) {
         if (staticMailSender == null) {
             throw new IllegalStateException("EmailService not initialized.");
         }
