@@ -181,6 +181,7 @@ export default function Header() {
               {auth?.accessToken && (
                   <div className="flex items-center h-full">
                     <Link
+                        id="profileLink"
                         to="/profile"
                         className="flex justify-between items-center ml-2 gap-2 h-full text-mallorca-purple/75 hover:bg-mallorca-purple/10 rounded-lg px-3"
                     >
@@ -190,6 +191,7 @@ export default function Header() {
                     </Link>
 
                     <button
+                        id="signOutBtn"
                         onClick={auth?.signOut}
                         className="ml-2 rounded-lg bg-mallorca-purple border-2 border-mallorca-purple
                  text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
@@ -204,6 +206,7 @@ export default function Header() {
                     {/* Signin Button */}
                     <div className="ml-3">
                       <Link
+                          id="signInLink"
                           to="/login"
                           className="block rounded-lg bg-mallorca-purple/75 border-2 border-mallorca-purple/75 text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
                       >
@@ -213,6 +216,7 @@ export default function Header() {
                     {/* Register Button */}
                     <div className="ml-3">
                       <Link
+                          id="registerLink"
                           to="/register"
                           className="rounded-lg block bg-mallorca-purple border-2 border-mallorca-purple text-white p-1 px-4 hover:bg-mallorca-red/75 hover:border-mallorca-red"
                       >
