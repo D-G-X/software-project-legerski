@@ -150,7 +150,7 @@ paths:
       description: Change the lastname or the email of a user
       operationId: changeUserDetails
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           required: true
           schema:
@@ -247,7 +247,7 @@ paths:
         "409":
           description: User already exists
 
-  /users/{userId}:
+  /users/{user_id}:
     get:
       tags: [Users]
       summary: Get user by ID
@@ -256,7 +256,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           required: true
           schema:
@@ -278,7 +278,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           required: true
           schema:
@@ -329,7 +329,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           required: true
           schema:
@@ -345,7 +345,7 @@ paths:
         "404":
           description: User not found
 
-  /users/{userId}/notifications:
+  /users/{user_id}/notifications:
     get:
       tags: [Users]
       summary: Return all notifications for a user.
@@ -353,7 +353,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           required: true
           schema:
@@ -375,7 +375,7 @@ paths:
         "404":
           description: User not found
 
-  /users/{userId}/change-password:
+  /users/{user_id}/change-password:
     post:
       tags: [Users]
       summary: Change password for a user.
@@ -384,7 +384,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           required: true
           schema:
@@ -444,7 +444,7 @@ paths:
         "404":
           description: Notification not found
 
-  /users/{userId}/notifications/preferences:
+  /users/{user_id}/notifications/preferences:
     get:
       tags: [Users]
       summary: Get notification preferences for a user
@@ -453,7 +453,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           required: true
           schema:
@@ -474,7 +474,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           required: true
           schema:
@@ -550,7 +550,7 @@ paths:
         "422":
           description: User does not exist
 
-  /applications/{applicationId}:
+  /applications/{application_id}:
     get:
       tags: [Applications]
       summary: Get application by ID
@@ -559,7 +559,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: applicationId
+        - name: application_id
           in: path
           required: true
           schema:
@@ -579,7 +579,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: applicationId
+        - name: application_id
           in: path
           required: true
           schema:
@@ -607,7 +607,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: applicationId
+        - name: application_id
           in: path
           required: true
           schema:
@@ -654,14 +654,14 @@ paths:
         default:
           description: No response expected
 
-  /applications/{applicationId}/documents:
+  /applications/{application_id}/documents:
     get:
       tags: [Document Verification]
       summary: Get document validation status for an application
       description: Returns the validation result of the documents belonging to an application
       operationId: getApplicationDocuments
       parameters:
-        - name: applicationId
+        - name: application_id
           in: path
           required: true
           schema:
@@ -695,7 +695,7 @@ paths:
         "404":
           description: Application not found
 
-  /applications/{applicationId}/payments:
+  /applications/{application_id}/payments:
     get:
       tags: [Payments]
       summary: List payments for an application
@@ -704,7 +704,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: applicationId
+        - name: application_id
           in: path
           required: true
           schema:
@@ -726,7 +726,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: applicationId
+        - name: application_id
           in: path
           required: true
           schema:
@@ -745,7 +745,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApplicationPaymentResource"
 
-  /fees/{applicationId}:
+  /fees/{application_id}:
     get:
       tags: [Payments]
       summary: Get application fee amount
@@ -754,7 +754,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: applicationId
+        - name: application_id
           in: path
           required: true
           schema:
@@ -963,7 +963,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/LicenseResource"
 
-  /licenses/{licenseId}:
+  /licenses/{license_id}:
     get:
       tags: [Licenses]
       summary: Get license by ID
@@ -972,7 +972,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: licenseId
+        - name: license_id
           in: path
           required: true
           schema:
@@ -992,7 +992,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: licenseId
+        - name: license_id
           in: path
           required: true
           schema:
@@ -1024,7 +1024,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: licenseId
+        - name: license_id
           in: path
           required: true
           schema:
@@ -1076,7 +1076,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ConsentResource"
 
-  /consents/{consentId}:
+  /consents/{consent_id}:
     delete:
       tags: [Consent]
       summary: Withdraw consent
@@ -1085,7 +1085,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: consentId
+        - name: consent_id
           in: path
           required: true
           schema:
@@ -1135,7 +1135,7 @@ paths:
       security:
         - KeycloakOAuth2: [openid]
       parameters:
-        - name: userId
+        - name: user_id
           in: path
           description: Unique identifier of the user whose data should be deleted
           required: true
@@ -1263,7 +1263,7 @@ components:
       additionalProperties: false
       minProperties: 2
       properties:
-        userId:
+        user_id:
           type: string
           format: uuid
           description: User's unique identifier.
@@ -1282,7 +1282,7 @@ components:
           description: User's new email address.
           example: johndoe@email.com
       required:
-        - userId
+        - user_id
 
     ResetPasswordRequest:
       type: object
