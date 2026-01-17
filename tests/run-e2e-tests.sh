@@ -2,7 +2,9 @@
 
 CALLER_DIR="$(pwd)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEST_DIR="$SCRIPT_DIR/e2e-tests"
+TEST_DIR="$SCRIPT_DIR/e2e-test"
+
+export PYTHONPATH="$SCRIPT_DIR"
 
 cd "$SCRIPT_DIR" || exit 1
 
@@ -12,6 +14,21 @@ if [ ! -d ".venv" ]; then
   exit 1
 fi
 
-pytest ${TEST_DIR}/playwright_tests
+source .venv/bin/activate
+
+if [ ! -d "${TEST_DIR}" ]; then
+  echo "❌ ${TEST_DIR} missing"
+  deactivate
+  cd "$CALLER_DIR" || exit 1
+  exit 1
+fi
+
+cd ${TEST_DIR}
+
+pytest ${TEST_SCRIPT} --browser webkit
+pytest ${TEST_SCRIPT} --browser chromium
+pytest ${TEST_SCRIPT} --browser firefox
+
+deactivate
 
 cd "$CALLER_DIR" || exit 1

@@ -8,6 +8,8 @@ CALLER_DIR="$(pwd)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR="$SCRIPT_DIR/load-test"
 
+export PYTHONPATH="$SCRIPT_DIR"
+
 cd "$SCRIPT_DIR" || exit 1
 
 if [ ! -d ".venv" ]; then
@@ -16,6 +18,8 @@ if [ ! -d ".venv" ]; then
   exit 1
 fi
 
+source .venv/bin/activate
+
 locust -f ${TEST_DIR}/locustfile.py \
   --users $NUM_USERS \
   --spawn-rate $SPAWN_RATE \
@@ -23,5 +27,7 @@ locust -f ${TEST_DIR}/locustfile.py \
   --processes $THREADS \
   --loglevel DEBUG \
   -H ${BACKEND_URL} \
+
+  deactivate
 
 cd "$CALLER_DIR" || exit 1

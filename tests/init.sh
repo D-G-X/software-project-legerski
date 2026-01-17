@@ -24,6 +24,8 @@ fi
 
 pip install -r requirements.txt
 
-playwright install
+playwright install --with-deps webkit chrome firefox
+
+deactivate
 
 cd "$CALLER_DIR" || exit 1

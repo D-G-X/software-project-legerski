@@ -1,5 +1,5 @@
 requests
-playwright
 pytest
+pytest-playwright
 locust
 python-dotenv
