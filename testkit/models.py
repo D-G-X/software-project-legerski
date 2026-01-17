@@ -2,28 +2,30 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal
+from typing import Optional
 
 
 @dataclass
 class UserContext:
-    id: str
-    username: str
     email: str
     password: str
     firstname: str
     lastname: str
-    enabled: bool
-    email_verified: bool
-    created_timestamp: int
-    access_token: str
-    refresh_token: str
-    expires_in: int
-    refresh_expires_in: int
-    token_type: str
-    is_admin: bool
-    notification_way: str
-    application_updates_notification: bool
-    license_renewal_notification: bool
+
+    id: Optional[str] = None
+    username: Optional[str] = None
+    enabled: bool = False
+    email_verified: bool = False
+    created_timestamp: Optional[str] = None
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
+    expires_in: Optional[int] = None
+    refresh_expires_in: Optional[int] = None
+    token_type: Optional[str] = None
+    is_admin: bool = False
+    notification_way: Optional[str] = None
+    application_updates_notification: Optional[str] = None
+    license_renewal_notification: Optional[str] = None
 
 
 @dataclass
@@ -34,21 +36,6 @@ class NotificationContext:
     date: str
     message: str
     is_read: bool
-
-
-@dataclass
-class AdminContext:
-    id: str
-    email: str
-    password: str
-    firstname: str
-    lastname: str
-    access_token: str
-    refresh_token: str
-    expires_in: int
-    refresh_expires_in: int
-    token_type: str
-    is_admin: bool
 
 
 @dataclass
@@ -91,10 +78,11 @@ class LicenseContext:
 
 @dataclass
 class BallotPeriodContext:
-    ballot_period_id: int
     start_date: str
     end_date: str
-    total_applications: int
+
+    ballot_period_id: Optional[int] = None
+    total_applications: Optional[int] = None
 
 
 '''

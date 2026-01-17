@@ -5,11 +5,11 @@ from datetime import datetime, timedelta
 from datetime import timezone
 
 from testkit.config import LICENSE_TYPES
-from testkit.models import AdminContext, UserContext, ApplicationContext, PaymentContext, BallotPeriodContext
+from testkit.models import UserContext, UserContext, ApplicationContext, PaymentContext, BallotPeriodContext
 
 
-def _unique_email(prefix: str = "pw") -> str:
-    return f"{prefix}-{uuid.uuid4().hex}@test.local"
+def _unique_email() -> str:
+    return f"user-{uuid.uuid4().hex}@test.local"
 
 
 def _date_str(days_offset: int = 0, hours_offset: int = 0, minutes_offset: int = 0, seconds_offset: int = 0, ) -> str:
@@ -22,15 +22,15 @@ def _date_str(days_offset: int = 0, hours_offset: int = 0, minutes_offset: int =
 
 def new_user() -> UserContext:
     return UserContext(
-        email=_unique_email(prefix="user"),
+        email=_unique_email(),
         password="Test123!",
         firstname="Test",
         lastname="User",
     )
 
 
-def new_admin() -> AdminContext:
-    return AdminContext(
+def new_admin() -> UserContext:
+    return UserContext(
         email="admin@xx.xx",
         password="admin",
         firstname="admin",

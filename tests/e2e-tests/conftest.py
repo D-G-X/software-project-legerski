@@ -1,14 +1,10 @@
 from pathlib import Path
-from time import sleep
 
-from clients.api_client import ApiClient
-from dotenv import load_dotenv
-from flows.application_flow import ApplicationCreationFlow
-from testkit.models import UserContext, AdminContext, ApplicationContext, PaymentContext, LicenseContext
 import pytest
+from dotenv import load_dotenv
+from playwright.sync_api import sync_playwright
 
-from playwright.context import BallotPeriodUserContext
-from utils.utils import env
+from testkit.config import FRONTEND_URL
 
 AUTH_DIR = Path(".auth")
 
@@ -16,10 +12,31 @@ load_dotenv()
 
 
 def _browser_from_pytest(pytestconfig) -> str:
-    # pytest-playwright: --browser chromium|firefox|webkit
-    return pytestconfig.getoption("--browser") or "chromium"
+    b = pytestconfig.getoption("--browser") or "chromium"
+    if isinstance(b, (list, tuple)):
+        b = b[0] if b else "chromium"
+    return b
+
+@pytest.fixture
+def page(pytestconfig):
+    browser_name = _browser_from_pytest(pytestconfig)
+
+    with sync_playwright() as p:
+        browser_type = {
+            "chromium": p.chromium,
+            "firefox": p.firefox,
+            "webkit": p.webkit,
+        }[browser_name]
+
+        browser = browser_type.launch(headless=False)
+        context = browser.new_context(base_url=FRONTEND_URL)
+        page = context.new_page()
+        yield page
+        context.close()
+        browser.close()
 
 
+'''
 @pytest.fixture(scope="session")
 def storage_state_file(pytestconfig) -> Path:
     AUTH_DIR.mkdir(exist_ok=True)
@@ -44,31 +61,19 @@ def ensure_storage_state(browser, storage_state_file: Path):
 
 @pytest.fixture
 def browser_context_args(ensure_storage_state: Path):
-    # pytest-playwright nutzt das automatisch beim Erstellen des Contexts
+    # pytest-e2e-tests nutzt das automatisch beim Erstellen des Contexts
     return {"storage_state": str(ensure_storage_state)}
 
-
-@pytest.fixture
-def page():
-    with sync_playwright() as p:
-        browser = p.firefox.launch(headless=True)
-        context = browser.new_context(base_url=env("FRONTEND_URL"))
-        page = context.new_page()
-        yield page
-        context.close()
-        browser.close()
-
-
 @pytest.fixture(scope="session")
-def api_context(playwright):
-    ctx = playwright.request.new_context(base_url=env("BACKEND_URL"))
+def api_context(e2e-tests):
+    ctx = e2e-tests.request.new_context(base_url=FRONTEND_URL)
     yield ctx
     ctx.dispose()
 
 
 @pytest.fixture(scope="session")
-def admin_ctx() -> AdminContext:
-    return AdminContext()
+def admin_ctx() -> UserContext:
+    return UserContext()
 
 
 @pytest.fixture(scope="function")
@@ -92,5 +97,6 @@ def license_ctx() -> LicenseContext:
 
 
 @pytest.fixture(scope="function")
-def ballot_period_ctx() -> BallotPeriodUserContext:
-    return BallotPeriodUserContext()
+def ballot_period_ctx() -> BallotPeriodContext:
+    return BallotPeriodContext()
+'''

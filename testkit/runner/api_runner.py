@@ -5,7 +5,7 @@ import requests
 
 from testkit.config import BACKEND_URL, DOCUMENT_STATUSES, TEST_PDF_PATH, LICENSE_MAP, PAYMENT_STATUSES, \
     APPLICATION_STATUSES, LICENSE_STATUSES
-from testkit.models import ApplicationContext, PaymentContext, NotificationContext, UserContext, AdminContext, \
+from testkit.models import ApplicationContext, PaymentContext, NotificationContext, UserContext, \
     LicenseContext, BallotPeriodContext
 from testkit.runner.utils import _decode_jwt, _headers, _read_file
 
@@ -40,7 +40,7 @@ def login(user: UserContext) -> UserContext:
         },
     )
     assert r.status_code == 200, f"Login failed: {r.status_code} {r.text}"
-    assert "access_token" in r.json(), f"Login returned no access token: {r.status_code} {r.text}"
+    assert "access_token" in r.json(), f"Login returned no access token: {r.status_text} {r.text}"
 
     user.access_token = r.json().get("access_token")
     user.refresh_token = r.json().get("refresh_token")
@@ -49,7 +49,8 @@ def login(user: UserContext) -> UserContext:
     user.token_type = r.json().get("token_type")
     user.is_admin = bool(r.json().get("is_admin"))
 
-    assert user.id == _decode_jwt(user.access_token)["sub"], f"Login returned invalid user id: {r.status_code} {r.text}"
+    assert user.id == _decode_jwt(user.access_token)["sub"], f"Login returned invalid user id: {r.status_text} {r.text}"
+
     return user
 
 
@@ -142,7 +143,7 @@ def change_name(user: UserContext, new_firstname: str, new_lastname: str) -> Use
     return user
 
 
-def logout(user_or_admin: UserContext | AdminContext) -> UserContext | AdminContext:
+def logout(user_or_admin: UserContext) -> UserContext:
     user_or_admin.access_token = ""
     user_or_admin.refresh_token = ""
     user_or_admin.expires_in = 0

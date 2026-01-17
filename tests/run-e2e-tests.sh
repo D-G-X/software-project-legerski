@@ -2,9 +2,10 @@
 
 CALLER_DIR="$(pwd)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEST_DIR="$SCRIPT_DIR/e2e-test"
+TEST_DIR="$SCRIPT_DIR/e2e-tests"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-export PYTHONPATH="$SCRIPT_DIR"
+export PYTHONPATH="${REPO_ROOT}"
 
 cd "$SCRIPT_DIR" || exit 1
 
