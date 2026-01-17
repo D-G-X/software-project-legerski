@@ -64,7 +64,7 @@ public class AuthController implements AuthenticationApi {
     } else if (registerResource.getUserId() == null) {
       return ResponseEntity.badRequest().body(registerResource);
     }
-    return ResponseEntity.created(URI.create("/auth/register/" + registerResource.getUserId())).build();
+    return ResponseEntity.created(URI.create("/auth/register/" + registerResource.getUserId())).body(registerResource);
   }
 
     @Override
