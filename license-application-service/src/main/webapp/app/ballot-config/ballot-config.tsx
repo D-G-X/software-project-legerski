@@ -181,6 +181,7 @@ export default function BallotConfig() {
 
             <div className={`pt-5 flex justify-between px-5 gap-10`}>
               <button
+                  id="createBallotPeriodBtn"
                   onClick={handleSubmit}
                   disabled={isPending}
                   className="px-15 py-1 border-2 border-mallorca-purple bg-mallorca-purple rounded-lg text-white disabled:opacity-50"

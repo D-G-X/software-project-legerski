@@ -18,7 +18,7 @@ export default function BallotDashboard() {
   useDocumentTitle(t("home.index.headline"));
   const navigate = useNavigate();
 
-  function handleNewApplicationClick() {
+  function handleCreateBallotClick() {
     navigate(`/ballot-config`);
   }
 
@@ -58,7 +58,8 @@ export default function BallotDashboard() {
           <div className={"w-full my-8 flex justify-between items-end"}>
             <FormHeader heading={t("ballot-dashboard.headline")}/>
             <button
-                onClick={handleNewApplicationClick}
+                id="createNewBallotBtn"
+                onClick={handleCreateBallotClick}
                 className={
                   "bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium mt-12 inline-block w-max"
                 }

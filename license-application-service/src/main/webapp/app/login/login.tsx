@@ -238,7 +238,7 @@ export default function Login() {
                 </label>
               </div>
               <div>
-                <Link to="/forgot-password" className="text-mallorca-purple/50">
+                <Link id="forgotPasswortLink" to="/forgot-password" className="text-mallorca-purple/50">
                   {t("login.index.forgotPassword")}
                 </Link>
               </div>

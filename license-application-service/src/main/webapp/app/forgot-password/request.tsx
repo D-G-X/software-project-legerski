@@ -87,6 +87,7 @@ export default function ForgotPasswordRequest() {
                       )}
                       <button
                           type="submit"
+                          id="resetPasswordBtn"
                           onClick={handleSubmit}
                           disabled={visible}
                           className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg"
