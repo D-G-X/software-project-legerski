@@ -6,7 +6,7 @@ import re
 from playwright.sync_api import Page, FilePayload
 
 from testkit.config import FRONTEND_URL, BACKEND_URL, ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, ACCESS_EXP_KEY, \
-    REFRESH_EXP_KEY, TOKEN_TYPE_KEY, ROLE_KEY, TEST_PDF_PATH, DOCUMENT_STATUSES, PAYMENT_STATUSES
+    REFRESH_EXP_KEY, TOKEN_TYPE_KEY, ROLE_KEY, TEST_PDF_PATH, DOCUMENT_STATUSES, PAYMENT_STATUSES, LANGUAGE_KEY
 from testkit.models import UserContext, BallotPeriodContext, ApplicationContext, PaymentContext
 from testkit.runner.api_runner import api_get_document_verification_status, api_get_application_fee
 from testkit.runner.utils import decode_jwt, headers, read_file
@@ -20,7 +20,7 @@ from testkit.runner.utils import decode_jwt, headers, read_file
 def ui_register(page, user: UserContext) -> None:
     page.goto(f"{FRONTEND_URL}/")
     page.locator("#registerLink").click()
-    page.wait_for_url("**/register")
+    page.wait_for_url(f"{FRONTEND_URL}/register")
 
     page.locator("#firstName").fill(user.firstname)
     page.locator("#lastName").fill(user.lastname)
@@ -41,7 +41,7 @@ def ui_register(page, user: UserContext) -> None:
     assert user_id, f"Registration returned no user id: {r.status} {r.text()}"
     user.id = user_id
 
-    page.wait_for_url("**/login")
+    page.wait_for_url(f"{FRONTEND_URL}/login")
 
 
 # TODO: add keep logged in
@@ -51,7 +51,7 @@ import re
 def ui_login(page, user: UserContext) -> None:
     page.goto(f"{FRONTEND_URL}/")
     page.locator("#signInLink").click()
-    page.wait_for_url("**/login")
+    page.wait_for_url(f"{FRONTEND_URL}/login")
 
     page.locator("#email").fill(user.email)
     page.locator("#password").fill(user.password)
@@ -81,7 +81,17 @@ def ui_login(page, user: UserContext) -> None:
 
     ui_verify_local_storage_after_login(page, data)
 
-    page.wait_for_url("**/")
+    page.wait_for_url(f"{FRONTEND_URL}/")
+
+
+def ui_login_to_register(page) -> None:
+    page.goto(f"{FRONTEND_URL}/")
+    page.locator("#signInLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/login")
+
+    page.locator("#createAccountLink").click()
+
+    page.wait_for_url(f"{FRONTEND_URL}/register")
 
 
 def ui_refresh_login(page, user: UserContext) -> None:
@@ -469,32 +479,6 @@ def ui_get_applications(user_id: str, access_token: str) -> list[ApplicationCont
 '''
 
 
-def ui_create_application_full(page: Page, application: ApplicationContext, user: UserContext) -> None:
-    page.goto(f"{FRONTEND_URL}/")
-    page.locator("#createNewApplicationBtn").click()
-    page.wait_for_url(f"{FRONTEND_URL}/license-application-request")
-
-    page.locator("#cadastral_number").fill(application.cadastral_reference)
-    page.locator(f'#rental_license_type_{application.license_type}').check()
-    page.locator("#additional_comments").fill(application.remarks)
-    page.locator("#consent_legal_data").check()
-    page.locator("#consent_personal_data").check()
-
-    with page.expect_response(
-            lambda res: res.request.method == "POST" and re.search(r"/applications$", res.url)
-    ) as res_info:
-        page.locator("#submitApplicationBtn").click()
-    r = res_info.value
-
-    assert r.status == 201, f"Application request failed: {r.status} {r.text()}"
-    assert user.id == r.json().get("user_id"), f"Application request returned invalid user id: {r.status} {r.text()}"
-    application.id = r.json().get("id")
-    application.applied_at = r.json().get("applied_at")
-    application.changed_at = r.json().get("changed_at")
-
-    page.wait_for_url(f"{FRONTEND_URL}/license-document-upload/{application.id}")
-
-
 def ui_create_application_draft(page: Page, application: ApplicationContext, user: UserContext) -> None:
     page.goto(f"{FRONTEND_URL}/")
     page.locator("#createNewApplicationBtn").click()
@@ -521,6 +505,52 @@ def ui_create_application_draft(page: Page, application: ApplicationContext, use
     page.wait_for_url(f"{FRONTEND_URL}/")
 
 
+def ui_create_application(page: Page, application: ApplicationContext, user: UserContext) -> None:
+    page.goto(f"{FRONTEND_URL}/")
+    page.locator("#createNewApplicationBtn").click()
+    page.wait_for_url(f"{FRONTEND_URL}/license-application-request")
+
+    page.locator("#cadastral_number").fill(application.cadastral_reference)
+    page.locator(f'#rental_license_type_{application.license_type}').check()
+    page.locator("#additional_comments").fill(application.remarks)
+    page.locator("#consent_legal_data").check()
+    page.locator("#consent_personal_data").check()
+
+    with page.expect_response(
+            lambda res: res.request.method == "POST" and re.search(r"/applications$", res.url)
+    ) as res_info:
+        page.locator("#submitApplicationBtn").click()
+    r = res_info.value
+
+    assert r.status == 201, f"Application request failed: {r.status} {r.text()}"
+    assert user.id == r.json().get("user_id"), f"Application request returned invalid user id: {r.status} {r.text()}"
+    application.id = r.json().get("id")
+    application.applied_at = r.json().get("applied_at")
+    application.changed_at = r.json().get("changed_at")
+
+    page.wait_for_url(f"{FRONTEND_URL}/license-document-upload/{application.id}")
+
+
+def ui_edit_application(page: Page, application: ApplicationContext, user: UserContext) -> None:
+    page.locator("#cadastral_number").fill(application.cadastral_reference)
+    page.locator(f'#rental_license_type_{application.license_type}').check()
+    page.locator("#additional_comments").fill(application.remarks)
+    page.locator("#consent_legal_data").check()
+    page.locator("#consent_personal_data").check()
+
+    with page.expect_response(
+            lambda res: res.request.method == "POST" and re.search(rf"/applications/{application.id}/edit$", res.url)
+    ) as res_info:
+        page.locator("#submitApplicationBtn").click()
+    r = res_info.value
+
+    assert r.status == 201, f"Application request failed: {r.status} {r.text()}"
+    assert user.id == r.json().get("user_id"), f"Application request returned invalid user id: {r.status} {r.text()}"
+    application.id = r.json().get("id")
+    application.applied_at = r.json().get("applied_at")
+    application.changed_at = r.json().get("changed_at")
+
+    page.wait_for_url(f"{FRONTEND_URL}/license-document-upload/{application.id}")
 '''
 def ui_get_application_by_id(user_id: str, access_token: str) -> ApplicationContext:
     r = requests.get(
@@ -752,10 +782,20 @@ def ui_get_payments(application_id: str, access_token: str) -> list[PaymentConte
 '''
 
 
+def ui_skip_payment(page: Page, user: UserContext, application: ApplicationContext, payment: PaymentContext) -> None:
+    page.goto(f"{FRONTEND_URL}/payment/{application.id}")
+
+    payment.amount = api_get_application_fee(None, application, user.access_token)
+
+    page.locator("#payLaterBtn").click()
+
+    page.wait_for_url(f"{FRONTEND_URL}/")
+
+
 def ui_create_payment(page: Page, user: UserContext, application: ApplicationContext, payment: PaymentContext) -> None:
     page.goto(f"{FRONTEND_URL}/payment/{application.id}")
 
-    payment.amount = api_get_application_fee(application, user.access_token)
+    payment.amount = api_get_application_fee(None, application, user.access_token)
 
     page.locator("#name").fill(payment.name)
     page.locator("#iban").fill(payment.iban)
@@ -1049,7 +1089,20 @@ def ui_create_application_documents(page: Page, application_id: int) -> None:
     assert application_id == r.json().get(
         "application_id"), f"Document upload returned invalid application id: {r.status} {r.text()}"
 
-    page.wait_for_url(f"**/payment/{application_id}")
+    page.wait_for_url(f"{FRONTEND_URL}/payment/{application_id}")
+
+
+def ui_create_application_documents_later(page: Page) -> None:
+    page.locator("#uploadLaterBtn").click()
+
+    page.wait_for_url(f"{FRONTEND_URL}/")
+
+
+def ui_create_application_documents_edit(page: Page, application_id: int) -> None:
+
+    page.locator("#editApplicationBtn").click()
+
+    page.wait_for_url(f"{FRONTEND_URL}/license-application-request/{application_id}/edit")
 
 
 ############################################################################
@@ -1086,9 +1139,33 @@ def ui_wait_for_document_verification(
 
 
 ############################################################################
-# Language functions (incl localStorage)
+# Dashboard functions
 ############################################################################
 
+def ui_change_language(page, user: UserContext) -> None:
+    language = "de"
+
+    page.goto(f"{FRONTEND_URL}/")
+    page.locator("#languageOptionBtn").click()
+    page.locator("ul.absolute").wait_for(state="visible")
+    page.locator(f"#{language}").click()
+    page.locator("ul.absolute").wait_for(state="hidden")
+
+    new_language = ui_get_language_from_local_storage(page)
+    assert new_language == language, f"Language change in local storage failed: expected '{language}', got '{new_language}'"
+    user.language = new_language
+
+
+def ui_visit_contact(page) -> None:
+    page.goto(f"{FRONTEND_URL}/")
+    page.locator("#contactLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/contact")
+
+
+def ui_visit_legal(page) -> None:
+    page.goto(f"{FRONTEND_URL}/")
+    page.locator("#legalLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/legal")
 
 ############################################################################
 # Helper functions
@@ -1125,6 +1202,10 @@ def ui_get_auth_details_from_local_storage(page) -> tuple[
     is_admin = page.evaluate("(k) => window.localStorage.getItem(k) === 'admin'", ROLE_KEY, )
 
     return access_token, refresh_token, access_exp, refresh_exp, token_type, is_admin
+
+
+def ui_get_language_from_local_storage(page) -> str | None:
+    return page.evaluate("(k) => window.localStorage.getItem(k)", LANGUAGE_KEY)
 
 
 def _get_unformatted_amount(formatted: str) -> float:

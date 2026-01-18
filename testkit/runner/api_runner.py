@@ -678,11 +678,18 @@ def api_create_payment(client: HttpSession, application_id: int, payment: Paymen
 
 
 def api_get_application_fee(client: HttpSession, application: ApplicationContext, access_token: str) -> float:
-    r = client.get(
-        f"{BACKEND_URL}/fees/{application.id}",
-        headers=headers(access_token),
-        params={"application_id": application.id},
-    )
+    if client:
+        r = client.get(
+            f"{BACKEND_URL}/fees/{application.id}",
+            headers=headers(access_token),
+            params={"application_id": application.id},
+        )
+    else:
+        r = requests.get(
+            f"{BACKEND_URL}/fees/{application.id}",
+            headers=headers(access_token),
+            params={"application_id": application.id},
+        )
     assert r.status_code == 200, f"Fetching application fees failed: {r.status_code} {r.text}"
     assert application.id == r.json().get(
         "application_id"), f"Fetching application fees returned invalid application id: {r.status_code} {r.text}"

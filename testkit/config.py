@@ -21,6 +21,16 @@ ACCESS_EXP_KEY = "accessTokenExpiry"
 REFRESH_EXP_KEY = "refreshTokenExpiry"
 TOKEN_TYPE_KEY = "tokenType"
 ROLE_KEY = "role"
+LANGUAGE_KEY = "language"
+
+LANGUAGES = [
+    "en",
+    "de",
+    "fr",
+    "es",
+    "hi",
+    "id",
+]
 
 LICENSE_TYPES = [
     "ETV",

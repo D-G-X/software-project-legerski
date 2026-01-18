@@ -298,6 +298,7 @@ export default function ApplicationDocumentUpload() {
                 {t("license.document_upload.submitButton")}
               </button>
               <button
+                  id="editApplicationBtn"
                   className="p-2  bg-mallorca-purple/75 border-2 border-mallorca-purple text-white rounded-xl w-full lg:flex-1 hover:bg-mallorca-red/75 hover:border-mallorca-red hover:text-white"
                   onClick={() => {
                     navigate(`/license-application-request/edit/${applicationID}`);

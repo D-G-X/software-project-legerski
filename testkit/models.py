@@ -16,7 +16,7 @@ class Scenario:
 
 @dataclass
 class RunContext:
-    user: "UserContext"  # Admin is user if no user is needed
+    user: Optional["UserContext"] = None  # Admin is user if no user is needed
     admin: Optional["UserContext"] = None
     notification: Optional["NotificationContext"] = None
     application: Optional["ApplicationContext"] = None
@@ -35,6 +35,7 @@ class UserContext:
     password: str
     firstname: str
     lastname: str
+    language: str = "en"
 
     id: Optional[str] = None
     username: Optional[str] = None
