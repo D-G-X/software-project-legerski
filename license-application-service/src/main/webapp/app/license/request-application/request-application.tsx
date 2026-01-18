@@ -579,6 +579,7 @@ export default function RequestApplication() {
                 </button>
                 <button
                     type="submit"
+                    id="saveDraftBtn"
                     onClick={() => handleSubmit("draft")}
                     className="block bg-mallorca-purple/75 border-2 border-mallorca-purple hover:bg-mallorca-red/75 hover:border-mallorca-red text-white px-10 py-2 rounded-md w-full font-medium text-lg"
                 >

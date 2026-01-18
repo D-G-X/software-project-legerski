@@ -3,7 +3,8 @@ from playwright.sync_api import Page
 from testkit.models import Scenario, RunContext
 from testkit.runner.api_runner import api_register, api_login
 from testkit.runner.ui_runner import ui_create_ballot_period, ui_login, ui_logout, ui_register, ui_refresh_login, \
-    ui_request_reset_password, ui_create_application, ui_create_application_documents, ui_create_payment
+    ui_request_reset_password, ui_create_application_documents, ui_create_payment, \
+    ui_create_application_full, ui_create_application_draft
 
 
 def REGISTER_LOGIN_LOGOUT() -> Scenario:
@@ -39,13 +40,24 @@ def REGISTER_LOGIN_REFRESH_TOKEN() -> Scenario:
     )
 
 
-def CREATE_APPLICATION_DOCUMENT_PAYMENT() -> Scenario:
+def CREATE_APPLICATION_DRAFT() -> Scenario:
     return Scenario(
         name="create_application_document_payment",
         steps=[
             lambda p, ctx: ui_register(p, ctx.user),
             lambda p, ctx: ui_login(p, ctx.user),
-            lambda p, ctx: ui_create_application(p, ctx.application, ctx.user),
+            lambda p, ctx: ui_create_application_draft(p, ctx.application, ctx.user),
+        ],
+    )
+
+
+def CREATE_APPLICATION_FULL() -> Scenario:
+    return Scenario(
+        name="create_application_document_payment",
+        steps=[
+            lambda p, ctx: ui_register(p, ctx.user),
+            lambda p, ctx: ui_login(p, ctx.user),
+            lambda p, ctx: ui_create_application_full(p, ctx.application, ctx.user),
             lambda p, ctx: ui_create_application_documents(p, ctx.application.id),
             lambda p, ctx: ui_create_payment(p, ctx.user, ctx.application, ctx.payment),
         ],

@@ -8,14 +8,15 @@ from testkit.config import BACKEND_URL, DOCUMENT_STATUSES, TEST_PDF_PATH, LICENS
 from testkit.models import ApplicationContext, PaymentContext, NotificationContext, UserContext, \
     LicenseContext, BallotPeriodContext
 from testkit.runner.utils import decode_jwt, headers, read_file
+from locust.clients import HttpSession
 
 
 ############################################################################
 # Authentication functions
 ############################################################################
 
-def api_register(user: UserContext) -> None:
-    r = requests.post(
+def api_register(client: HttpSession, user: UserContext) -> None:
+    r = client.post(
         f"{BACKEND_URL}/register",
         json={
             "firstname": user.firstname,
@@ -30,12 +31,12 @@ def api_register(user: UserContext) -> None:
     user.id = r.json().get("user_id")
 
 
-def api_login(user: UserContext) -> None:
-    r = requests.post(
+def api_login(client: HttpSession, user: UserContext) -> None:
+    r = client.post(
         f"{BACKEND_URL}/login",
         json={
             "email": user.email,
-            "password": user.email,
+            "password": user.password,
         },
     )
     assert r.status_code == 200, f"Login failed: {r.status_code} {r.text}"
@@ -50,9 +51,12 @@ def api_login(user: UserContext) -> None:
 
     assert user.id == decode_jwt(user.access_token)["sub"], f"Login returned invalid user id: {r.status_code} {r.text}"
 
+    if user.access_token:
+        client.headers.update({"Authorization": f"Bearer {user.access_token}"})
 
-def api_refresh_login(user: UserContext) -> UserContext:
-    r = requests.post(
+
+def api_refresh_login(client: HttpSession, user: UserContext) -> UserContext:
+    r = client.post(
         f"{BACKEND_URL}/refresh-login",
         json={
             "refresh_token": user.refresh_token,
@@ -68,11 +72,12 @@ def api_refresh_login(user: UserContext) -> UserContext:
     user.token_type = r.json().get("token_type")
     user.is_admin = bool(r.json().get("is_admin"))
 
+    client.headers.update({"Authorization": f"Bearer {user.access_token}"})
     return user
 
 
-def api_request_reset_password(user_email: str) -> None:
-    r = requests.post(
+def api_request_reset_password(client: HttpSession, user_email: str) -> None:
+    r = client.post(
         f"{BACKEND_URL}/reset-password",
         json={
             "email": user_email,
@@ -81,8 +86,8 @@ def api_request_reset_password(user_email: str) -> None:
     assert r.status_code == 200, f"Password reset request failed: {r.status_code} {r.text}"
 
 
-def api_reset_password(user: UserContext, new_password: str) -> UserContext:
-    r = requests.post(
+def api_reset_password(client: HttpSession, user: UserContext, new_password: str) -> UserContext:
+    r = client.post(
         f"{BACKEND_URL}/change-password",
         json={
             "token": "",  # TODO: get token from email
@@ -96,8 +101,8 @@ def api_reset_password(user: UserContext, new_password: str) -> UserContext:
 
 
 # TODO: FIX API
-def api_change_password(user: UserContext, new_password: str) -> UserContext:
-    r = requests.patch(
+def api_change_password(client: HttpSession, user: UserContext, new_password: str) -> UserContext:
+    r = client.put(
         f"{BACKEND_URL}/users/{user.id}/change-password",
         headers=headers(user.access_token),
         params={"user_id": user.id},
@@ -114,8 +119,8 @@ def api_change_password(user: UserContext, new_password: str) -> UserContext:
 
 
 # TODO: FIX API
-def api_change_name(user: UserContext, new_firstname: str, new_lastname: str) -> UserContext:
-    r = requests.patch(
+def api_change_name(client: HttpSession, user: UserContext, new_firstname: str, new_lastname: str) -> UserContext:
+    r = client.put(
         f"{BACKEND_URL}/users/{user.id}",
         headers=headers(user.access_token),
         json={
@@ -140,7 +145,7 @@ def api_change_name(user: UserContext, new_firstname: str, new_lastname: str) ->
     return user
 
 
-def api_logout(user_or_admin: UserContext) -> UserContext:
+def api_logout(client: HttpSession, user_or_admin: UserContext) -> UserContext:
     user_or_admin.access_token = ""
     user_or_admin.refresh_token = ""
     user_or_admin.expires_in = 0
@@ -148,6 +153,7 @@ def api_logout(user_or_admin: UserContext) -> UserContext:
     user_or_admin.token_type = ""
     user_or_admin.is_admin = False
 
+    client.headers.pop("Authorization", None)
     return user_or_admin
 
 
@@ -155,7 +161,7 @@ def api_logout(user_or_admin: UserContext) -> UserContext:
 # User functions
 ############################################################################
 
-def api_get_users(user_name: str, email: str, first: int, max: int, access_token: str) -> list[UserContext]:
+def api_get_users(client: HttpSession, user_name: str, email: str, first: int, max: int, access_token: str) -> list[UserContext]:
     params: dict[str, str] = {}
     # TODO: FIX API
     if user_name:
@@ -167,7 +173,7 @@ def api_get_users(user_name: str, email: str, first: int, max: int, access_token
     if max:
         params["max"] = str(max)
 
-    r = requests.get(
+    r = client.get(
         f"{BACKEND_URL}/users",
         headers=headers(access_token),
         params={"username": "", "email": ""},
@@ -193,8 +199,8 @@ def api_get_users(user_name: str, email: str, first: int, max: int, access_token
     return users
 
 
-def api_get_user_by_id(user_id: str, access_token: str) -> UserContext:
-    r = requests.get(
+def api_get_user_by_id(client: HttpSession, user_id: str, access_token: str) -> UserContext:
+    r = client.get(
         f"{BACKEND_URL}/users/{user_id}",
         headers=headers(access_token),
         params={"user_id": user_id},
@@ -214,8 +220,8 @@ def api_get_user_by_id(user_id: str, access_token: str) -> UserContext:
     )
 
 
-def api_create_user(user: UserContext, access_token: str) -> None:
-    r = requests.post(
+def api_create_user(client: HttpSession, user: UserContext, access_token: str) -> None:
+    r = client.post(
         f"{BACKEND_URL}/users",
         headers=headers(access_token),
         json={
@@ -236,8 +242,8 @@ def api_create_user(user: UserContext, access_token: str) -> None:
     assert r.json().get("id") == user.id, f"User creation returned invalid user id: {r.status_code} {r.text}"
 
 
-def api_update_user(user: UserContext, access_token: str) -> None:
-    r = requests.put(
+def api_update_user(client: HttpSession, user: UserContext, access_token: str) -> None:
+    r = client.put(
         f"{BACKEND_URL}/users/{user.id}",
         headers=headers(access_token),
         json={
@@ -258,8 +264,8 @@ def api_update_user(user: UserContext, access_token: str) -> None:
     assert r.text, f"User update returned no response: {r.status_code} {r.text}"
 
 
-def api_delete_user(user_id: str, access_token: str) -> None:
-    r = requests.delete(
+def api_delete_user(client: HttpSession, user_id: str, access_token: str) -> None:
+    r = client.delete(
         f"{BACKEND_URL}/users/{user_id}",
         headers=headers(access_token),
         params={"user_id": user_id},
@@ -268,8 +274,8 @@ def api_delete_user(user_id: str, access_token: str) -> None:
     assert r.text, f"User deletion returned no response: {r.status_code} {r.text}"
 
 
-def api_get_user_notifications(user_id: str, access_token: str) -> list[NotificationContext]:
-    r = requests.get(
+def api_get_user_notifications(client: HttpSession, user_id: str, access_token: str) -> list[NotificationContext]:
+    r = client.get(
         f"{BACKEND_URL}/users/{user_id}/notifications",
         headers=headers(access_token),
         params={"user_id": user_id},
@@ -296,8 +302,8 @@ def api_get_user_notifications(user_id: str, access_token: str) -> list[Notifica
 
 
 # TODO: Here should the change password and name be, but the API is broken
-def api_update_user_notification_as_read(notification_id: int, access_token: str) -> None:
-    r = requests.patch(
+def api_update_user_notification_as_read(client: HttpSession, notification_id: int, access_token: str) -> None:
+    r = client.put(
         f"{BACKEND_URL}/users/notifications/{notification_id}",
         headers=headers(access_token),
         params={"id": notification_id},
@@ -306,8 +312,8 @@ def api_update_user_notification_as_read(notification_id: int, access_token: str
     assert r.text, f"Updating notification as read returned no response: {r.status_code} {r.text}"
 
 
-def api_get_user_notification_preferences(user: UserContext, access_token: str) -> UserContext:
-    r = requests.get(
+def api_get_user_notification_preferences(client: HttpSession, user: UserContext, access_token: str) -> UserContext:
+    r = client.get(
         f"{BACKEND_URL}/users/{user.id}/notifications/preferences",
         headers=headers(access_token),
         params={"user_id": user.id},
@@ -323,13 +329,14 @@ def api_get_user_notification_preferences(user: UserContext, access_token: str) 
 
 
 def api_update_user_notification_preferences(
+        client: HttpSession,
         user: UserContext,
         new_notification_way: str,
         new_application_updates_notification: bool,
         new_license_renewal_notification: bool,
         access_token: str,
 ) -> UserContext:
-    r = requests.patch(
+    r = client.put(
         f"{BACKEND_URL}/users/{user.id}/notifications/preferences",
         headers=headers(access_token),
         params={"user_id": user.id},
@@ -360,11 +367,11 @@ def api_update_user_notification_preferences(
 # Application functions
 ############################################################################
 
-def api_get_applications(user_id: str, access_token: str) -> list[ApplicationContext]:
+def api_get_applications(client: HttpSession, user_id: str, access_token: str) -> list[ApplicationContext]:
     params: dict[str, str] = {}
     if user_id:
         params["user_id"] = user_id
-    r = requests.get(
+    r = client.get(
         f"{BACKEND_URL}/applications",
         headers=headers(access_token),
         params=params,
@@ -395,8 +402,8 @@ def api_get_applications(user_id: str, access_token: str) -> list[ApplicationCon
     return applications
 
 
-def api_create_application(application: ApplicationContext, user_id: str, access_token: str) -> ApplicationContext:
-    r = requests.post(
+def api_create_application(client: HttpSession, application: ApplicationContext, user_id: str, access_token: str) -> ApplicationContext:
+    r = client.post(
         f"{BACKEND_URL}/applications",
         headers=headers(access_token),
         json={
@@ -415,8 +422,8 @@ def api_create_application(application: ApplicationContext, user_id: str, access
     return application
 
 
-def api_get_application_by_id(user_id: str, access_token: str) -> ApplicationContext:
-    r = requests.get(
+def api_get_application_by_id(client: HttpSession, user_id: str, access_token: str) -> ApplicationContext:
+    r = client.get(
         f"{BACKEND_URL}/applications",
         headers=headers(access_token),
         params={"user_id": user_id}
@@ -438,9 +445,9 @@ def api_get_application_by_id(user_id: str, access_token: str) -> ApplicationCon
     )
 
 
-def api_update_application(application: ApplicationContext, new_application_status: str, new_cadastral_reference: str,
-                       new_remarks: str, new_license_type: str, access_token: str) -> ApplicationContext:
-    r = requests.put(
+def api_update_application(client: HttpSession, application: ApplicationContext, new_application_status: str, new_cadastral_reference: str,
+                           new_remarks: str, new_license_type: str, access_token: str) -> ApplicationContext:
+    r = client.put(
         f"{BACKEND_URL}/applications/{application.id}",
         headers=headers(access_token),
         json={
@@ -473,8 +480,8 @@ def api_update_application(application: ApplicationContext, new_application_stat
     return application
 
 
-def api_delete_application(application_id: str, access_token: str) -> None:
-    r = requests.delete(
+def api_delete_application(client: HttpSession, application_id: str, access_token: str) -> None:
+    r = client.delete(
         f"{BACKEND_URL}/applications/{application_id}",
         headers=headers(access_token),
         params={"application_id": application_id},
@@ -487,8 +494,8 @@ def api_delete_application(application_id: str, access_token: str) -> None:
 # License functions
 ############################################################################
 
-def api_get_licenses(user_id: str, access_token: str) -> list[LicenseContext]:
-    r = requests.get(
+def api_get_licenses(client: HttpSession, user_id: str, access_token: str) -> list[LicenseContext]:
+    r = client.get(
         f"{BACKEND_URL}/licenses",
         headers=headers(access_token),
         params={"user_id": user_id},
@@ -516,8 +523,8 @@ def api_get_licenses(user_id: str, access_token: str) -> list[LicenseContext]:
     return licenses
 
 
-def api_get_license_by_id(license_id: int, access_token: str) -> LicenseContext:
-    r = requests.get(
+def api_get_license_by_id(client: HttpSession, license_id: int, access_token: str) -> LicenseContext:
+    r = client.get(
         f"{BACKEND_URL}/licenses/{license_id}",
         headers=headers(access_token),
         params={"license_id": license_id},
@@ -540,8 +547,8 @@ def api_get_license_by_id(license_id: int, access_token: str) -> LicenseContext:
     )
 
 
-def api_update_license(license: LicenseContext, new_license_status: str, access_token: str) -> LicenseContext:
-    r = requests.patch(
+def api_update_license(client: HttpSession, license: LicenseContext, new_license_status: str, access_token: str) -> LicenseContext:
+    r = client.put(
         f"{BACKEND_URL}/licenses/{license.id}",
         headers=headers(access_token),
         params={"license_id": license.id},
@@ -559,8 +566,8 @@ def api_update_license(license: LicenseContext, new_license_status: str, access_
     return license
 
 
-def api_delete_license(license_id: int, access_token: str) -> None:
-    r = requests.delete(
+def api_delete_license(client: HttpSession, license_id: int, access_token: str) -> None:
+    r = client.delete(
         f"{BACKEND_URL}/licenses/{license_id}",
         headers=headers(access_token),
         params={"license_id": license_id},
@@ -573,9 +580,9 @@ def api_delete_license(license_id: int, access_token: str) -> None:
 # Document verification functions
 ############################################################################
 
-def api_get_document_verification_status(application: ApplicationContext, access_token: str) -> tuple[
+def api_get_document_verification_status(client: HttpSession, application: ApplicationContext, access_token: str) -> tuple[
     ApplicationContext, requests.Response]:
-    r = requests.get(
+    r = client.get(
         f"{BACKEND_URL}/applications/{application.id}/documents",
         headers=headers(access_token),
         params={"application_id": application.id},
@@ -592,8 +599,8 @@ def api_get_document_verification_status(application: ApplicationContext, access
 
 
 # TODO: FIX API (duplicate of get_document_verification_status)
-def api_get_document_status(application: ApplicationContext, access_token: str) -> ApplicationContext:
-    r = requests.get(
+def api_get_document_status(client: HttpSession, application: ApplicationContext, access_token: str) -> ApplicationContext:
+    r = client.get(
         f"{BACKEND_URL}/applications/{application.id}/documents",
         headers=headers(access_token),
         params={"application_id": application.id},
@@ -613,8 +620,8 @@ def api_get_document_status(application: ApplicationContext, access_token: str) 
 # Payment functions
 ############################################################################
 
-def api_get_payments(application_id: str, access_token: str) -> list[PaymentContext]:
-    r = requests.get(
+def api_get_payments(client: HttpSession, application_id: str, access_token: str) -> list[PaymentContext]:
+    r = client.get(
         f"{BACKEND_URL}/applications/{application_id}/payments",
         headers=headers(access_token),
         params={"application_id": application_id},
@@ -644,8 +651,8 @@ def api_get_payments(application_id: str, access_token: str) -> list[PaymentCont
     return payments
 
 
-def api_create_payment(application_id: int, payment: PaymentContext, access_token: str) -> PaymentContext:
-    r = requests.post(
+def api_create_payment(client: HttpSession, application_id: int, payment: PaymentContext, access_token: str) -> PaymentContext:
+    r = client.post(
         f"{BACKEND_URL}/applications/{application_id}/payments",
         headers=headers(access_token),
         json={
@@ -670,8 +677,8 @@ def api_create_payment(application_id: int, payment: PaymentContext, access_toke
     return payment
 
 
-def api_get_application_fee(application: ApplicationContext, access_token: str) -> float:
-    r = requests.get(
+def api_get_application_fee(client: HttpSession, application: ApplicationContext, access_token: str) -> float:
+    r = client.get(
         f"{BACKEND_URL}/fees/{application.id}",
         headers=headers(access_token),
         params={"application_id": application.id},
@@ -692,8 +699,8 @@ def api_get_application_fee(application: ApplicationContext, access_token: str) 
 ############################################################################
 
 # TODO: FIX API (no pram)
-def api_get_consents(user_id: str, access_token: str) -> list[ConsentContext]:
-    r = requests.get(
+def api_get_consents(client: HttpSession, user_id: str, access_token: str) -> list[ConsentContext]:
+    r = client.get(
         f"{BACKEND_URL}/consents",
         headers=_headers(access_token),
         #params={"user_id": user_id},
@@ -716,8 +723,8 @@ def api_get_consents(user_id: str, access_token: str) -> list[ConsentContext]:
         )
     return consents
 
-def api_create_consent(user_id: str, consent: ConsentContext, access_token: str) -> ConsentContext:
-    r = requests.post(
+def api_create_consent(client: HttpSession, user_id: str, consent: ConsentContext, access_token: str) -> ConsentContext:
+    r = client.post(
         f"{BACKEND_URL}/consents",
         headers=_headers(access_token),
         json={
@@ -746,8 +753,8 @@ def api_create_consent(user_id: str, consent: ConsentContext, access_token: str)
 # Ballot period functions
 ############################################################################
 
-def api_get_ballot_periods(access_token: str) -> list[BallotPeriodContext]:
-    r = requests.get(
+def api_get_ballot_periods(client: HttpSession, access_token: str) -> list[BallotPeriodContext]:
+    r = client.get(
         f"{BACKEND_URL}/ballot-periods",
         headers=headers(access_token),
     )
@@ -768,8 +775,8 @@ def api_get_ballot_periods(access_token: str) -> list[BallotPeriodContext]:
     return ballot_periods
 
 
-def api_create_ballot_period(start_date: str, end_date: str, access_token: str) -> BallotPeriodContext:
-    r = requests.post(
+def api_create_ballot_period(client: HttpSession, start_date: str, end_date: str, access_token: str) -> BallotPeriodContext:
+    r = client.post(
         f"{BACKEND_URL}/ballot-periods",
         headers=headers(access_token),
         json={
@@ -788,8 +795,8 @@ def api_create_ballot_period(start_date: str, end_date: str, access_token: str) 
     )
 
 
-def api_get_current_ballot_period(access_token: str) -> BallotPeriodContext:
-    r = requests.get(
+def api_get_current_ballot_period(client: HttpSession, access_token: str) -> BallotPeriodContext:
+    r = client.get(
         f"{BACKEND_URL}/ballot-periods/current",
         headers=headers(access_token),
     )
@@ -801,8 +808,8 @@ def api_get_current_ballot_period(access_token: str) -> BallotPeriodContext:
     )
 
 
-def api_get_ballot_period(ballot_period_id: int, access_token: str) -> BallotPeriodContext:
-    r = requests.get(
+def api_get_ballot_period(client: HttpSession, ballot_period_id: int, access_token: str) -> BallotPeriodContext:
+    r = client.get(
         f"{BACKEND_URL}/ballot-periods/{ballot_period_id}",
         headers=headers(access_token),
         params={"ballot_period_id": ballot_period_id},
@@ -817,8 +824,8 @@ def api_get_ballot_period(ballot_period_id: int, access_token: str) -> BallotPer
     )
 
 
-def api_get_ballot_period_entries(ballot_period_id: int, access_token: str) -> list[ApplicationContext]:
-    r = requests.get(
+def api_get_ballot_period_entries(client: HttpSession, ballot_period_id: int, access_token: str) -> list[ApplicationContext]:
+    r = client.get(
         f"{BACKEND_URL}/ballot-periods/{ballot_period_id}/entries",
         headers=headers(access_token),
         params={"period_id": ballot_period_id},
@@ -848,12 +855,12 @@ def api_get_ballot_period_entries(ballot_period_id: int, access_token: str) -> l
     return applications
 
 
-def api_create_lottery(ballot_period_id: int, license_count: int, license_type: str, access_token: str) -> tuple[
+def api_create_lottery(client: HttpSession, ballot_period_id: int, license_count: int, license_type: str, access_token: str) -> tuple[
     list[ApplicationContext], list[ApplicationContext]]:
     json: dict[str, str] = {}
     if license_type and license_count > 0:
         json["license_type"] = license_type
-    r = requests.post(
+    r = client.post(
         f"{BACKEND_URL}/ballot-periods/{ballot_period_id}/draw",
         headers=headers(access_token),
         params={"period_id": ballot_period_id},
@@ -899,9 +906,9 @@ def api_create_lottery(ballot_period_id: int, license_count: int, license_type: 
     return selected_applications, rejected_applications
 
 
-def api_create_application_documents(application_id: int, access_token: str) -> None:
+def api_create_application_documents(client: HttpSession, application_id: int, access_token: str) -> None:
     file = read_file(filepath=TEST_PDF_PATH)
-    r = requests.post(
+    r = client.post(
         f"{BACKEND_URL}/process-document",
         headers=headers(access_token),
         params={"application_id": application_id},
@@ -920,6 +927,7 @@ def api_create_application_documents(application_id: int, access_token: str) -> 
 ############################################################################
 
 def api_wait_for_document_verification(
+        client: HttpSession,
         application: ApplicationContext,
         access_token: str,
         timeout_seconds: int = 120,
@@ -931,7 +939,7 @@ def api_wait_for_document_verification(
 
     r = None
     while time.monotonic() < deadline:
-        application, r = api_get_document_verification_status(application, access_token)
+        application, r = api_get_document_verification_status(client, application, access_token)
 
         if application.application_status != DOCUMENT_STATUSES.PENDING:
             return application
@@ -952,8 +960,8 @@ def api_wait_for_document_verification(
 # Helper functions
 ############################################################################
 
-def api_update_application_status(application: ApplicationContext, access_token: str) -> ApplicationContext:
-    r = requests.get(
+def api_update_application_status(client: HttpSession, application: ApplicationContext, access_token: str) -> ApplicationContext:
+    r = client.get(
         f"{BACKEND_URL}/applications/{application.id}",
         headers=headers(access_token),
         data={"application_id": application.id},

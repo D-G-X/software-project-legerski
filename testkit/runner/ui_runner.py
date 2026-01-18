@@ -469,14 +469,13 @@ def ui_get_applications(user_id: str, access_token: str) -> list[ApplicationCont
 '''
 
 
-def ui_create_application(page: Page, application: ApplicationContext, user: UserContext) -> None:
+def ui_create_application_full(page: Page, application: ApplicationContext, user: UserContext) -> None:
     page.goto(f"{FRONTEND_URL}/")
     page.locator("#createNewApplicationBtn").click()
-    page.wait_for_url("**/license-application-request")
+    page.wait_for_url(f"{FRONTEND_URL}/license-application-request")
 
     page.locator("#cadastral_number").fill(application.cadastral_reference)
     page.locator(f'#rental_license_type_{application.license_type}').check()
-
     page.locator("#additional_comments").fill(application.remarks)
     page.locator("#consent_legal_data").check()
     page.locator("#consent_personal_data").check()
@@ -493,7 +492,33 @@ def ui_create_application(page: Page, application: ApplicationContext, user: Use
     application.applied_at = r.json().get("applied_at")
     application.changed_at = r.json().get("changed_at")
 
-    page.wait_for_url(f"**/license-document-upload/{application.id}")
+    page.wait_for_url(f"{FRONTEND_URL}/license-document-upload/{application.id}")
+
+
+def ui_create_application_draft(page: Page, application: ApplicationContext, user: UserContext) -> None:
+    page.goto(f"{FRONTEND_URL}/")
+    page.locator("#createNewApplicationBtn").click()
+    page.wait_for_url(f"{FRONTEND_URL}/license-application-request")
+
+    page.locator("#cadastral_number").fill(application.cadastral_reference)
+    page.locator(f'#rental_license_type_{application.license_type}').check()
+    page.locator("#additional_comments").fill(application.remarks)
+    page.locator("#consent_legal_data").check()
+    page.locator("#consent_personal_data").check()
+
+    with page.expect_response(
+            lambda res: res.request.method == "POST" and re.search(r"/applications$", res.url)
+    ) as res_info:
+        page.locator("#saveDraftBtn").click()
+    r = res_info.value
+
+    assert r.status == 201, f"Application request failed: {r.status} {r.text()}"
+    assert user.id == r.json().get("user_id"), f"Application request returned invalid user id: {r.status} {r.text()}"
+    application.id = r.json().get("id")
+    application.applied_at = r.json().get("applied_at")
+    application.changed_at = r.json().get("changed_at")
+
+    page.wait_for_url(f"{FRONTEND_URL}/")
 
 
 '''

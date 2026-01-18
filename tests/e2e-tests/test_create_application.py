@@ -2,15 +2,26 @@ from playwright.sync_api import Page
 
 from testkit.factory import new_user, new_application, new_payment
 from testkit.models import RunContext
-from testkit.scenarios import CREATE_APPLICATION_DOCUMENT_PAYMENT
+from testkit.scenarios import CREATE_APPLICATION_FULL, CREATE_APPLICATION_DRAFT
 
 
-def test_create_application_document_payment(page: Page):
+def test_create_application_draft(page: Page):
     ctx = RunContext(
         user=new_user(),
         application=new_application(),
         payment=new_payment()
     )
-    scenario = CREATE_APPLICATION_DOCUMENT_PAYMENT()
+    scenario = CREATE_APPLICATION_DRAFT()
+    for step in scenario.steps:
+        step(page, ctx)
+
+
+def test_create_application_full(page: Page):
+    ctx = RunContext(
+        user=new_user(),
+        application=new_application(),
+        payment=new_payment()
+    )
+    scenario = CREATE_APPLICATION_FULL()
     for step in scenario.steps:
         step(page, ctx)
