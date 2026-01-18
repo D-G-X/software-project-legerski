@@ -2,7 +2,31 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal
+from typing import Callable
 from typing import Optional
+
+from playwright.sync_api import Page
+
+
+@dataclass(frozen=True)
+class Scenario:
+    name: str
+    steps: list[Step]
+
+
+@dataclass
+class RunContext:
+    user: "UserContext"  # Admin is user if no user is needed
+    admin: Optional["UserContext"] = None
+    notification: Optional["NotificationContext"] = None
+    application: Optional["ApplicationContext"] = None
+    payment: Optional["PaymentContext"] = None
+    license: Optional["LicenseContext"] = None
+    ballot: Optional["BallotPeriodContext"] = None
+    # consent: Optional["ConsentContext"] = None
+
+
+Step = Callable[[Page, RunContext], None]
 
 
 @dataclass
@@ -40,40 +64,43 @@ class NotificationContext:
 
 @dataclass
 class ApplicationContext:
-    id: int
-    user_id: str
     license_type: str
     cadastral_reference: str
-    applied_at: str
-    changed_at: str
-    application_status: str
     remarks: str
-    document_status: str
-    rejection_reason: str
+
+    id: Optional[int] = None
+    user_id: Optional[str] = None
+    applied_at: Optional[str] = None
+    changed_at: Optional[str] = None
+    application_status: Optional[str] = None
+    document_status: Optional[str] = None
+    rejection_reason: Optional[str] = None
 
 
 @dataclass
 class PaymentContext:
-    id: int
-    application_id: int
-    amount: float
     name: str
     iban: str
     bic: str
-    payment_date: str
-    payment_status: str
+
+    id: Optional[int] = None
+    application_id: Optional[int] = None
+    amount: Optional[float] = None
+    payment_date: Optional[str] = None
+    payment_status: Optional[str] = None
 
 
 @dataclass
 class LicenseContext:
-    id: int
-    user_id: str
-    application_id: int
     license_type: str
-    license_status: str
-    issued_at: str
-    expires_at: str
     cadastral_reference: str
+
+    id: Optional[int] = None
+    user_id: Optional[str] = None
+    application_id: Optional[int] = None
+    license_status: Optional[str] = None
+    issued_at: Optional[str] = None
+    expires_at: Optional[str] = None
 
 
 @dataclass
@@ -100,4 +127,4 @@ class ConsentContext:
 @dataclass(frozen=True)
 class LicenseType:
     name: str
-    price: Decimal
+    price: float

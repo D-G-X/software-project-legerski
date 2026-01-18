@@ -37,7 +37,7 @@ def new_admin() -> UserContext:
 
 def new_application() -> ApplicationContext:
     return ApplicationContext(
-        license_type=random.choice(LICENSE_TYPES)["name"],
+        license_type=random.choice(LICENSE_TYPES),
         cadastral_reference=''.join(random.choices(string.digits, k=20)),
         remarks="Test license application"
     )
