@@ -8,79 +8,131 @@ import java.util.UUID;
 
 public class RecordToResourceMapperUtil {
 
-    public static void mapApplicationPaymentRecordToResource(ApplicationPaymentRecord applicationPaymentRecord, ApplicationPaymentResource applicationPaymentResource) {
-        if (applicationPaymentRecord == null || applicationPaymentResource == null) {
-            return;
+    public static void mapApplicationPaymentRecordToResource(ApplicationPaymentRecord r, ApplicationPaymentResource out) {
+        if (r == null || out == null) return;
+
+        out.setId(r.getId());
+        out.setApplicationId(r.getApplicationId());
+        out.setAmount(r.getAmount());
+
+        if (r.getPaymentDate() != null) {
+            out.setPaymentDate(r.getPaymentDate().atOffset(ZoneOffset.UTC));
         }
-        applicationPaymentResource.setId(applicationPaymentRecord.getId());
-        applicationPaymentResource.setApplicationId(applicationPaymentRecord.getApplicationId());
-        applicationPaymentResource.setAmount(applicationPaymentRecord.getAmount());
-        applicationPaymentResource.setPaymentDate(applicationPaymentRecord.getPaymentDate().atOffset(ZoneOffset.UTC));
-        applicationPaymentResource.setPaymentStatus(EnumMapperUtil.getPendantFromEnum(applicationPaymentRecord.getPaymentStatus()));
-        applicationPaymentResource.setName(applicationPaymentRecord.getAccountant());
-        applicationPaymentResource.setIban(applicationPaymentRecord.getIban());
-        applicationPaymentResource.setBic(applicationPaymentRecord.getBic());
+        if (r.getPaymentStatus() != null) {
+            out.setPaymentStatus(EnumMapperUtil.getPendantFromEnum(r.getPaymentStatus()));
+        }
+
+        out.setName(r.getAccountant());
+        out.setIban(r.getIban());
+        out.setBic(r.getBic());
     }
 
-    public static void mapApplicationRecordToResource(ApplicationRecord applicationRecord, ApplicationResource applicationResource) {
-        if(applicationRecord == null || applicationResource == null) {
-            return;
+    public static void mapApplicationRecordToResource(ApplicationRecord r, ApplicationResource out) {
+        if (r == null || out == null) return;
+
+        out.setId(r.getId());
+        out.setCadastralReference(r.getCadastralReference());
+        out.setRemarks(r.getRemarks());
+
+        if (r.getUserId() != null) {
+            try {
+                out.setUserId(UUID.fromString(r.getUserId()));
+            } catch (IllegalArgumentException ignored) {
+            }
         }
-        applicationResource.setId(applicationRecord.getId());
-        applicationResource.setUserId(UUID.fromString(applicationRecord.getUserId()));
-        applicationResource.setCadastralReference(applicationRecord.getCadastralReference());
-        applicationResource.setAppliedAt(applicationRecord.getAppliedAt().atOffset(ZoneOffset.UTC));
-        applicationResource.setChangedAt(applicationRecord.getChangedAt().atOffset(ZoneOffset.UTC));
-        applicationResource.setRemarks(applicationRecord.getRemarks());
-        applicationResource.setLicenseType(EnumMapperUtil.getPendantFromEnum(applicationRecord.getLicenseType()));
-        applicationResource.setApplicationStatus(EnumMapperUtil.getPendantFromEnum(applicationRecord.getApplicationStatus()));
+
+        if (r.getAppliedAt() != null) {
+            out.setAppliedAt(r.getAppliedAt().atOffset(ZoneOffset.UTC));
+        }
+        if (r.getChangedAt() != null) {
+            out.setChangedAt(r.getChangedAt().atOffset(ZoneOffset.UTC));
+        }
+
+        if (r.getLicenseType() != null) {
+            out.setLicenseType(EnumMapperUtil.getPendantFromEnum(r.getLicenseType()));
+        }
+        if (r.getApplicationStatus() != null) {
+            out.setApplicationStatus(EnumMapperUtil.getPendantFromEnum(r.getApplicationStatus()));
+        }
     }
 
-    public static void mapLicenseRecordToResource(LicenseRecord licenseRecord, LicenseResource licenseResource) {
-        if (licenseRecord == null || licenseResource == null) {
-            return;
+    public static void mapLicenseRecordToResource(LicenseRecord r, LicenseResource out) {
+        if (r == null || out == null) return;
+
+        out.setId(r.getId());
+        out.setApplicationId(r.getApplicationId());
+
+        if (r.getUserId() != null) {
+            try {
+                out.setUserId(UUID.fromString(r.getUserId()));
+            } catch (IllegalArgumentException ignored) {}
         }
-        licenseResource.setId(licenseRecord.getId());
-        licenseResource.setUserId(UUID.fromString(licenseRecord.getUserId()));
-        licenseResource.setApplicationId(licenseRecord.getApplicationId());
-        licenseResource.setLicenseType(EnumMapperUtil.getPendantFromEnum(licenseRecord.getLicenseType()));
-        licenseResource.setLicenseStatus(EnumMapperUtil.getPendantFromEnum(licenseRecord.getLicenseStatus()));
-        licenseResource.setIssuedAt(licenseRecord.getIssuedAt().atOffset(ZoneOffset.UTC));
-        licenseResource.setExpiresAt(licenseRecord.getExpiresAt().atOffset(ZoneOffset.UTC));
+
+        if (r.getLicenseType() != null) {
+            out.setLicenseType(EnumMapperUtil.getPendantFromEnum(r.getLicenseType()));
+        }
+        if (r.getLicenseStatus() != null) {
+            out.setLicenseStatus(EnumMapperUtil.getPendantFromEnum(r.getLicenseStatus()));
+        }
+        if (r.getIssuedAt() != null) {
+            out.setIssuedAt(r.getIssuedAt().atOffset(ZoneOffset.UTC));
+        }
+        if (r.getExpiresAt() != null) {
+            out.setExpiresAt(r.getExpiresAt().atOffset(ZoneOffset.UTC));
+        }
     }
 
-    public static void mapUserRecordToResource(UserRecord userRecord, UserResource userResource) {
-        if (userRecord == null || userResource == null) {
-            return;
+    public static void mapUserRecordToResource(UserRecord r, UserResource out) {
+        if (r == null || out == null) return;
+
+        if (r.getId() != null) {
+            try {
+                out.setId(UUID.fromString(r.getId()));
+            } catch (IllegalArgumentException ignored) {}
         }
-        userResource.setId(UUID.fromString(userRecord.getId()));
     }
 
-    public static void mapBallotPeriodRecordToResource(BallotPeriodRecord ballotPeriodRecord, BallotPeriodResource ballotPeriodResource) {
-        if (ballotPeriodRecord == null || ballotPeriodResource == null) {
-            return;
+    public static void mapBallotPeriodRecordToResource(BallotPeriodRecord r, BallotPeriodResource out) {
+        if (r == null || out == null) return;
+
+        out.setBallotPeriodId(r.getId());
+
+        if (r.getStartDate() != null) {
+            out.setStartDate(r.getStartDate().atOffset(ZoneOffset.UTC));
         }
-        ballotPeriodResource.setBallotPeriodId(ballotPeriodRecord.getId());
-        ballotPeriodResource.setStartDate(ballotPeriodRecord.getStartDate().atOffset(ZoneOffset.UTC));
-        ballotPeriodResource.setEndDate(ballotPeriodRecord.getEndDate().atOffset(ZoneOffset.UTC));
-    }
-    // TODO: Add CurrentBallotPeriodRecord
-    public static void mapCurrentBallotPeriodRecordToResource(BallotPeriodRecord currentBallotPeriodRecord, CurrentBallotPeriodResource currentBallotPeriodResource) {
-        if (currentBallotPeriodRecord == null || currentBallotPeriodResource == null) {
-            return;
+        if (r.getEndDate() != null) {
+            out.setEndDate(r.getEndDate().atOffset(ZoneOffset.UTC));
         }
-        currentBallotPeriodResource.setStartDate(currentBallotPeriodRecord.getStartDate().atOffset(ZoneOffset.UTC));
-        currentBallotPeriodResource.setEndDate(currentBallotPeriodRecord.getEndDate().atOffset(ZoneOffset.UTC));
     }
 
-    public static void mapNotificationPreferencesRecordToResource(NotificationPreferencesRecord record, NotificationPreferencesResource resource) {
-        if (record == null || resource == null) {
-            return;
+    public static void mapCurrentBallotPeriodRecordToResource(BallotPeriodRecord r, CurrentBallotPeriodResource out) {
+        if (r == null || out == null) return;
+
+        if (r.getStartDate() != null) {
+            out.setStartDate(r.getStartDate().atOffset(ZoneOffset.UTC));
         }
-        resource.setUserId(UUID.fromString(record.getUserId()));
-        resource.setNotificationWay(EnumMapperUtil.getPendantFromEnum(record.getNotificationWay()));
-        resource.setApplicationUpdatesNotification(record.getApplicationUpdatesNotification());
-        resource.setLicenseRenewalNotification(record.getLicenseRenewalNotification());
+        if (r.getEndDate() != null) {
+            out.setEndDate(r.getEndDate().atOffset(ZoneOffset.UTC));
+        }
     }
 
+    public static void mapNotificationPreferencesRecordToResource(NotificationPreferencesRecord r, NotificationPreferencesResource out) {
+        if (r == null || out == null) return;
+
+        if (r.getUserId() != null) {
+            try {
+                out.setUserId(UUID.fromString(r.getUserId()));
+            } catch (IllegalArgumentException ignored) {}
+        }
+        if (r.getNotificationWay() != null) {
+            out.setNotificationWay(EnumMapperUtil.getPendantFromEnum(r.getNotificationWay()));
+        }
+
+        if (r.getApplicationUpdatesNotification() != null) {
+            out.setApplicationUpdatesNotification(r.getApplicationUpdatesNotification());
+        }
+        if (r.getLicenseRenewalNotification() != null) {
+            out.setLicenseRenewalNotification(r.getLicenseRenewalNotification());
+        }
+    }
 }
