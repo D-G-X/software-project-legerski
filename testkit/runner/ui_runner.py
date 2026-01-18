@@ -740,7 +740,7 @@ def ui_create_payment(page: Page, user: UserContext, application: ApplicationCon
     page.locator("#acceptButton").click()
 
     with page.expect_response(
-            lambda res: res.request.method == "POST" and re.search(rf"/applications/{application_id}/payments$",
+            lambda res: res.request.method == "POST" and re.search(rf"/applications/{application.id}/payments$",
                                                                    res.url)
     ) as res_info:
         page.locator("#payBtn").click()
