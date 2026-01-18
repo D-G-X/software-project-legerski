@@ -29,6 +29,9 @@ services:
       #KEYCLOAK_ADMIN_PASSWORD: admin
       KC_FEATURES: scripts
       KC_SCRIPTS_UPLOAD_ENABLED: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
     depends_on:
       - postgres
     volumes:
