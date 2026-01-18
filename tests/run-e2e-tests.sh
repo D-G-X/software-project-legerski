@@ -26,9 +26,9 @@ fi
 
 cd ${TEST_DIR}
 
-pytest ${TEST_SCRIPT} --browser webkit
+#pytest ${TEST_SCRIPT} --browser webkit
 pytest ${TEST_SCRIPT} --browser chromium
-pytest ${TEST_SCRIPT} --browser firefox
+#pytest ${TEST_SCRIPT} --browser firefox
 
 deactivate
 

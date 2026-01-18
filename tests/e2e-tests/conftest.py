@@ -28,7 +28,7 @@ def page(pytestconfig):
             "webkit": p.webkit,
         }[browser_name]
 
-        browser = browser_type.launch(headless=False)
+        browser = browser_type.launch(headless=False, slow_mo=1000)
         context = browser.new_context(base_url=FRONTEND_URL)
         page = context.new_page()
         yield page

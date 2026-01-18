@@ -12,12 +12,9 @@ def _unique_email() -> str:
     return f"user-{uuid.uuid4().hex}@test.local"
 
 
-def _date_str(days_offset: int = 0, hours_offset: int = 0, minutes_offset: int = 0, seconds_offset: int = 0, ) -> str:
-    target_date = datetime.now(timezone.utc) + timedelta(days=days_offset,
-                                                         hours=hours_offset,
-                                                         minutes=minutes_offset,
-                                                         seconds=seconds_offset)
-    return target_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+def _date_str(days_offset: int = 0) -> str:
+    target_date = datetime.now(timezone.utc) + timedelta(days=days_offset)
+    return target_date.date().isoformat()
 
 
 def new_user() -> UserContext:
@@ -66,13 +63,6 @@ def new_ballot_period_upcoming() -> BallotPeriodContext:
     return BallotPeriodContext(
         start_date=_date_str(days_offset=1),
         end_date=_date_str(days_offset=61)
-    )
-
-
-def new_ballot_period_ending_now() -> BallotPeriodContext:
-    return BallotPeriodContext(
-        start_date=_date_str(days_offset=-60),
-        end_date=_date_str(seconds_offset=10)
     )
 
 

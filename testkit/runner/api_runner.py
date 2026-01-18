@@ -7,7 +7,7 @@ from testkit.config import BACKEND_URL, DOCUMENT_STATUSES, TEST_PDF_PATH, LICENS
     APPLICATION_STATUSES, LICENSE_STATUSES
 from testkit.models import ApplicationContext, PaymentContext, NotificationContext, UserContext, \
     LicenseContext, BallotPeriodContext
-from testkit.runner.utils import _decode_jwt, _headers, _read_file
+from testkit.runner.utils import decode_jwt, headers, read_file
 
 
 ############################################################################
@@ -49,7 +49,7 @@ def login(user: UserContext) -> UserContext:
     user.token_type = r.json().get("token_type")
     user.is_admin = bool(r.json().get("is_admin"))
 
-    assert user.id == _decode_jwt(user.access_token)["sub"], f"Login returned invalid user id: {r.status_text} {r.text}"
+    assert user.id == decode_jwt(user.access_token)["sub"], f"Login returned invalid user id: {r.status_text} {r.text}"
 
     return user
 
@@ -102,7 +102,7 @@ def reset_password(user: UserContext, new_password: str) -> UserContext:
 def change_password(user: UserContext, new_password: str) -> UserContext:
     r = requests.patch(
         f"{BACKEND_URL}/users/{user.id}/change-password",
-        headers=_headers(user.access_token),
+        headers=headers(user.access_token),
         params={"user_id": user.id},
         json={
             "old_password": user.password,
@@ -120,7 +120,7 @@ def change_password(user: UserContext, new_password: str) -> UserContext:
 def change_name(user: UserContext, new_firstname: str, new_lastname: str) -> UserContext:
     r = requests.patch(
         f"{BACKEND_URL}/users/{user.id}",
-        headers=_headers(user.access_token),
+        headers=headers(user.access_token),
         json={
             "firstName": new_firstname,
             "lastName": new_lastname,
@@ -172,7 +172,7 @@ def get_users(user_name: str, email: str, first: int, max: int, access_token: st
 
     r = requests.get(
         f"{BACKEND_URL}/users",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"username": "", "email": ""},
     )
     assert r.status_code == 200, f"Fetching users failed: {r.status_code} {r.text}"
@@ -199,7 +199,7 @@ def get_users(user_name: str, email: str, first: int, max: int, access_token: st
 def get_user_by_id(user_id: str, access_token: str) -> UserContext:
     r = requests.get(
         f"{BACKEND_URL}/users/{user_id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"user_id": user_id},
     )
     assert r.status_code == 200, f"Fetching user by id failed: {r.status_code} {r.text}"
@@ -220,7 +220,7 @@ def get_user_by_id(user_id: str, access_token: str) -> UserContext:
 def create_user(user: UserContext, access_token: str) -> None:
     r = requests.post(
         f"{BACKEND_URL}/users",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         json={
             "firstName": user.firstname,
             "lastName": user.lastname,
@@ -242,7 +242,7 @@ def create_user(user: UserContext, access_token: str) -> None:
 def update_user(user: UserContext, access_token: str) -> None:
     r = requests.put(
         f"{BACKEND_URL}/users/{user.id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         json={
             "firstName": user.firstname,
             "lastName": user.lastname,
@@ -264,7 +264,7 @@ def update_user(user: UserContext, access_token: str) -> None:
 def delete_user(user_id: str, access_token: str) -> None:
     r = requests.delete(
         f"{BACKEND_URL}/users/{user_id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"user_id": user_id},
     )
     assert r.status_code == 204, f"User deletion failed: {r.status_code} {r.text}"
@@ -274,7 +274,7 @@ def delete_user(user_id: str, access_token: str) -> None:
 def get_user_notifications(user_id: str, access_token: str) -> list[NotificationContext]:
     r = requests.get(
         f"{BACKEND_URL}/users/{user_id}/notifications",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"user_id": user_id},
     )
     assert r.status_code == 200, f"Fetching notifications failed: {r.status_code} {r.text}"
@@ -302,7 +302,7 @@ def get_user_notifications(user_id: str, access_token: str) -> list[Notification
 def update_user_notification_as_read(notification_id: int, access_token: str) -> None:
     r = requests.patch(
         f"{BACKEND_URL}/users/notifications/{notification_id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"id": notification_id},
     )
     assert r.status_code == 200, f"Updating notification as read failed: {r.status_code} {r.text}"
@@ -312,7 +312,7 @@ def update_user_notification_as_read(notification_id: int, access_token: str) ->
 def get_user_notification_preferences(user: UserContext, access_token: str) -> UserContext:
     r = requests.get(
         f"{BACKEND_URL}/users/{user.id}/notifications/preferences",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"user_id": user.id},
     )
     assert r.status_code == 200, f"Fetching notification preferences failed: {r.status_code} {r.text}"
@@ -334,7 +334,7 @@ def update_user_notification_preferences(
 ) -> UserContext:
     r = requests.patch(
         f"{BACKEND_URL}/users/{user.id}/notifications/preferences",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"user_id": user.id},
         json={
             "notification_way": new_notification_way,
@@ -369,7 +369,7 @@ def get_applications(user_id: str, access_token: str) -> list[ApplicationContext
         params["user_id"] = user_id
     r = requests.get(
         f"{BACKEND_URL}/applications",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params=params,
     )
     assert r.status_code == 200, f"Fetching applications failed: {r.status_code} {r.text}"
@@ -401,7 +401,7 @@ def get_applications(user_id: str, access_token: str) -> list[ApplicationContext
 def create_application(application: ApplicationContext, user_id: str, access_token: str) -> ApplicationContext:
     r = requests.post(
         f"{BACKEND_URL}/applications",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         json={
             "user_id": user_id,
             "license_type": application.license_type,
@@ -421,7 +421,7 @@ def create_application(application: ApplicationContext, user_id: str, access_tok
 def get_application_by_id(user_id: str, access_token: str) -> ApplicationContext:
     r = requests.get(
         f"{BACKEND_URL}/applications",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"user_id": user_id}
     )
     assert r.status_code == 200, f"Fetching applications failed: {r.status_code} {r.text}"
@@ -445,7 +445,7 @@ def update_application(application: ApplicationContext, new_application_status: 
                        new_remarks: str, new_license_type: str, access_token: str) -> ApplicationContext:
     r = requests.put(
         f"{BACKEND_URL}/applications/{application.id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         json={
             "application_status": new_application_status,
             "cadastral_reference": new_cadastral_reference,
@@ -479,7 +479,7 @@ def update_application(application: ApplicationContext, new_application_status: 
 def delete_application(application_id: str, access_token: str) -> None:
     r = requests.delete(
         f"{BACKEND_URL}/applications/{application_id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"application_id": application_id},
     )
     assert r.status_code == 204, f"Application deletion failed: {r.status_code} {r.text}"
@@ -493,7 +493,7 @@ def delete_application(application_id: str, access_token: str) -> None:
 def get_licenses(user_id: str, access_token: str) -> list[LicenseContext]:
     r = requests.get(
         f"{BACKEND_URL}/licenses",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"user_id": user_id},
     )
     assert r.status_code == 200, f"Fetching licenses failed: {r.status_code} {r.text}"
@@ -522,7 +522,7 @@ def get_licenses(user_id: str, access_token: str) -> list[LicenseContext]:
 def get_license_by_id(license_id: int, access_token: str) -> LicenseContext:
     r = requests.get(
         f"{BACKEND_URL}/licenses/{license_id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"license_id": license_id},
     )
     assert r.status_code == 200, f"Fetching license by id failed: {r.status_code} {r.text}"
@@ -546,7 +546,7 @@ def get_license_by_id(license_id: int, access_token: str) -> LicenseContext:
 def update_license(license: LicenseContext, new_license_status: str, access_token: str) -> LicenseContext:
     r = requests.patch(
         f"{BACKEND_URL}/licenses/{license.id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"license_id": license.id},
         json={
             "license_status": new_license_status,
@@ -565,7 +565,7 @@ def update_license(license: LicenseContext, new_license_status: str, access_toke
 def delete_license(license_id: int, access_token: str) -> None:
     r = requests.delete(
         f"{BACKEND_URL}/licenses/{license_id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"license_id": license_id},
     )
     assert r.status_code == 204, f"License deletion failed: {r.status_code} {r.text}"
@@ -580,7 +580,7 @@ def get_document_verification_status(application: ApplicationContext, access_tok
     ApplicationContext, requests.Response]:
     r = requests.get(
         f"{BACKEND_URL}/applications/{application.id}/documents",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"application_id": application.id},
     )
     assert r.status_code == 200, f"Document status fetch failed: {r.status_code} {r.text}"
@@ -598,7 +598,7 @@ def get_document_verification_status(application: ApplicationContext, access_tok
 def get_document_status(application: ApplicationContext, access_token: str) -> ApplicationContext:
     r = requests.get(
         f"{BACKEND_URL}/applications/{application.id}/documents",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"application_id": application.id},
     )
     assert r.status_code == 200, f"Document status fetch failed: {r.status_code} {r.text}"
@@ -619,7 +619,7 @@ def get_document_status(application: ApplicationContext, access_token: str) -> A
 def get_payments(application_id: str, access_token: str) -> list[PaymentContext]:
     r = requests.get(
         f"{BACKEND_URL}/applications/{application_id}/payments",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"application_id": application_id},
     )
     assert r.status_code == 200, f"Fetching payments failed: {r.status_code} {r.text}"
@@ -650,7 +650,7 @@ def get_payments(application_id: str, access_token: str) -> list[PaymentContext]
 def create_payment(application_id: int, payment: PaymentContext, access_token: str) -> PaymentContext:
     r = requests.post(
         f"{BACKEND_URL}/applications/{application_id}/payments",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         json={
             "application_id": application_id,
             "name": payment.name,
@@ -676,7 +676,7 @@ def create_payment(application_id: int, payment: PaymentContext, access_token: s
 def get_application_fee(application: ApplicationContext, access_token: str) -> float:
     r = requests.get(
         f"{BACKEND_URL}/fees/{application.id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"application_id": application.id},
     )
     assert r.status_code == 200, f"Fetching application fees failed: {r.status_code} {r.text}"
@@ -752,7 +752,7 @@ def create_consent(user_id: str, consent: ConsentContext, access_token: str) -> 
 def get_ballot_periods(access_token: str) -> list[BallotPeriodContext]:
     r = requests.get(
         f"{BACKEND_URL}/ballot-periods",
-        headers=_headers(access_token),
+        headers=headers(access_token),
     )
     assert r.status_code == 200, f"Fetching ballot periods failed: {r.status_code} {r.text}"
     assert isinstance(r.json(),
@@ -774,7 +774,7 @@ def get_ballot_periods(access_token: str) -> list[BallotPeriodContext]:
 def create_ballot_period(start_date: str, end_date: str, access_token: str) -> BallotPeriodContext:
     r = requests.post(
         f"{BACKEND_URL}/ballot-periods",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         json={
             "start_date": start_date,
             "end_date": end_date,
@@ -794,7 +794,7 @@ def create_ballot_period(start_date: str, end_date: str, access_token: str) -> B
 def get_current_ballot_period(access_token: str) -> BallotPeriodContext:
     r = requests.get(
         f"{BACKEND_URL}/ballot-periods/current",
-        headers=_headers(access_token),
+        headers=headers(access_token),
     )
     assert r.status_code == 200, f"Fetching current ballot period failed: {r.status_code} {r.text}"
 
@@ -807,7 +807,7 @@ def get_current_ballot_period(access_token: str) -> BallotPeriodContext:
 def get_ballot_period(ballot_period_id: int, access_token: str) -> BallotPeriodContext:
     r = requests.get(
         f"{BACKEND_URL}/ballot-periods/{ballot_period_id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"ballot_period_id": ballot_period_id},
     )
     assert r.status_code == 200, f"Fetching ballot period by id failed: {r.status_code} {r.text}"
@@ -823,7 +823,7 @@ def get_ballot_period(ballot_period_id: int, access_token: str) -> BallotPeriodC
 def get_ballot_period_entries(ballot_period_id: int, access_token: str) -> list[ApplicationContext]:
     r = requests.get(
         f"{BACKEND_URL}/ballot-periods/{ballot_period_id}/entries",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"period_id": ballot_period_id},
     )
     assert r.status_code == 200, f"Fetching ballot period entries failed: {r.status_code} {r.text}"
@@ -858,7 +858,7 @@ def create_lottery(ballot_period_id: int, license_count: int, license_type: str,
         json["license_type"] = license_type
     r = requests.post(
         f"{BACKEND_URL}/ballot-periods/{ballot_period_id}/draw",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"period_id": ballot_period_id},
         json=json
     )
@@ -903,10 +903,10 @@ def create_lottery(ballot_period_id: int, license_count: int, license_type: str,
 
 
 def create_application_documents(application_id: int, access_token: str) -> None:
-    file = _read_file(filepath=TEST_PDF_PATH)
+    file = read_file(filepath=TEST_PDF_PATH)
     r = requests.post(
         f"{BACKEND_URL}/process-document",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         params={"application_id": application_id},
         files=[
             ("id_file", ("sample_id.pdf", file, "application/pdf")),
@@ -958,7 +958,7 @@ def wait_for_document_verification(
 def update_application_status(application: ApplicationContext, access_token: str) -> ApplicationContext:
     r = requests.get(
         f"{BACKEND_URL}/applications/{application.id}",
-        headers=_headers(access_token),
+        headers=headers(access_token),
         data={"application_id": application.id},
     )
     assert r.status_code == 200, f"Fetching application status failed: {r.status_code} {r.text}"

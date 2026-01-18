@@ -1,9 +1,14 @@
+from datetime import datetime
 import re
 
-from testkit.config import FRONTEND_URL
-from testkit.models import UserContext
-from testkit.runner.utils import _decode_jwt
+import requests
 
+from testkit.config import FRONTEND_URL, BACKEND_URL, ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, ACCESS_EXP_KEY, \
+    REFRESH_EXP_KEY, TOKEN_TYPE_KEY, ROLE_KEY
+from testkit.models import UserContext, BallotPeriodContext
+from testkit.runner.utils import decode_jwt, headers
+
+TIMEOUT = 10_000
 
 ############################################################################
 # Authentication functions
@@ -33,6 +38,7 @@ def register(page, user: UserContext) -> UserContext:
     return user
 
 
+# TODO: add keep logged in
 def login(page, user: UserContext) -> UserContext:
     page.goto(f"{FRONTEND_URL}/")
     page.locator("#signInLink").click()
@@ -56,43 +62,76 @@ def login(page, user: UserContext) -> UserContext:
     user.token_type = r.json().get("token_type")
     user.is_admin = bool(r.json().get("is_admin"))
 
-    assert user.id == _decode_jwt(user.access_token)["sub"], f"Login returned invalid user id: {r.status_text} {r.text}"
+    assert user.id == decode_jwt(user.access_token)["sub"], f"Login returned invalid user id: {r.status_text} {r.text}"
+    verify_local_storage_after_login(page, r.json())
 
     page.wait_for_url("/")
     return user
 
 
-'''
-def refresh_login(user: UserContext) -> UserContext:
-    r = requests.post(
-        f"{FRONTEND_URL}/refresh-login",
-        json={
-            "refresh_token": user.refresh_token,
-        },
-    )
-    assert r.status == 200, f"Refresh login failed: {r.status_code} {r.text}"
-    assert "access_token" in r.json(), f"Refresh login returned no access token: {r.status_code} {r.text}"
+def refresh_login(page, user: UserContext) -> UserContext:
+    access_token_old, refresh_token_old, expires_in_old, refresh_expires_in_old, token_type_old, is_admin_old = get_auth_details_from_local_storage(
+        page)
+    assert access_token_old and refresh_token_old and expires_in_old and refresh_expires_in_old and token_type_old and is_admin_old is not None, "No auth details in local storage"
 
-    user.access_token = r.json().get("access_token")
-    user.refresh_token = r.json().get("refresh_token")
-    user.expires_in = int(r.json().get("expires_in"))
-    user.refresh_expires_in = int(r.json().get("refresh_expires_in"))
-    user.token_type = r.json().get("token_type")
-    user.is_admin = bool(r.json().get("is_admin"))
+    with page.expect_response(
+            lambda r: r.url == f"{BACKEND_URL}/refresh-login" and r.status == 200,
+            timeout=15000
+    ):
+        page.reload()
+
+    # Verify that user is still logged in
+    page.locator("#signOutBtn").wait_for(timeout=TIMEOUT)
+
+    access_token_new, refresh_token_new, expires_in_new, refresh_expires_in_new, token_type_new, is_admin_new = get_auth_details_from_local_storage(
+        page)
+    assert access_token_new != access_token_old, "Access token was not refreshed"
+    assert refresh_token_new != refresh_token_old, "Refresh token was not refreshed"
+    assert expires_in_new != expires_in_old, "Expires in was not refreshed"
+    assert refresh_expires_in_new != refresh_expires_in_old, "Refresh expires in was not refreshed"
+    assert token_type_new == token_type_old, "Token type was changed"
+    assert is_admin_new == is_admin_old, "Is admin was changed"
+
+    user.access_token = access_token_new
+    user.refresh_token = refresh_token_new
+    user.expires_in = expires_in_new
+    user.refresh_expires_in = refresh_expires_in_new
 
     return user
 
 
-def request_reset_password(user_email: str) -> None:
-    r = requests.post(
-        f"{FRONTEND_URL}/reset-password",
-        json={
-            "email": user_email,
-        },
-    )
-    assert r.status == 200, f"Password reset request failed: {r.status_code} {r.text}"
+def request_reset_password(page, user_email: str) -> None:
+    page.goto(f"{FRONTEND_URL}/")
+    page.locator("#signInLink").click()
+    page.wait_for_url("/login")
+    page.locator("#forgotPasswortLink").click()
+
+    page.wait_for_url("/forgot-password")
+    page.locator("#email").fill(user_email)
+
+    #with page.expect_response(
+    #        lambda res: res.request.method == "POST" and re.search(r"/reset-password$", res.url)
+    #) as res_info:
+    #    page.locator("#resetPasswordBtn").click()
+    #r = res_info.value
+    #assert r.status == 200, f"Password reset request failed: {r.status_code} {r.text}"
+    # 1) Klick ausführen und auf die passende Response warten
+    #with page.expect_response(lambda r: "password" in r.url.lower() and r.request.method == "POST", timeout=15_000) as resp_info:
+    #    page.locator("#resetPasswordBtn").click()   # <-- sicherstellen: richtiger ID!
+#
+    #resp = resp_info.value
+    #print("RESET RESPONSE:", resp.status, resp.url)
+    #print("RESET BODY:", resp.text())
+#
+    ## 2) Wenn nicht 2xx -> du bist im catch-Zweig und Confirmation kommt NIE
+    #assert resp.status in (200, 204), f"Reset request failed: {resp.status} {resp.text()}"
+    page.locator("#resetPasswordBtn").click()
+    page.locator("#resetPasswordBtn").wait_for(state="visible", timeout=TIMEOUT)
+    page.locator("#resetPasswordBtn").click()
+    page.wait_for_url("/login")
 
 
+'''
 def reset_password(user: UserContext, new_password: str) -> UserContext:
     r = requests.post(
         f"{FRONTEND_URL}/change-password",
@@ -157,7 +196,6 @@ def change_name(user: UserContext, new_firstname: str, new_lastname: str) -> Use
 def logout(page, user_or_admin: UserContext) -> UserContext:
     page.goto(f"{FRONTEND_URL}/")
     page.locator("#signOutBtn").click()
-
 
     user_or_admin.access_token = ""
     user_or_admin.refresh_token = ""
@@ -788,19 +826,25 @@ def get_ballot_periods(access_token: str) -> list[BallotPeriodContext]:
         )
     return ballot_periods
 
+'''
 
-def create_ballot_period(start_date: str, end_date: str, access_token: str) -> BallotPeriodContext:
-    r = requests.post(
-        f"{FRONTEND_URL}/ballot-periods",
-        headers=_headers(access_token),
-        json={
-            "start_date": start_date,
-            "end_date": end_date,
-        },
-    )
+
+def create_ballot_period(page, start_date: str, end_date: str) -> BallotPeriodContext:
+    page.goto(f"{FRONTEND_URL}/")
+    page.locator("#handleCreateBallotClick").click()
+    page.wait_for_url("/ballot-config")
+    page.locator("#ballot_start_date").fill(start_date)
+    page.locator("#ballot_end_date").fill(end_date)
+
+    with page.expect_response(
+            lambda res: res.request.method == "POST" and re.search(r"/ballot-config$", res.url)
+    ) as res_info:
+        page.locator("#createBallotPeriodBtn").click()
+    r = res_info.value
     assert r.status == 201, f"Ballot period creation failed: {r.status_code} {r.text}"
     assert r.json().get("id"), f"Ballot period creation returned no id: {r.status_code} {r.text}"
 
+    page.wait_for_url("/login")
     return BallotPeriodContext(
         ballot_period_id=int(r.json().get("id")),
         start_date=r.json().get("start_date"),
@@ -808,6 +852,8 @@ def create_ballot_period(start_date: str, end_date: str, access_token: str) -> B
         total_applications=int(r.json().get("total_applications")),
     )
 
+
+'''
 
 def get_current_ballot_period(access_token: str) -> BallotPeriodContext:
     r = requests.get(
@@ -968,6 +1014,9 @@ def wait_for_document_verification(
         raise RuntimeError(msg + ": no response")
     raise RuntimeError(msg + f": {r.status_code} {r.text}")
 
+############################################################################
+# Language functions (incl localStorage)
+############################################################################
 
 ############################################################################
 # Helper functions
@@ -985,3 +1034,35 @@ def update_application_status(application: ApplicationContext, access_token: str
     application.status = r.json().get("status")
     return application
 '''
+
+
+def verify_local_storage_after_login(page, json_response: dict) -> None:
+    access_token, refresh_token, expires_in, refresh_expires_in, token_type, is_admin = get_auth_details_from_local_storage(
+        page)
+    assert access_token == json_response.get(
+        "access_token"), f"Access token in local storage does not match login response"
+    assert refresh_token == json_response.get(
+        "refresh_token"), f"Refresh token in local storage does not match login response"
+    assert expires_in == int(
+        json_response.get("expires_in")), f"Expires in in local storage does not match login response"
+    assert refresh_expires_in == int(
+        json_response.get("refresh_expires_in")), f"Refresh expires in in local storage does not match login response"
+    assert token_type == json_response.get("token_type"), f"Token type in local storage does not match login response"
+    assert is_admin == bool(json_response.get("is_admin")), f"Is admin in local storage does not match login response"
+
+
+def get_auth_details_from_local_storage(page) -> tuple[
+    str | None, str | None, int | None, int | None, str | None, bool | None
+]:
+    access_token = page.evaluate("(k) => window.localStorage.getItem(k)", ACCESS_TOKEN_KEY)
+    refresh_token = page.evaluate("(k) => window.localStorage.getItem(k)", REFRESH_TOKEN_KEY)
+    access_exp = page.evaluate(
+        "(k) => { const v = window.localStorage.getItem(k); const n = parseInt(v ?? '', 10); return Number.isFinite(n) ? n : null; }",
+        ACCESS_EXP_KEY, )
+    refresh_exp = page.evaluate(
+        "(k) => { const v = window.localStorage.getItem(k); const n = parseInt(v ?? '', 10); return Number.isFinite(n) ? n : null; }",
+        REFRESH_EXP_KEY, )
+    token_type = page.evaluate("(k) => window.localStorage.getItem(k)", TOKEN_TYPE_KEY)
+    is_admin = page.evaluate("(k) => window.localStorage.getItem(k) === 'admin'", ROLE_KEY, )
+
+    return access_token, refresh_token, access_exp, refresh_exp, token_type, is_admin

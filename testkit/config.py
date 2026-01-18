@@ -15,6 +15,13 @@ FRONTEND_URL = _env("FRONTEND_URL", "http://localhost:3000")
 BACKEND_URL = _env("BACKEND_URL", "http://localhost:8080")
 TEST_PDF_PATH = _env("TEST_PDF_PATH", "tests/sample.pdf")
 
+ACCESS_TOKEN_KEY = "accessToken"
+REFRESH_TOKEN_KEY = "refreshToken"
+ACCESS_EXP_KEY = "accessTokenExpiry"
+REFRESH_EXP_KEY = "refreshTokenExpiry"
+TOKEN_TYPE_KEY = "tokenType"
+ROLE_KEY = "role"
+
 LICENSE_TYPES = [
     "ETV",
     "ETVPL",
