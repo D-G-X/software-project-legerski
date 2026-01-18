@@ -445,6 +445,7 @@ export default function PaymentConfirm() {
                         )}
                         <button
                             type="button"
+                            id="showSepaMandateBtn"
                             onClick={(e) => {
                               e.stopPropagation();
                               setShowSepaDialog((prev) => !prev);
@@ -548,6 +549,7 @@ export default function PaymentConfirm() {
                   )}
                   <button
                       type="submit"
+                      id="payBtn"
                       onClick={handleSubmit}
                       className={`mt-8 ${
                           errors.pay ? "bg-mallorca-purple/75" : "bg-mallorca-purple"

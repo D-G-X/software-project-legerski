@@ -291,6 +291,7 @@ export default function ApplicationDocumentUpload() {
           <div className="w-full lg:w-[75%] xl:w-[50%]">
             <div className="flex flex-col lg:flex-row items-center gap-3">
               <button
+                  id="submitDocumentsBtn"
                   className="p-2 bg-mallorca-purple border-2 border-mallorca-purple rounded-xl text-white w-full lg:flex-1 hover:bg-mallorca-red/75 hover:border-mallorca-red"
                   onClick={handleSubmit}
               >
@@ -305,6 +306,7 @@ export default function ApplicationDocumentUpload() {
                 {t("license.document_upload.goBackButton")}
               </button>
               <button
+                  id="uploadLaterBtn"
                   className="p-2 text-mallorca-purple border-2 border-mallorca-purple rounded-xl bg-white w-full lg:flex-1 hover:bg-mallorca-red/75 hover:border-mallorca-red hover:text-white"
                   onClick={() => {
                     navigate(`/`);

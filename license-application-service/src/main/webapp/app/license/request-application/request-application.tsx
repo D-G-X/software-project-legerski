@@ -122,29 +122,15 @@ export default function RequestApplication() {
           | React.ChangeEvent<HTMLInputElement>
           | React.ChangeEvent<HTMLTextAreaElement>
   ) => {
-    let {id, value: rawValue, name} = e.target;
+    const { id, name, type, value: rawValue } = e.target;
 
-    let value: string | boolean = rawValue;
+    const key = type === "radio" ? name : (id || name);
 
-    const key = id || name;
+    if (key === "consent_personal_data") (e.target as HTMLInputElement).checked = !form.consent_personal_data;
+    if (key === "consent_legal_data") (e.target as HTMLInputElement).checked = !form.consent_legal_data;
 
-    if (key === "consent_personal_data") {
-      value = !form.consent_personal_data;
-    }
-
-    if (key === "consent_legal_data") {
-      value = !form.consent_legal_data;
-    }
-
-    setForm((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [key]: "",
-    }));
+    setForm(prev => ({ ...prev, [key]: rawValue }));
+    setErrors(prev => ({ ...prev, [key]: "" }));
   };
 
   const createApplication = useCreateApplication({
@@ -484,7 +470,7 @@ export default function RequestApplication() {
                       <input
                           type="radio"
                           name="rental_license_type"
-                          id="rental_license_type"
+                          id={`rental_license_type_${value}`}
                           value={value}
                           checked={form.rental_license_type === value}
                           onChange={handleChange}
@@ -585,6 +571,7 @@ export default function RequestApplication() {
               <div className="flex gap-2">
                 <button
                     type="submit"
+                    id="submitApplicationBtn"
                     onClick={() => handleSubmit("submit")}
                     className="bg-mallorca-purple border-2 border-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg hover:bg-mallorca-red/75 hover:border-mallorca-red"
                 >

@@ -67,6 +67,7 @@ export default function ModalDialog({
             <div className="flex items-center gap-3">
               {showDownloadButton && (
                   <button
+                      id="downloadButton"
                       onClick={onDownload}
                       className="px-4 py-2 rounded-lg border border-mallorca-purple text-mallorca-purple hover:bg-mallorca-purple/10 transition"
                   >
@@ -78,6 +79,7 @@ export default function ModalDialog({
             {/* Right side (Cancel + Accept buttons) */}
             <div className="flex items-center gap-3">
               <button
+                  id="cancelButton"
                   onClick={onCancel}
                   className="px-4 py-2 rounded-lg border border-mallorca-purple text-mallorca-purple hover:bg-mallorca-purple/10 transition"
               >
@@ -85,6 +87,7 @@ export default function ModalDialog({
               </button>
 
               <button
+                  id="acceptButton"
                   onClick={onAccept}
                   className="px-4 py-2 rounded-lg bg-mallorca-purple text-white hover:bg-mallorca-purple/90 transition"
               >

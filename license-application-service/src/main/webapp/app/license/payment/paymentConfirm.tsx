@@ -138,6 +138,7 @@ export default function PaymentConfirm() {
           {/* Leave Button */}
           <div className="mt-8">
             <button
+                id="returnToDashboardBtn"
                 onClick={() => navigate("/")}
                 className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90"
             >

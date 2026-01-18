@@ -186,6 +186,7 @@ export function Dashboard() {
             {ballotPeriodDetails.status === BallotStatus.RUNNING ? (
                 <button
                     type="button"
+                    id="createNewApplicationBtn"
                     className="bg-mallorca-purple text-white px-10 py-2 rounded-md font-medium text-lg mt-12 w-max"
                     onClick={handleNewApplicationClick}
                 >
