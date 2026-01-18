@@ -1,10 +1,9 @@
 import os
-from typing import Optional
 
 from locust import HttpUser, SequentialTaskSet, task, between
 
 from testkit.factory import new_user, new_application, new_payment
-from testkit.models import UserContext, RunContext
+from testkit.models import RunContext
 from testkit.runner.api_runner import api_register, api_login, api_logout
 import logging
 

@@ -1,15 +1,14 @@
 import random
 import time
-from datetime import datetime
-import re
 
+import requests
 from playwright.sync_api import Page, FilePayload
 
 from testkit.config import FRONTEND_URL, BACKEND_URL, ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, ACCESS_EXP_KEY, \
-    REFRESH_EXP_KEY, TOKEN_TYPE_KEY, ROLE_KEY, TEST_PDF_PATH, DOCUMENT_STATUSES, PAYMENT_STATUSES, LANGUAGE_KEY
+    REFRESH_EXP_KEY, TOKEN_TYPE_KEY, ROLE_KEY, TEST_PDF_PATH, DOCUMENT_STATUSES, PAYMENT_STATUSES, LANGUAGE_KEY, \
+    LICENSE_MAP
 from testkit.models import UserContext, BallotPeriodContext, ApplicationContext, PaymentContext
-from testkit.runner.api_runner import api_get_document_verification_status, api_get_application_fee
-from testkit.runner.utils import decode_jwt, headers, read_file
+from testkit.utils import decode_jwt, headers, read_file
 
 
 ############################################################################
@@ -132,22 +131,22 @@ def ui_request_reset_password(page, user_email: str) -> None:
     page.wait_for_url("/forgot-password")
     page.locator("#email").fill(user_email)
 
-    #with page.expect_response(
+    # with page.expect_response(
     #        lambda res: res.request.method == "POST" and re.search(r"/reset-password$", res.url)
-    #) as res_info:
+    # ) as res_info:
     #    page.locator("#resetPasswordBtn").click()
-    #r = res_info.value
-    #assert r.status == 200, f"Password reset request failed: {r.status} {r.text()}"
+    # r = res_info.value
+    # assert r.status == 200, f"Password reset request failed: {r.status} {r.text()}"
     # 1) Klick ausführen und auf die passende Response warten
-    #with page.expect_response(lambda r: "password" in r.url.lower() and r.request.method == "POST", timeout=15_000) as resp_info:
+    # with page.expect_response(lambda r: "password" in r.url.lower() and r.request.method == "POST", timeout=15_000) as resp_info:
     #    page.locator("#resetPasswordBtn").click()   # <-- sicherstellen: richtiger ID!
     #
-    #resp = resp_info.value
-    #print("RESET RESPONSE:", resp.status, resp.url)
-    #print("RESET BODY:", resp.text())
+    # resp = resp_info.value
+    # print("RESET RESPONSE:", resp.status, resp.url)
+    # print("RESET BODY:", resp.text())
     #
     ## 2) Wenn nicht 2xx -> du bist im catch-Zweig und Confirmation kommt NIE
-    #assert resp.status in (200, 204), f"Reset request failed: {resp.def ui_ {resp.text()}"
+    # assert resp.status in (200, 204), f"Reset request failed: {resp.def ui_ {resp.text()}"
     page.locator("#resetPasswordBtn").click()
     page.locator("#resetPasswordBtn").wait_for(state="visible")
     page.locator("#resetPasswordBtn").click()
@@ -551,6 +550,8 @@ def ui_edit_application(page: Page, application: ApplicationContext, user: UserC
     application.changed_at = r.json().get("changed_at")
 
     page.wait_for_url(f"{FRONTEND_URL}/license-document-upload/{application.id}")
+
+
 '''
 def ui_get_application_by_id(user_id: str, access_token: str) -> ApplicationContext:
     r = requests.get(
@@ -785,7 +786,7 @@ def ui_get_payments(application_id: str, access_token: str) -> list[PaymentConte
 def ui_skip_payment(page: Page, user: UserContext, application: ApplicationContext, payment: PaymentContext) -> None:
     page.goto(f"{FRONTEND_URL}/payment/{application.id}")
 
-    payment.amount = api_get_application_fee(None, application, user.access_token)
+    payment.amount = _get_application_fee(application, user.access_token)
 
     page.locator("#payLaterBtn").click()
 
@@ -795,7 +796,7 @@ def ui_skip_payment(page: Page, user: UserContext, application: ApplicationConte
 def ui_create_payment(page: Page, user: UserContext, application: ApplicationContext, payment: PaymentContext) -> None:
     page.goto(f"{FRONTEND_URL}/payment/{application.id}")
 
-    payment.amount = api_get_application_fee(None, application, user.access_token)
+    payment.amount = _get_application_fee(application, user.access_token)
 
     page.locator("#name").fill(payment.name)
     page.locator("#iban").fill(payment.iban)
@@ -828,23 +829,6 @@ def ui_create_payment(page: Page, user: UserContext, application: ApplicationCon
     page.wait_for_url(f"{FRONTEND_URL}/")
 
 
-'''
-def ui_get_application_fee(application: ApplicationContext, access_token: str) -> float:
-    r = requests.get(
-        f"{FRONTEND_URL}/fees/{application.id}",
-        headers=_headers(access_token),
-        params={"application_id": application.id},
-    )
-    assert r.status == 200, f"Fetching application fees failed: {r.status} {r.text()}"
-    assert application.id == r.json().get(
-        "application_id"), f"Fetching application fees returned invalid application id: {r.status} {r.text()}"
-    application_fee = r.json().get("application_fee")
-    assert application_fee is LICENSE_MAP[
-        application.license_type].price, f"Fetching application fees returned invalid amount: {application_fee}"
-
-    return application_fee
-
-'''
 '''
 ############################################################################
 # Consent functions
@@ -1099,7 +1083,6 @@ def ui_create_application_documents_later(page: Page) -> None:
 
 
 def ui_create_application_documents_edit(page: Page, application_id: int) -> None:
-
     page.locator("#editApplicationBtn").click()
 
     page.wait_for_url(f"{FRONTEND_URL}/license-application-request/{application_id}/edit")
@@ -1121,7 +1104,7 @@ def ui_wait_for_document_verification(
 
     r = None
     while time.monotonic() < deadline:
-        application, r = api_get_document_verification_status(application, access_token)
+        application, r = _get_document_verification_status(application, access_token)
 
         if application.application_status != DOCUMENT_STATUSES.PENDING:
             return application
@@ -1166,6 +1149,7 @@ def ui_visit_legal(page) -> None:
     page.goto(f"{FRONTEND_URL}/")
     page.locator("#legalLink").click()
     page.wait_for_url(f"{FRONTEND_URL}/legal")
+
 
 ############################################################################
 # Helper functions
@@ -1228,3 +1212,38 @@ def _get_unformatted_amount(formatted: str) -> float:
         s = s.replace(",", "")
 
     return float(s)
+
+
+def _get_document_verification_status(application: ApplicationContext, access_token: str) -> \
+        tuple[
+            ApplicationContext, requests.Response]:
+    r = requests.get(
+        f"{BACKEND_URL}/applications/{application.id}/documents",
+        headers=headers(access_token),
+        params={"application_id": application.id},
+    )
+    assert r.status_code == 200, f"Document status fetch failed: {r.status_code} {r.text}"
+    assert application.id == r.json().get(
+        "application_id"), f"Document status fetch returned invalid application id: {r.status_code} {r.text}"
+    assert r.json().get(
+        "status") in DOCUMENT_STATUSES, f"Document status fetch returned invalid status: {r.status_code} {r.text}"
+    application.status = r.json().get("status")
+    application.rejection_reason = r.json().get("rejection_reason")
+
+    return application, r
+
+
+def _get_application_fee(application: ApplicationContext, access_token: str) -> float:
+    r = requests.get(
+        f"{BACKEND_URL}/fees/{application.id}",
+        headers=headers(access_token),
+        params={"application_id": application.id},
+    )
+    assert r.status_code == 200, f"Fetching application fees failed: {r.status_code} {r.text}"
+    assert application.id == r.json().get(
+        "application_id"), f"Fetching application fees returned invalid application id: {r.status_code} {r.text}"
+    assert r.json().get("fee_amount") == LICENSE_MAP[
+        application.license_type].price, f"Fetching application fees returned invalid amount: {r.json().get('fee_amount')}"
+    application.amount = r.json().get("fee_amount")
+
+    return application.amount

@@ -2,13 +2,13 @@ import random
 import time
 
 import requests
+from locust.clients import HttpSession
 
 from testkit.config import BACKEND_URL, DOCUMENT_STATUSES, TEST_PDF_PATH, LICENSE_MAP, PAYMENT_STATUSES, \
     APPLICATION_STATUSES, LICENSE_STATUSES
 from testkit.models import ApplicationContext, PaymentContext, NotificationContext, UserContext, \
     LicenseContext, BallotPeriodContext
-from testkit.runner.utils import decode_jwt, headers, read_file
-from locust.clients import HttpSession
+from testkit.utils import decode_jwt, headers, read_file
 
 
 ############################################################################
@@ -161,7 +161,8 @@ def api_logout(client: HttpSession, user_or_admin: UserContext) -> UserContext:
 # User functions
 ############################################################################
 
-def api_get_users(client: HttpSession, user_name: str, email: str, first: int, max: int, access_token: str) -> list[UserContext]:
+def api_get_users(client: HttpSession, user_name: str, email: str, first: int, max: int, access_token: str) -> list[
+    UserContext]:
     params: dict[str, str] = {}
     # TODO: FIX API
     if user_name:
@@ -402,7 +403,8 @@ def api_get_applications(client: HttpSession, user_id: str, access_token: str) -
     return applications
 
 
-def api_create_application(client: HttpSession, application: ApplicationContext, user_id: str, access_token: str) -> ApplicationContext:
+def api_create_application(client: HttpSession, application: ApplicationContext, user_id: str,
+                           access_token: str) -> ApplicationContext:
     r = client.post(
         f"{BACKEND_URL}/applications",
         headers=headers(access_token),
@@ -445,7 +447,8 @@ def api_get_application_by_id(client: HttpSession, user_id: str, access_token: s
     )
 
 
-def api_update_application(client: HttpSession, application: ApplicationContext, new_application_status: str, new_cadastral_reference: str,
+def api_update_application(client: HttpSession, application: ApplicationContext, new_application_status: str,
+                           new_cadastral_reference: str,
                            new_remarks: str, new_license_type: str, access_token: str) -> ApplicationContext:
     r = client.put(
         f"{BACKEND_URL}/applications/{application.id}",
@@ -547,7 +550,8 @@ def api_get_license_by_id(client: HttpSession, license_id: int, access_token: st
     )
 
 
-def api_update_license(client: HttpSession, license: LicenseContext, new_license_status: str, access_token: str) -> LicenseContext:
+def api_update_license(client: HttpSession, license: LicenseContext, new_license_status: str,
+                       access_token: str) -> LicenseContext:
     r = client.put(
         f"{BACKEND_URL}/licenses/{license.id}",
         headers=headers(access_token),
@@ -580,8 +584,9 @@ def api_delete_license(client: HttpSession, license_id: int, access_token: str) 
 # Document verification functions
 ############################################################################
 
-def api_get_document_verification_status(client: HttpSession, application: ApplicationContext, access_token: str) -> tuple[
-    ApplicationContext, requests.Response]:
+def api_get_document_verification_status(client: HttpSession, application: ApplicationContext, access_token: str) -> \
+        tuple[
+            ApplicationContext, requests.Response]:
     r = client.get(
         f"{BACKEND_URL}/applications/{application.id}/documents",
         headers=headers(access_token),
@@ -599,7 +604,8 @@ def api_get_document_verification_status(client: HttpSession, application: Appli
 
 
 # TODO: FIX API (duplicate of get_document_verification_status)
-def api_get_document_status(client: HttpSession, application: ApplicationContext, access_token: str) -> ApplicationContext:
+def api_get_document_status(client: HttpSession, application: ApplicationContext,
+                            access_token: str) -> ApplicationContext:
     r = client.get(
         f"{BACKEND_URL}/applications/{application.id}/documents",
         headers=headers(access_token),
@@ -651,7 +657,8 @@ def api_get_payments(client: HttpSession, application_id: str, access_token: str
     return payments
 
 
-def api_create_payment(client: HttpSession, application_id: int, payment: PaymentContext, access_token: str) -> PaymentContext:
+def api_create_payment(client: HttpSession, application_id: int, payment: PaymentContext,
+                       access_token: str) -> PaymentContext:
     r = client.post(
         f"{BACKEND_URL}/applications/{application_id}/payments",
         headers=headers(access_token),
@@ -678,18 +685,11 @@ def api_create_payment(client: HttpSession, application_id: int, payment: Paymen
 
 
 def api_get_application_fee(client: HttpSession, application: ApplicationContext, access_token: str) -> float:
-    if client:
-        r = client.get(
-            f"{BACKEND_URL}/fees/{application.id}",
-            headers=headers(access_token),
-            params={"application_id": application.id},
-        )
-    else:
-        r = requests.get(
-            f"{BACKEND_URL}/fees/{application.id}",
-            headers=headers(access_token),
-            params={"application_id": application.id},
-        )
+    r = client.get(
+        f"{BACKEND_URL}/fees/{application.id}",
+        headers=headers(access_token),
+        params={"application_id": application.id},
+    )
     assert r.status_code == 200, f"Fetching application fees failed: {r.status_code} {r.text}"
     assert application.id == r.json().get(
         "application_id"), f"Fetching application fees returned invalid application id: {r.status_code} {r.text}"
@@ -782,7 +782,8 @@ def api_get_ballot_periods(client: HttpSession, access_token: str) -> list[Ballo
     return ballot_periods
 
 
-def api_create_ballot_period(client: HttpSession, start_date: str, end_date: str, access_token: str) -> BallotPeriodContext:
+def api_create_ballot_period(client: HttpSession, start_date: str, end_date: str,
+                             access_token: str) -> BallotPeriodContext:
     r = client.post(
         f"{BACKEND_URL}/ballot-periods",
         headers=headers(access_token),
@@ -831,7 +832,8 @@ def api_get_ballot_period(client: HttpSession, ballot_period_id: int, access_tok
     )
 
 
-def api_get_ballot_period_entries(client: HttpSession, ballot_period_id: int, access_token: str) -> list[ApplicationContext]:
+def api_get_ballot_period_entries(client: HttpSession, ballot_period_id: int, access_token: str) -> list[
+    ApplicationContext]:
     r = client.get(
         f"{BACKEND_URL}/ballot-periods/{ballot_period_id}/entries",
         headers=headers(access_token),
@@ -862,7 +864,8 @@ def api_get_ballot_period_entries(client: HttpSession, ballot_period_id: int, ac
     return applications
 
 
-def api_create_lottery(client: HttpSession, ballot_period_id: int, license_count: int, license_type: str, access_token: str) -> tuple[
+def api_create_lottery(client: HttpSession, ballot_period_id: int, license_count: int, license_type: str,
+                       access_token: str) -> tuple[
     list[ApplicationContext], list[ApplicationContext]]:
     json: dict[str, str] = {}
     if license_type and license_count > 0:
@@ -967,7 +970,8 @@ def api_wait_for_document_verification(
 # Helper functions
 ############################################################################
 
-def api_update_application_status(client: HttpSession, application: ApplicationContext, access_token: str) -> ApplicationContext:
+def api_update_application_status(client: HttpSession, application: ApplicationContext,
+                                  access_token: str) -> ApplicationContext:
     r = client.get(
         f"{BACKEND_URL}/applications/{application.id}",
         headers=headers(access_token),

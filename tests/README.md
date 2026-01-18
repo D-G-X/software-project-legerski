@@ -55,8 +55,8 @@ There, you can configure and start your performance tests:
 
 ## Test Structure
 
-- Playwright test config is located in the `playwright` directory.
-- Locust test config is located in the `locust` directory.
+- Playwright test config is located in the `e2e_tests` directory.
+- Locust test config is located in the `load_tests` directory.
 - Common test utilities are located in the `testkit` directory in the project root and are shared between Playwright and Locust tests. They contain the following:
   - Config and stateless data (e.g. URLs, state enums) in `testkit/config.py`
   - Data models containing runtime state in `testkit/models.py`

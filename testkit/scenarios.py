@@ -1,5 +1,5 @@
 from testkit.models import Scenario
-from testkit.runner.ui_runner import ui_create_ballot_period, ui_login, ui_logout, ui_register, ui_refresh_login, \
+from tests.e2e_tests.ui_runner import ui_create_ballot_period, ui_login, ui_logout, ui_register, ui_refresh_login, \
     ui_request_reset_password, ui_create_application_documents, ui_create_payment, ui_create_application_draft, \
     ui_skip_payment, ui_create_application, \
     ui_edit_application, ui_create_application_documents_edit, ui_create_application_documents_later, \
