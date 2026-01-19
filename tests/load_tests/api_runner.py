@@ -462,28 +462,11 @@ def api_get_document_verification_status(client: HttpSession, application: Appli
     return r
 
 
-# TODO: FIX API (duplicate of get_document_verification_status)
-def api_get_document_status(client: HttpSession, application: ApplicationContext,
-                            access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/applications/{application.id}/documents",
-        headers=headers(access_token),
-        params={"application_id": application.id},
-    )
-    assert r.status_code == 200, f"Document status fetch failed: {r.status_code} {r.text}"
-    assert application.id == r.json().get(
-        "application_id"), f"Document status fetch returned invalid application id: {r.status_code} {r.text}"
-    assert r.json().get(
-        "status") in DOCUMENT_STATUSES, f"Document status fetch returned invalid status: {r.status_code} {r.text}"
-    application.status = r.json().get("status")
-    application.rejection_reason = r.json().get("rejection_reason")
-
-
 ############################################################################
 # Payment functions
 ############################################################################
 
-def api_get_payments(client: HttpSession, application_id: str, access_token: str) -> None:
+def api_get_payments(client: HttpSession, application_id: int, access_token: str) -> None:
     r = client.get(
         f"{BACKEND_URL}/applications/{application_id}/payments",
         headers=headers(access_token),

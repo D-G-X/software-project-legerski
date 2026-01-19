@@ -4,7 +4,9 @@ import os
 from locust import HttpUser, SequentialTaskSet, task, between
 
 from api_runner import api_register, api_login, api_logout, api_create_application, api_update_application, \
-    api_create_application_documents, api_create_payment, api_get_application_fee
+    api_create_application_documents, api_create_payment, api_get_application_fee, api_get_document_verification_status, \
+    api_get_applications, api_get_application_by_id, api_get_user_by_id, api_get_licenses, api_get_license_by_id, \
+    api_get_payments, api_wait_for_document_verification
 from testkit.factory import new_user, new_application, new_payment
 from testkit.models import RunContext
 
@@ -44,6 +46,7 @@ class RegisterLoginLogout(SequentialTaskSet):
     @task
     def upload_documents(self):
         api_create_application_documents(self.client, self.ctx.application.id, self.ctx.user.access_token)
+        api_wait_for_document_verification(self.client, self.ctx.application, self.ctx.user.access_token)
 
     @task
     def get_fee(self):
@@ -52,6 +55,18 @@ class RegisterLoginLogout(SequentialTaskSet):
     @task
     def payment(self):
         api_create_payment(self.client, self.ctx.application.id, self.ctx.payment, self.ctx.user.access_token)
+
+    @task
+    def show_applications_dashboard(self):
+        api_get_applications(self.client, self.ctx.user.id, self.ctx.user.access_token)
+
+    @task
+    def show_application_details(self):
+        api_get_application_by_id(self.client, self.ctx.user.id, self.ctx.user.access_token)
+        api_get_user_by_id(self.client, self.ctx.user.id, self.ctx.user.access_token)
+        api_get_licenses(self.client, self.ctx.user.id, self.ctx.user.access_token)
+        api_get_document_verification_status(self.client, self.ctx.application, self.ctx.user.access_token)
+        api_get_payments(self.client, self.ctx.application.id, self.ctx.user.access_token)
 
     @task
     def logout(self):

@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-const verifiedProbability = 90 // percentage chance of VERIFIED status
+const verifiedProbability = 100 // percentage chance of VERIFIED status
 const maxFileSize = 10         // per file in MB
 const maxPollRequests = 2      // max polling requests per second per client
 const timeout = 5              // seconds
