@@ -1,6 +1,7 @@
 package de.hft.licensing.application.services;
 
 import de.hft.licensing.application.repository.AuthDslService;
+import de.hft.licensing.application.repository.UserDslService;
 import de.hft.licensing.db.tables.records.PasswordResetTokenRecord;
 import de.hft.licensing.model.ChangeUserdetailsRequest;
 import de.hft.licensing.model.LoginRequest;
@@ -33,6 +34,9 @@ class AuthServiceTest {
     private AuthDslService repository;
 
     @Mock
+    private UserDslService userDslService;
+
+    @Mock
     private EmailService emailService;
 
     @Mock
@@ -42,7 +46,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new AuthService(repository, emailService, restTemplate);
+        service = new AuthService(repository, userDslService, emailService, restTemplate);
 
         ReflectionTestUtils.setField(service, "realm", "license-realm");
         ReflectionTestUtils.setField(service, "keycloakUrl", "http://keycloak:8080");
