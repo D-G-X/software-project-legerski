@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import {
   UpdateUserMutationError,
   useGetUser,
-  useUpdateUser,
   ChangePasswordForUserMutationError,
   useChangePasswordForUser,
 } from "app/services/users/users";
@@ -18,6 +17,7 @@ import {
   isValidConfirmPassword,
 } from "app/common/validationRules";
 import { useDocumentTitle } from "app/common/utils";
+import { useChangeUserDetails } from "app/services/authentication/authentication";
 
 export default function Profile() {
   const auth = useContext(AuthContext);
@@ -78,7 +78,7 @@ export default function Profile() {
     else hide();
   }, [response.isFetching, show, hide, t]);
 
-  const updateUserMutation = useUpdateUser({
+  const updateUserMutation = useChangeUserDetails({
     axios: {
       headers: {
         Authorization: `Bearer ${auth?.accessToken}`,
@@ -164,8 +164,8 @@ export default function Profile() {
       await updateUserMutation.mutateAsync({
         userId,
         data: {
-          firstName: user.firstName,
-          lastName: user.lastName,
+          firstname: user.firstName,
+          lastname: user.lastName,
           email: user.email,
         },
       });
@@ -183,7 +183,7 @@ export default function Profile() {
     const passwordValidation = isValidPassword(newPassword);
     const confirmPasswordValidation = isValidConfirmPassword(
       newPassword,
-      confirmPassword
+      confirmPassword,
     );
 
     const newErrors: typeof errors = {};
