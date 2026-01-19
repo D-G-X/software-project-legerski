@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from datetime import timezone
 
 from testkit.config import LICENSE_TYPES
-from testkit.models import UserContext, UserContext, ApplicationContext, PaymentContext, BallotPeriodContext
+from testkit.models import UserContext, ApplicationContext, PaymentContext, BallotPeriodContext
 
 
 def _unique_email() -> str:
