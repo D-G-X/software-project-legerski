@@ -8,6 +8,7 @@ from testkit.config import FRONTEND_URL
 
 AUTH_DIR = Path(".auth")
 TIMEOUT = 10_000
+SLOW_MO = 1000
 
 load_dotenv()
 
@@ -30,7 +31,7 @@ def page(pytestconfig):
             "webkit": p.webkit,
         }[browser_name]
 
-        browser = browser_type.launch(headless=False)#, slow_mo=1000)
+        browser = browser_type.launch(headless=False, slow_mo=SLOW_MO)
         context = browser.new_context(base_url=FRONTEND_URL)
         page = context.new_page()
         page.set_default_timeout(TIMEOUT)

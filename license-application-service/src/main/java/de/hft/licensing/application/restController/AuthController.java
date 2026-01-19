@@ -33,6 +33,7 @@ public class AuthController implements AuthenticationApi {
             log.warn("Login attempt with invalid email or password format for email: {}", loginRequest.getEmail());
             return ResponseEntity.badRequest().build();
         }
+        log.info("Login attempt for email: {}", loginRequest.getEmail());
         return ResponseEntity.ok().body(authService.login(loginRequest));
     }
 
@@ -44,8 +45,8 @@ public class AuthController implements AuthenticationApi {
     @Override
     public ResponseEntity<RegisterResource> registerUser(RegisterRequest registerRequest) {
         RegisterResource registerResource = authService.register(registerRequest);
-
         if (registerResource == null) {
+            log.warn("Unknown registration attempt");
             return ResponseEntity.status(409).build();
         } else if (registerRequest.getFirstname() != null &&
                 registerRequest.getLastname() != null &&
@@ -55,11 +56,13 @@ public class AuthController implements AuthenticationApi {
                 !formValidator.isValidName(registerRequest.getLastname()) &&
                 !formValidator.isValidEmail(registerRequest.getEmail()) &&
                 !formValidator.isValidPassword(registerRequest.getPassword())) {
+            log.warn("Registration attempt for email failed: {}", registerRequest.getEmail());
             return ResponseEntity.badRequest().build();
         } else if (registerResource.getUserId() == null) {
+            log.warn("Registration attempt for email failed: {}", registerRequest.getEmail());
             return ResponseEntity.badRequest().body(registerResource);
         }
-
+        log.info("Registration attempt for email: {}", registerRequest.getEmail());
         return ResponseEntity.created(URI.create("/auth/register/" + registerResource.getUserId())).build();
     }
 

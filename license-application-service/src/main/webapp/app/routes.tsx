@@ -17,7 +17,6 @@ import LegalNotice from "./legal/legal";
 import ContactPage from "./contact/contact";
 import BallotDetails from "./ballot-details/ballot-details";
 import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
-import NotificationSettings from "./notification-setting/notification-setting";
 import IssuedLicensePage from "./issued-license/issued-license";
 import {ProtectedLoader} from "./common/auth/ProtectedLoader";
 import BallotConfig from "./ballot-config/ballot-config";
@@ -42,11 +41,6 @@ export default function AppRoutes() {
         {
           path: "issued-license/:id",
           element: <IssuedLicensePage/>,
-          loader: ProtectedLoader(["admin", "user"]),
-        },
-        {
-          path: "notification-settings",
-          element: <NotificationSettings/>,
           loader: ProtectedLoader(["admin", "user"]),
         },
         {
@@ -109,11 +103,6 @@ export default function AppRoutes() {
         {
           path: "ballot-applications/:id",
           element: <BallotApplications/>,
-          loader: ProtectedLoader(["admin"]),
-        },
-        {
-          path: "notification-settings",
-          element: <NotificationSettings/>,
           loader: ProtectedLoader(["admin"]),
         },
         {

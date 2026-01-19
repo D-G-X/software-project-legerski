@@ -31,6 +31,7 @@ const Pagination: React.FC<PaginationProps> = ({
         </div>
         <div className={"flex justify-end"}>
           <button
+              id="previous-page-button"
               className="mx-1 px-3 py-1 bg-gray-200 text-mallorca-purple rounded-sm disabled:opacity-50"
               onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
             {t("dashboard.pagination.previous")}
@@ -38,6 +39,7 @@ const Pagination: React.FC<PaginationProps> = ({
           {pages.map((page) => (
               // Key prop is correct, and the onClick handler is correct
               <button
+                  id={`page-button-${page}`}
                   className={`mx-1 px-3 py-1 ${currentPage === page ? 'bg-mallorca-purple' : 'bg-gray-200'} ${currentPage === page ? 'text-white' : 'text-mallorca-purple'} rounded-sm disabled:opacity-50`}
                   key={page}
                   onClick={() => onPageChange(page)}
@@ -47,6 +49,7 @@ const Pagination: React.FC<PaginationProps> = ({
               </button>
           ))}
           <button
+              id="next-page-button"
               className="mx-1 px-3 py-1 bg-gray-200 text-mallorca-purple rounded-sm disabled:opacity-50"
               onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPage}>
             {t("dashboard.pagination.next")}

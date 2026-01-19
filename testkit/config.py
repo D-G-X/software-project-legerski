@@ -1,5 +1,4 @@
 import os
-from decimal import Decimal
 
 from testkit.models import LicenseType
 

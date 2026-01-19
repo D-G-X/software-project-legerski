@@ -1,15 +1,14 @@
 import random
 import time
-from datetime import datetime
-import re
 
+import requests
 from playwright.sync_api import Page, FilePayload
 
 from testkit.config import FRONTEND_URL, BACKEND_URL, ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, ACCESS_EXP_KEY, \
-    REFRESH_EXP_KEY, TOKEN_TYPE_KEY, ROLE_KEY, TEST_PDF_PATH, DOCUMENT_STATUSES, PAYMENT_STATUSES, LANGUAGE_KEY
+    REFRESH_EXP_KEY, TOKEN_TYPE_KEY, ROLE_KEY, TEST_PDF_PATH, DOCUMENT_STATUSES, PAYMENT_STATUSES, LANGUAGE_KEY, \
+    LICENSE_MAP
 from testkit.models import UserContext, BallotPeriodContext, ApplicationContext, PaymentContext
-from testkit.runner.api_runner import api_get_document_verification_status, api_get_application_fee
-from testkit.runner.utils import decode_jwt, headers, read_file
+from testkit.utils import decode_jwt, headers, read_file
 
 
 ############################################################################
@@ -18,7 +17,8 @@ from testkit.runner.utils import decode_jwt, headers, read_file
 
 
 def ui_register(page, user: UserContext) -> None:
-    page.goto(f"{FRONTEND_URL}/")
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
     page.locator("#registerLink").click()
     page.wait_for_url(f"{FRONTEND_URL}/register")
 
@@ -49,12 +49,15 @@ import re
 
 
 def ui_login(page, user: UserContext) -> None:
-    page.goto(f"{FRONTEND_URL}/")
-    page.locator("#signInLink").click()
-    page.wait_for_url(f"{FRONTEND_URL}/login")
+    if not page.url == f"{FRONTEND_URL}/login":
+        page.goto(f"{FRONTEND_URL}/")
+        page.locator("#signInLink").click()
+        page.wait_for_url(f"{FRONTEND_URL}/login")
 
     page.locator("#email").fill(user.email)
     page.locator("#password").fill(user.password)
+
+    page.locator("#keepMeLoggedIn").set_checked(random.choice([True, False]))
 
     with page.expect_response(
             lambda res: res.request.method == "POST" and re.search(r"/login$", res.url)
@@ -79,83 +82,47 @@ def ui_login(page, user: UserContext) -> None:
         assert user.id == decode_jwt(user.access_token)[
             "sub"], f"Login returned invalid user id: {r.status} {r.text()}"
 
-    ui_verify_local_storage_after_login(page, data)
+    _verify_local_storage_after_login(page, data)
 
     page.wait_for_url(f"{FRONTEND_URL}/")
 
 
 def ui_login_to_register(page) -> None:
-    page.goto(f"{FRONTEND_URL}/")
-    page.locator("#signInLink").click()
-    page.wait_for_url(f"{FRONTEND_URL}/login")
+    if not page.url == f"{FRONTEND_URL}/login":
+        page.goto(f"{FRONTEND_URL}/")
+        page.locator("#signInLink").click()
+        page.wait_for_url(f"{FRONTEND_URL}/login")
 
     page.locator("#createAccountLink").click()
 
     page.wait_for_url(f"{FRONTEND_URL}/register")
 
 
-def ui_refresh_login(page, user: UserContext) -> None:
-    access_token_old, refresh_token_old, expires_in_old, refresh_expires_in_old, token_type_old, is_admin_old = ui_get_auth_details_from_local_storage(
-        page)
-    assert access_token_old and refresh_token_old and expires_in_old and refresh_expires_in_old and token_type_old and is_admin_old is not None, "No auth details in local storage"
-
-    with page.expect_response(
-            lambda r: r.url == f"{BACKEND_URL}/refresh-login" and r.status == 200,
-            timeout=15000
-    ):
-        page.reload()
-
-    # Verify that user is still logged in
-    page.locator("#signOutBtn").wait_for(state="visible")
-
-    access_token_new, refresh_token_new, expires_in_new, refresh_expires_in_new, token_type_new, is_admin_new = ui_get_auth_details_from_local_storage(
-        page)
-    assert access_token_new != access_token_old, "Access token was not refreshed"
-    assert refresh_token_new != refresh_token_old, "Refresh token was not refreshed"
-    assert expires_in_new != expires_in_old, "Expires in was not refreshed"
-    assert refresh_expires_in_new != refresh_expires_in_old, "Refresh expires in was not refreshed"
-    assert token_type_new == token_type_old, "Token type was changed"
-    assert is_admin_new == is_admin_old, "Is admin was changed"
-
-    user.access_token = access_token_new
-    user.refresh_token = refresh_token_new
-    user.expires_in = expires_in_new
-    user.refresh_expires_in = refresh_expires_in_new
-
-
 def ui_request_reset_password(page, user_email: str) -> None:
-    page.goto(f"{FRONTEND_URL}/")
-    page.locator("#signInLink").click()
-    page.wait_for_url("/login")
+    if not page.url == f"{FRONTEND_URL}/login":
+        page.locator("#signInLink").click()
+        page.wait_for_url("/login")
+
     page.locator("#forgotPasswortLink").click()
 
     page.wait_for_url("/forgot-password")
     page.locator("#email").fill(user_email)
 
-    #with page.expect_response(
-    #        lambda res: res.request.method == "POST" and re.search(r"/reset-password$", res.url)
-    #) as res_info:
-    #    page.locator("#resetPasswordBtn").click()
-    #r = res_info.value
-    #assert r.status == 200, f"Password reset request failed: {r.status} {r.text()}"
-    # 1) Klick ausführen und auf die passende Response warten
-    #with page.expect_response(lambda r: "password" in r.url.lower() and r.request.method == "POST", timeout=15_000) as resp_info:
-    #    page.locator("#resetPasswordBtn").click()   # <-- sicherstellen: richtiger ID!
-    #
-    #resp = resp_info.value
-    #print("RESET RESPONSE:", resp.status, resp.url)
-    #print("RESET BODY:", resp.text())
-    #
-    ## 2) Wenn nicht 2xx -> du bist im catch-Zweig und Confirmation kommt NIE
-    #assert resp.status in (200, 204), f"Reset request failed: {resp.def ui_ {resp.text()}"
-    page.locator("#resetPasswordBtn").click()
     page.locator("#resetPasswordBtn").wait_for(state="visible")
-    page.locator("#resetPasswordBtn").click()
+    with page.expect_response(
+            lambda res: res.request.method == "POST" and re.search(r"/reset-password$", res.url)
+    ) as res_info:
+        page.locator("#resetPasswordBtn").click()
+    r = res_info.value
+    assert r.status == 200, f"Password reset request failed: {r.status} {r.text()}"
+
+    page.locator("#returnLinkRequestSent").wait_for(state="visible")
+    page.locator("#returnLinkRequestSent").click()
     page.wait_for_url("/login")
 
 
 '''
-def ui_reset_password(user: UserContext, new_password: str) -> UserContext:
+def ui_reset_password(user: UserContext, new_password: str) None:
     r = requests.post(
         f"{FRONTEND_URL}/change-password",
         json={
@@ -170,7 +137,7 @@ def ui_reset_password(user: UserContext, new_password: str) -> UserContext:
 
 
 # TODO: FIX API
-def ui_change_password(user: UserContext, new_password: str) -> UserContext:
+def ui_change_password(user: UserContext, new_password: str) None:
     r = requests.patch(
         f"{FRONTEND_URL}/users/{user.id}/change-password",
         headers=_headers(user.access_token),
@@ -188,7 +155,7 @@ def ui_change_password(user: UserContext, new_password: str) -> UserContext:
 
 
 # TODO: FIX API
-def ui_change_name(user: UserContext, new_firstname: str, new_lastname: str) -> UserContext:
+def ui_change_name(user: UserContext, new_firstname: str, new_lastname: str) None:
     r = requests.patch(
         f"{FRONTEND_URL}/users/{user.id}",
         headers=_headers(user.access_token),
@@ -216,8 +183,9 @@ def ui_change_name(user: UserContext, new_firstname: str, new_lastname: str) -> 
 '''
 
 
-def ui_logout(page, user_or_admin: UserContext) -> UserContext:
-    page.goto(f"{FRONTEND_URL}/")
+def ui_logout(page, user_or_admin: UserContext) -> None:
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
     page.locator("#signOutBtn").click()
 
     user_or_admin.access_token = ""
@@ -228,7 +196,6 @@ def ui_logout(page, user_or_admin: UserContext) -> UserContext:
     user_or_admin.is_admin = False
 
     page.wait_for_url("/login")
-    return user_or_admin
 
 
 '''
@@ -273,29 +240,22 @@ def ui_get_users(user_name: str, email: str, first: int, max: int, access_token:
             )
         )
     return users
+'''
 
 
-def ui_get_user_by_id(user_id: str, access_token: str) -> UserContext:
-    r = requests.get(
-        f"{FRONTEND_URL}/users/{user_id}",
-        headers=_headers(access_token),
-        params={"user_id": user_id},
-    )
-    assert r.status == 200, f"Fetching user by id failed: {r.status} {r.text()}"
-    assert r.json().get("id") == user_id, f"Fetching user by id returned invalid user id: {r.status} {r.text()}"
+def ui_view_user_details(page: Page) -> None:
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
+    page.locator("#profileLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/profile")
+    page.locator("#deleteAccBtn").wait_for(state="visible")
 
-    return UserContext(
-        id=r.json()["id"],
-        username=r.json()["username"],
-        email=r.json()["email"],
-        firstname=r.json()["first_name"],
-        lastname=r.json()["last_name"],
-        enabled=bool(r.json()["enabled"]),
-        email_verified=bool(r.json()["email_verified"]),
-        created_timestamp=int(r.json()["created_timestamp"]),
-    )
+    page.locator("#homeLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/")
 
 
+
+'''
 def ui_create_user(user: UserContext, access_token: str) -> None:
     r = requests.post(
         f"{FRONTEND_URL}/users",
@@ -388,7 +348,7 @@ def ui_update_user_notification_as_read(notification_id: int, access_token: str)
     assert r.text(), f"Updating notification as read returned no response: {r.status} {r.text()}"
 
 
-def ui_get_user_notification_preferences(user: UserContext, access_token: str) -> UserContext:
+def ui_get_user_notification_preferences(user: UserContext, access_token: str) None:
     r = requests.get(
         f"{FRONTEND_URL}/users/{user.id}/notifications/preferences",
         headers=_headers(access_token),
@@ -410,7 +370,7 @@ def ui_update_user_notification_preferences(
         new_application_updates_notification: bool,
         new_license_renewal_notification: bool,
         access_token: str,
-) -> UserContext:
+) None:
     r = requests.patch(
         f"{FRONTEND_URL}/users/{user.id}/notifications/preferences",
         headers=_headers(access_token),
@@ -480,7 +440,8 @@ def ui_get_applications(user_id: str, access_token: str) -> list[ApplicationCont
 
 
 def ui_create_application_draft(page: Page, application: ApplicationContext, user: UserContext) -> None:
-    page.goto(f"{FRONTEND_URL}/")
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
     page.locator("#createNewApplicationBtn").click()
     page.wait_for_url(f"{FRONTEND_URL}/license-application-request")
 
@@ -506,7 +467,8 @@ def ui_create_application_draft(page: Page, application: ApplicationContext, use
 
 
 def ui_create_application(page: Page, application: ApplicationContext, user: UserContext) -> None:
-    page.goto(f"{FRONTEND_URL}/")
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
     page.locator("#createNewApplicationBtn").click()
     page.wait_for_url(f"{FRONTEND_URL}/license-application-request")
 
@@ -532,6 +494,8 @@ def ui_create_application(page: Page, application: ApplicationContext, user: Use
 
 
 def ui_edit_application(page: Page, application: ApplicationContext, user: UserContext) -> None:
+    if not page.url == f"/applications/edit/{application.id}":
+        page.goto(f"/applications/edit/{application.id}")
     page.locator("#cadastral_number").fill(application.cadastral_reference)
     page.locator(f'#rental_license_type_{application.license_type}').check()
     page.locator("#additional_comments").fill(application.remarks)
@@ -539,7 +503,7 @@ def ui_edit_application(page: Page, application: ApplicationContext, user: UserC
     page.locator("#consent_personal_data").check()
 
     with page.expect_response(
-            lambda res: res.request.method == "POST" and re.search(rf"/applications/{application.id}/edit$", res.url)
+            lambda res: res.request.method == "POST" and re.search(rf"/applications/edit/{application.id}$", res.url)
     ) as res_info:
         page.locator("#submitApplicationBtn").click()
     r = res_info.value
@@ -551,6 +515,8 @@ def ui_edit_application(page: Page, application: ApplicationContext, user: UserC
     application.changed_at = r.json().get("changed_at")
 
     page.wait_for_url(f"{FRONTEND_URL}/license-document-upload/{application.id}")
+
+
 '''
 def ui_get_application_by_id(user_id: str, access_token: str) -> ApplicationContext:
     r = requests.get(
@@ -620,6 +586,39 @@ def ui_delete_application(application_id: str, access_token: str) -> None:
     assert r.text(), f"Application deletion returned no response: {r.status} {r.text()}"
 
 
+'''
+
+
+def ui_view_application_details(page: Page, application_id: str):
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
+    if page.locator("#next-page-button").is_enabled():
+        page.locator("#next-page-button").click()
+
+    page.locator(f"#viewDetailsBtn-{application_id}").click()
+
+    page.locator("#closeButton").wait_for(state="visible")
+    page.locator(f"#closeButton").click()
+
+    page.locator(f"#viewDetailsBtn-{application_id}").wait_for(state="visible")
+    if page.locator("#previous-page-button").is_enabled():
+        page.locator("#previous-page-button").click()
+
+
+def ui_view_application_details_edit(page: Page, application_id: str):
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
+    if page.locator("#next-page-button").is_enabled():
+        page.locator("#next-page-button").click()
+
+    page.locator(f"#viewDetailsBtn-{application_id}").click()
+
+    page.locator("#editBtn").wait_for(state="visible")
+    page.locator(f"#editBtn").click()
+    page.wait_for_url(f"{FRONTEND_URL}/license-application-request/edit/{application_id}")
+
+
+'''
 ############################################################################
 # License functions
 ############################################################################
@@ -783,9 +782,10 @@ def ui_get_payments(application_id: str, access_token: str) -> list[PaymentConte
 
 
 def ui_skip_payment(page: Page, user: UserContext, application: ApplicationContext, payment: PaymentContext) -> None:
-    page.goto(f"{FRONTEND_URL}/payment/{application.id}")
+    if not page.url == f"{FRONTEND_URL}/payment/{application.id}":
+        page.goto(f"{FRONTEND_URL}/payment/{application.id}")
 
-    payment.amount = api_get_application_fee(None, application, user.access_token)
+    payment.amount = _get_application_fee(application, user.access_token)
 
     page.locator("#payLaterBtn").click()
 
@@ -793,9 +793,10 @@ def ui_skip_payment(page: Page, user: UserContext, application: ApplicationConte
 
 
 def ui_create_payment(page: Page, user: UserContext, application: ApplicationContext, payment: PaymentContext) -> None:
-    page.goto(f"{FRONTEND_URL}/payment/{application.id}")
+    if not page.url == f"{FRONTEND_URL}/payment/{application.id}":
+        page.goto(f"{FRONTEND_URL}/payment/{application.id}")
 
-    payment.amount = api_get_application_fee(None, application, user.access_token)
+    payment.amount = _get_application_fee(application, user.access_token)
 
     page.locator("#name").fill(payment.name)
     page.locator("#iban").fill(payment.iban)
@@ -828,23 +829,6 @@ def ui_create_payment(page: Page, user: UserContext, application: ApplicationCon
     page.wait_for_url(f"{FRONTEND_URL}/")
 
 
-'''
-def ui_get_application_fee(application: ApplicationContext, access_token: str) -> float:
-    r = requests.get(
-        f"{FRONTEND_URL}/fees/{application.id}",
-        headers=_headers(access_token),
-        params={"application_id": application.id},
-    )
-    assert r.status == 200, f"Fetching application fees failed: {r.status} {r.text()}"
-    assert application.id == r.json().get(
-        "application_id"), f"Fetching application fees returned invalid application id: {r.status} {r.text()}"
-    application_fee = r.json().get("application_fee")
-    assert application_fee is LICENSE_MAP[
-        application.license_type].price, f"Fetching application fees returned invalid amount: {application_fee}"
-
-    return application_fee
-
-'''
 '''
 ############################################################################
 # Consent functions
@@ -930,7 +914,8 @@ def ui_get_ballot_periods(access_token: str) -> list[BallotPeriodContext]:
 
 
 def ui_create_ballot_period(page, start_date: str, end_date: str) -> BallotPeriodContext:
-    page.goto(f"{FRONTEND_URL}/")
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
     page.locator("#handleCreateBallotClick").click()
     page.wait_for_url("/ballot-config")
     page.locator("#ballot_start_date").fill(start_date)
@@ -1068,6 +1053,9 @@ def ui_create_lottery(ballot_period_id: int, license_count: int, license_type: s
 
 
 def ui_create_application_documents(page: Page, application_id: int) -> None:
+    if not page.url == f"{FRONTEND_URL}/license-document-upload/{application_id}":
+        page.goto(f"{FRONTEND_URL}/license-document-upload/{application_id}")
+
     file = read_file(filepath=TEST_PDF_PATH, mode="rb")
 
     payload: FilePayload = {
@@ -1092,17 +1080,54 @@ def ui_create_application_documents(page: Page, application_id: int) -> None:
     page.wait_for_url(f"{FRONTEND_URL}/payment/{application_id}")
 
 
-def ui_create_application_documents_later(page: Page) -> None:
+def ui_create_application_documents_later(page: Page, application_id) -> None:
+    if not page.url == f"{FRONTEND_URL}/license-document-upload/{application_id}":
+        page.goto(f"{FRONTEND_URL}/license-document-upload/{application_id}")
+
     page.locator("#uploadLaterBtn").click()
 
     page.wait_for_url(f"{FRONTEND_URL}/")
 
 
 def ui_create_application_documents_edit(page: Page, application_id: int) -> None:
+    if not page.url == f"{FRONTEND_URL}/license-document-upload/{application_id}":
+        page.goto(f"{FRONTEND_URL}/license-document-upload/{application_id}")
 
     page.locator("#editApplicationBtn").click()
 
-    page.wait_for_url(f"{FRONTEND_URL}/license-application-request/{application_id}/edit")
+    page.wait_for_url(f"{FRONTEND_URL}/license-application-request/edit/{application_id}")
+
+
+############################################################################
+# Dashboard functions
+############################################################################
+
+def ui_change_language(page, user: UserContext) -> None:
+    language = "de"
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
+    page.locator("#languageOptionBtn").click()
+    page.locator("ul.absolute").wait_for(state="visible")
+    page.locator(f"#{language}").click()
+    page.locator("ul.absolute").wait_for(state="hidden")
+
+    new_language = _get_language_from_local_storage(page)
+    assert new_language == language, f"Language change in local storage failed: expected '{language}', got '{new_language}'"
+    user.language = new_language
+
+
+def ui_visit_contact(page) -> None:
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
+    page.locator("#contactLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/contact")
+
+
+def ui_visit_legal(page) -> None:
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
+    page.locator("#legalLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/legal")
 
 
 ############################################################################
@@ -1121,7 +1146,7 @@ def ui_wait_for_document_verification(
 
     r = None
     while time.monotonic() < deadline:
-        application, r = api_get_document_verification_status(application, access_token)
+        application, r = _get_document_verification_status(application, access_token)
 
         if application.application_status != DOCUMENT_STATUSES.PENDING:
             return application
@@ -1135,45 +1160,16 @@ def ui_wait_for_document_verification(
     msg = f"Document verification timed out for application {application.id}"
     if r is None:
         raise RuntimeError(msg + ": no response")
-    raise RuntimeError(msg + f": {r.status} {r.text()}")
+    raise RuntimeError(msg + f": {r.status_code} {r.text}")
 
-
-############################################################################
-# Dashboard functions
-############################################################################
-
-def ui_change_language(page, user: UserContext) -> None:
-    language = "de"
-
-    page.goto(f"{FRONTEND_URL}/")
-    page.locator("#languageOptionBtn").click()
-    page.locator("ul.absolute").wait_for(state="visible")
-    page.locator(f"#{language}").click()
-    page.locator("ul.absolute").wait_for(state="hidden")
-
-    new_language = ui_get_language_from_local_storage(page)
-    assert new_language == language, f"Language change in local storage failed: expected '{language}', got '{new_language}'"
-    user.language = new_language
-
-
-def ui_visit_contact(page) -> None:
-    page.goto(f"{FRONTEND_URL}/")
-    page.locator("#contactLink").click()
-    page.wait_for_url(f"{FRONTEND_URL}/contact")
-
-
-def ui_visit_legal(page) -> None:
-    page.goto(f"{FRONTEND_URL}/")
-    page.locator("#legalLink").click()
-    page.wait_for_url(f"{FRONTEND_URL}/legal")
 
 ############################################################################
 # Helper functions
 ############################################################################
 
 
-def ui_verify_local_storage_after_login(page, json_response: dict) -> None:
-    access_token, refresh_token, expires_in, refresh_expires_in, token_type, is_admin = ui_get_auth_details_from_local_storage(
+def _verify_local_storage_after_login(page, json_response: dict) -> None:
+    access_token, refresh_token, expires_in, refresh_expires_in, token_type, is_admin = _get_auth_details_from_local_storage(
         page)
     assert access_token == json_response.get(
         "access_token"), f"Access token in local storage does not match login response"
@@ -1187,7 +1183,7 @@ def ui_verify_local_storage_after_login(page, json_response: dict) -> None:
     assert is_admin == bool(json_response.get("is_admin")), f"Is admin in local storage does not match login response"
 
 
-def ui_get_auth_details_from_local_storage(page) -> tuple[
+def _get_auth_details_from_local_storage(page) -> tuple[
     str | None, str | None, int | None, int | None, str | None, bool | None
 ]:
     access_token = page.evaluate("(k) => window.localStorage.getItem(k)", ACCESS_TOKEN_KEY)
@@ -1204,7 +1200,7 @@ def ui_get_auth_details_from_local_storage(page) -> tuple[
     return access_token, refresh_token, access_exp, refresh_exp, token_type, is_admin
 
 
-def ui_get_language_from_local_storage(page) -> str | None:
+def _get_language_from_local_storage(page) -> str | None:
     return page.evaluate("(k) => window.localStorage.getItem(k)", LANGUAGE_KEY)
 
 
@@ -1228,3 +1224,38 @@ def _get_unformatted_amount(formatted: str) -> float:
         s = s.replace(",", "")
 
     return float(s)
+
+
+def _get_document_verification_status(application: ApplicationContext, access_token: str) -> \
+        tuple[
+            ApplicationContext, requests.Response]:
+    r = requests.get(
+        f"{BACKEND_URL}/applications/{application.id}/documents",
+        headers=headers(access_token),
+        params={"application_id": application.id},
+    )
+    assert r.status_code == 200, f"Document status fetch failed: {r.status_code} {r.text}"
+    assert application.id == r.json().get(
+        "application_id"), f"Document status fetch returned invalid application id: {r.status_code} {r.text}"
+    assert r.json().get(
+        "status") in DOCUMENT_STATUSES, f"Document status fetch returned invalid status: {r.status_code} {r.text}"
+    application.status = r.json().get("status")
+    application.rejection_reason = r.json().get("rejection_reason")
+
+    return application, r
+
+
+def _get_application_fee(application: ApplicationContext, access_token: str) -> float:
+    r = requests.get(
+        f"{BACKEND_URL}/fees/{application.id}",
+        headers=headers(access_token),
+        params={"application_id": application.id},
+    )
+    assert r.status_code == 200, f"Fetching application fees failed: {r.status_code} {r.text}"
+    assert application.id == r.json().get(
+        "application_id"), f"Fetching application fees returned invalid application id: {r.status_code} {r.text}"
+    assert r.json().get("fee_amount") == LICENSE_MAP[
+        application.license_type].price, f"Fetching application fees returned invalid amount: {r.json().get('fee_amount')}"
+    application.amount = r.json().get("fee_amount")
+
+    return application.amount
