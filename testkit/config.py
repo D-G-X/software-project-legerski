@@ -12,7 +12,7 @@ def _env(name: str, default: str | None = None) -> str:
 
 FRONTEND_URL = _env("FRONTEND_URL", "http://localhost:3000")
 BACKEND_URL = _env("BACKEND_URL", "http://localhost:8080")
-TEST_PDF_PATH = _env("TEST_PDF_PATH", "tests/sample.pdf")
+TEST_PDF_PATH = _env("TEST_PDF_PATH", "../sample.pdf")
 
 ACCESS_TOKEN_KEY = "accessToken"
 REFRESH_TOKEN_KEY = "refreshToken"

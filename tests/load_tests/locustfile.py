@@ -49,11 +49,8 @@ class RegisterLoginLogout(SequentialTaskSet):
         api_wait_for_document_verification(self.client, self.ctx.application, self.ctx.user.access_token)
 
     @task
-    def get_fee(self):
-        api_get_application_fee(self.client, self.ctx.application, self.ctx.user.access_token)
-
-    @task
     def payment(self):
+        api_get_application_fee(self.client, self.ctx.application, self.ctx.user.access_token)
         api_create_payment(self.client, self.ctx.application.id, self.ctx.payment, self.ctx.user.access_token)
 
     @task
