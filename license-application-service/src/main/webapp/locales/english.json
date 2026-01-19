@@ -1140,19 +1140,16 @@
   },
   "notificationSettings": {
     "pageTitle": "Notification Settings",
-    "description": "Manage how we send notifications to you",
+    "description": "Notification Preferences",
     "sections": {
       "appUpdates": {
-        "title": "When my application is updated:",
-        "email": "Email"
+        "label": "Enable E-Mail notifications"
       },
       "appStatus": {
-        "title": "Application Updates",
-        "label": "When my application status is updated"
+        "label": "Notify about application status updates"
       },
       "license": {
-        "title": "License Renewal Updates",
-        "label": "When my license is 6 months due for expiry"
+        "label": "Notify about upcoming license expiration"
       }
     },
     "buttons": {

@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: license-app
+
+resources:
+  - ../infra/00-namespace.yaml
+  - ../infra/10-postgres.yaml
+  - ../infra/20-keycloak.yaml
+  - ../app/30-backend.yaml
+  - ../app/40-mocks.yaml
+  - ../app/50-ingress.yaml
+  - ../app/60-hpa.yaml
+
+configMapGenerator:
+  - name: keycloak-realm
+    files:
+      - ../base/keycloak/realm-export.json
+  - name: license-config
+    envs:
+      - ../.env
+
+generatorOptions:
+  disableNameSuffixHash: true
