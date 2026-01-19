@@ -294,6 +294,7 @@ export default function ApplicationDetails({
               className="relative min-h-[calc(50vh-8rem)] bg-white flex items-center justify-center rounded-xl overflow-y-auto">
             {/* Close Button */}
             <button
+                id="closeButton"
                 onClick={onClose}
                 className="absolute flex top-4 left-4 items-center justify-center cursor-pointer px-2 py-2 rounded-full
              text-mallorca-purple/75 hover:bg-mallorca-purple/10"
@@ -602,6 +603,7 @@ export default function ApplicationDetails({
                       applicationData?.application_status
                   ) && (
                       <button
+                          id="editBtn"
                           onClick={() =>
                               handleFinishApplication(
                                   applicationData?.application_status,

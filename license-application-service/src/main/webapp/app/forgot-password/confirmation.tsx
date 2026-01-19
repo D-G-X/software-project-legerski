@@ -13,6 +13,7 @@ function RequestSent() {
         />
         <div className="my-4">
           <Link
+              id="returnLinkRequestSent"
               to="/login"
               className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg block text-center"
           >
@@ -30,7 +31,7 @@ function ResetConfirmation() {
         <FormHeader heading={t("forgotPassword.resetConfirmation.headline")}/>
         <div className="my-4">
           <Link
-              id="resetPasswordBtn"
+              id="returnLinkConfirmation"
               to="/login"
               className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-full font-medium text-lg block text-center"
           >

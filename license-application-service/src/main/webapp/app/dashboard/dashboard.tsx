@@ -256,6 +256,7 @@ export function Dashboard() {
 
                             <td className="w-1/5 text-left border-b border-black/10 p-2.5">
                               <button
+                                  id={`viewDetailsBtn-${item.id}`}
                                   key={item.id}
                                   onClick={() => openDetails(item)}
                                   className="text-mallorca-purple underline"
