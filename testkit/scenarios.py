@@ -4,7 +4,7 @@ from tests.e2e_tests.ui_runner import ui_create_ballot_period, ui_login, ui_logo
     ui_skip_payment, ui_create_application, \
     ui_edit_application, ui_create_application_documents_edit, ui_create_application_documents_later, \
     ui_login_to_register, ui_change_language, ui_visit_legal, ui_visit_contact, ui_view_application_details, \
-    ui_view_application_details_edit
+    ui_view_application_details_edit, ui_view_user_details
 
 
 def repeat(step: Step, times: int) -> list[Step]:
@@ -194,5 +194,17 @@ def DASHBOARD_VISIT_LEGAL() -> Scenario:
         name="dashboard_visit_legal",
         steps=[
             lambda p, ctx: ui_visit_legal(p),
+        ],
+    )
+
+
+def DASHBOARD_VIEW_USER_DETAILS() -> Scenario:
+    return Scenario(
+        name="dashboard_view_user_details",
+        steps=[
+            lambda p, ctx: ui_register(p, ctx.user),
+            lambda p, ctx: ui_login(p, ctx.user),
+            lambda p, ctx: ui_view_user_details(p),
+            lambda p, ctx: ui_logout(p, ctx.user),
         ],
     )

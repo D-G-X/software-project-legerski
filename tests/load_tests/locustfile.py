@@ -2,7 +2,7 @@ import logging
 import os
 
 from locust import HttpUser, SequentialTaskSet, task, between
-from testkit.runner.api_runner import api_register, api_login, api_logout
+from api_runner import api_register, api_login, api_logout
 
 from testkit.factory import new_user, new_application, new_payment
 from testkit.models import RunContext
