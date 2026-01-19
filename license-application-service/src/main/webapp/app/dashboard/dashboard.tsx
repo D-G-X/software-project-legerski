@@ -146,6 +146,18 @@ export function Dashboard() {
     setIsDetailsOpen(false);
     setSelectedEntry(undefined);
   };
+
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    if (isDetailsOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isDetailsOpen]);
   const applications: ApplicationResource[] = Array.isArray(applicationsData)
     ? applicationsData
     : [];
