@@ -6,7 +6,7 @@ set +a
 
 CALLER_DIR="$(pwd)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEST_DIR="$SCRIPT_DIR/load-tests"
+TEST_DIR="$SCRIPT_DIR/load_tests"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 export PYTHONPATH="${REPO_ROOT}"

@@ -367,6 +367,7 @@ export default function Profile() {
           </button>
 
           <button
+              id="deleteAccBtn"
               onClick={handleDeleteAccount}
               className="w-full mt-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-500"
           >

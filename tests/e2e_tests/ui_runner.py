@@ -240,29 +240,22 @@ def ui_get_users(user_name: str, email: str, first: int, max: int, access_token:
             )
         )
     return users
+'''
 
 
-def ui_get_user_by_id(user_id: str, access_token: str) None:
-    r = requests.get(
-        f"{FRONTEND_URL}/users/{user_id}",
-        headers=_headers(access_token),
-        params={"user_id": user_id},
-    )
-    assert r.status == 200, f"Fetching user by id failed: {r.status} {r.text()}"
-    assert r.json().get("id") == user_id, f"Fetching user by id returned invalid user id: {r.status} {r.text()}"
+def ui_view_user_details(page: Page) -> None:
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
+    page.locator("#profileLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/profile")
+    page.locator("#deleteAccBtn").wait_for(state="visible")
 
-    return UserContext(
-        id=r.json()["id"],
-        username=r.json()["username"],
-        email=r.json()["email"],
-        firstname=r.json()["first_name"],
-        lastname=r.json()["last_name"],
-        enabled=bool(r.json()["enabled"]),
-        email_verified=bool(r.json()["email_verified"]),
-        created_timestamp=int(r.json()["created_timestamp"]),
-    )
+    page.locator("#homeLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/")
 
 
+
+'''
 def ui_create_user(user: UserContext, access_token: str) -> None:
     r = requests.post(
         f"{FRONTEND_URL}/users",
