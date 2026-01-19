@@ -83,21 +83,21 @@ export default function NotificationPopup({className = ""}) {
   };
 
   const markAllAsRead = () => {
-    const idsToUpdate = (notifications ?? []).filter(
-        (n) => !n.is_read && typeof n.id === "string"
-    );
+    const idsToUpdate = (notifications ?? [])
+        .filter((n) => !n.is_read && typeof n.id === "string")
+        .map((n) => n.id as string);
 
+    // UI sofort aktualisieren
     setNotifications((prev) =>
-        prev ? prev.map((n) => (n.is_read ? n : {...n, is_read: true})) : prev
+        prev ? prev.map((n) => (n.is_read ? n : { ...n, is_read: true })) : prev
     );
 
-    if (!idsToUpdate?.length) return;
+    if (!idsToUpdate.length) return;
 
-    (async () => {
-      for (const id of idsToUpdate) {
-        updateNotification(id.toString());
-      }
-    })();
+    // Updates feuern (parallel oder sequentiell)
+    for (const id of idsToUpdate) {
+      updateNotification(id);
+    }
   };
 
   const [currentNotification, setCurrentNotification] =
