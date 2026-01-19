@@ -1,9 +1,11 @@
 package de.hft.licensing.application.restController;
 
 import de.hft.licensing.api.AuthenticationApi;
+import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.*;
 import de.hft.licensing.application.services.AuthService;
 import de.hft.licensing.utils.ApiFormValidator;
+import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +18,7 @@ public class AuthController implements AuthenticationApi {
 
     private final AuthService authService;
     private final ApiFormValidator formValidator = new ApiFormValidator();
+    private final Logger log = LicensingLoggerFactory.getLogger(AuthController.class);
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -27,6 +30,7 @@ public class AuthController implements AuthenticationApi {
                 loginRequest.getPassword() != null &&
                 !formValidator.isValidEmail(loginRequest.getEmail()) &&
                 !formValidator.isValidPassword(loginRequest.getPassword())) {
+            log.warn("Login attempt with invalid email or password format for email: {}", loginRequest.getEmail());
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().body(authService.login(loginRequest));

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.hft.licensing.application.repository.UserDslService;
 import de.hft.licensing.db.tables.records.PasswordResetTokenRecord;
 import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.*;
@@ -29,12 +30,14 @@ import java.util.stream.Collectors;
 public class AuthService {
 
     private final AuthDslService repository;
+    private final UserDslService userDslService;
     private final EmailService emailService;
     private final Logger log = LicensingLoggerFactory.getLogger(AuthService.class);
     private final RestTemplate restTemplate;
 
-    public AuthService(AuthDslService repository, EmailService emailService, RestTemplate restTemplate) {
+    public AuthService(AuthDslService repository, UserDslService userDslService, EmailService emailService, RestTemplate restTemplate) {
         this.repository = repository;
+        this.userDslService = userDslService;
         this.emailService = emailService;
         this.restTemplate = restTemplate;
     }
@@ -342,28 +345,33 @@ public class AuthService {
         String newFirstname;
         String newLastname;
 
-        if (req.getEmail() != null && formValidator.isValidEmail(req.getEmail())) {
-            newEmail = req.getEmail();
-            if (isEmailRegistered(newEmail)) {
-                System.out.println("Email already registered: " + req.getEmail());
-                return ChangeUserDetailsResult.CONFLICT;
-            }
-        } else {
-            System.out.println("Invalid email format: " + req.getEmail());
-            return ChangeUserDetailsResult.BAD_REQUEST;
+        if (!userDslService.userExists(userId)) {
+            log.error("No Keycloak user found with ID: {}", userId);
+            return ChangeUserDetailsResult.FAILED;
         }
+
+        AuthService.KeycloakUserRecord kcUser = getUserById(userId);
+        newEmail = req.getEmail();
+
+        if (!kcUser.email().equalsIgnoreCase(newEmail) && isEmailRegistered(newEmail)) {
+            System.out.println("Email already registered: " + req.getEmail());
+            return ChangeUserDetailsResult.CONFLICT;
+        } else {
+            newEmail = req.getEmail();
+        }
+
 
         if (req.getFirstname() != null && formValidator.isValidName(req.getFirstname())) {
             newFirstname = req.getFirstname();
         } else {
-            System.out.println("Invalid firstname format: " + req.getFirstname());
+            log.warn("Invalid firstname format: {}", req.getFirstname());
             return ChangeUserDetailsResult.BAD_REQUEST;
         }
 
         if (req.getLastname() != null && formValidator.isValidName(req.getLastname())) {
             newLastname = req.getLastname();
         } else {
-            System.out.println("Invalid lastname format: " + req.getLastname());
+            log.warn("Invalid lastname format: {}", req.getLastname());
             return ChangeUserDetailsResult.BAD_REQUEST;
         }
 
