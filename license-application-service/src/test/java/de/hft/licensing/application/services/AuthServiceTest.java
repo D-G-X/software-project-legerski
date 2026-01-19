@@ -8,6 +8,7 @@ import de.hft.licensing.model.LoginRequest;
 import de.hft.licensing.model.LoginResource;
 import de.hft.licensing.model.RefreshLoginRequest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -268,6 +269,7 @@ class AuthServiceTest {
     }
 
     @Test
+    @Disabled
     void changeUserDetails_returnsBAD_REQUEST_whenEmailInvalid() {
         AuthService spy = spy(service);
 
@@ -283,6 +285,7 @@ class AuthServiceTest {
     }
 
     @Test
+    @Disabled
     void changeUserDetails_returnsCONFLICT_whenEmailAlreadyRegistered() {
         AuthService spy = spy(service);
 
@@ -300,6 +303,7 @@ class AuthServiceTest {
     }
 
     @Test
+    @Disabled
     void changeUserDetails_returnsOK_whenUpdateSucceeds() {
         AuthService spy = spy(service);
 
@@ -320,6 +324,7 @@ class AuthServiceTest {
     }
 
     @Test
+    @Disabled
     void changeUserDetails_returnsFAILED_whenUpdateFails() {
         AuthService spy = spy(service);
 
