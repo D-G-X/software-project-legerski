@@ -116,7 +116,7 @@ export default function BallotDashboard() {
                     const localizedStatus =
                         startDate && endDate
                             ? getBallotStatus(startDate, endDate, now, t)
-                            : t("status.upcoming");
+                            : t("ballotStatus.upcoming");
                     const drawDate = endDate
                         ? getDrawDate(endDate, 7).toLocaleDateString()
                         : "";
