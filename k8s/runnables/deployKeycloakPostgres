@@ -1,0 +1,3 @@
+kubectl apply -k k8s/infra
+kubectl -n license-app rollout status statefulset/postgres
+kubectl -n license-app rollout status deployment/keycloak
