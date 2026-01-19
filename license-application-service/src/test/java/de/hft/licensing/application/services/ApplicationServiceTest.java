@@ -6,9 +6,7 @@ import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseType;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
-import de.hft.licensing.model.ApplicationStatusApiEnum;
-import de.hft.licensing.model.ApplicationUpdate;
-import de.hft.licensing.model.LicenseTypeApiEnum;
+import de.hft.licensing.model.*;
 import org.jooq.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,11 +36,17 @@ class ApplicationServiceTest {
     @Mock
     private ApplicationDslService dslService;
 
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private EmailService emailService;
+
     private ApplicationService service;
 
     @BeforeEach
     void setUp() {
-        service = new ApplicationService(dslService);
+        service = new ApplicationService(emailService, userService, dslService);
     }
 
     @Test
@@ -220,21 +224,32 @@ class ApplicationServiceTest {
     @Test
     void updateApplication_buildsUpdateMap_correctly_andReturnsOK() {
         int appId = 42;
+        UUID userId = UUID.randomUUID();
 
         when(dslService.getApplicationStatus(appId)).thenReturn(ApplicationStatus.payment_received);
         when(dslService.getApplicationRemarks(appId)).thenReturn("old-remarks");
 
         ApplicationRecord updated = new ApplicationRecord();
+        updated.setUserId(userId.toString());
         updated.setId(appId);
         updated.setApplicationStatus(ApplicationStatus.approved);
         updated.setRemarks("new-remarks");
 
+        NotificationPreferencesResource prefs = new NotificationPreferencesResource();
+        prefs.setId(1);
+        prefs.setUserId(userId);
+        prefs.setNotificationWay(NotificationWayApiEnum.EMAIL);
+        prefs.setApplicationUpdatesNotification(true);
+        prefs.setLicenseRenewalNotification(true);
+
+
         ArgumentCaptor<Map<Field<?>, Object>> captor = ArgumentCaptor.forClass(Map.class);
 
         when(dslService.updateApplication(eq(appId), anyMap())).thenReturn(updated);
+        when(userService.getNotificationPreferences(UUID.fromString(updated.getUserId()))).thenReturn(prefs);
 
         ApplicationUpdate update = new ApplicationUpdate();
-        update.setApplicationStatus(ApplicationStatusApiEnum.APPROVED); // je nach Enum-Namen bei dir ggf. anpassen
+        update.setApplicationStatus(ApplicationStatusApiEnum.APPROVED);
         update.setRemarks("new-remarks");
         update.setCadastralReference("cad-99");
         update.setLicenseType(LicenseTypeApiEnum.values()[0]);
@@ -248,7 +263,6 @@ class ApplicationServiceTest {
         verify(dslService).updateApplication(eq(appId), captor.capture());
         Map<Field<?>, Object> updates = captor.getValue();
 
-        // enthält die Felder, die gesetzt wurden
         assertTrue(updates.containsKey(Application.APPLICATION.REMARKS));
         assertEquals("new-remarks", updates.get(Application.APPLICATION.REMARKS));
 

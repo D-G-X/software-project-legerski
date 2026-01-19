@@ -152,6 +152,10 @@ public class AuthService {
             UUID id = extractUserUUIdFromLocationHeader(response);
             if (id != null) {
                 repository.ensureLocalUserAndDefaults(id);
+                repository.updateNotificationPreferences(id, new NotificationPreferencesUpdate()
+                        .notificationWay(NotificationWayApiEnum.EMAIL)
+                        .applicationUpdatesNotification(true)
+                        .licenseRenewalNotification(true));
             }
 
             RegisterResource rr = new RegisterResource();

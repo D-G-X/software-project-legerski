@@ -1,14 +1,12 @@
 package de.hft.licensing.application.services;
 
+import de.hft.licensing.application.repository.ApplicationDslService;
 import de.hft.licensing.db.enums.ApplicationStatus;
 import de.hft.licensing.db.enums.LicenseType;
 import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.logger.LicensingLoggerFactory;
-import de.hft.licensing.model.ApplicationStatusApiEnum;
-import de.hft.licensing.model.ApplicationUpdate;
-import de.hft.licensing.model.LicenseTypeApiEnum;
-import de.hft.licensing.application.repository.ApplicationDslService;
+import de.hft.licensing.model.*;
 import de.hft.licensing.utils.EnumMapperUtil;
 import org.jooq.Field;
 import org.slf4j.Logger;
@@ -24,9 +22,13 @@ public class ApplicationService {
 
     private static final Logger log = LicensingLoggerFactory.getLogger(ApplicationService.class);
 
+    private final EmailService emailService;
+    private final UserService userService;
     private final ApplicationDslService repository;
 
-    public ApplicationService(ApplicationDslService repository) {
+    public ApplicationService(EmailService emailService, UserService userService, ApplicationDslService repository) {
+        this.emailService = emailService;
+        this.userService = userService;
         this.repository = repository;
     }
 
@@ -142,6 +144,26 @@ public class ApplicationService {
             return new UpdateApplicationResult(UpdateApplicationResultCode.NOT_FOUND, null);
         }
 
+        NotificationPreferencesResource notificationPreferences = userService.getNotificationPreferences(UUID.fromString(updated.getUserId()));
+        if (notificationPreferences == null) {
+            NotificationPreferencesUpdate notificationPreferencesUpdate = new NotificationPreferencesUpdate();
+            notificationPreferencesUpdate.setNotificationWay(NotificationWayApiEnum.EMAIL);
+            notificationPreferencesUpdate.setApplicationUpdatesNotification(true);
+            notificationPreferencesUpdate.setLicenseRenewalNotification(true);
+            notificationPreferences = userService.updateNotificationPreferences(UUID.fromString(updated.getUserId()), notificationPreferencesUpdate);
+            log.info("Initialized notification preferences for user with ID {}", updated.getUserId());
+        }
+        if(Boolean.TRUE.equals(notificationPreferences.getApplicationUpdatesNotification())
+                && oldStatus != updated.getApplicationStatus() && notificationPreferences.getNotificationWay().equals(NotificationWayApiEnum.EMAIL)) {
+            sendEmailOnStatusChange(updated);
+        }
+
+        userService.createNotification(
+                applicationId,
+                UUID.fromString(updated.getUserId()),
+                "The Application Status has been updated."
+        );
+
         log.info(buildUpdateLog(updated, oldStatus, oldRemarks));
         return new UpdateApplicationResult(UpdateApplicationResultCode.OK, updated);
     }
@@ -156,5 +178,21 @@ public class ApplicationService {
             logs += String.format(" remarks updated from '%s' to '%s';", oldRemarks, updated.getRemarks());
         }
         return logs;
+    }
+
+    private void sendEmailOnStatusChange(ApplicationRecord updated) {
+        UUID userId = UUID.fromString(updated.getUserId());
+        int applicationId = updated.getId();
+        if (userService.userExists(userId)) {
+            UserResource user = userService.getUser(userId);
+            boolean emailSent = emailService.sendEmail(user.getEmail(), "", "Your Application Status Has Changed", "The status of your application with the ID "+ applicationId +" has changed to " + updated.getApplicationStatus().name() + ".");
+            if (emailSent) {
+                log.info("Sent application status change email to user with ID {} for application ID {}.", userId, applicationId);
+            } else {
+                log.warn("Failed to send application status change email to user with ID {} for application ID {}.", userId, applicationId);
+            }
+        } else {
+            log.warn("User with ID {} does not exist. Cannot send application status change email.", userId);
+        }
     }
 }
