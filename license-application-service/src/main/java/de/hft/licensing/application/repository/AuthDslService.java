@@ -4,7 +4,9 @@ import de.hft.licensing.db.enums.NotificationWay;
 import de.hft.licensing.db.tables.NotificationPreferences;
 import de.hft.licensing.db.tables.PasswordResetToken;
 import de.hft.licensing.db.tables.User;
+import de.hft.licensing.db.tables.records.NotificationPreferencesRecord;
 import de.hft.licensing.db.tables.records.PasswordResetTokenRecord;
+import de.hft.licensing.model.NotificationPreferencesUpdate;
 import de.hft.licensing.model.NotificationWayApiEnum;
 import de.hft.licensing.utils.EnumMapperUtil;
 import org.jooq.DSLContext;
@@ -67,5 +69,20 @@ public class AuthDslService {
                 .where(PasswordResetToken.PASSWORD_RESET_TOKEN.TOKEN.eq(token))
                 .execute();
         return updated > 0;
+    }
+
+    public NotificationPreferencesRecord updateNotificationPreferences(UUID userId, NotificationPreferencesUpdate update) {
+        return dsl.update(NotificationPreferences.NOTIFICATION_PREFERENCES)
+                .set(
+                        NotificationPreferences.NOTIFICATION_PREFERENCES.NOTIFICATION_WAY,
+                        (NotificationWay) EnumMapperUtil.getPendantFromEnum(update.getNotificationWay())
+                )
+                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.APPLICATION_UPDATES_NOTIFICATION,
+                        update.getApplicationUpdatesNotification())
+                .set(NotificationPreferences.NOTIFICATION_PREFERENCES.LICENSE_RENEWAL_NOTIFICATION,
+                        update.getLicenseRenewalNotification())
+                .where(NotificationPreferences.NOTIFICATION_PREFERENCES.USER_ID.eq(userId.toString()))
+                .returning()
+                .fetchOneInto(NotificationPreferencesRecord.class);
     }
 }

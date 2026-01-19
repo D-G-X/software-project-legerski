@@ -101,7 +101,7 @@ public class UserDslService {
                         Notification.NOTIFICATION.USER_ID,
                         Notification.NOTIFICATION.DATE,
                         Notification.NOTIFICATION.MESSAGE,
-                        Notification.NOTIFICATION.READ_AT.isNotNull().as("isRead")
+                        Notification.NOTIFICATION.READ_AT.isNotNull()
                 )
                 .from(Notification.NOTIFICATION)
                 .where(Notification.NOTIFICATION.USER_ID.eq(userId.toString()))
@@ -120,6 +120,14 @@ public class UserDslService {
         return dsl.update(Notification.NOTIFICATION)
                 .set(Notification.NOTIFICATION.READ_AT, readAt)
                 .where(Notification.NOTIFICATION.ID.eq(notificationId))
+                .execute();
+    }
+
+    public int createNotification(int applicationId, UUID userId, String message) {
+        return dsl.insertInto(Notification.NOTIFICATION)
+                .set(Notification.NOTIFICATION.APPLICATION_ID, applicationId)
+                .set(Notification.NOTIFICATION.USER_ID, userId.toString())
+                .set(Notification.NOTIFICATION.MESSAGE, message)
                 .execute();
     }
 

@@ -1,10 +1,10 @@
 package de.hft.licensing.application.services;
 
+import de.hft.licensing.application.repository.UserDslService;
 import de.hft.licensing.db.tables.records.NotificationPreferencesRecord;
 import de.hft.licensing.db.tables.records.UserRecord;
 import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.*;
-import de.hft.licensing.application.repository.UserDslService;
 import de.hft.licensing.utils.ApiFormValidator;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.slf4j.Logger;
@@ -102,6 +102,11 @@ public class UserService {
         return DeleteUserResult.OK;
     }
 
+    @Transactional
+    public boolean userExists(UUID userId) {
+        return repository.userExists(userId);
+    }
+
     @Transactional(readOnly = true)
     public UserResource getUser(UUID userId) {
         if (!repository.userExists(userId)) {
@@ -177,6 +182,11 @@ public class UserService {
         }
         repository.markNotificationRead(notificationId, LocalDateTime.now(Clock.systemUTC()));
         return true;
+    }
+
+    @Transactional
+    public void createNotification(int applicationId, UUID userId, String message) {
+        repository.createNotification(applicationId, userId, message);
     }
 
     @Transactional(readOnly = true)
