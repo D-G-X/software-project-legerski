@@ -1,7 +1,6 @@
 package de.hft.licensing.application.services.authServices;
 
 
-import org.jooq.DSLContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -10,10 +9,7 @@ import java.util.UUID;
 @Component("authenticationAuthorization")
 public class AuthenticationAuthorizationService {
 
-    private final DSLContext dsl;
-
-    public AuthenticationAuthorizationService(DSLContext dsl) {
-        this.dsl = dsl;
+    public AuthenticationAuthorizationService() {
     }
 
     public boolean userIsUserOrAdmin(Authentication authentication, UUID requestedUserId) {

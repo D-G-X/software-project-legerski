@@ -123,7 +123,7 @@ public class UserService {
         return user;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<UserResource> listUsers(int offset, int limit) {
         List<UserRecord> userRecords = repository.listUsers(offset, limit);
 

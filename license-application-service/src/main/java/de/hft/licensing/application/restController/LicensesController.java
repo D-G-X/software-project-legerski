@@ -1,9 +1,9 @@
 package de.hft.licensing.application.restController;
 
 import de.hft.licensing.api.LicensesApi;
+import de.hft.licensing.application.services.LicenseService;
 import de.hft.licensing.model.LicenseResource;
 import de.hft.licensing.model.UpdateLicenseStatusRequest;
-import de.hft.licensing.application.services.LicenseService;
 import de.hft.licensing.utils.RecordToResourceMapperUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +69,6 @@ public class LicensesController implements LicensesApi {
         if (!(authentication instanceof JwtAuthenticationToken jwt)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
         boolean isAdmin = jwt.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
 

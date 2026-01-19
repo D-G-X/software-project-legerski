@@ -36,7 +36,6 @@ public class LicenseAuthorizationService {
                 .fetchOne();
 
         if (record == null) {
-            // controller handles 404, but from auth perspective block
             return false;
         }
 
@@ -53,7 +52,7 @@ public class LicenseAuthorizationService {
         if (currentUserId == null) {
             return false;
         } else if (requestedUserId == null) {
-            return true;
+            return false;
         }
         return requestedUserId.equals(currentUserId);
     }
