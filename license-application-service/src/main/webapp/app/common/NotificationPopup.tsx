@@ -172,7 +172,10 @@ export default function NotificationPopup({className = ""}) {
 
                 <hr className="mt-2 border-gray-800"/>
 
-                <ul className="max-h-lg mt-1 my-3 overflow-y-auto divide-y">
+                <ul
+                    className="mt-1 my-3 overflow-y-auto divide-y"
+                    style={{ maxHeight: "280px" }} // 5 * 56px
+                >
                   {notifications.length ? (
                       <>
                         {notifications?.map((n) => (
@@ -183,9 +186,9 @@ export default function NotificationPopup({className = ""}) {
                                   e.stopPropagation();
                                   openModal(n);
                                 }}
-                                className="cursor-pointer px-2 py-2 hover:bg-gray-100 transition rounded-xl"
+                                className="cursor-pointer px-2 hover:bg-gray-100 transition rounded-xl h-14 flex items-center"
                             >
-                              <div className="flex justify-between items-center">
+                              <div className="flex justify-between items-center w-full">
                                 {/* Message */}
                                 <div
                                     className={`flex items-center gap-2 font-bold ${
@@ -197,14 +200,14 @@ export default function NotificationPopup({className = ""}) {
                                       className="w-5 h-5 shrink-0"
                                   />
                                   <span className="text-sm">
-                            {t("notifications.messageLabel")} {n.application_id}
-                          </span>
+                {t("notifications.messageLabel")} {n.application_id}
+              </span>
                                 </div>
 
                                 {/* Date */}
                                 <span className="text-xs text-gray-400 mb-1">
-                          {formatRelativeDate(n.date, t("locale"))}
-                        </span>
+              {formatRelativeDate(n.date, t("locale"))}
+            </span>
                               </div>
                             </li>
                         ))}
@@ -215,6 +218,7 @@ export default function NotificationPopup({className = ""}) {
                       </div>
                   )}
                 </ul>
+
               </div>
           )}
         </div>
