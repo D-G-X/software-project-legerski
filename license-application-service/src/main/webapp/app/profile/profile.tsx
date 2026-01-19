@@ -13,7 +13,6 @@ import {useGlobalLoader} from "app/common/GlobalLoader";
 import {isValidConfirmPassword, isValidEmail, isValidName, isValidPassword,} from "app/common/validationRules";
 import {useDocumentTitle} from "app/common/utils";
 import {useChangeUserDetails} from "app/services/authentication/authentication";
-import NotificationSettings from "./notification-setting";
 
 export default function Profile() {
   const auth = useContext(AuthContext);
@@ -374,7 +373,6 @@ export default function Profile() {
             {t("profile.deleteAccount")}
           </button>
         </div>
-        <NotificationSettings></NotificationSettings>
       </div>
   );
 }
