@@ -89,6 +89,7 @@ export default function Header() {
             {/* Title and Logo */}
             <div>
               <Link
+                  id="homeLink"
                   to="/"
                   className="flex justify-center items-center py-1.5 mr-4"
               >
