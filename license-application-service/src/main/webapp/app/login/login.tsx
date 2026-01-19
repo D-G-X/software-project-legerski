@@ -263,6 +263,7 @@ export default function Login() {
               {t("login.index.createAccountText")}
             </span>
               <a
+                  id="createAccountLink"
                   className="text-mallorca-purple font-medium underline underline-offset-3"
                   href="/register"
               >

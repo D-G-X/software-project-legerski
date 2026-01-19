@@ -1,25 +1,46 @@
-from locust import HttpUser, task
-from locust.exception import StopUser
+import os
+from typing import Optional
 
-from flows.application_flow import ApplicationFlow
+from locust import HttpUser, SequentialTaskSet, task, between
+
+from testkit.factory import new_user, new_application, new_payment
+from testkit.models import UserContext, RunContext
+from testkit.runner.api_runner import api_register, api_login, api_logout
+import logging
 
 
-class ApplicationUser(HttpUser):
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+# Trick: damit deine Funktionen f"{BACKEND_URL}/..." zu "/..." werden
+os.environ.setdefault("BACKEND_URL", "")
+BACKEND_URL = os.environ["BACKEND_URL"]
+
+
+class RegisterLoginLogout(SequentialTaskSet):
+    ctx: RunContext = None
+
+    def on_start(self):
+        self.ctx = RunContext(
+            user=new_user(),
+            application=new_application(),
+            payment=new_payment()
+        )
+
     @task
-    def run_flow(self):
-        flow = ApplicationFlow(self.client)
+    def register(self):
+        api_register(self.client, self.ctx.user)
 
-        try:
-            flow.register_user()
-            flow.login()
-            flow.create_application()
-            flow.save_draft()
-            flow.submit_application()
-            flow.pay_fee()
+    @task
+    def login(self):
+        api_login(self.client, self.ctx.user)
 
-            if flow.verify_status() != "SUBMITTED":
-                raise Exception("Invalid status")
+    @task
+    def logout(self):
+        api_logout(self.client, self.ctx.user)
 
-        except Exception as e:
-            self.environment.events.test_stop.fire()
-            raise StopUser()
+        # Scenario ist fertig -> TaskSet beenden (sonst würde er nochmal register versuchen)
+        self.interrupt(reschedule=False)
+
+
+class WebsiteUser(HttpUser):
+    tasks = [RegisterLoginLogout]
+    wait_time = between(0.5, 1.5)

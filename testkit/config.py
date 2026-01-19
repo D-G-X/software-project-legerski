@@ -21,6 +21,16 @@ ACCESS_EXP_KEY = "accessTokenExpiry"
 REFRESH_EXP_KEY = "refreshTokenExpiry"
 TOKEN_TYPE_KEY = "tokenType"
 ROLE_KEY = "role"
+LANGUAGE_KEY = "language"
+
+LANGUAGES = [
+    "en",
+    "de",
+    "fr",
+    "es",
+    "hi",
+    "id",
+]
 
 LICENSE_TYPES = [
     "ETV",
@@ -31,9 +41,9 @@ LICENSE_TYPES = [
 LICENSE_MAP: dict[str, LicenseType] = {
     lt.name: lt for lt in
     (
-        LicenseType("ETV", Decimal("3500.00")),
-        LicenseType("ETVPL", Decimal("875.00")),
-        LicenseType("ETV60", Decimal("290.00")),
+        LicenseType("ETV", 3500.00),
+        LicenseType("ETVPL", 875.00),
+        LicenseType("ETV60", 290.00),
     )
 }
 

@@ -71,6 +71,14 @@ If you have issues with compiling or starting the backend, try the following ste
 
 By doing this, IntelliJ will use Maven to build and run the project instead of its internal build process.
 
+if you have issues with connection to keycloak (error: "We are sorry... HTTPS required"), try the following steps:
+
+    •	Remove the keycloak Docker container and image
+    •	Go to the Docker Desktop settings:
+    •	Under "Resources" → "Network", set the "Enable host networking" option
+    •	Restart Docker Desktop
+    •	Rebuild and restart the keycloak container
+
 ---
 
 ## API Documentation

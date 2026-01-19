@@ -113,6 +113,7 @@ export default function Header() {
                 <ul className="rounded min-w-36 w-full h-full">
                   <li className="relative w-full h-full">
                     <button
+                        id="languageOptionBtn"
                         type="button"
                         onClick={toggleDropdown}
                         className="text-gray-500 cursor-pointer flex items-center h-full"
@@ -153,6 +154,7 @@ export default function Header() {
                                     } ${roundedClass}`}
                                 >
                                   <button
+                                      id={`${key}`}
                                       disabled={isSelected}
                                       onClick={() => changeLanguage(key)}
                                       className={`cursor-pointer flex justify-between items-center gap-2 text-mallorca-purple/75 ${

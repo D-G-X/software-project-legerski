@@ -31,6 +31,7 @@ export default function Footer() {
 
               {/* Contact */}
               <Link
+                  id="contactLink"
                   to="/contact"
                   className="ml-1 my-2 rounded-full min-w-24
              h-[calc(100%-1rem)]
@@ -45,6 +46,7 @@ export default function Footer() {
 
               {/* Legal */}
               <Link
+                  id="legalLink"
                   to="/legal"
                   className="ml-1 my-2 rounded-full min-w-24
              h-[calc(100%-1rem)]
