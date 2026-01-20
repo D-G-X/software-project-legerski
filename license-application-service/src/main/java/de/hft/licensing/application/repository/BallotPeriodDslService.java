@@ -69,13 +69,13 @@ public class BallotPeriodDslService {
     }
 
     public List<ApplicationRecord> getBallotPeriodEntries(Integer periodId) {
-        return dsl.select()
-                .from(BallotPeriod.BALLOT_PERIOD)
-                .join(Ballot.BALLOT)
-                .on(Ballot.BALLOT.BALLOT_PERIOD_ID.eq(BallotPeriod.BALLOT_PERIOD.ID))
-                .join(Application.APPLICATION)
-                .on(Ballot.BALLOT.APPLICATION_ID.eq(Application.APPLICATION.ID))
-                .where(BallotPeriod.BALLOT_PERIOD.ID.eq(periodId))
+        return dsl.selectFrom(Application.APPLICATION)
+                .whereExists(
+                        dsl.selectOne()
+                                .from(Ballot.BALLOT)
+                                .where(Ballot.BALLOT.APPLICATION_ID.eq(Application.APPLICATION.ID))
+                                .and(Ballot.BALLOT.BALLOT_PERIOD_ID.eq(periodId))
+                )
                 .fetchInto(ApplicationRecord.class);
     }
 

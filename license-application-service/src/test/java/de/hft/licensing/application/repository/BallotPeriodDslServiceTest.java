@@ -1,6 +1,7 @@
 package de.hft.licensing.application.repository;
 
 import de.hft.licensing.db.enums.PaymentStatus;
+import de.hft.licensing.db.tables.Application;
 import de.hft.licensing.db.tables.ApplicationPayment;
 import de.hft.licensing.db.tables.Ballot;
 import de.hft.licensing.db.tables.BallotPeriod;
@@ -113,13 +114,13 @@ class BallotPeriodDslServiceTest {
     void getBallotPeriodEntries_returnsList() {
         List<ApplicationRecord> list = List.of(new ApplicationRecord());
 
-        when(dsl.select()
-                .from(BallotPeriod.BALLOT_PERIOD)
-                .join(Ballot.BALLOT)
-                .on((Condition) any())
-                .join(de.hft.licensing.db.tables.Application.APPLICATION)
-                .on((Condition) any())
-                .where((Condition) any())
+        when(dsl.selectFrom(Application.APPLICATION)
+                .whereExists(
+                        dsl.selectOne()
+                                .from(Ballot.BALLOT)
+                                .where((Condition) any())
+                                .and((Condition) any())
+                )
                 .fetchInto(ApplicationRecord.class)).thenReturn(list);
 
         assertSame(list, service.getBallotPeriodEntries(1));

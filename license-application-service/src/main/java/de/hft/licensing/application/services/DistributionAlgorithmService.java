@@ -59,15 +59,23 @@ public class DistributionAlgorithmService {
         LocalDateTime endDate = period.getEndDate();
         LocalDateTime startDate = period.getStartDate();
 
-        List<ApplicationRecord> candidates = distributionAlgorithmDslService.getCandidateApplications(startDate, endDate, licenseType);
+        List<ApplicationRecord> candidates =
+                new ArrayList<>(distributionAlgorithmDslService.getCandidateApplications(startDate, endDate, licenseType));
 
         if (candidates.isEmpty()) {
             log.warn("No candidate applications found for ballot period ID {}.", periodId);
             return new LotteryResult(Collections.emptyList(), Collections.emptyList());
         }
 
-        Random seed = new Random(System.currentTimeMillis());
-        Collections.shuffle(new ArrayList<>(candidates), seed);
+        ApplicationRecord candidate = candidates.getFirst();
+
+        Random seed = new Random();
+        Collections.shuffle(candidates, seed); // or just Collections.shuffle(candidates)
+
+        ApplicationRecord candidate2 = candidates.getFirst();
+        if(candidate.getUserId().equals(candidate2.getUserId())) {
+            log.warn("Shuffling did not work");
+        }
         log.info("Shuffled {} candidate applications for ballot period ID {} with seed {}", candidates.size(), periodId, seed);
 
         int maxAccepted = (maxAcceptedOverride != null && maxAcceptedOverride > 0)

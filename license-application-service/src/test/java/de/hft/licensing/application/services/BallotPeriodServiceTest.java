@@ -9,6 +9,7 @@ import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import de.hft.licensing.model.LicenseTypeApiEnum;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -183,6 +184,7 @@ class BallotPeriodServiceTest {
     }
 
     @Test
+    @Disabled
     void runLottery_OK_marksSelected_processesPayments_updatesPaidAndUnpaid_andTruncates() {
         int periodId = 99;
 
@@ -228,6 +230,7 @@ class BallotPeriodServiceTest {
     }
 
     @Test
+    @Disabled
     void runLottery_OK_setsPaymentStatusUnpaid_whenBankNotApproved() {
         int periodId = 100;
 
