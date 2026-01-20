@@ -326,7 +326,7 @@ public class AuthService {
                 email,
                 null,
                 "Password Reset Request",
-                "Click the link to reset your password: <a href=\"http://localhost:3000/reset-password?token=" + token + "\">Reset Password</a>"
+                "Click the link to reset your password: <a href=\"http://10.10.10.2:3000/reset-password?token=" + token + "\">Reset Password</a>"
         );
 
         if (!isEmailSent) {

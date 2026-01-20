@@ -7,7 +7,7 @@ info:
     Supports GDPR-compliant user management through Keycloak integration and ensures transparent, fair allocation of ETV licenses.
 
 servers:
-  - url: https://localhost:8080/
+  - url: https://10.10.10.1:8080/
 
 tags:
   - name: Authentication
@@ -1044,8 +1044,8 @@ components:
       description: OAuth2 with Keycloak JWT Bearer tokens.
       flows:
         authorizationCode:
-          authorizationUrl: http://localhost:8080/auth/realms/license-realm/protocol/openid-connect/auth
-          tokenUrl: http://localhost:8080/auth/realms/license-realm/protocol/openid-connect/token
+          authorizationUrl: http://10.10.10.1:8080/auth/realms/license-realm/protocol/openid-connect/auth
+          tokenUrl: http://10.10.10.1:8080/auth/realms/license-realm/protocol/openid-connect/token
           scopes:
             openid: OpenID Connect scope
             profile: Profile information access

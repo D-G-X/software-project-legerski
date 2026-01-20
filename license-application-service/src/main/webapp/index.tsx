@@ -68,7 +68,7 @@ i18n.use(initReactI18next).init({
   },
 });
 
-axios.defaults.baseURL = "http://localhost:8080"
+axios.defaults.baseURL = "http://10.10.10.1:8080"
 
 const root = document.getElementById("root")!!;
 

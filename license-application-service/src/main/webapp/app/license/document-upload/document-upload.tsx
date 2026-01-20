@@ -141,7 +141,7 @@ export default function ApplicationDocumentUpload() {
     if (applicationID) formData.append("application_id", applicationID);
 
     try {
-      const response = await fetch("http://localhost:8080/process-document", {
+      const response = await fetch("http://10.10.10.1:8080/process-document", {
         method: "POST",
         body: formData,
       });
