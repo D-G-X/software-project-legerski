@@ -1,12 +1,12 @@
 TRUNCATE TABLE
-  licensing.application_payment,
-  licensing.ballot,
-  licensing.license,
-  licensing.application,
-  licensing.ballot_period,
-  licensing.notification,
-  licensing,notification_preferences,
-  licensing.password_reset_token
-  licensing."user",
+    licensing.application_payment,
+    licensing.ballot,
+    licensing.license,
+    licensing.application,
+    licensing.ballot_period,
+    licensing.notification,
+    licensing.notification_preferences,
+    licensing.password_reset_token,
+    licensing."user"
 RESTART IDENTITY
 CASCADE;
