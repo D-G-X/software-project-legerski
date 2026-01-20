@@ -1,0 +1,80 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+INSERT INTO licensing."user" (id, consents) SELECT gen_random_uuid(), '{}'::jsonb FROM generate_series(1, 1000) AS gs;
+
+INSERT INTO licensing.ballot_period (start_date, end_date) VALUES (now() - interval '3 hours', now() + interval '3 hours');
+
+INSERT INTO licensing.application (
+    user_id,
+    license_type,
+    cadastral_reference,
+    applied_at,
+    changed_at,
+    application_status,
+    remarks,
+    verification_status
+)
+SELECT
+    u.id,
+    'etv'::licensing.license_type,
+    lpad((floor(random() * 1e20))::numeric::text, 20, '0'),
+    now(),
+    now(),
+    'payment_received'::licensing.application_status,
+    'Test',
+    'verified'::licensing.verification_status
+FROM licensing."user" u;
+
+INSERT INTO licensing.application (
+    user_id,
+    license_type,
+    cadastral_reference,
+    applied_at,
+    changed_at,
+    application_status,
+    remarks,
+    verification_status
+)
+SELECT
+    u.id,
+    'etv'::licensing.license_type,
+    lpad((floor(random() * 1e20))::numeric::text, 20, '0'),
+    now(),
+    now(),
+    'payment_received'::licensing.application_status,
+    'Test',
+    'verified'::licensing.verification_status
+FROM licensing."user" u;
+
+INSERT INTO licensing.application (
+    user_id,
+    license_type,
+    cadastral_reference,
+    applied_at,
+    changed_at,
+    application_status,
+    remarks,
+    verification_status
+)
+SELECT
+    u.id,
+    'etv'::licensing.license_type,
+    lpad((floor(random() * 1e20))::numeric::text, 20, '0'),
+    now(),
+    now(),
+    'payment_received'::licensing.application_status,
+    'Test',
+    'verified'::licensing.verification_status
+FROM (
+         SELECT id
+         FROM licensing."user"
+         ORDER BY id
+         LIMIT 400
+     ) u;
+
+INSERT INTO licensing.application_payment (application_id, amount, payment_date, payment_status, accountant, iban, bic, ballot_period_id)
+SELECT a.id, 3500, now(), 'paid'::licensing.payment_status, 'System', 'DE89370400440532013000', 'COBADEFFXXX', 1
+FROM (SELECT id FROM licensing.application) a;
+
+INSERT INTO licensing.ballot (ballot_period_id, application_id, selected) SELECT 1, a.id, false
+FROM (SELECT id FROM licensing.application) a;

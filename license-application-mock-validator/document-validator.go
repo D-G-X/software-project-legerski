@@ -150,11 +150,19 @@ func startProcessingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := r.ParseMultipartForm(maxFileSize << 20)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid multipart request")
+	r.Body = http.MaxBytesReader(w, r.Body, maxFileSize<<20)
+
+	if err := r.ParseMultipartForm(maxFileSize << 20); err != nil {
+		writeError(w, http.StatusRequestEntityTooLarge, "uploaded file too large")
 		return
 	}
+
+
+	// err := r.ParseMultipartForm(maxFileSize << 20)
+	// if err != nil {
+	// 	writeError(w, http.StatusBadRequest, "invalid multipart request")
+	// 	return
+	// }
 
 	idFile, idHeader, err := r.FormFile("id_file")
 	if err != nil {

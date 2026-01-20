@@ -160,6 +160,7 @@ public class ApplicationService {
 
         userService.createNotification(
                 applicationId,
+                LocalDateTime.now(Clock.systemUTC()),
                 UUID.fromString(updated.getUserId()),
                 "The Application Status has been updated."
         );

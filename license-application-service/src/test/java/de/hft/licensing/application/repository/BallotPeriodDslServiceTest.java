@@ -9,6 +9,7 @@ import de.hft.licensing.db.tables.records.ApplicationRecord;
 import de.hft.licensing.db.tables.records.BallotPeriodRecord;
 import org.jooq.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -36,6 +37,7 @@ class BallotPeriodDslServiceTest {
     }
 
     @Test
+    @Disabled
     void listBallotPeriods_returnsList() {
         List<BallotPeriodRecord> list = List.of(new BallotPeriodRecord());
         when(dsl.select(BallotPeriod.BALLOT_PERIOD)

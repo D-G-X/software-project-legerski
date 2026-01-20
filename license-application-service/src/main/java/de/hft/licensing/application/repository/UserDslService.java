@@ -123,10 +123,11 @@ public class UserDslService {
                 .execute();
     }
 
-    public int createNotification(int applicationId, UUID userId, String message) {
+    public int createNotification(int applicationId, LocalDateTime now, UUID userId, String message) {
         return dsl.insertInto(Notification.NOTIFICATION)
                 .set(Notification.NOTIFICATION.APPLICATION_ID, applicationId)
                 .set(Notification.NOTIFICATION.USER_ID, userId.toString())
+                .set(Notification.NOTIFICATION.DATE, now)
                 .set(Notification.NOTIFICATION.MESSAGE, message)
                 .execute();
     }
