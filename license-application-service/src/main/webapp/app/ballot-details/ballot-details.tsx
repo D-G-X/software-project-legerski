@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router";
 
@@ -87,6 +87,7 @@ const BallotDetails: React.FC = () => {
           } catch (e) {
             // ignore
           }
+          hide();
           alert(
             t("ballotDetails.messages.lotterySuccess") ||
               "Lottery run successfully",
@@ -94,6 +95,7 @@ const BallotDetails: React.FC = () => {
         },
         onError: (err: any) => {
           console.error(err);
+          hide();
           alert(
             t("ballotDetails.errors.lotteryFailed") || "Running lottery failed",
           );
@@ -105,6 +107,11 @@ const BallotDetails: React.FC = () => {
         },
       },
     });
+
+  // modal state and inputs for Trigger ballot
+  const [showTriggerModal, setShowTriggerModal] = useState(false);
+  const [licenseType, setLicenseType] = useState<string | undefined>("All");
+  const [licensesCount, setLicensesCount] = useState<number | undefined>(100);
 
   const handleBallotLottery = () => {
     // Allow API call only when status is "Completed"
@@ -118,7 +125,26 @@ const BallotDetails: React.FC = () => {
 
     if (!periodEnabled) return;
 
-    runLottery({ periodId: periodParam, data: {} });
+    // open confirmation modal to collect inputs
+    setShowTriggerModal(true);
+  };
+
+  const handleConfirmTrigger = () => {
+    if (!periodEnabled) return;
+    show();
+
+    // Build body and params according to API types
+    const body: any = {};
+    if (licenseType) body.license_type = licenseType;
+
+    const params: any = {};
+    if (licensesCount) params.licensesCount = licensesCount;
+    if (licenseType !== "All") {
+      params.licenseType = licenseType;
+    }
+
+    runLottery({ periodId: periodParam, data: body, params });
+    setShowTriggerModal(false);
   };
 
   return (
@@ -215,6 +241,66 @@ const BallotDetails: React.FC = () => {
               )}
             </div>
           </div>
+
+          {showTriggerModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+              <div className="bg-white p-6 rounded-lg w-full max-w-md">
+                <h3 className="text-lg font-semibold mb-4">
+                  {t("ballotDetails.triggerModal.title") || "Trigger ballot"}
+                </h3>
+
+                <label className="block text-sm text-gray-700">
+                  {t("ballotDetails.triggerModal.licenseType") ||
+                    "License type"}
+                </label>
+                <select
+                  value={licenseType ?? ""}
+                  onChange={(e) => setLicenseType(e.target.value || undefined)}
+                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 bg-white"
+                >
+                  <option value="All">
+                    {t("ballotDetails.triggerModal.selectAll") || "Select All"}
+                  </option>
+                  <option value="ETV">ETV</option>
+                  <option value="ETVPL">ETVPL</option>
+                  <option value="ETV60">ETV60</option>
+                </select>
+
+                <label className="block text-sm text-gray-700 mt-3">
+                  {t("ballotDetails.triggerModal.licensesCount") ||
+                    "Licenses count"}
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={licensesCount ?? ""}
+                  onChange={(e) =>
+                    setLicensesCount(
+                      e.target.value ? parseInt(e.target.value, 10) : undefined,
+                    )
+                  }
+                  className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
+                />
+
+                <div className="flex justify-end gap-3 mt-4">
+                  <button
+                    onClick={() => setShowTriggerModal(false)}
+                    className="px-4 py-2 rounded border border-gray-300 bg-white"
+                  >
+                    {t("common.cancel") || "Cancel"}
+                  </button>
+
+                  <button
+                    onClick={handleConfirmTrigger}
+                    disabled={isLotteryRunning}
+                    className={`px-4 py-2 rounded bg-mallorca-red text-white font-medium ${isLotteryRunning ? "opacity-50 cursor-not-allowed" : "hover:bg-mallorca-red/90"}`}
+                  >
+                    {t("ballotDetails.actions.triggerBallot")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
