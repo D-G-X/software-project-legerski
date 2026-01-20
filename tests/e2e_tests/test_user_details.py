@@ -6,7 +6,7 @@ from testkit.scenarios import DASHBOARD_CHANGE_LANGUAGE, DASHBOARD_VISIT_LEGAL, 
     DASHBOARD_VIEW_APPLICATION_DETAILS, DASHBOARD_VIEW_APPLICATION_DETAILS_OVERFLOW, DASHBOARD_VIEW_USER_DETAILS
 
 
-def test_view_User_details(page: Page):
+def test_view_user_details(page: Page):
     ctx = RunContext(
         user=new_user(),
     )
@@ -14,4 +14,10 @@ def test_view_User_details(page: Page):
     for step in scenario.steps:
         step(page, ctx)
 
-
+def test_view_user_details(page: Page):
+    ctx = RunContext(
+        user=new_user(),
+    )
+    scenario = DASHBOARD_VIEW_USER_DETAILS()
+    for step in scenario.steps:
+        step(page, ctx)

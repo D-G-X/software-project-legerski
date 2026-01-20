@@ -334,7 +334,8 @@
     "loading": "Loading"
   },
   "common": {
-    "orDivider": "or"
+    "orDivider": "or",
+    "cancel": "Cancel"
   },
   "issued-license": {
     "title": "Issued License",
@@ -1173,7 +1174,7 @@
       "approvedCap": "Approved License Cap"
     },
     "values": {
-      "approvedCap": 2000
+      "approvedCap": 100
     },
     "license": {
       "etv": "ETV",
@@ -1208,6 +1209,12 @@
       "unableToLoad": "Unable to load ballot details.",
       "failedToLoad": "Failed to load ballot details",
       "missingDates": "Missing dates for ballot."
+    },
+    "triggerModal": {
+      "title": "Trigger ballot",
+      "licenseType": "License type",
+      "licensesCount": "Number of licenses",
+      "selectAll": "All (ETV, ETVPL, ETV60)"
     }
   }
 }

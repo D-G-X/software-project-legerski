@@ -1,14 +1,14 @@
 {
   "locale": "fr-FR",
   "app": {
-    "title": "Licences de vacances à Majorque",
+    "title": "Licences de vacances de Majorque",
     "contact": {
       "legalName": "Dirección Insular de Licencias Turísticas",
       "legalAddress": {
         "street": "Plaça de Cort, 1",
         "city": "Palma de Mallorca (Illes Balears)",
         "zipCode": "07001",
-        "country": "Spain"
+        "country": "Espagne"
       },
       "email": {
         "label": "courriel",
@@ -103,15 +103,15 @@
   "forgotPassword": {
     "request": {
       "headline": "Mot de passe oublié",
-      "subheadline": "Entrez votre e-mail enregistré pour recevoir un lien afin de réinitialiser votre mot de passe",
+      "subheadline": "Entrez votre adresse e-mail enregistrée pour recevoir un lien pour réinitialiser votre mot de passe",
       "resetPasswordBtn": "Réinitialiser le mot de passe",
-      "emailNotRegistered": "Cet e-mail n'est pas enregistré",
+      "emailNotRegistered": "Cette adresse e-mail n'est pas enregistrée",
       "genericError": "Une erreur est survenue. Veuillez réessayer plus tard."
     },
     "confirmation": {
       "headline": "Envoyé !",
-      "subheadline": "Le lien a été envoyé à votre e-mail.",
-      "redirectToSignIn": "Retour à la page de connexion"
+      "subheadline": "Le lien a été envoyé à votre adresse e-mail.",
+      "redirectToSignIn": "Retourner à la connexion"
     },
     "resetPassword": {
       "headline": "Créer un nouveau mot de passe",
@@ -122,7 +122,7 @@
     },
     "resetConfirmation": {
       "headline": "Mot de passe modifié !",
-      "redirectToSignIn": "Retour à la page de connexion"
+      "redirectToSignIn": "Retourner à la connexion"
     }
   },
   "home": {
@@ -133,12 +133,12 @@
   "dashboard": {
     "headline": {
       "hello": "Bonjour {{firstName}}!",
-      "getStarted": "Commencez une nouvelle licence de location de vacances",
-      "manageApplications": " ou gérez votre demande au même endroit!"
+      "getStarted": "Commencez avec une nouvelle licence de location de vacances",
+      "manageApplications": " ou gérez votre demande en un seul endroit!"
     },
     "noApplications": "Vous n'avez pas encore soumis de demandes de licence",
     "buttonLabel": "Demander une nouvelle licence",
-    "noBallotRunning": "Aucune période de tirage au sort n'est actuellement en cours!",
+    "noBallotRunning": "Aucune période de vote n'est actuellement en cours!",
     "title": "Vos demandes",
     "licenceStatus": {
       "approved": "Approuvé",
@@ -147,7 +147,7 @@
       "documentsSubmitted": "Documents soumis",
       "draft": "Brouillon",
       "expired": "Expiré",
-      "inBallot": "En tirage au sort",
+      "inBallot": "En votation",
       "notSelected": "Non sélectionné",
       "paymentReceived": "Paiement reçu",
       "rejected": "Rejeté",
@@ -170,16 +170,16 @@
     "pagination": {
       "showingFrom": "Affichage",
       "to": "à",
-      "of": "sur",
+      "of": "de",
       "entries": "entrées",
       "previous": "Précédent",
       "next": "Suivant"
     },
     "ballotPeriodInfo": {
-      "upcomingText": "Période de tirage au sort à venir",
-      "ongoingText": "Période de tirage au sort en cours",
-      "closedText": "Dernière période de tirage au sort",
-      "errorText": "Informations sur la période de tirage au sort actuellement indisponibles"
+      "upcomingText": "Prochaine période de vote",
+      "ongoingText": "Période de vote en cours",
+      "closedText": "Dernière période de vote",
+      "errorText": "Informations sur la période de vote actuellement indisponibles"
     }
   },
   "admin-dashboard": {
@@ -210,17 +210,17 @@
     }
   },
   "ballotApplications": {
-    "title": "Candidatures au scrutin",
+    "title": "Demandes de bulletin de vote",
     "table": {
-      "applicationId": "ID de la candidature",
+      "applicationId": "ID de la demande",
       "licenseType": "Type de licence",
       "cadastralNumber": "Numéro cadastral",
       "appliedAt": "Date de candidature",
       "status": "Statut",
-      "action": "Voir la candidature",
+      "action": "Voir la demande",
       "view": "Voir"
     },
-    "noEligible": "Il n'y a aucune candidature éligible au scrutin"
+    "noEligible": "Il n'y a aucune demande éligible au scrutin"
   },
   "ballotStatus": {
     "active": "Actif",
@@ -230,12 +230,12 @@
   "applicationDetails": {
     "index": {
       "headline": "Détails de la demande",
-      "applicationIdLabel": "Identifiant de la demande",
+      "applicationIdLabel": "ID de la demande",
       "licenseTypeLabel": "Type de licence",
       "cadastralIdLabel": "Référence cadastrale",
       "statusLabel": "Statut de la demande",
       "remarksLabel": "Remarques",
-      "appliedOnLabel": "Soumis le",
+      "appliedOnLabel": "Date de dépôt",
       "lastUpdatedLabel": "Dernière mise à jour le",
       "user": {
         "label": "Demandeur",
@@ -245,15 +245,15 @@
       },
       "license": {
         "label": "Détails de la licence",
-        "idLabel": "ID de la licence",
+        "idLabel": "ID de licence",
         "statusLabel": "Statut de la licence",
-        "issuedOnLabel": "Délivrée le",
+        "issuedOnLabel": "Délivré le",
         "expiresOnLabel": "Expire le"
       },
       "documents": {
         "label": "Vérification des documents",
         "statusLabel": "Statut de vérification",
-        "rejectionReasonLabel": "Motif du rejet"
+        "rejectionReasonLabel": "Motif du refus"
       },
       "payment": {
         "label": "Paiement",
@@ -277,16 +277,16 @@
       "inBallot": "En tirage au sort",
       "notSelected": "Non sélectionné",
       "paymentReceived": "Paiement reçu",
-      "rejected": "Rejeté",
+      "rejected": "Refusé",
       "selected": "Sélectionné",
       "submitted": "Soumis",
       "underReview": "En cours d'examen",
       "verificationPending": "Vérification en attente"
     },
     "licenseStatus": {
-      "active": "Active",
-      "suspended": "Suspendue",
-      "expired": "Expirée",
+      "active": "Actif",
+      "suspended": "Suspendu",
+      "expired": "Expiré",
       "undefined": "Indéfini"
     },
     "documentStatus": {
@@ -310,7 +310,7 @@
       "subHeadingLabel": "Êtes-vous sûr de vouloir libérer votre licence actuelle ?",
       "quoteTitle": "Avertissement",
       "quoteText1": "La libération de votre licence de location la supprimera définitivement de votre compte.",
-      "quoteText2": "Vous devrez soumettre une nouvelle demande si vous souhaitez obtenir une licence à nouveau à l'avenir.",
+      "quoteText2": "Vous devrez soumettre une nouvelle demande si vous souhaitez obtenir à nouveau une licence à l'avenir.",
       "cancelButtonLabel": "Annuler",
       "confirmButtonLabel": "Confirmer"
     },
@@ -319,16 +319,16 @@
       "title": "Certificat de licence pour {{licenseType}}",
       "text": {
         "line1": "Ce document certifie officiellement qu'une licence de location a été dûment délivrée à {{firstName}} {{lastName}}.",
-        "line2": "La licence s'applique au bien identifié ci-dessous et autorise son utilisation conformément au cadre juridique applicable.",
-        "line3": "Identifiant de la licence : {{licenseId}}",
-        "line4": "Type de licence : {{licenseType}}",
-        "line5": "Référence cadastrale : {{cadastralReference}}",
-        "line6": "Date de délivrance : {{issuedAt}}",
-        "line7": "Valable jusqu'au : {{expiresAt}}.",
-        "line8": "La licence a été accordée conformément aux règlements et dispositions administratives en vigueur tels qu'établis par {{legalName}}.",
-        "line9": "Le titulaire de la licence est responsable de garantir le respect continu de toutes les exigences légales, réglementaires et administratives applicables pendant toute la durée de validité.",
-        "line10": "Cette licence a été émise électroniquement et est valable sans signature ou sceau physique.",
-        "line11": "Généré le : {{generationDate}}"
+        "line2": "La licence s'applique à la propriété identifiée ci-dessous et en autorise l'utilisation conformément au cadre juridique applicable.",
+        "line3": "ID de licence: {{licenseId}}",
+        "line4": "Type de licence: {{licenseType}}",
+        "line5": "Référence cadastrale: {{cadastralReference}}",
+        "line6": "Date d'émission: {{issuedAt}}",
+        "line7": "Valable jusqu'au: {{expiresAt}}.",
+        "line8": "La licence a été accordée conformément aux règlements et dispositions administratives en vigueur établis par {{legalName}}.",
+        "line9": "Le titulaire de la licence est responsable de garantir le respect continu de toutes les exigences légales, réglementaires et administratives applicables pendant toute la période de validité.",
+        "line10": "Cette licence a été délivrée électroniquement et est valide sans signature ou cachet physique.",
+        "line11": "Généré le: {{generationDate}}"
       }
     },
     "loading": "Chargement"
@@ -343,31 +343,31 @@
     "licenseId": "ID de la licence",
     "licenseType": "Type de licence",
     "status": "Statut",
-    "issuedOn": "Délivré le",
+    "issuedOn": "Délivrée le",
     "validity": "Période de validité",
-    "propertyDetails": "Détails du bien",
+    "propertyDetails": "Détails de la propriété",
     "cadastralNumber": "Numéro cadastral",
-    "gdprNotice": "La licence s'applique uniquement à ce bien. Les données du titulaire sont conservées par l'autorité.",
+    "gdprNotice": "La licence ne s'applique qu'à cette propriété. Les données du titulaire sont conservées par l'autorité.",
     "back": "Retour"
   },
   "login": {
-    "title": "Connexion",
+    "title": "Se connecter",
     "index": {
-      "headline": "Connexion",
+      "headline": "Se connecter",
       "subheadline": "Veuillez vous connecter pour accéder à votre compte.",
       "emailLabel": "Adresse e-mail",
       "passwordLabel": "Mot de passe",
       "keepMeLoggedIn": "Rester connecté",
-      "forgotPassword": "Mot de passe oublié?",
+      "forgotPassword": "Mot de passe oublié ?",
       "signInButton": "Se connecter",
-      "createAccountText": "Besoin d'un compte?",
-      "createAccountLinkLabel": "Créez-en un"
+      "createAccountText": "Besoin d'un compte ?",
+      "createAccountLinkLabel": "Créer un compte"
     },
     "loginUserAlerts": {
       "unexpectedResp": "Réponse inattendue du serveur",
-      "invalidEmail": "E-mail ou mot de passe invalide",
-      "badRequest": "Requête incorrecte. Veuillez vérifier vos saisies",
-      "serverError": "Un problème est survenu. Veuillez réessayer."
+      "invalidEmail": "Adresse e-mail ou mot de passe invalide",
+      "badRequest": "Requête incorrecte. Veuillez vérifier vos informations",
+      "serverError": "Une erreur est survenue. Veuillez réessayer."
     }
   },
   "register": {
@@ -376,7 +376,7 @@
       "headline": "Inscription",
       "subheadline": "Demande en ligne pour les services administratifs du bureau de Majorque",
       "firstNameLabel": "Prénom",
-      "lastNameLabel": " Nom",
+      "lastNameLabel": " Nom de famille",
       "emailLabel": "E-mail",
       "passwordLabel": "Mot de passe",
       "confirmPasswordLabel": "Confirmez votre mot de passe",
@@ -385,11 +385,11 @@
       "signInLinkLabel": "Se connecter"
     },
     "registerUserAlerts": {
-      "unexpectedErr": "Une erreur inattendue s'est produite.",
+      "unexpectedErr": "Une erreur inattendue est survenue.",
       "invalidReq": "Requête invalide. Veuillez vérifier votre saisie",
       "unAuthReq": "Requête non autorisée. Vous n'avez pas la permission.",
-      "userExists": "L'utilisateur existe déjà. Essayez de vous connecter à la place.",
-      "serverError": "Une erreur est survenue. Veuillez réessayer."
+      "userExists": "L'utilisateur existe déjà. Essayez de vous connecter.",
+      "serverError": "Quelque chose s'est mal passé. Veuillez réessayer."
     }
   },
   "license": {
@@ -401,33 +401,33 @@
       },
       "fullName": {
         "label": "Nom complet",
-        "description": "Veuillez saisir votre nom complet tel qu'il figure sur vos documents officiels",
+        "description": "Veuillez entrer votre nom complet tel qu'il apparaît sur vos documents officiels",
         "firstNamePlaceholder": "Prénom",
         "lastNamePlaceholder": "Nom de famille"
       },
       "email": {
         "label": "Adresse e-mail",
-        "description": "Fournissez une adresse e-mail valide où nous pouvons vous contacter concernant votre demande",
+        "description": "Fournissez une adresse e-mail valide où nous pourrons vous contacter concernant votre demande",
         "placeholder": "Adresse e-mail"
       },
       "cadastralNumber": {
         "label": "Numéro cadastral",
-        "description": "Saisissez le numéro cadastral de la propriété pour laquelle vous demandez une licence de location.",
+        "description": "Saisissez le numéro cadastral du bien pour lequel vous demandez une licence de location.",
         "placeholder": "GDC"
       },
       "phone": {
         "label": "Numéro de téléphone",
-        "description": "Veuillez indiquer un numéro de téléphone où l'on peut vous joindre pour toute question de suivi",
+        "description": "Veuillez indiquer un numéro de téléphone où l'on peut vous joindre pour toute question complémentaire",
         "placeholder": "Numéro de téléphone"
       },
       "reason": {
         "label": "Motif de la demande de licence de location",
-        "description": "Veuillez expliquer pourquoi vous demandez une licence de location pour cette propriété.",
+        "description": "Veuillez expliquer pourquoi vous demandez une licence de location pour ce bien.",
         "placeholder": "Motif de la licence"
       },
       "address": {
-        "label": "Adresse de la propriété",
-        "description": "Saisissez l'adresse complète de la propriété pour laquelle vous demandez une licence de location.",
+        "label": "Adresse du bien",
+        "description": "Saisissez l'adresse complète du bien pour lequel vous demandez une licence de location.",
         "street1Placeholder": "Adresse (ligne 1)",
         "street2Placeholder": "Adresse (ligne 2)",
         "postalPlaceholder": "Code postal",
@@ -446,35 +446,35 @@
           "ETVPL": {
             "value": "ETVPL",
             "label": "ETVPL",
-            "description": "Pour les bâtiments à unités multiples comme les appartements ou les maisons de ville"
+            "description": "Pour les immeubles à unités multiples tels que appartements ou maisons en rangée"
           },
           "ETV60": {
             "value": "ETV60",
             "label": "ETV60",
-            "description": "Licence limitée permettant jusqu'à 60 jours de location par an"
+            "description": "Licence limitée autorisant jusqu'à 60 jours de location par an"
           }
         },
         "errorMissing": "Veuillez sélectionner un type de licence de location."
       },
       "rentalStart": {
         "label": "Date de début de location prévue",
-        "description": "Veuillez préciser la date à laquelle vous prévoyez de commencer à louer la propriété.",
-        "errorMissing": "Veuillez préciser la date de début de location prévue."
+        "description": "Veuillez indiquer la date à laquelle vous prévoyez de commencer à louer le bien.",
+        "errorMissing": "Veuillez indiquer la date de début de location prévue."
       },
       "comments": {
-        "label": "Commentaires supplémentaires / Remarques (Facultatif)",
-        "description": "Si vous avez des commentaires ou des informations supplémentaires à fournir, veuillez les partager ici.",
+        "label": "Commentaires / Remarques supplémentaires (Optionnel)",
+        "description": "Si vous avez des commentaires ou des informations supplémentaires à fournir, veuillez les indiquer ici.",
         "placeholder": "Ajoutez vos commentaires ici (max 10k caractères)."
       },
       "personal_consent": {
         "label": "Je comprends que mes données personnelles seront stockées en toute sécurité dans la base de données dans le but de traiter ma demande.",
-        "errorMissing": "Le consentement relatif aux données personnelles est requis pour continuer."
+        "errorMissing": "Le consentement au traitement des données personnelles est requis pour continuer."
       },
       "legal_consent": {
         "label_before_redirect": "J'accepte les termes et conditions juridiques dans la",
         "legal_redirect": "Mentions légales",
         "label_after_redirect": "page.",
-        "errorMissing": "Le consentement légal est requis pour continuer."
+        "errorMissing": "Le consentement aux conditions légales est requis pour continuer."
       },
       "buttons": {
         "submit": "Soumettre et téléverser",
@@ -488,20 +488,20 @@
       "reject_message": "Les documents sont invalides",
       "id_doc": {
         "label": "Justificatif d'identité",
-        "description": "Téléversez un document d'identification délivré par le gouvernement (par ex. passeport, permis de conduire) pour la vérification d'identité.",
-        "errorMissing": "Les documents d'identité sont requis"
+        "description": "Téléchargez un document d'identification délivré par le gouvernement (par ex. passeport, permis de conduire) pour vérification d'identité.",
+        "errorMissing": "Les justificatifs d'identité sont requis"
       },
       "address_doc": {
         "label": "Justificatif de domicile",
-        "description": "Téléversez un document montrant votre adresse actuelle (par ex. facture de services publics, relevé bancaire, contrat de location).",
+        "description": "Téléchargez un document montrant votre adresse actuelle (par ex. facture de services, relevé bancaire, contrat de location).",
         "errorMissing": "Les justificatifs de domicile sont requis"
       },
       "input": {
         "buttonLabel": "Parcourir",
-        "fileSizeLabel": "Fichier d'une taille maximale de 10 MB — PDF uniquement",
-        "fileRequired": "Veuillez téléverser tous les documents requis pour continuer",
+        "fileSizeLabel": "Fichier d'une taille maximale de 10 Mo — PDF uniquement",
+        "fileRequired": "Veuillez télécharger tous les documents requis pour continuer",
         "fileTypeError": "Seuls les fichiers PDF sont autorisés",
-        "fileSizeError": "La taille du fichier doit être inférieure à 10 MB"
+        "fileSizeError": "La taille du fichier doit être inférieure à 10 Mo"
       },
       "submitButton": "Soumettre les documents",
       "goBackButton": "Modifier la demande",
@@ -513,7 +513,7 @@
         "headline": "Payer maintenant",
         "subHeadline": "Prélèvement SEPA",
         "amountLabel": "Montant total",
-        "taxLabel": "Aucune TVA ne s'applique",
+        "taxLabel": "Aucune TVA n'est applicable",
         "cadastralIdLabel": "Référence cadastrale",
         "licenseTypeLabel": "Type de licence",
         "nameLabel": "Titulaire du compte",
@@ -527,24 +527,24 @@
         "cancelButtonLabel": "Payer plus tard *",
         "cancelNote": {
           "label1": "* Votre demande sera enregistrée comme brouillon.",
-          "label2": "Vous pouvez compléter le paiement ultérieurement depuis votre tableau de bord."
+          "label2": "Vous pouvez compléter le paiement plus tard depuis votre tableau de bord."
         }
       },
       "sepaMandateDialog": {
         "title": "Mandat de prélèvement SEPA",
         "text": {
-          "line1": "Par la présente, j'autorise le bénéficiaire à prélever des paiements sur mon compte bancaire par prélèvement. J'autorise également ma banque à encaisser tout prélèvement porté à mon compte par le bénéficiaire.",
+          "line1": "J'autorise par la présente le bénéficiaire à prélever des paiements sur mon compte bancaire par prélèvement automatique. J'autorise également ma banque à encaisser tout prélèvement débité de mon compte par le bénéficiaire.",
           "line2": "Remarque :",
-          "line3": "Je peux demander le remboursement du montant débité dans les huit semaines suivant la date du débit. Les termes et conditions convenus avec ma banque s'appliquent.",
-          "line4": "Détails du payeur :",
+          "line3": "Je peux demander le remboursement du montant débité dans les huit semaines suivant la date du débit. Les conditions convenues avec ma banque s'appliquent ici.",
+          "line4": "Coordonnées du payeur :",
           "line5": " –  Titulaire du compte : {{accountHolder}}",
           "line6": " –  IBAN : {{iban}}",
           "line7": " –  BIC : {{bic}}",
-          "line8": "Détails du bénéficiaire :",
+          "line8": "Coordonnées du bénéficiaire :",
           "line9": " –  Bénéficiaire : {{beneficiaryName}}",
-          "line10": " –  ID créancier : {{creditorId}}",
+          "line10": " –  Identifiant du créancier : {{creditorId}}",
           "line11": " –  Référence du mandat : {{mandateReference}}",
-          "line12": "J'ai lu le mandat de prélèvement SEPA et le considère comme juridiquement contraignant.",
+          "line12": "Je reconnais avoir lu le mandat de prélèvement SEPA et le considère comme juridiquement contraignant.",
           "line13": "Date d'émission : {{date}}"
         },
         "acceptButtonLabel": "Accepter",
@@ -563,19 +563,19 @@
           "failure": "Échec du paiement"
         },
         "subHeadline": {
-          "success": "Les données de votre paiement ont été reçues.",
-          "failure": "Les données de votre paiement n'ont pas pu être enregistrées. Veuillez réessayer."
+          "success": "Vos données de paiement ont été reçues.",
+          "failure": "Vos données de paiement n'ont pas pu être enregistrées. Veuillez réessayer."
         },
         "amountLabel": "Montant total",
-        "taxLabel": "Aucune TVA ne s'applique",
-        "paymentIdLabel": "ID de paiement",
-        "applicationIdLabel": "ID de la demande",
+        "taxLabel": "Aucune TVA n'est applicable",
+        "paymentIdLabel": "Payment ID",
+        "applicationIdLabel": "Application ID",
         "cadastralIdLabel": "Référence cadastrale",
         "licenseTypeLabel": "Type de licence",
         "nameLabel": "Titulaire du compte",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "dateLabel": "Date du paiement",
+        "dateLabel": "Date de paiement",
         "sendReceiptLabel": "Envoyer le reçu de paiement à",
         "receiptSentLabel": "Reçu de paiement envoyé !",
         "leaveButtonLabel": {
@@ -588,7 +588,7 @@
     "list": {
       "headline": "Licences",
       "createNew": "Créer une nouvelle licence",
-      "empty": "Aucune licence n'a pu être trouvée.",
+      "empty": "Aucune licence trouvée.",
       "edit": "Modifier",
       "delete": "Supprimer"
     },
@@ -597,7 +597,7 @@
       "back": "Retour à la liste"
     },
     "id": {
-      "label": "Identifiant"
+      "label": "Id"
     },
     "licenseType": {
       "label": "Type de licence"
@@ -606,7 +606,7 @@
       "label": "Statut de la licence"
     },
     "issuedAt": {
-      "label": "Délivré le"
+      "label": "Émis le"
     },
     "expiresAt": {
       "label": "Expire le"
@@ -695,7 +695,7 @@
     "list": {
       "headline": "Utilisateurs de l'application",
       "createNew": "Créer un nouvel utilisateur de l'application",
-      "empty": "Aucun utilisateur de l'application n'a pu être trouvé.",
+      "empty": "Aucun utilisateur de l'application n'a été trouvé.",
       "edit": "Modifier",
       "delete": "Supprimer"
     },
@@ -704,7 +704,7 @@
       "back": "Retour à la liste"
     },
     "id": {
-      "label": "Identifiant"
+      "label": "Id"
     },
     "edit": {
       "headline": "Modifier l'utilisateur de l'application",
@@ -752,7 +752,7 @@
       "label": "Référence cadastrale"
     },
     "appliedAt": {
-      "label": "Date de dépôt"
+      "label": "Soumis le"
     },
     "changedAt": {
       "label": "Modifié le"
@@ -761,7 +761,7 @@
       "label": "Statut"
     },
     "paymentStatus": {
-      "label": "Statut de paiement"
+      "label": "Statut du paiement"
     },
     "user": {
       "label": "Utilisateur"
@@ -772,7 +772,7 @@
     },
     "license": {
       "application": {
-        "referenced": "Cette entité est toujours référencée par la licence {{id}} via le champ Application."
+        "referenced": "Cette entité est toujours référencée par la licence {{id}} via le champ Demande."
       }
     },
     "create": {
@@ -790,7 +790,7 @@
     "loading": "Chargement…",
     "updating": "Mise à jour…",
     "updatingPassword": "Mise à jour du mot de passe…",
-    "updateSuccess": "Vos modifications ont été enregistrées.",
+    "updateSuccess": "Vos modifications ont été sauvegardées.",
     "passwordUpdated": "Votre mot de passe a été mis à jour.",
     "accountInformation": "Informations du compte",
     "changePassword": "Changer le mot de passe",
@@ -799,7 +799,7 @@
     "deleteAccount": "Supprimer le compte",
     "firstName": "Prénom",
     "lastName": "Nom de famille",
-    "email": "E-mail",
+    "email": "Courriel",
     "phoneNumber": "Numéro de téléphone",
     "currentPassword": "Mot de passe actuel",
     "newPassword": "Nouveau mot de passe",
@@ -809,27 +809,27 @@
       "newPasswordRequired": "Le nouveau mot de passe est requis",
       "confirmPasswordRequired": "La confirmation du mot de passe est requise",
       "passwordMismatch": "Les mots de passe ne correspondent pas",
-      "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères"
+      "passwordMinLength": "Le mot de passe doit comporter au moins 8 caractères"
     },
     "success": {
-      "changesSaved": "Les modifications ont été enregistrées avec succès!",
-      "passwordChanged": "Le mot de passe a été changé avec succès!",
+      "changesSaved": "Les modifications ont été enregistrées avec succès !",
+      "passwordChanged": "Le mot de passe a été modifié avec succès !",
       "accountDeleted": "Votre compte a été supprimé avec succès."
     },
     "confirmation": {
       "deleteAccount": {
-        "headline": "Êtes-vous sûr de vouloir supprimer votre compte?",
-        "subheadline": "Cette action ne peut pas être annulée.",
+        "headline": "Êtes-vous sûr de vouloir supprimer votre compte ?",
+        "subheadline": "Cette action est irréversible.",
         "cancelButton": "Annuler",
         "confirmButton": "Supprimer le compte"
       }
     },
     "alerts": {
-      "unexpectedError": "Une erreur inattendue s'est produite. Veuillez réessayer plus tard.",
-      "emailInvalid": "Adresse e-mail invalide.",
+      "unexpectedError": "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+      "emailInvalid": "Adresse courriel invalide.",
       "passwordInvalid": "Le mot de passe doit contenir au moins un caractère spécial, une lettre majuscule et un chiffre.",
       "success": "Profil mis à jour avec succès.",
-      "invalidRequest": "Requête invalide. Veuillez vérifier vos données.",
+      "invalidRequest": "Requête invalide. Veuillez vérifier votre saisie.",
       "unauthorized": "Requête non autorisée. Veuillez vous connecter.",
       "userNotFound": "Utilisateur introuvable.",
       "failed": "Échec de la mise à jour du profil. Veuillez réessayer plus tard."
@@ -837,16 +837,16 @@
   },
   "deleteProfile": {
     "deleteAccount": "Supprimer le compte",
-    "areYouSureDelete": "Êtes-vous sûr de vouloir supprimer votre compte ?",
+    "areYouSureDelete": "Êtes-vous sûr de vouloir supprimer votre compte?",
     "warningMessage": "En supprimant ce compte, vous ne pourrez plus accéder au système.",
-    "yesDelete": "Oui, supprimer",
-    "cancel": "Non, annuler",
+    "yesDelete": "Oui, Supprimer",
+    "cancel": "Non, Annuler",
     "loading": "Suppression...",
     "alerts": {
       "success": "Votre compte a été supprimé avec succès.",
       "unauthorized": "Requête non autorisée. Veuillez vous connecter.",
-      "forbidden": "Vous n'êtes pas autorisé à effectuer cette action.",
-      "userNotFound": "Utilisateur non trouvé.",
+      "forbidden": "Vous n'avez pas la permission d'effectuer cette action.",
+      "userNotFound": "Utilisateur introuvable.",
       "failed": "Échec de la suppression du compte. Veuillez réessayer plus tard."
     }
   },
@@ -864,139 +864,139 @@
   "required": "Please provide a value.",
   "maxlength": "Your value must have a length of less then ${max} characters.",
   "valid": {
-    "offsetDateTime": "Veuillez fournir une date valide avec un décalage, par exemple \"2026-01-23T14:55:00+01:00\"."
+    "offsetDateTime": "Veuillez fournir une date valide avec décalage horaire, par exemple \"2026-01-23T14:55:00+01:00\"."
   },
   "legalNotice": {
-    "lastUpdated": "Dernière mise à jour : 27/11/2025",
+    "lastUpdated": "Dernière mise à jour: 27/11/2025",
     "legalTitle": "Mentions légales",
     "legalSection": {
-      "ownerTitle": "Identification du propriétaire / du responsable du site",
-      "ownerText": "Dirección Insular de Licencias Turísticas\nAdresse: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nCourriel: avisio.legal@palma.es",
+      "ownerTitle": "Propriétaire du site / Identification du responsable",
+      "ownerText": "Dirección Insular de Licencias Turísticas\nAdresse: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nE-mail: avisio.legal@palma.es",
       "purposeTitle": "Finalité du portail",
       "purposeList": [
-        "Création et gestion des comptes utilisateurs",
-        "Demande de licences de location de vacances",
-        "Téléversement de documents pour vérification",
-        "Suivi de l'état des demandes",
-        "Effectuer les paiements des frais administratifs",
+        "Enregistrement et gestion des comptes utilisateurs",
+        "Demande de licences de location saisonnière",
+        "Téléchargement de documents pour vérification",
+        "Suivi du statut des demandes",
+        "Effectuer les paiements pour les frais administratifs",
         "Gestion des notifications et des paramètres personnels"
       ]
     },
     "privacyTitle": "Politique de confidentialité",
     "privacySection": {
-      "controllerTitle": "Responsable du traitement des données",
-      "controllerText": "Dirección Insular de Licencias Turísticas\nAdresse: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nCourriel: avisio.legal@palma.es",
+      "controllerTitle": "Responsable du traitement",
+      "controllerText": "Dirección Insular de Licencias Turísticas\nAdresse: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain\nE-mail: avisio.legal@palma.es",
       "dataTitle": "Données que nous collectons",
       "dataList": [
-        "Informations de compte et d'identité (nom, email, téléphone, mot de passe chiffré)",
-        "Informations sur la propriété et la demande de licence (adresse, documents de propriété, copie de pièce d'identité)",
+        "Informations de compte et d'identité (nom, e-mail, téléphone, mot de passe chiffré)",
+        "Informations sur la propriété et la demande de licence (adresse, documents de propriété, copie de la pièce d'identité)",
         "Documents téléchargés (preuve d'identité, preuve de propriété)",
         "Données techniques (IP, navigateur, activité de connexion)",
-        "Informations de paiement (IBAN, BIC — traitées de manière sécurisée par Banco Santander)"
+        "Informations de paiement (IBAN, BIC — traitées en toute sécurité par Banco Santander)"
       ]
     },
     "cookiesTitle": "Politique relative aux cookies",
     "cookiesSection": {
-      "whatTitle": "Qu'est-ce que les cookies ?",
+      "whatTitle": "Que sont les cookies ?",
       "whatText": "Les cookies sont de petits fichiers texte stockés sur votre appareil pour améliorer votre expérience de navigation.",
       "typesTitle": "Types de cookies que nous utilisons",
       "typesList": [
-        "Cookies essentiels — nécessaires pour la connexion, la langue, les sessions de sécurité et l'envoi de formulaires."
+        "Cookies essentiels — nécessaires pour la connexion, la langue, les sessions de sécurité et la soumission de formulaires."
       ],
       "consentTitle": "Consentement aux cookies",
       "consentText": "Lors de votre première visite, vous acceptez tous les cookies essentiels. Ceux-ci ne peuvent pas être désactivés."
     }
   },
   "legal": {
-    "legalNoticeTitle": "Avis légal",
-    "lastUpdated": "Dernière mise à jour : 27/11/2025",
+    "legalNoticeTitle": "Mentions légales",
+    "lastUpdated": "Dernière mise à jour: 27/11/2025",
     "owner": {
       "title": "Identification du propriétaire / du responsable",
-      "description": "Ce portail est exploité par :",
+      "description": "Ce portail est exploité par:",
       "address": "Dirección Insular de Licencias Turísticas, Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain",
-      "email": "Courriel : avisio.legal@palma.es",
-      "laws": "Ce portail est régi par la loi espagnole 34/2002 sur les services de la société de l'information (LSSI-CE), le RGPD (règlement UE 2016/679), et d'autres règlements baléares applicables."
+      "email": "Courriel: avisio.legal@palma.es",
+      "laws": "Ce portail est régi par la loi espagnole 34/2002 sur les services de la société de l'information (LSSI-CE), GDPR (EU Regulation 2016/679), et d'autres réglementations applicables des Baléares."
     },
     "purpose": {
-      "title": "Finalité du portail",
-      "description": "Le portail fournit aux utilisateurs et aux propriétaires à Majorque des services numériques pour :",
-      "register": "Enregistrement et gestion des comptes utilisateurs",
-      "apply": "Demande de licences de location de vacances",
-      "upload": "Téléchargement de documents pour vérification",
-      "track": "Suivi de l'état des demandes",
-      "payments": "Effectuer les paiements des frais administratifs",
-      "settings": "Gestion des notifications et des préférences personnelles"
+      "title": "Objet du portail",
+      "description": "Le portail fournit aux utilisateurs et aux propriétaires immobiliers à Majorque des services numériques pour:",
+      "register": "Créer et maintenir des comptes utilisateur",
+      "apply": "Demander des licences de location de vacances",
+      "upload": "Téléverser des documents pour vérification",
+      "track": "Suivre l'état des demandes",
+      "payments": "Effectuer des paiements pour les frais administratifs",
+      "settings": "Gérer les notifications et les paramètres personnels"
     },
     "terms": {
       "title": "Conditions d'utilisation",
       "acceptance": {
         "title": "Acceptation des conditions",
-        "text": "En accédant ou en utilisant ce portail, l'utilisateur accepte de se conformer à cet avis légal, à la politique de confidentialité et à la politique relative aux cookies."
+        "text": "En accédant ou en utilisant ce portail, l'utilisateur accepte de se conformer à la présente notice légale, à la politique de confidentialité et à la politique de cookies."
       },
       "obligations": {
         "title": "Obligations de l'utilisateur",
         "accurate": "Fournir des informations exactes et véridiques",
-        "validDocs": "Télécharger uniquement des documents valides leur appartenant",
+        "validDocs": "Téléverser uniquement des documents valides leur appartenant",
         "noFraud": "S'abstenir d'activités frauduleuses, malveillantes ou illégales",
-        "confidentiality": "Conserver la confidentialité de leurs identifiants de connexion",
-        "law": "Respecter toutes les lois locales, nationales et de l'UE applicables"
+        "confidentiality": "Garder la confidentialité de leurs identifiants de connexion",
+        "law": "Se conformer à toutes les lois locales, nationales et de l'UE applicables"
       },
       "prohibited": {
         "title": "Actions interdites",
-        "unauthorized": "Tenter d'accéder sans autorisation ou d'interférer avec la sécurité",
-        "malware": "Télécharger des virus, des logiciels malveillants ou du contenu nuisible",
+        "unauthorized": "Tenter un accès non autorisé ou interférer avec la sécurité",
+        "malware": "Téléverser des virus, logiciels malveillants ou contenu nuisible",
         "bots": "Utiliser des scripts automatisés (bots) pour surcharger ou manipuler le système",
-        "misrepresentation": "Fausser la propriété du bien ou les données personnelles"
+        "misrepresentation": "Fausse déclaration de la propriété du bien ou des données personnelles"
       },
       "ipr": {
         "title": "Droits de propriété intellectuelle",
-        "text": "Tout le contenu du portail — y compris le design, les textes, les graphiques, les logos, les icônes et les logiciels — est la propriété de l'exploitant du portail ou sous licence de tiers. Toute reproduction ou distribution est interdite sans consentement écrit préalable."
+        "text": "Tout le contenu du portail — y compris le design, les textes, les graphiques, les logos, les icônes et les logiciels — appartient à l'exploitant du portail ou est sous licence de tiers. La reproduction ou la distribution est interdite sans consentement écrit préalable."
       },
       "disclaimer": {
         "title": "Clause de non-responsabilité",
         "errors": "Erreurs dans les documents soumis par les utilisateurs",
         "interruptions": "Interruptions temporaires du service",
-        "thirdparty": "Problèmes liés aux intégrations tierces (par ex., passerelles de paiement, vérification de documents)",
+        "thirdparty": "Problèmes liés aux intégrations tierces (p. ex. passerelles de paiement, vérification de documents)",
         "delays": "Retards dans le traitement administratif",
-        "asIs": "Le portail est fourni « en l'état » sans garantie de fonctionnement ininterrompu ou sans erreur"
+        "asIs": "Le portail est fourni « tel quel » sans garanties de fonctionnement ininterrompu ou sans erreurs"
       }
     },
     "privacy": {
-      "title": "Protection des données et vie privée",
-      "text": "Les données personnelles sont traitées conformément au RGPD. Une explication complète figure dans la politique de confidentialité ci‑dessous."
+      "title": "Protection des données et confidentialité",
+      "text": "Les données personnelles sont traitées conformément au GDPR. Une explication complète figure dans la politique de confidentialité ci-dessous."
     },
     "links": {
       "title": "Liens externes",
-      "text": "Le portail peut contenir des liens vers des sites ou services tiers. L'exploitant n'est pas responsable de leur contenu, de leurs politiques ou de leur disponibilité."
+      "text": "Le portail peut contenir des liens vers des sites web ou services tiers. L'exploitant n'est pas responsable de leur contenu, de leurs politiques ou de leur disponibilité."
     },
     "modifications": {
       "title": "Modifications",
-      "text": "L'exploitant se réserve le droit de modifier l'avis légal, la politique de confidentialité ou la politique relative aux cookies à tout moment. Les mises à jour seront publiées sur cette page."
+      "text": "L'exploitant se réserve le droit de modifier la notice légale, la politique de confidentialité ou la politique de cookies à tout moment. Les mises à jour seront publiées sur cette page."
     },
     "jurisdiction": {
       "title": "Droit applicable et juridiction",
-      "text": "Cet avis légal est régi par le droit espagnol. Tout litige sera réglé devant les tribunaux des îles Baléares, sauf exigence contraire de la législation sur la protection des consommateurs."
+      "text": "La présente notice légale est régie par le droit espagnol. Tout litige sera résolu devant les tribunaux des Illes Balears, sauf disposition contraire imposée par la législation sur la protection des consommateurs."
     },
     "privacyPolicy": {
       "title": "Politique de confidentialité",
-      "lastUpdated": "Dernière mise à jour : 27/11/2025"
+      "lastUpdated": "Dernière mise à jour: 27/11/2025"
     },
     "cookies": {
-      "title": "Politique relative aux cookies",
-      "lastUpdated": "Dernière mise à jour : 27/11/2025",
-      "whatAreCookies": "Que sont les cookies ?",
-      "definition": "Les cookies sont de petits fichiers textes stockés sur votre appareil pour améliorer votre expérience de navigation. Ils peuvent stocker des préférences, l'état de connexion ou des informations analytiques.",
+      "title": "Politique de cookies",
+      "lastUpdated": "Dernière mise à jour: 27/11/2025",
+      "whatAreCookies": "Qu'est-ce que les cookies?",
+      "definition": "Les cookies sont de petits fichiers texte stockés sur votre appareil pour améliorer votre expérience de navigation. Ils peuvent stocker des préférences, l'état de connexion ou des informations d'analyse.",
       "typesTitle": "Types de cookies que nous utilisons",
       "essentialTitle": "Cookies essentiels",
-      "essential": "Les cookies essentiels sont nécessaires pour les fonctionnalités de base telles que la connexion, les sessions de sécurité et la soumission de formulaires.",
+      "essential": "Les cookies essentiels sont nécessaires au fonctionnement de base, tels que la connexion, les sessions de sécurité et l'envoi de formulaires.",
       "consentTitle": "Consentement aux cookies",
       "consentText": "Lors de votre première visite, vous acceptez tous les cookies essentiels. Les cookies essentiels ne peuvent pas être désactivés car le portail ne fonctionnerait pas sans eux."
     },
     "dataController": {
       "title": "Responsable du traitement",
-      "description": "L'entité responsable du traitement des données sur ce portail est : Dirección Insular de Licencias Turísticas",
-      "address": "Adresse : Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain",
-      "email": "Courriel : avisio.legal@palma.es"
+      "description": "L'entité responsable du traitement des données personnelles sur ce portail est : Dirección Insular de Licencias Turísticas",
+      "address": "Adresse: Plaça de Cort 1, 07001 Palma de Mallorca, Illes Balears, Spain",
+      "email": "Courriel: avisio.legal@palma.es"
     },
     "dataCollected": {
       "title": "Données que nous collectons",
@@ -1004,15 +1004,15 @@
       "fullName": "Nom complet",
       "email": "Adresse e-mail",
       "phone": "Numéro de téléphone",
-      "password": "Mot de passe (chiffré)",
-      "propertyInfo": "Informations sur le bien et la demande de licence",
-      "propertyAddress": "Adresse du bien / Documents de propriété",
+      "password": "Mot de passe (crypté)",
+      "propertyInfo": "Informations sur la propriété et la demande de licence",
+      "propertyAddress": "Adresse du bien / documents de propriété",
       "cadastralRef": "Référence cadastrale",
       "licenseForms": "Formulaires liés à la licence",
-      "idCopy": "Copie du passeport / de la carte d'identité",
-      "uploadedDocs": "Documents téléchargés",
-      "idProof": "Justificatif d'identité",
-      "propertyProof": "Justificatif de propriété",
+      "idCopy": "Copie du passeport / de la carte d'identité personnelle",
+      "uploadedDocs": "Documents téléversés",
+      "idProof": "Preuve d'identité",
+      "propertyProof": "Preuve de propriété",
       "technicalData": "Données techniques",
       "ipAddress": "Adresse IP",
       "browserDevice": "Détails du navigateur et de l'appareil",
@@ -1021,56 +1021,56 @@
       "paymentInfo": "Informations de paiement",
       "accountHolder": "Nom du titulaire du compte",
       "ibanBic": "IBAN / BIC",
-      "paymentProcessor": "Les informations de paiement sont traitées en toute sécurité par un prestataire de paiement tiers (Banco Santander, S.A.). Le portail ne conserve pas les coordonnées bancaires."
+      "paymentProcessor": "Les informations de paiement sont traitées en toute sécurité par un prestataire de paiement tiers (Banco Santander, S.A.). Le portail ne stocke pas les coordonnées bancaires."
     },
     "processingPurpose": {
       "title": "Finalité du traitement",
-      "description": "Vos données sont traitées aux fins suivantes :",
-      "createAccounts": "Créer et gérer des comptes utilisateur",
+      "description": "Vos données sont traitées aux fins suivantes:",
+      "createAccounts": "Création et gestion des comptes utilisateur",
       "processLicenses": "Traitement des demandes de licence de location de vacances",
-      "verifyIdentity": "Vérification d'identité et des documents",
+      "verifyIdentity": "Vérification de l'identité et des documents",
       "sendNotifications": "Envoi de notifications et de mises à jour",
-      "ballotAlgorithm": "Exécution de l'algorithme d'attribution par tirage au sort",
+      "ballotAlgorithm": "Exécution de l'algorithme d'allocation par tirage au sort",
       "generateReceipts": "Génération de reçus et de confirmations de paiement",
-      "ensureSecurity": "Garantir la sécurité de la plateforme",
-      "basisTitle": "Le traitement est basé sur :",
-      "gdprContract": "RGPD art. 6(1)(b) : exécution du contrat",
-      "gdprLegal": "RGPD art. 6(1)(c) : obligations légales",
-      "gdprConsent": "RGPD art. 6(1)(a) : consentement de l'utilisateur",
-      "gdprPublicInterest": "RGPD art. 6(1)(e) : missions d'intérêt public (le cas échéant)"
+      "ensureSecurity": "Assurer la sécurité de la plateforme",
+      "basisTitle": "Le traitement est fondé sur:",
+      "gdprContract": "GDPR Art. 6(1)(b): exécution du contrat",
+      "gdprLegal": "GDPR Art. 6(1)(c): obligations légales",
+      "gdprConsent": "GDPR Art. 6(1)(a): consentement de l'utilisateur",
+      "gdprPublicInterest": "GDPR Art. 6(1)(e): missions d'intérêt public (le cas échéant)"
     },
     "dataStorage": {
       "title": "Durée de conservation des données",
-      "description": "Les données sont conservées uniquement pendant la durée nécessaire :"
+      "description": "Les données sont conservées uniquement pendant la durée nécessaire:"
     },
     "userRights": {
-      "title": "Droits des utilisateurs (chapitre III du RGPD)",
-      "description": "Vous pouvez demander :",
+      "title": "Droits des utilisateurs (GDPR Chapter III)",
+      "description": "Vous pouvez demander:",
       "access": "Accès à vos données",
       "correction": "Correction ou suppression",
-      "restriction": "Restriction du traitement",
+      "restriction": "Limitation du traitement",
       "portability": "Portabilité des données",
       "objection": "Opposition à certains traitements",
       "withdrawal": "Retrait du consentement",
-      "contact": "Les demandes peuvent être envoyées à : avisio.legal@palma.es"
+      "contact": "Les demandes peuvent être envoyées à: avisio.legal@palma.es"
     },
     "security": {
       "title": "Mesures de sécurité",
-      "description": "Nous mettons en œuvre :",
+      "description": "Nous mettons en œuvre:",
       "accessControl": "Contrôle d'accès avec JWT + Keycloak",
       "securityAssessments": "Évaluations régulières de sécurité",
-      "cookiesPolicy": "Politique relative aux cookies — dernière mise à jour : 27/11/2025",
-      "paymentInfo": "Les informations de paiement sont traitées en toute sécurité par un prestataire de paiement tiers (Banco Santander, S.A.). Le portail ne conserve pas les coordonnées bancaires.",
-      "dataRetention": "Comptes utilisateurs actifs : conservés tant que le compte est actif\nDocuments de demande de licence : conservés pendant l'examen + la période d'archivage légalement requise\nReçus de paiement : conservés pour les périodes obligatoires de fiscalité/tenue de registres\nDonnées de journal : conservation à court terme pour la surveillance de sécurité",
-      "noSystem": "Aucun système n'est sûr à 100 %, mais des mesures de sécurité conformes aux meilleures pratiques sont appliquées."
+      "cookiesPolicy": "Politique de cookies Last Updated: 27/11/2025",
+      "paymentInfo": "Les informations de paiement sont traitées en toute sécurité par un prestataire de paiement tiers (Banco Santander, S.A.). Le portail ne stocke pas les coordonnées bancaires.",
+      "dataRetention": "Comptes utilisateurs actifs: conservés tant que le compte est actif\nDocuments de demande de licence: conservés pendant l'examen + période d'archivage légalement requise\nReçus de paiement: conservés pour les périodes obligatoires de fiscalité/tenue des registres\nDonnées de journal (logs): conservation à court terme pour la surveillance de la sécurité",
+      "noSystem": "Aucun système n'est sécurisé à 100% , mais des mesures de sécurité conformes aux meilleures pratiques sont appliquées."
     },
     "governingLaw": {
       "title": "Droit applicable",
-      "description": "Aux fins de la législation applicable, ce portail est régi par :",
+      "description": "Aux fins de la législation applicable, ce portail est régi par:",
       "lssi": "Loi espagnole 34/2002 sur les services de la société de l'information et le commerce électronique (LSSI-CE)",
-      "gdpr": "Règlement général sur la protection des données (RGPD) – Règlement UE 2016/679",
-      "regional": "Toutes autres réglementations régionales ou nationales pertinentes des îles Baléares.",
-      "noAffiliation": "Aucune affiliation gouvernementale officielle n'est revendiquée sauf indication expresse."
+      "gdpr": "General Data Protection Regulation (GDPR) – EU Regulation 2016/679",
+      "regional": "Toutes autres réglementations régionales ou nationales pertinentes des Îles Baléares.",
+      "noAffiliation": "Aucune affiliation gouvernementale officielle n'est revendiquée sauf indication explicite."
     },
     "portalObjective": {
       "title": "Objectif du portail",
@@ -1078,39 +1078,39 @@
     },
     "userObligations": {
       "title": "Obligations de l'utilisateur",
-      "intro": "L'utilisateur s'engage à :",
+      "intro": "L'utilisateur s'engage à:",
       "accurateInfo": "Fournir des informations exactes et véridiques",
-      "validDocs": "Télécharger uniquement des documents valides leur appartenant",
+      "validDocs": "Téléverser uniquement des documents valides leur appartenant",
       "noFraud": "S'abstenir d'activités frauduleuses, malveillantes ou illégales",
-      "confidentiality": "Conserver la confidentialité de leurs identifiants de connexion",
-      "lawCompliance": "Respecter toutes les lois locales, nationales et de l'UE applicables"
+      "confidentiality": "Garder la confidentialité de leurs identifiants de connexion",
+      "lawCompliance": "Se conformer à toutes les lois locales, nationales et de l'UE applicables"
     },
     "prohibitedActions": {
       "title": "Actions interdites",
-      "intro": "Les utilisateurs ne doivent pas :",
-      "unauthorizedAccess": "Tenter d'accéder sans autorisation ou d'interférer avec la sécurité",
-      "malware": "Télécharger des virus, des logiciels malveillants ou du contenu nuisible",
+      "intro": "Les utilisateurs ne doivent pas:",
+      "unauthorizedAccess": "Tenter un accès non autorisé ou interférer avec la sécurité",
+      "malware": "Téléverser des virus, logiciels malveillants ou contenu nuisible",
       "bots": "Utiliser des scripts automatisés (bots) pour surcharger ou manipuler le système",
-      "misrepresentation": "Fausser la propriété du bien ou les données personnelles"
+      "misrepresentation": "Fausse déclaration de la propriété du bien ou des données personnelles"
     },
     "liability": {
       "title": "Clause de non-responsabilité",
-      "intro": "L'exploitant du portail n'est pas responsable de :",
+      "intro": "L'exploitant du portail n'est pas responsable de:",
       "errors": "Erreurs dans les documents soumis par les utilisateurs",
       "interruptions": "Interruptions temporaires du service",
       "thirdParty": "Intégration tierce (passerelles de paiement, services de vérification de documents)",
       "delays": "Retards dans le traitement administratif par les autorités",
-      "asIs": "Le portail est fourni « en l'état », sans garantie de fonctionnement ininterrompu ou sans erreur"
+      "asIs": "Le portail est fourni « tel quel », sans garantie de fonctionnement ininterrompu ou sans erreur"
     },
     "dataRetention": {
       "title": "Périodes de conservation des données",
-      "activeAccounts": "Comptes utilisateurs actifs : conservés tant que le compte est actif",
-      "licenseDocs": "Documents de demande de licence : conservés pendant l'examen et pendant la période d'archivage légalement requise",
-      "paymentReceipts": "Reçus de paiement : conservés pour les périodes obligatoires de fiscalité et de tenue de registres",
-      "logData": "Données de journal : conservées à court terme pour la surveillance de la sécurité"
+      "activeAccounts": "Comptes utilisateurs actifs: conservés tant que le compte est actif",
+      "licenseDocs": "Documents de demande de licence: conservés pendant l'examen et pour la période d'archivage légalement requise",
+      "paymentReceipts": "Reçus de paiement: conservés pour les périodes obligatoires de fiscalité et de tenue des registres",
+      "logData": "Données de journal: conservées à court terme pour la surveillance de la sécurité"
     },
     "securityMeasures": {
-      "noSystem": "Aucun système n'est sûr à 100 %, mais des mesures de sécurité conformes aux meilleures pratiques sont appliquées."
+      "noSystem": "Aucun système n'est sécurisé à 100% , mais des mesures de sécurité conformes aux meilleures pratiques sont appliquées."
     }
   },
   "ballotConfig": {
@@ -1125,16 +1125,16 @@
       "cancel": "Annuler"
     },
     "alerts": {
-      "requiredDates": "La date de début et la date de fin sont toutes deux requises.",
+      "requiredDates": "La date de début et la date de fin sont toutes deux obligatoires.",
       "invalidDate": "Format de date invalide. Veuillez utiliser une date valide.",
       "startDateAfterToday": "La date de début doit être postérieure à aujourd'hui.",
       "sameStartEndDate": "La date de début et la date de fin ne peuvent pas être identiques.",
       "startDateAfterEndDate": "La date de début ne peut pas être postérieure à la date de fin.",
-      "endDateTooLate": "La date de fin ne peut pas être postérieure de plus de 6 mois à la date de début.",
+      "endDateTooLate": "La date de fin ne peut pas dépasser la date de début de plus de 6 mois.",
       "badRequest": "Requête incorrecte. Veuillez vérifier vos données.",
       "unauthorized": "Requête non autorisée. Veuillez vous connecter.",
       "success": "Période de scrutin créée avec succès!",
-      "overlappingPeriod": "Les dates de début et de fin spécifiées se chevauchent avec une période de scrutin existante.",
+      "overlappingPeriod": "Les dates de début et de fin spécifiées chevauchent une période de scrutin existante.",
       "creationFailed": "Échec de la création de la période de scrutin."
     }
   },
@@ -1143,7 +1143,7 @@
     "description": "Préférences de notification",
     "sections": {
       "appUpdates": {
-        "label": "Activer les notifications par e-mail"
+        "label": "Activer les notifications E-Mail"
       },
       "appStatus": {
         "label": "Notifier des mises à jour du statut de l'application"
@@ -1157,8 +1157,8 @@
       "cancel": "Annuler"
     },
     "alerts": {
-      "clientError": "Erreur côté client",
-      "apiPlaceholder": "L'appel API doit être implémenté !"
+      "clientError": "Une erreur client est survenue",
+      "apiPlaceholder": "L'appel API doit être implémenté!"
     }
   },
   "ballotDetails": {
@@ -1192,10 +1192,10 @@
     "actions": {
       "viewApplications": "Voir les candidatures",
       "cancel": "Retour au tableau de bord",
-      "triggerBallot": "Lancer le tirage au sort"
+      "triggerBallot": "Lancer le tirage"
     },
     "messages": {
-      "lotterySuccess": "Tirage au sort exécuté avec succès"
+      "lotterySuccess": "Tirage effectué avec succès"
     },
     "status": {
       "active": "Actif",
@@ -1203,8 +1203,8 @@
       "completed": "Terminé"
     },
     "errors": {
-      "lotteryFailed": "L'exécution du tirage au sort a échoué",
-      "cannotTriggerLottery": "Le tirage au sort ne peut être effectué qu'après la fin de la période du scrutin",
+      "lotteryFailed": "L'exécution du tirage a échoué",
+      "cannotTriggerLottery": "Le tirage ne peut être effectué qu'après la fin de la période du scrutin",
       "unableToLoad": "Impossible de charger les détails du scrutin.",
       "failedToLoad": "Échec du chargement des détails du scrutin",
       "missingDates": "Dates manquantes pour le scrutin."
