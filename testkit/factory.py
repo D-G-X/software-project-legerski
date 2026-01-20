@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from datetime import timezone
 
 from testkit.config import LICENSE_TYPES
-from testkit.models import UserContext, ApplicationContext, PaymentContext, BallotPeriodContext
+from testkit.models import UserContext, ApplicationContext, PaymentContext, BallotPeriodContext, LicenseContext
 
 
 def _unique_email() -> str:
@@ -49,6 +49,13 @@ def new_payment() -> PaymentContext:
         iban="DE" + ''.join(random.choices(string.digits, k=20)),
         bic=(''.join(random.choices(string.ascii_uppercase, k=4)) + "DE"
              + ''.join(random.choices(string.digits + string.ascii_uppercase, k=2))),
+    )
+
+
+def new_license() -> LicenseContext:
+    return LicenseContext(
+        license_type="",
+        cadastral_reference="",
     )
 
 

@@ -6,15 +6,11 @@ from locust.clients import HttpSession, ResponseContextManager
 from testkit.config import BACKEND_URL, DOCUMENT_STATUSES, TEST_PDF_PATH, LICENSE_MAP, PAYMENT_STATUSES, \
     APPLICATION_STATUSES, LICENSE_STATUSES
 from testkit.models import ApplicationContext, PaymentContext, UserContext, \
-    LicenseContext, BallotPeriodContext
-from testkit.utils import decode_jwt, headers, read_file
+    LicenseContext
+from testkit.utils import headers, read_file, decode_jwt, safe_json
 
 
-############################################################################
-# Authentication functions
-############################################################################
-
-def api_register(client: HttpSession, user: UserContext) -> None:
+def api_register(client: HttpSession, user: UserContext) -> UserContext:
     r = client.post(
         f"{BACKEND_URL}/register",
         json={
@@ -25,12 +21,12 @@ def api_register(client: HttpSession, user: UserContext) -> None:
         },
     )
     assert r.status_code == 201, f"Registration failed: {r.status_code} {r.text}"
-    assert r.json().get("user_id"), f"Registration returned no user id: {r.status_code} {r.text}"
+    assert safe_json(r).get("user_id"), f"Registration returned no user id: {r.status_code} {r.text}"
+    user.id = safe_json(r).get("user_id")
+    return user
 
-    user.id = r.json().get("user_id")
 
-
-def api_login(client: HttpSession, user: UserContext) -> None:
+def api_login(client: HttpSession, user: UserContext) -> UserContext:
     r = client.post(
         f"{BACKEND_URL}/login",
         json={
@@ -39,261 +35,25 @@ def api_login(client: HttpSession, user: UserContext) -> None:
         },
     )
     assert r.status_code == 200, f"Login failed: {r.status_code} {r.text}"
-    assert "access_token" in r.json(), f"Login returned no access token: {r.status_code} {r.text}"
+    assert "access_token" in safe_json(r), f"Login returned no access token: {r.status_code} {r.text}"
 
-    user.access_token = r.json().get("access_token")
-    user.refresh_token = r.json().get("refresh_token")
-    user.expires_in = int(r.json().get("expires_in"))
-    user.refresh_expires_in = int(r.json().get("refresh_expires_in"))
-    user.token_type = r.json().get("token_type")
-    user.is_admin = bool(r.json().get("is_admin"))
+    user.access_token = safe_json(r).get("access_token")
+    user.refresh_token = safe_json(r).get("refresh_token")
+    user.expires_in = int(safe_json(r).get("expires_in"))
+    user.refresh_expires_in = int(safe_json(r).get("refresh_expires_in"))
+    user.token_type = safe_json(r).get("token_type")
+    user.is_admin = bool(safe_json(r).get("is_admin"))
 
     assert user.id == decode_jwt(user.access_token)["sub"], f"Login returned invalid user id: {r.status_code} {r.text}"
 
     if user.access_token:
         client.headers.update({"Authorization": f"Bearer {user.access_token}"})
 
-
-def api_refresh_login(client: HttpSession, user: UserContext) -> None:
-    r = client.post(
-        f"{BACKEND_URL}/refresh-login",
-        json={
-            "refresh_token": user.refresh_token,
-        },
-    )
-    assert r.status_code == 200, f"Refresh login failed: {r.status_code} {r.text}"
-    assert "access_token" in r.json(), f"Refresh login returned no access token: {r.status_code} {r.text}"
-
-    user.access_token = r.json().get("access_token")
-    user.refresh_token = r.json().get("refresh_token")
-    user.expires_in = int(r.json().get("expires_in"))
-    user.refresh_expires_in = int(r.json().get("refresh_expires_in"))
-    user.token_type = r.json().get("token_type")
-    user.is_admin = bool(r.json().get("is_admin"))
-
-    client.headers.update({"Authorization": f"Bearer {user.access_token}"})
-
-
-def api_request_reset_password(client: HttpSession, user_email: str) -> None:
-    r = client.post(
-        f"{BACKEND_URL}/reset-password",
-        json={
-            "email": user_email,
-        },
-    )
-    assert r.status_code == 200, f"Password reset request failed: {r.status_code} {r.text}"
-
-
-def api_reset_password(client: HttpSession, user: UserContext, new_password: str) -> None:
-    r = client.post(
-        f"{BACKEND_URL}/change-password",
-        json={
-            "token": "",  # TODO: get token from email
-            "new_password": new_password,
-        },
-    )
-    assert r.status_code == 200, f"Password reset failed: {r.status_code} {r.text}"
-    user.password = new_password
-
-
-# TODO: FIX API
-def api_change_password(client: HttpSession, user: UserContext, new_password: str) -> None:
-    r = client.put(
-        f"{BACKEND_URL}/users/{user.id}/change-password",
-        headers=headers(user.access_token),
-        params={"user_id": user.id},
-        json={
-            "old_password": user.password,
-            "new_password": new_password,
-        },
-    )
-    assert r.status_code == 201, f"Password change request failed: {r.status_code} {r.text}"
-    assert r.json().get("description"), f"Password change request returned no description: {r.status_code} {r.text}"
-    user.password = new_password
-
-
-# TODO: FIX API
-def api_change_name(client: HttpSession, user: UserContext, new_firstname: str, new_lastname: str) -> None:
-    r = client.put(
-        f"{BACKEND_URL}/users/{user.id}",
-        headers=headers(user.access_token),
-        json={
-            "firstName": new_firstname,
-            "lastName": new_lastname,
-            "email": user.email,
-            "enabled": True,
-            "credentials": [
-                {
-                    "type": "password",
-                    "value": user.password,
-                    "temporary": False,
-                },
-            ]
-        },
-    )
-    assert r.status_code == 204, f"User name change request failed: {r.status_code} {r.text}"
-    assert r.json().get("description"), f"User name change request returned no description: {r.status_code} {r.text}"
-    user.firstname = new_firstname
-    user.lastname = new_lastname
-
-
-def api_logout(client: HttpSession, user_or_admin: UserContext) -> None:
-    user_or_admin.access_token = ""
-    user_or_admin.refresh_token = ""
-    user_or_admin.expires_in = 0
-    user_or_admin.refresh_expires_in = 0
-    user_or_admin.token_type = ""
-    user_or_admin.is_admin = False
-
-    client.headers.pop("Authorization", None)
-
-
-############################################################################
-# User functions
-############################################################################
-
-def api_get_users(client: HttpSession, user_name: str, email: str, first: int, max: int, access_token: str) -> None:
-    params: dict[str, str] = {}
-    # TODO: FIX API
-    if user_name:
-        params["username"] = user_name
-    if email:
-        params["email"] = email
-    if first:
-        params["first"] = str(first)
-    if max:
-        params["max"] = str(max)
-
-    r = client.get(
-        f"{BACKEND_URL}/users",
-        headers=headers(access_token),
-        params={"username": "", "email": ""},
-    )
-    assert r.status_code == 200, f"Fetching users failed: {r.status_code} {r.text}"
-    assert isinstance(r.json(), list), f"Fetching users returned invalid data structure: {r.status_code} {r.text}"
-
-    users: list[UserContext] = []
-    for item in r.json():
-        assert item.get("id"), f"Fetching users returned invalid user id: {r.status_code} {r.text}"
-        users.append(
-            UserContext(
-                id=item["id"],
-                username=item["username"],
-                email=item["email"],
-                password=item["password"],
-                firstname=item["first_name"],
-                lastname=item["last_name"],
-                enabled=bool(item["enabled"]),
-                email_verified=bool(item["email_verified"]),
-                created_timestamp=item["created_timestamp"],
-            )
-        )
-
-
-def api_get_user_by_id(client: HttpSession, user_id: str, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/users/{user_id}",
-        headers=headers(access_token),
-        params={"user_id": user_id},
-    )
-    assert r.status_code == 200, f"Fetching user by id failed: {r.status_code} {r.text}"
-    assert r.json().get("id") == user_id, f"Fetching user by id returned invalid user id: {r.status_code} {r.text}"
-
-
-def api_create_user(client: HttpSession, user: UserContext, access_token: str) -> None:
-    r = client.post(
-        f"{BACKEND_URL}/users",
-        headers=headers(access_token),
-        json={
-            "firstName": user.firstname,
-            "lastName": user.lastname,
-            "email": user.email,
-            "enabled": True,
-            "credentials": [
-                {
-                    "type": "password",
-                    "temporary": False,
-                    "value": user.password,
-                },
-            ]
-        },
-    )
-    assert r.status_code == 201, f"User creation failed: {r.status_code} {r.text}"
-    assert r.json().get("id") == user.id, f"User creation returned invalid user id: {r.status_code} {r.text}"
-
-
-def api_update_user(client: HttpSession, user: UserContext, access_token: str) -> None:
-    r = client.put(
-        f"{BACKEND_URL}/users/{user.id}",
-        headers=headers(access_token),
-        json={
-            "firstName": user.firstname,
-            "lastName": user.lastname,
-            "email": user.email,
-            "enabled": True,
-            "credentials": [
-                {
-                    "type": "password",
-                    "temporary": False,
-                    "value": user.password,
-                },
-            ]
-        },
-    )
-    assert r.status_code == 204, f"User update failed: {r.status_code} {r.text}"
-    assert r.text, f"User update returned no response: {r.status_code} {r.text}"
-
-
-def api_delete_user(client: HttpSession, user_id: str, access_token: str) -> None:
-    r = client.delete(
-        f"{BACKEND_URL}/users/{user_id}",
-        headers=headers(access_token),
-        params={"user_id": user_id},
-    )
-    assert r.status_code == 204, f"User deletion failed: {r.status_code} {r.text}"
-    assert r.text, f"User deletion returned no response: {r.status_code} {r.text}"
-
-
-############################################################################
-# Application functions
-############################################################################
-
-def api_get_applications(client: HttpSession, user_id: str, access_token: str) -> None:
-    params: dict[str, str] = {}
-    if user_id:
-        params["user_id"] = user_id
-    r = client.get(
-        f"{BACKEND_URL}/applications",
-        headers=headers(access_token),
-        params=params,
-    )
-    assert r.status_code == 200, f"Fetching applications failed: {r.status_code} {r.text}"
-    assert isinstance(r.json(),
-                      list), f"Fetching applications returned invalid data structure: {r.status_code} {r.text}"
-
-    applications: list[ApplicationContext] = []
-    for item in r.json():
-        if user_id:
-            assert item.get(
-                "user_id") == user_id, f"Fetching applications returned invalid user id: {r.status_code} {r.text}"
-            assert item.get(
-                "application_status") in APPLICATION_STATUSES, f"Fetching applications returned invalid application status: {r.status_code} {r.text}"
-        applications.append(
-            ApplicationContext(
-                id=int(item["id"]),
-                user_id=item["user_id"],
-                license_type=item["license_type"],
-                cadastral_reference=item["cadastral_reference"],
-                applied_at=item["applied_at"],
-                changed_at=item["changed_at"],
-                application_status=item["status"],
-                remarks=item["remarks"],
-            )
-        )
+    return user
 
 
 def api_create_application(client: HttpSession, application: ApplicationContext, user_id: str,
-                           access_token: str) -> None:
+                           access_token: str) -> ApplicationContext:
     r = client.post(
         f"{BACKEND_URL}/applications",
         headers=headers(access_token),
@@ -305,386 +65,57 @@ def api_create_application(client: HttpSession, application: ApplicationContext,
         },
     )
     assert r.status_code == 201, f"Application request failed: {r.status_code} {r.text}"
-    assert user_id == r.json().get("user_id"), f"Application request returned invalid user id: {r.status_code} {r.text}"
-    application.id = r.json().get("id")
-    application.applied_at = r.json().get("applied_at")
-    application.changed_at = r.json().get("changed_at")
+    assert user_id == safe_json(r).get(
+        "user_id"), f"Application request returned invalid user id: {r.status_code} {r.text}"
+    assert safe_json(r).get(
+        "application_status") in APPLICATION_STATUSES, f"Application request returned invalid application status: {r.status_code} {r.text}"
+
+    application.id = int(safe_json(r).get("id"))
+    application.applied_at = safe_json(r).get("applied_at")
+    application.changed_at = safe_json(r).get("changed_at")
+    application.application_status = safe_json(r).get("application_status")
+
+    return application
 
 
-def api_get_application_by_id(client: HttpSession, user_id: str, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/applications",
-        headers=headers(access_token),
-        params={"user_id": user_id}
-    )
-    assert r.status_code == 200, f"Fetching applications failed: {r.status_code} {r.text}"
-    assert r.json().get("id") == user_id, f"Fetching application returned invalid user id: {r.status_code} {r.text}"
-    assert r.json().get(
-        "application_status") in APPLICATION_STATUSES, f"Fetching applications returned invalid application status: {r.status_code} {r.text}"
-
-
-def api_update_application(client: HttpSession, application: ApplicationContext, new_application_status: str,
+def api_update_application(client: HttpSession, application: ApplicationContext,
                            new_cadastral_reference: str,
-                           new_remarks: str, new_license_type: str, access_token: str) -> None:
-    r = client.put(
+                           new_remarks: str, new_license_type: str, access_token: str) -> ApplicationContext:
+    new_application_status = "DRAFT"  # Only DRAFT status can be set via API
+    r = client.patch(
         f"{BACKEND_URL}/applications/{application.id}",
         headers=headers(access_token),
+        params={"application_id": application.id},
         json={
             "application_status": new_application_status,
-            "cadastral_reference": new_cadastral_reference,
             "remarks": new_remarks,
+            "cadastral_reference": new_cadastral_reference,
             "license_type": new_license_type,
         },
     )
     assert r.status_code == 200, f"Application update failed: {r.status_code} {r.text}"
-    assert application.id == r.json().get(
-        "id"), f"Application update returned invalid application id: {r.status_code} {r.text}"
-    assert isinstance(r.json(), dict), f"Application update returned invalid data structure: {r.status_code} {r.text}"
-    assert r.json().get(
+    assert application.id == int(safe_json(r).get(
+        "id")), f"Application update returned invalid application id: {r.status_code} {r.text}"
+    assert isinstance(safe_json(r),
+                      dict), f"Application update returned invalid data structure: {r.status_code} {r.text}"
+    assert safe_json(r).get(
         "application_status") == new_application_status, f"Application update returned invalid application status: {r.status_code} {r.text}"
-    assert r.json().get(
+    assert safe_json(r).get(
         "cadastral_reference") == new_cadastral_reference, f"Application update returned invalid cadastral reference: {r.status_code} {r.text}"
-    assert r.json().get(
+    assert safe_json(r).get(
         "remarks") == new_remarks, f"Application update returned invalid remarks: {r.status_code} {r.text}"
-    assert r.json().get(
+    assert safe_json(r).get(
         "license_type") == new_license_type, f"Application update returned invalid license type: {r.status_code} {r.text}"
-    assert r.json().get("applied_at") == application.applied_at
+    assert safe_json(r).get("applied_at") == application.applied_at
 
-    application.application_status = new_application_status
-    application.cadastral_reference = new_cadastral_reference
-    application.remarks = new_remarks
     application.license_type = new_license_type
-    application.changed_at = r.json().get("changed_at")
+    application.cadastral_reference = new_cadastral_reference
+    application.applied_at = safe_json(r).get("applied_at")
+    application.changed_at = safe_json(r).get("changed_at")
+    application.application_status = safe_json(r).get("application_status")
+    application.remarks = new_remarks
 
-
-def api_delete_application(client: HttpSession, application_id: str, access_token: str) -> None:
-    r = client.delete(
-        f"{BACKEND_URL}/applications/{application_id}",
-        headers=headers(access_token),
-        params={"application_id": application_id},
-    )
-    assert r.status_code == 204, f"Application deletion failed: {r.status_code} {r.text}"
-    assert r.text, f"Application deletion returned no response: {r.status_code} {r.text}"
-
-
-############################################################################
-# License functions
-############################################################################
-
-def api_get_licenses(client: HttpSession, user_id: str, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/licenses",
-        headers=headers(access_token),
-        params={"user_id": user_id},
-    )
-    assert r.status_code == 200, f"Fetching licenses failed: {r.status_code} {r.text}"
-    assert isinstance(r.json(), list), f"Fetching licenses returned invalid data structure: {r.status_code} {r.text}"
-
-    licenses: list[LicenseContext] = []
-    for item in r.json():
-        assert item.get("user_id") == user_id, f"Fetching licenses returned invalid user id: {r.status_code} {r.text}"
-        assert item.get(
-            "license_status") in LICENSE_STATUSES, f"Fetching license returned invalid license status: {r.status_code} {r.text}"
-        licenses.append(
-            LicenseContext(
-                id=int(item["id"]),
-                user_id=item["user_id"],
-                application_id=int(item["application_id"]),
-                license_type=item["license_type"],
-                license_status=item["status"],
-                issued_at=item["issued_at"],
-                expires_at=item["expiry_at"],
-                cadastral_reference=item["cadastral_reference"],
-            )
-        )
-
-
-def api_get_license_by_id(client: HttpSession, license_id: int, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/licenses/{license_id}",
-        headers=headers(access_token),
-        params={"license_id": license_id},
-    )
-    assert r.status_code == 200, f"Fetching license by id failed: {r.status_code} {r.text}"
-    assert r.json().get(
-        "id") == license_id, f"Fetching license by id returned invalid license id: {r.status_code} {r.text}"
-    assert r.json().get(
-        "license_status") in LICENSE_STATUSES, f"Fetching license returned invalid license status: {r.status_code} {r.text}"
-
-
-def api_update_license(client: HttpSession, license: LicenseContext, new_license_status: str,
-                       access_token: str) -> None:
-    r = client.put(
-        f"{BACKEND_URL}/licenses/{license.id}",
-        headers=headers(access_token),
-        params={"license_id": license.id},
-        json={
-            "license_status": new_license_status,
-        },
-    )
-    assert r.status_code == 200, f"License status update failed: {r.status_code} {r.text}"
-    assert r.json().get(
-        "id") == license.id, f"License status update returned invalid license id: {r.status_code} {r.text}"
-    assert r.json().get(
-        "status") == new_license_status, f"License status update returned invalid license status: {r.status_code} {r.text}"
-    license.license_status = new_license_status
-
-
-def api_delete_license(client: HttpSession, license_id: int, access_token: str) -> None:
-    r = client.delete(
-        f"{BACKEND_URL}/licenses/{license_id}",
-        headers=headers(access_token),
-        params={"license_id": license_id},
-    )
-    assert r.status_code == 204, f"License deletion failed: {r.status_code} {r.text}"
-    assert r.json().get("description"), f"License deletion returned no description: {r.status_code} {r.text}"
-
-
-############################################################################
-# Document verification functions
-############################################################################
-
-def api_get_document_verification_status(client: HttpSession, application: ApplicationContext,
-                                         access_token: str) -> ResponseContextManager:
-    r = client.get(
-        f"{BACKEND_URL}/applications/{application.id}/documents",
-        headers=headers(access_token),
-        params={"application_id": application.id},
-    )
-    assert r.status_code == 200, f"Document status fetch failed: {r.status_code} {r.text}"
-    assert application.id == r.json().get(
-        "application_id"), f"Document status fetch returned invalid application id: {r.status_code} {r.text}"
-    assert r.json().get(
-        "status") in DOCUMENT_STATUSES, f"Document status fetch returned invalid status: {r.status_code} {r.text}"
-    application.status = r.json().get("status")
-    application.rejection_reason = r.json().get("rejection_reason")
-
-    return r
-
-
-# TODO: FIX API (duplicate of get_document_verification_status)
-def api_get_document_status(client: HttpSession, application: ApplicationContext,
-                            access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/applications/{application.id}/documents",
-        headers=headers(access_token),
-        params={"application_id": application.id},
-    )
-    assert r.status_code == 200, f"Document status fetch failed: {r.status_code} {r.text}"
-    assert application.id == r.json().get(
-        "application_id"), f"Document status fetch returned invalid application id: {r.status_code} {r.text}"
-    assert r.json().get(
-        "status") in DOCUMENT_STATUSES, f"Document status fetch returned invalid status: {r.status_code} {r.text}"
-    application.status = r.json().get("status")
-    application.rejection_reason = r.json().get("rejection_reason")
-
-
-############################################################################
-# Payment functions
-############################################################################
-
-def api_get_payments(client: HttpSession, application_id: str, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/applications/{application_id}/payments",
-        headers=headers(access_token),
-        params={"application_id": application_id},
-    )
-    assert r.status_code == 200, f"Fetching payments failed: {r.status_code} {r.text}"
-    assert isinstance(r.json(),
-                      list), f"Fetching payments returned invalid data structure: {r.status_code} {r.text}"
-
-    payments: list[PaymentContext] = []
-    for item in r.json():
-        assert item.get(
-            "application_id") == application_id, f"Fetching payments returned invalid application id: {r.status_code} {r.text}"
-        assert item.get(
-            "payment_status") in PAYMENT_STATUSES, f"Fetching payment returned invalid payment status: {r.status_code} {r.text}"
-        payments.append(
-            PaymentContext(
-                id=int(item["id"]),
-                application_id=int(item["application_id"]),
-                amount=float(item["amount"]),
-                name=item["name"],
-                iban=item["iban"],
-                bic=item["bic"],
-                payment_date=item["payment_date"],
-                payment_status=item["status"],
-            )
-        )
-
-
-def api_create_payment(client: HttpSession, application_id: int, payment: PaymentContext,
-                       access_token: str) -> None:
-    r = client.post(
-        f"{BACKEND_URL}/applications/{application_id}/payments",
-        headers=headers(access_token),
-        json={
-            "application_id": application_id,
-            "name": payment.name,
-            "iban": payment.iban,
-            "bic": payment.bic,
-        },
-    )
-    assert r.status_code == 201, f"Payment creation failed: {r.status_code} {r.text}"
-    assert application_id == r.json().get(
-        "application_id"), f"Payment creation returned invalid application id: {r.status_code} {r.text}"
-    assert payment.amount == r.json().get(
-        "amount"), f"Payment creation returned invalid amount: {r.status_code} {r.text}"
-    assert r.json().get(
-        "payment_status") in PAYMENT_STATUSES, f"Payment create returned invalid status: {r.status_code} {r.text}"
-    payment.id = r.json().get("id")
-    payment.application_id = application_id
-    payment.payment_date = r.json().get("payment_date")
-    payment.payment_status = r.json().get("status")
-
-
-def api_get_application_fee(client: HttpSession, application: ApplicationContext, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/fees/{application.id}",
-        headers=headers(access_token),
-        params={"application_id": application.id},
-    )
-    assert r.status_code == 200, f"Fetching application fees failed: {r.status_code} {r.text}"
-    assert application.id == r.json().get(
-        "application_id"), f"Fetching application fees returned invalid application id: {r.status_code} {r.text}"
-    assert r.json().get("fee_amount") == LICENSE_MAP[
-        application.license_type].price, f"Fetching application fees returned invalid amount: {r.json().get('fee_amount')}"
-    application.amount = r.json().get("fee_amount")
-
-
-############################################################################
-# Ballot period functions
-############################################################################
-
-def api_get_ballot_periods(client: HttpSession, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/ballot-periods",
-        headers=headers(access_token),
-    )
-    assert r.status_code == 200, f"Fetching ballot periods failed: {r.status_code} {r.text}"
-    assert isinstance(r.json(),
-                      list), f"Fetching ballot periods returned invalid data structure: {r.status_code} {r.text}"
-
-    ballot_periods: list[BallotPeriodContext] = []
-    for item in r.json():
-        ballot_periods.append(
-            BallotPeriodContext(
-                ballot_period_id=int(item["id"]),
-                start_date=item["start_date"],
-                end_date=item["end_date"],
-                total_applications=int(item["total_applications"]),
-            )
-        )
-
-
-def api_create_ballot_period(client: HttpSession, start_date: str, end_date: str,
-                             access_token: str) -> None:
-    r = client.post(
-        f"{BACKEND_URL}/ballot-periods",
-        headers=headers(access_token),
-        json={
-            "start_date": start_date,
-            "end_date": end_date,
-        },
-    )
-    assert r.status_code == 201, f"Ballot period creation failed: {r.status_code} {r.text}"
-    assert r.json().get("id"), f"Ballot period creation returned no id: {r.status_code} {r.text}"
-
-
-def api_get_current_ballot_period(client: HttpSession, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/ballot-periods/current",
-        headers=headers(access_token),
-    )
-    assert r.status_code == 200, f"Fetching current ballot period failed: {r.status_code} {r.text}"
-
-
-def api_get_ballot_period(client: HttpSession, ballot_period_id: int, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/ballot-periods/{ballot_period_id}",
-        headers=headers(access_token),
-        params={"ballot_period_id": ballot_period_id},
-    )
-    assert r.status_code == 200, f"Fetching ballot period by id failed: {r.status_code} {r.text}"
-
-
-def api_get_ballot_period_entries(client: HttpSession, ballot_period_id: int, access_token: str) -> None:
-    r = client.get(
-        f"{BACKEND_URL}/ballot-periods/{ballot_period_id}/entries",
-        headers=headers(access_token),
-        params={"period_id": ballot_period_id},
-    )
-    assert r.status_code == 200, f"Fetching ballot period entries failed: {r.status_code} {r.text}"
-    assert isinstance(r.json(),
-                      list), f"Fetching ballot period entries returned invalid data structure: {r.status_code} {r.text}"
-
-    applications: list[ApplicationContext] = []
-    for item in r.json():
-        assert item.get(
-            "id") == ballot_period_id, f"Fetching ballot period entries returned invalid ballot period id: {r.status_code} {r.text}"
-        assert r.json().get(
-            "application_status") in APPLICATION_STATUSES, f"Fetching ballot period entries returned invalid application status: {r.status_code} {r.text}"
-        applications.append(
-            ApplicationContext(
-                id=int(item["id"]),
-                user_id=item["user_id"],
-                license_type=item["license_type"],
-                cadastral_reference=item["cadastral_reference"],
-                applied_at=item["applied_at"],
-                changed_at=item["changed_at"],
-                application_status=item["status"],
-                remarks=item["remarks"],
-            )
-        )
-
-
-def api_create_lottery(client: HttpSession, ballot_period_id: int, license_count: int, license_type: str,
-                       access_token: str) -> None:
-    json: dict[str, str] = {}
-    if license_type and license_count > 0:
-        json["license_type"] = license_type
-    r = client.post(
-        f"{BACKEND_URL}/ballot-periods/{ballot_period_id}/draw",
-        headers=headers(access_token),
-        params={"period_id": ballot_period_id},
-        json=json
-    )
-    assert r.status_code == 200, f"Lottery creation failed: {r.status_code} {r.text}"
-    assert r.json().get(
-        "selected_applications"), f"Lottery creation returned no selected applications: {r.status_code} {r.text}"
-
-    selected_applications: list[ApplicationContext] = []
-    rejected_applications: list[ApplicationContext] = []
-    for item in r.json().get("selected_applications"):
-        assert r.json().get(
-            "application_status") in APPLICATION_STATUSES, f"Fetching ballot period entries returned invalid application status: {r.status_code} {r.text}"
-        selected_applications.append(
-            ApplicationContext(
-                id=int(item["id"]),
-                user_id=item["user_id"],
-                license_type=item["license_type"],
-                cadastral_reference=item["cadastral_reference"],
-                applied_at=item["applied_at"],
-                changed_at=item["changed_at"],
-                application_status=item["status"],
-                remarks=item["remarks"],
-            )
-        )
-    for item in r.json().get("rejected_applications"):
-        assert r.json().get(
-            "application_status") in APPLICATION_STATUSES, f"Fetching ballot period entries returned invalid application status: {r.status_code} {r.text}"
-        rejected_applications.append(
-            ApplicationContext(
-                id=int(item["id"]),
-                user_id=item["user_id"],
-                license_type=item["license_type"],
-                cadastral_reference=item["cadastral_reference"],
-                applied_at=item["applied_at"],
-                changed_at=item["changed_at"],
-                application_status=item["status"],
-                remarks=item["remarks"],
-            )
-        )
+    return application
 
 
 def api_create_application_documents(client: HttpSession, application_id: int, access_token: str) -> None:
@@ -699,13 +130,21 @@ def api_create_application_documents(client: HttpSession, application_id: int, a
         ],
     )
     assert r.status_code == 200, f"Document upload failed: {r.status_code} {r.text}"
-    assert application_id == r.json().get(
+    assert application_id == safe_json(r).get(
         "application_id"), f"Document upload returned invalid application id: {r.status_code} {r.text}"
 
 
-############################################################################
-# Synthetic functions
-############################################################################
+def api_get_document_verification_status(client: HttpSession, application: ApplicationContext,
+                                         access_token: str) -> ResponseContextManager:
+    r = client.get(
+        f"{BACKEND_URL}/applications/{application.id}/documents",
+        headers=headers(access_token),
+        params={"application_id": application.id},
+    )
+    assert r.status_code == 200, f"Document status fetch failed: {r.status_code} {r.text}"
+
+    return r
+
 
 def api_wait_for_document_verification(
         client: HttpSession,
@@ -714,41 +153,261 @@ def api_wait_for_document_verification(
         timeout_seconds: int = 120,
         initial_interval: float = 0.2,
         max_interval: float = 2.0,
-) -> None:
+) -> ApplicationContext:
+
     deadline = time.monotonic() + timeout_seconds
     interval = initial_interval
-
     r = None
+    msg = None
+
     while time.monotonic() < deadline:
         r = api_get_document_verification_status(client, application, access_token)
 
-        if application.application_status != DOCUMENT_STATUSES.PENDING:
-            return
+        if safe_json(r).get("status") in ["VERIFIED", "REJECTED"]:
+            assert application.id == safe_json(r).get(
+                "application_id"), f"Document status fetch returned invalid application id: {r.status_code} {r.text}"
+            assert safe_json(r).get(
+                "status") in DOCUMENT_STATUSES, f"Document status fetch returned invalid status: {r.status_code} {r.text}"
+            application.status = safe_json(r).get("status")
+            application.rejection_reason = safe_json(r).get("rejection_reason")
+            return application
 
-        # backoff + jitter (to avoid thundering herd)
-        jitter = random.uniform(-0.2, 0.2) * interval
-        time.sleep(max(0.0, interval + jitter))
-        interval = min(max_interval, interval * 1.5)
+        if safe_json(r).get("status") == ["PENDING"]:
+            # backoff + jitter (to avoid thundering herd)
+            jitter = random.uniform(-0.2, 0.2) * interval
+            time.sleep(max(0.0, interval + jitter))
+            interval = min(max_interval, interval * 1.5)
+
+            msg = f"Document verification returned invalid status {application.id}: {safe_json(r).get('status')}"
 
     # Timeout
-    msg = f"Document verification timed out for application {application.id}"
-    if r is None:
-        raise RuntimeError(msg + ": no response")
+    if msg is None:
+        msg = f"Document verification timed out for application {application.id}"
+
     raise RuntimeError(msg + f": {r.status_code} {r.text}")
 
 
-############################################################################
-# Helper functions
-############################################################################
+def api_get_application_fee(client: HttpSession, application: ApplicationContext, payment: PaymentContext,
+                            access_token: str) -> PaymentContext:
+    r = client.get(
+        f"{BACKEND_URL}/fees/{application.id}",
+        headers=headers(access_token),
+        params={"application_id": application.id},
+    )
+    assert r.status_code == 200, f"Fetching application fees failed: {r.status_code} {r.text}"
+    assert application.id == safe_json(r).get(
+        "application_id"), f"Fetching application fees returned invalid application id: {r.status_code} {r.text}"
+    assert float(safe_json(r).get("fee_amount")) == LICENSE_MAP[
+        application.license_type].price, f"Fetching application fees returned invalid amount: {safe_json(r).get('fee_amount')}"
+    payment.amount = float(safe_json(r).get("fee_amount"))
 
-def api_update_application_status(client: HttpSession, application: ApplicationContext,
-                                  access_token: str) -> None:
+    return payment
+
+
+def api_create_payment(client: HttpSession, application_id: int, payment: PaymentContext,
+                       access_token: str) -> PaymentContext:
+    r = client.post(
+        f"{BACKEND_URL}/applications/{application_id}/payments",
+        headers=headers(access_token),
+        params={"application_id": application_id},
+        json={
+            "application_id": application_id,
+            "name": payment.name,
+            "iban": payment.iban,
+            "bic": payment.bic,
+        },
+    )
+    assert r.status_code == 201, f"Payment creation failed: {r.status_code} {r.text}"
+    assert application_id == safe_json(r).get(
+        "application_id"), f"Payment creation returned invalid application id: {r.status_code} {r.text}"
+    assert payment.amount == float(safe_json(r).get(
+        "amount")), f"Payment creation returned invalid amount: {r.status_code} {r.text}"
+    assert safe_json(r).get(
+        "payment_status") in PAYMENT_STATUSES, f"Payment create returned invalid status: {r.status_code} {r.text}"
+    payment.id = int(safe_json(r).get("id"))
+    payment.application_id = int(safe_json(r).get("application_id"))
+    payment.amount = float(safe_json(r).get("amount"))
+    payment.payment_date = safe_json(r).get("payment_date")
+    payment.payment_status = safe_json(r).get("payment_status")
+
+    return payment
+
+
+def api_list_applications(client: HttpSession, user_id: str, access_token: str) -> list[ApplicationContext]:
+    r = client.get(
+        f"{BACKEND_URL}/applications",
+        headers=headers(access_token),
+        params={"user_id": user_id},
+    )
+    assert r.status_code == 200, f"Fetching applications failed: {r.status_code} {r.text}"
+    assert isinstance(safe_json(r),
+                      list), f"Fetching applications returned invalid data structure: {r.status_code} {r.text}"
+
+    applications: list[ApplicationContext] = []
+    for item in safe_json(r):
+        assert item.get(
+            "user_id") == user_id, f"Fetching applications returned invalid user id: {r.status_code} {r.text}"
+        assert item.get(
+            "application_status") in APPLICATION_STATUSES, f"Fetching applications returned invalid application status: {r.status_code} {r.text}"
+        applications.append(
+            ApplicationContext(
+                id=int(item["id"]),
+                user_id=item["user_id"],
+                license_type=item["license_type"],
+                cadastral_reference=item["cadastral_reference"],
+                applied_at=item["applied_at"],
+                changed_at=item["changed_at"],
+                application_status=item["application_status"],
+                remarks=item["remarks"],
+            )
+        )
+    return applications if applications else None
+
+
+def api_list_applications_by_id(client: HttpSession, application: ApplicationContext, user_id: str,
+                                access_token: str) -> ApplicationContext:
     r = client.get(
         f"{BACKEND_URL}/applications/{application.id}",
         headers=headers(access_token),
-        data={"application_id": application.id},
+        params={"user_id": user_id}
     )
-    assert r.status_code == 200, f"Fetching application status failed: {r.status_code} {r.text}"
-    assert application.id == r.json().get(
-        "application_id"), f"Fetching application status returned invalid application id: {r.status_code} {r.text}"
-    application.status = r.json().get("status")
+    assert r.status_code == 200, f"Fetching applications failed: {r.status_code} {r.text}"
+    assert safe_json(r).get(
+        "id") == application.id, f"Fetching application returned invalid user id: {r.status_code} {r.text}"
+    assert safe_json(r).get(
+        "application_status") in APPLICATION_STATUSES, f"Fetching applications returned invalid application status: {r.status_code} {r.text}"
+
+    application.id = int(safe_json(r).get("id"))
+    application.user_id = safe_json(r).get("user_id")
+    application.license_type = safe_json(r).get("license_type")
+    application.cadastral_reference = safe_json(r).get("cadastral_reference")
+    application.applied_at = safe_json(r).get("applied_at")
+    application.changed_at = safe_json(r).get("changed_at")
+    application.application_status = safe_json(r).get("application_status")
+    application.remarks = safe_json(r).get("remarks")
+
+    return application
+
+
+def api_get_user_by_id(client: HttpSession, user: UserContext, access_token: str) -> UserContext:
+    r = client.get(
+        f"{BACKEND_URL}/users/{user.id}",
+        headers=headers(access_token),
+        params={"user_id": user.id},
+    )
+    assert r.status_code == 200, f"Fetching user by id failed: {r.status_code} {r.text}"
+    assert safe_json(r).get("id") == user.id, f"Fetching user by id returned invalid user id: {r.status_code} {r.text}"
+
+    user.id = safe_json(r).get("id")
+    user.username = safe_json(r).get("username")
+    user.email = safe_json(r).get("email")
+    user.firstName = safe_json(r).get("firstName")
+    user.lastName = safe_json(r).get("lastName")
+    user.enabled = bool(safe_json(r).get("enabled"))
+    user.email_verified = bool(safe_json(r).get("emailVerified"))
+    user.created_timestamp = safe_json(r).get("createdTimestamp")
+
+    return user
+
+
+def api_list_licenses(client: HttpSession, user_id: str, access_token: str) -> LicenseContext | None:
+    r = client.get(
+        f"{BACKEND_URL}/licenses",
+        headers=headers(access_token),
+        params={"user_id": user_id},
+    )
+    assert r.status_code == 200 or r.status_code == 404, f"Fetching licenses failed: {r.status_code} {r.text}"
+    if r.status_code == 404:
+        print("INFO: Fetching licenses returned no matches:", user_id)
+        return None
+    assert isinstance(safe_json(r),
+                      list), f"Fetching licenses returned invalid data structure: {r.status_code} {r.text}"
+
+    licenses: list[LicenseContext] = []
+    for item in safe_json(r):
+        assert item.get("user_id") == user_id, f"Fetching licenses returned invalid user id: {r.status_code} {r.text}"
+        assert item.get(
+            "license_status") in LICENSE_STATUSES, f"Fetching license returned invalid license status: {r.status_code} {r.text}"
+        licenses.append(
+            LicenseContext(
+                id=int(item["id"]),
+                user_id=item["user_id"],
+                application_id=int(item["application_id"]),
+                license_type=item["license_type"],
+                license_status=item["license_status"],
+                issued_at=item["issued_at"],
+                expires_at=item["expires_at"],
+                cadastral_reference=item["cadastral_reference"],
+            )
+        )
+    return licenses[len(licenses) - 1] if licenses else None
+
+
+def api_get_license_by_id(client: HttpSession, license: LicenseContext, access_token: str) -> LicenseContext:
+    if license is None:
+        return None
+
+    r = client.get(
+        f"{BACKEND_URL}/licenses/{license.id}",
+        headers=headers(access_token),
+        params={"license_id": license.id},
+    )
+    assert r.status_code == 200, f"Fetching license by id failed: {r.status_code} {r.text}"
+    assert safe_json(r).get(
+        "id") == license.id, f"Fetching license by id returned invalid license id: {r.status_code} {r.text}"
+    assert safe_json(r).get(
+        "license_status") in LICENSE_STATUSES, f"Fetching license returned invalid license status: {r.status_code} {r.text}"
+
+    license.user_id = safe_json(r).get("user_id")
+    license.application_id = int(safe_json(r).get("application_id"))
+    license.license_type = safe_json(r).get("license_type")
+    license.license_status = safe_json(r).get("license_status")
+    license.issued_at = safe_json(r).get("issued_at")
+    license.expires_at = safe_json(r).get("expires_at")
+    license.cadastral_reference = safe_json(r).get("cadastral_reference")
+
+    return license
+
+
+def api_list_payments(client: HttpSession, application_id: int, access_token: str) -> PaymentContext:
+    r = client.get(
+        f"{BACKEND_URL}/applications/{application_id}/payments",
+        headers=headers(access_token),
+        params={"application_id": application_id},
+    )
+    assert r.status_code == 200, f"Fetching payments failed: {r.status_code} {r.text}"
+    assert isinstance(safe_json(r),
+                      list), f"Fetching payments returned invalid data structure: {r.status_code} {r.text}"
+
+    payments: list[PaymentContext] = []
+    for item in safe_json(r):
+        assert item.get(
+            "application_id") == application_id, f"Fetching payments returned invalid application id: {r.status_code} {r.text}"
+        assert item.get(
+            "payment_status") in PAYMENT_STATUSES, f"Fetching payment returned invalid payment status: {r.status_code} {r.text}"
+        payments.append(
+            PaymentContext(
+                id=int(item["id"]),
+                application_id=int(item["application_id"]),
+                amount=float(item["amount"]),
+                name=item["name"],
+                iban=item["iban"],
+                bic=item["bic"],
+                payment_date=item["payment_date"],
+                payment_status=item["payment_status"],
+            )
+        )
+    return payments[len(payments) - 1] if payments else None
+
+
+def api_logout(client: HttpSession, user_or_admin: UserContext) -> UserContext:
+    user_or_admin.access_token = ""
+    user_or_admin.refresh_token = ""
+    user_or_admin.expires_in = 0
+    user_or_admin.refresh_expires_in = 0
+    user_or_admin.token_type = ""
+    user_or_admin.is_admin = False
+
+    client.headers.pop("Authorization", None)
+
+    return user_or_admin

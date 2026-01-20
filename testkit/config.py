@@ -10,9 +10,9 @@ def _env(name: str, default: str | None = None) -> str:
     return val
 
 
-FRONTEND_URL = _env("FRONTEND_URL", "http://localhost:3000")
-BACKEND_URL = _env("BACKEND_URL", "http://localhost:8080")
-TEST_PDF_PATH = _env("TEST_PDF_PATH", "tests/sample.pdf")
+FRONTEND_URL = _env("FRONTEND_URL")
+BACKEND_URL = _env("BACKEND_URL")
+TEST_PDF_PATH = _env("TEST_PDF_PATH")
 
 ACCESS_TOKEN_KEY = "accessToken"
 REFRESH_TOKEN_KEY = "refreshToken"
