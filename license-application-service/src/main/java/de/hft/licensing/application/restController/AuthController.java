@@ -63,7 +63,7 @@ public class AuthController implements AuthenticationApi {
             return ResponseEntity.badRequest().body(registerResource);
         }
         log.info("Registration attempt for email: {}", registerRequest.getEmail());
-        return ResponseEntity.created(URI.create("/auth/register/" + registerResource.getUserId())).build();
+        return ResponseEntity.created(URI.create("/auth/register/" + registerResource.getUserId())).body(registerResource);
     }
 
     @Override
