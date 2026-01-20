@@ -34,7 +34,7 @@ def ui_register(page, user: UserContext) -> None:
         page.locator("#registerButton").click()
 
     r = res_info.value
-    assert r.status == 201, f"Registration failed: {r.status} {r.text()}"
+    assert r.status == 200, f"Registration failed: {r.status} {r.text()}"
 
     data = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
     user_id = data.get("user_id") or data.get("id") or data.get("userId")
@@ -254,6 +254,15 @@ def ui_view_user_details(page: Page) -> None:
     page.wait_for_url(f"{FRONTEND_URL}/")
 
 
+def ui_edit_user_details(page: Page) -> None:
+    if not page.url == f"{FRONTEND_URL}/":
+        page.goto(f"{FRONTEND_URL}/")
+    page.locator("#profileLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/profile")
+    page.locator("#deleteAccBtn").wait_for(state="visible")
+
+    page.locator("#homeLink").click()
+    page.wait_for_url(f"{FRONTEND_URL}/")
 
 '''
 def ui_create_user(user: UserContext, access_token: str) -> None:
@@ -494,8 +503,8 @@ def ui_create_application(page: Page, application: ApplicationContext, user: Use
 
 
 def ui_edit_application(page: Page, application: ApplicationContext, user: UserContext) -> None:
-    if not page.url == f"/applications/edit/{application.id}":
-        page.goto(f"/applications/edit/{application.id}")
+    if not page.url == f"/license-application-request/edit/{application.id}":
+        page.goto(f"/license-application-request/edit/{application.id}")
     page.locator("#cadastral_number").fill(application.cadastral_reference)
     page.locator(f'#rental_license_type_{application.license_type}').check()
     page.locator("#additional_comments").fill(application.remarks)
@@ -503,12 +512,12 @@ def ui_edit_application(page: Page, application: ApplicationContext, user: UserC
     page.locator("#consent_personal_data").check()
 
     with page.expect_response(
-            lambda res: res.request.method == "POST" and re.search(rf"/applications/edit/{application.id}$", res.url)
+            lambda res: res.request.method == "PATCH" and re.search(rf"/applications/{application.id}$", res.url)
     ) as res_info:
         page.locator("#submitApplicationBtn").click()
     r = res_info.value
 
-    assert r.status == 201, f"Application request failed: {r.status} {r.text()}"
+    assert r.status == 200, f"Application request failed: {r.status} {r.text()}"
     assert user.id == r.json().get("user_id"), f"Application request returned invalid user id: {r.status} {r.text()}"
     application.id = r.json().get("id")
     application.applied_at = r.json().get("applied_at")
@@ -784,8 +793,6 @@ def ui_get_payments(application_id: str, access_token: str) -> list[PaymentConte
 def ui_skip_payment(page: Page, user: UserContext, application: ApplicationContext, payment: PaymentContext) -> None:
     if not page.url == f"{FRONTEND_URL}/payment/{application.id}":
         page.goto(f"{FRONTEND_URL}/payment/{application.id}")
-
-    payment.amount = _get_application_fee(application, user.access_token)
 
     page.locator("#payLaterBtn").click()
 
@@ -1258,4 +1265,4 @@ def _get_application_fee(application: ApplicationContext, access_token: str) -> 
         application.license_type].price, f"Fetching application fees returned invalid amount: {r.json().get('fee_amount')}"
     application.amount = r.json().get("fee_amount")
 
-    return application.amount
+    return float(r.json().get("fee_amount"))

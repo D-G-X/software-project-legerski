@@ -8,7 +8,7 @@ from testkit.config import FRONTEND_URL
 
 AUTH_DIR = Path(".auth")
 TIMEOUT = 10_000
-SLOW_MO = 1000
+SLOW_MO = 100
 
 load_dotenv()
 

@@ -629,6 +629,7 @@ export default function ApplicationDetails({
                   applicationData?.application_status,
                 ) && (
                   <button
+                    id="editBtn"
                     onClick={() =>
                       handleFinishApplication(
                         applicationData?.application_status,

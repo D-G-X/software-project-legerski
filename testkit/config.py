@@ -1,7 +1,12 @@
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 from testkit.models import LicenseType
 
+ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / "tests/.env", override=False)
 
 def _env(name: str, default: str | None = None) -> str:
     val = os.getenv(name, default)
