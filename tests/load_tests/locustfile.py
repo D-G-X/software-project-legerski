@@ -9,6 +9,7 @@ from api_runner import api_register, api_login, api_logout, api_create_applicati
     api_list_payments, api_wait_for_document_verification, api_list_licenses
 from testkit.factory import new_user, new_application, new_payment, new_license
 from testkit.models import UserContext, ApplicationContext, PaymentContext, LicenseContext
+from tests.load_tests.api_runner import api_get_license_by_id
 
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 os.environ.setdefault("BACKEND_URL", "")
@@ -21,7 +22,7 @@ class RegisterLoginLogout(SequentialTaskSet):
         self.test_user: UserContext = new_user()
         self.test_application: ApplicationContext = new_application()
         self.test_payment: PaymentContext = new_payment()
-        self.test_licenses: LicenseContext = new_license()
+        self.test_license: LicenseContext = new_license()
 
     @task
     def register(self):
@@ -51,7 +52,8 @@ class RegisterLoginLogout(SequentialTaskSet):
 
     @task
     def payment(self):
-        self.test_application = api_get_application_fee(self.client, self.test_application, self.test_user.access_token)
+        self.test_payment = api_get_application_fee(self.client, self.test_application, self.test_payment,
+                                                    self.test_user.access_token)
         self.test_payment = api_create_payment(self.client, self.test_application.id, self.test_payment,
                                                self.test_user.access_token)
 
@@ -65,6 +67,7 @@ class RegisterLoginLogout(SequentialTaskSet):
                                                             self.test_user.access_token)
         self.test_user = api_get_user_by_id(self.client, self.test_user, self.test_user.access_token)
         self.test_license = api_list_licenses(self.client, self.test_user.id, self.test_user.access_token)
+        self.test_license = api_get_license_by_id(self.client, self.test_license, self.test_user.access_token)
         self.test_application = api_wait_for_document_verification(self.client, self.test_application,
                                                                    self.test_user.access_token)
         self.test_payment = api_list_payments(self.client, self.test_application.id, self.test_user.access_token)

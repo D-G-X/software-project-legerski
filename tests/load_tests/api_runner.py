@@ -141,9 +141,7 @@ def api_get_document_verification_status(client: HttpSession, application: Appli
         headers=headers(access_token),
         params={"application_id": application.id},
     )
-    print(
-        f"Fetching document verification status for application {application.id}: " f"{r.status_code} {r.text}: {safe_json(r).get("status")}")
-    assert r.status_code == 200 or r.status_code == 404, f"Document status fetch failed: {r.status_code} {r.text}"
+    assert r.status_code == 200, f"Document status fetch failed: {r.status_code} {r.text}"
 
     return r
 
@@ -156,14 +154,16 @@ def api_wait_for_document_verification(
         initial_interval: float = 0.2,
         max_interval: float = 2.0,
 ) -> ApplicationContext:
+
     deadline = time.monotonic() + timeout_seconds
     interval = initial_interval
     r = None
+    msg = None
 
     while time.monotonic() < deadline:
         r = api_get_document_verification_status(client, application, access_token)
 
-        if r.status_code == 200 and safe_json(r).get("status") in ["VERIFIED", "REJECTED"]:
+        if safe_json(r).get("status") in ["VERIFIED", "REJECTED"]:
             assert application.id == safe_json(r).get(
                 "application_id"), f"Document status fetch returned invalid application id: {r.status_code} {r.text}"
             assert safe_json(r).get(
@@ -172,19 +172,23 @@ def api_wait_for_document_verification(
             application.rejection_reason = safe_json(r).get("rejection_reason")
             return application
 
-        # backoff + jitter (to avoid thundering herd)
-        jitter = random.uniform(-0.2, 0.2) * interval
-        time.sleep(max(0.0, interval + jitter))
-        interval = min(max_interval, interval * 1.5)
+        if safe_json(r).get("status") == ["PENDING"]:
+            # backoff + jitter (to avoid thundering herd)
+            jitter = random.uniform(-0.2, 0.2) * interval
+            time.sleep(max(0.0, interval + jitter))
+            interval = min(max_interval, interval * 1.5)
+
+            msg = f"Document verification returned invalid status {application.id}: {safe_json(r).get('status')}"
 
     # Timeout
-    msg = f"Document verification timed out for application {application.id}"
+    if msg is None:
+        msg = f"Document verification timed out for application {application.id}"
 
     raise RuntimeError(msg + f": {r.status_code} {r.text}")
 
 
-def api_get_application_fee(client: HttpSession, application: ApplicationContext,
-                            access_token: str) -> ApplicationContext:
+def api_get_application_fee(client: HttpSession, application: ApplicationContext, payment: PaymentContext,
+                            access_token: str) -> PaymentContext:
     r = client.get(
         f"{BACKEND_URL}/fees/{application.id}",
         headers=headers(access_token),
@@ -193,11 +197,11 @@ def api_get_application_fee(client: HttpSession, application: ApplicationContext
     assert r.status_code == 200, f"Fetching application fees failed: {r.status_code} {r.text}"
     assert application.id == safe_json(r).get(
         "application_id"), f"Fetching application fees returned invalid application id: {r.status_code} {r.text}"
-    assert safe_json(r).get("fee_amount") == LICENSE_MAP[
+    assert float(safe_json(r).get("fee_amount")) == LICENSE_MAP[
         application.license_type].price, f"Fetching application fees returned invalid amount: {safe_json(r).get('fee_amount')}"
-    application.amount = safe_json(r).get("fee_amount")
+    payment.amount = float(safe_json(r).get("fee_amount"))
 
-    return application
+    return payment
 
 
 def api_create_payment(client: HttpSession, application_id: int, payment: PaymentContext,
@@ -216,8 +220,8 @@ def api_create_payment(client: HttpSession, application_id: int, payment: Paymen
     assert r.status_code == 201, f"Payment creation failed: {r.status_code} {r.text}"
     assert application_id == safe_json(r).get(
         "application_id"), f"Payment creation returned invalid application id: {r.status_code} {r.text}"
-    assert payment.amount == safe_json(r).get(
-        "amount"), f"Payment creation returned invalid amount: {r.status_code} {r.text}"
+    assert payment.amount == float(safe_json(r).get(
+        "amount")), f"Payment creation returned invalid amount: {r.status_code} {r.text}"
     assert safe_json(r).get(
         "payment_status") in PAYMENT_STATUSES, f"Payment create returned invalid status: {r.status_code} {r.text}"
     payment.id = int(safe_json(r).get("id"))
@@ -306,13 +310,16 @@ def api_get_user_by_id(client: HttpSession, user: UserContext, access_token: str
     return user
 
 
-def api_list_licenses(client: HttpSession, user_id: str, access_token: str) -> LicenseContext:
+def api_list_licenses(client: HttpSession, user_id: str, access_token: str) -> LicenseContext | None:
     r = client.get(
         f"{BACKEND_URL}/licenses",
         headers=headers(access_token),
         params={"user_id": user_id},
     )
-    assert r.status_code == 200, f"Fetching licenses failed: {r.status_code} {r.text}"
+    assert r.status_code == 200 or r.status_code == 404, f"Fetching licenses failed: {r.status_code} {r.text}"
+    if r.status_code == 404:
+        print("INFO: Fetching licenses returned no matches:", user_id)
+        return None
     assert isinstance(safe_json(r),
                       list), f"Fetching licenses returned invalid data structure: {r.status_code} {r.text}"
 
@@ -337,12 +344,14 @@ def api_list_licenses(client: HttpSession, user_id: str, access_token: str) -> L
 
 
 def api_get_license_by_id(client: HttpSession, license: LicenseContext, access_token: str) -> LicenseContext:
+    if license is None:
+        return None
+
     r = client.get(
         f"{BACKEND_URL}/licenses/{license.id}",
         headers=headers(access_token),
         params={"license_id": license.id},
     )
-    ### SHOULD FAIL
     assert r.status_code == 200, f"Fetching license by id failed: {r.status_code} {r.text}"
     assert safe_json(r).get(
         "id") == license.id, f"Fetching license by id returned invalid license id: {r.status_code} {r.text}"

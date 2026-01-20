@@ -642,6 +642,7 @@ paths:
                   type: string
                   description: Validation result
                   enum:
+                    - PENDING
                     - VERIFIED
                     - REJECTED
                 rejection_reason:
@@ -684,6 +685,7 @@ paths:
                     type: string
                     description: Validation result
                     enum:
+                      - PENDING
                       - VERIFIED
                       - REJECTED
                   rejection_reason:
