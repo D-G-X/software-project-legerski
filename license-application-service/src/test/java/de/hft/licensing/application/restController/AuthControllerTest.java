@@ -155,8 +155,7 @@ class AuthControllerWebMvcTest {
         mvc.perform(post("/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/auth/register/" + id));
+                .andExpect(status().is2xxSuccessful());
     }
 
     @Test

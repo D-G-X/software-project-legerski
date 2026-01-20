@@ -185,8 +185,8 @@ public class UserService {
     }
 
     @Transactional
-    public void createNotification(int applicationId, UUID userId, String message) {
-        repository.createNotification(applicationId, userId, message);
+    public void createNotification(int applicationId, LocalDateTime now, UUID userId, String message) {
+        repository.createNotification(applicationId, now, userId, message);
     }
 
     @Transactional(readOnly = true)

@@ -1,16 +1,15 @@
 package de.hft.licensing.application.restController;
 
 import de.hft.licensing.api.AuthenticationApi;
+import de.hft.licensing.application.services.AuthService;
 import de.hft.licensing.logger.LicensingLoggerFactory;
 import de.hft.licensing.model.*;
-import de.hft.licensing.application.services.AuthService;
 import de.hft.licensing.utils.ApiFormValidator;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -62,8 +61,8 @@ public class AuthController implements AuthenticationApi {
             log.warn("Registration attempt for email failed: {}", registerRequest.getEmail());
             return ResponseEntity.badRequest().body(registerResource);
         }
-        log.info("Registration attempt for email: {}", registerRequest.getEmail());
-        return ResponseEntity.created(URI.create("/auth/register/" + registerResource.getUserId())).body(registerResource);
+        log.info("Registration attempt for email: {} and userId: {}",registerRequest.getEmail() , registerResource.getUserId());
+        return ResponseEntity.ok(registerResource);
     }
 
     @Override
