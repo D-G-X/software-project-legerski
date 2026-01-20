@@ -135,13 +135,11 @@ const BallotDetails: React.FC = () => {
 
     // Build body and params according to API types
     const body: any = {};
-    if (licenseType) body.license_type = licenseType;
+    // if 'All' is selected, do not include license_type in payload
+    if (licenseType && licenseType !== "All") body.license_type = licenseType;
 
     const params: any = {};
     if (licensesCount) params.licensesCount = licensesCount;
-    if (licenseType !== "All") {
-      params.licenseType = licenseType;
-    }
 
     runLottery({ periodId: periodParam, data: body, params });
     setShowTriggerModal(false);
