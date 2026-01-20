@@ -26,11 +26,7 @@ public class BallotPeriodDslService {
     }
 
     public List<BallotPeriodRecord> listBallotPeriods() {
-        return dsl.select(BallotPeriod.BALLOT_PERIOD)
-                .from(BallotPeriod.BALLOT_PERIOD)
-                .leftJoin(Ballot.BALLOT)
-                .on(Ballot.BALLOT.BALLOT_PERIOD_ID.eq(BallotPeriod.BALLOT_PERIOD.ID))
-                .groupBy(BallotPeriod.BALLOT_PERIOD.ID)
+        return dsl.selectFrom(BallotPeriod.BALLOT_PERIOD)
                 .orderBy(BallotPeriod.BALLOT_PERIOD.ID.desc())
                 .fetchInto(BallotPeriodRecord.class);
     }

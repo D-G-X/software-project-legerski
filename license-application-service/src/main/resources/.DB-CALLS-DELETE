@@ -1,0 +1,9 @@
+TRUNCATE TABLE
+  licensing.application_payment,
+  licensing.ballot,
+  licensing.license,
+  licensing.application,
+  licensing.ballot_period,
+  licensing."user"
+RESTART IDENTITY
+CASCADE;
