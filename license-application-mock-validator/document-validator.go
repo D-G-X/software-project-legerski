@@ -21,8 +21,8 @@ const maxPollRequests = 2      // max polling requests per second per client
 const timeout = 5              // seconds
 
 var processDuration = []time.Duration{
+	1 * time.Second,
 	2 * time.Second,
-	5 * time.Second,
 }
 
 var rejectionReasons = []string{
