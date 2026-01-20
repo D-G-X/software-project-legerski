@@ -81,4 +81,4 @@ class RegisterLoginLogout(SequentialTaskSet):
 
 class WebsiteUser(HttpUser):
     tasks = [RegisterLoginLogout]
-    wait_time = between(0.5, 1.5)
+    wait_time = between(30, 300)  # seconds
