@@ -130,7 +130,7 @@ public class BallotPeriodService {
             repository.updatePaymentStatus(app.getId(), paymentStatus);
         }
 
-        repository.truncateApplicationPayments();
+        // repository.truncateApplicationPayments(); Not needed as we have to keep payment Data
 
         return new RunLotteryResult(
                 RunLotteryResultCode.OK,

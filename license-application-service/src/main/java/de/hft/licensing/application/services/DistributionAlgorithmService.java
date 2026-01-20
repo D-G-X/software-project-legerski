@@ -87,7 +87,7 @@ public class DistributionAlgorithmService {
          * It continues until the maximum number of accepted applications is reached or there are no more candidates.
          * This way, no User can dominate the selection, as in each round only one application per user is accepted.
          */
-        log.info("Starting selection process for ballot period ID {}: maxAccepted={}, totalCandidates={}",
+        log.info("STARTING selection process for ballot period ID {}: maxAccepted={}, totalCandidates={}",
                 periodId, maxAccepted, candidates.size());
         while (selected.size() < maxAccepted && selected.size() < candidates.size()) {
             boolean pickedInThisRound = false;
@@ -122,6 +122,7 @@ public class DistributionAlgorithmService {
         log.info("Selection process completed for ballot period ID {}: selected={}, notSelected={}",
                 periodId, selected.size(), candidates.size() - selected.size());
         log.info("Postprocessing selected applications for ballot period ID {}.", periodId);
+        log.info("No more than {} Licenses are distributed per user", perUserQuota);
 
         List<ApplicationRecord> notSelected = candidates.stream()
                 .filter(a -> !selectedIds.contains(a.getId()))
