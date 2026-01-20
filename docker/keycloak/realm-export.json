@@ -1423,7 +1423,7 @@
       "subType" : "anonymous",
       "subComponents" : { },
       "config" : {
-        "max-clients" : [ "200" ]
+        "max-clients" : [ "10000" ]
       }
     }, {
       "id" : "84f5a9df-99c8-40df-82e5-996cacb588b5",
@@ -3556,7 +3556,7 @@
       "subType" : "anonymous",
       "subComponents" : { },
       "config" : {
-        "max-clients" : [ "200" ]
+        "max-clients" : [ "10000" ]
       }
     }, {
       "id" : "186a4216-1468-4187-9013-2e5b879966a8",

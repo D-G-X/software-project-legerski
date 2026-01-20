@@ -142,9 +142,11 @@ public class BallotPeriodsController implements BallotPeriodsApi {
         var res = ballotPeriodService.runLotteryForBallotPeriod(periodId, licenseType, licensesToDistribute);
 
         if (res.code() == BallotPeriodService.RunLotteryResultCode.NOT_FOUND) {
+            log.error("Lottery run failed: Ballot period with ID {} does not exist.", periodId);
             return ResponseEntity.notFound().build();
         }
         if (res.code() == BallotPeriodService.RunLotteryResultCode.BAD_REQUEST) {
+            log.error("Lottery run failed: Bad request for ballot period ID {}.", periodId);
             return ResponseEntity.badRequest().build();
         }
         if (res.code() == BallotPeriodService.RunLotteryResultCode.INTERNAL_ERROR || res.selected() == null || res.notSelected() == null) {
