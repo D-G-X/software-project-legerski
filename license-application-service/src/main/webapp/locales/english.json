@@ -1173,7 +1173,7 @@
       "approvedCap": "Approved License Cap"
     },
     "values": {
-      "approvedCap": 2000
+      "approvedCap": 100
     },
     "license": {
       "etv": "ETV",

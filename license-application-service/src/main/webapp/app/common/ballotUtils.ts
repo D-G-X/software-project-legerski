@@ -1,24 +1,21 @@
-import {TFunction} from "i18next";
-
 // Compute ballot status from start/end dates
 export function getBallotStatus(
-    startDate: Date,
-    endDate: Date,
-    now: Date = new Date(),
-    t: TFunction
+  startDate: Date,
+  endDate: Date,
+  now: Date = new Date(),
 ) {
   if (
-      !(startDate instanceof Date) ||
-      isNaN(startDate.getTime()) ||
-      !(endDate instanceof Date) ||
-      isNaN(endDate.getTime())
+    !(startDate instanceof Date) ||
+    isNaN(startDate.getTime()) ||
+    !(endDate instanceof Date) ||
+    isNaN(endDate.getTime())
   ) {
-    return t("ballotStatus.upcoming");
+    return "Upcoming";
   }
 
-  if (now >= startDate && now <= endDate) return t("ballotStatus.active");
-  if (now > endDate) return t("ballotStatus.completed");
-  return t("ballotStatus.upcoming");
+  if (now >= startDate && now <= endDate) return "Active";
+  if (now > endDate) return "Completed";
+  return "Upcoming";
 }
 
 // Return a Date offset by `days` after `endDate` (default 7 days)

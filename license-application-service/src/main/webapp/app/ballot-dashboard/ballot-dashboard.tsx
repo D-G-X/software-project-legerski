@@ -96,8 +96,6 @@ export default function BallotDashboard() {
 
                 <tbody>
                   {currentData.map((item) => {
-                    const now = new Date();
-
                     const startDate = item.start_date
                       ? new Date(item.start_date)
                       : undefined;
@@ -109,14 +107,14 @@ export default function BallotDashboard() {
                       startDate!,
                       endDate!,
                       new Date(),
-                      t,
                     );
 
                     const statusClass = getStatusClass(rawStatus);
+                    console.log(rawStatus);
 
                     const localizedStatus =
                       startDate && endDate
-                        ? getBallotStatus(startDate, endDate, now, t)
+                        ? t(`ballotStatus.${rawStatus.toLowerCase()}`)
                         : t("ballotStatus.upcoming");
                     // const drawDate = endDate
                     //   ? getDrawDate(endDate, 7).toLocaleDateString()
