@@ -1,0 +1,4 @@
+# .dockerignore
+README.md
+sample.pdf
+loadtest.sh

@@ -1,41 +1,126 @@
-import React from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router';
+import React from "react";
+import {createBrowserRouter, RouterProvider} from "react-router";
 import App from "./app";
-import Home from './home/home';
-import AppUserList from './app-user/app-user-list';
-import AppUserAdd from './app-user/app-user-add';
-import AppUserEdit from './app-user/app-user-edit';
-import ApplicationList from './application/application-list';
-import ApplicationAdd from './application/application-add';
-import ApplicationEdit from './application/application-edit';
-import LicenseList from './license/license-list';
-import LicenseAdd from './license/license-add';
-import LicenseEdit from './license/license-edit';
-import Error from './error/error';
-
+import Home from "./home/home";
+import Error from "./error/error";
+import Login from "./login/login";
+import Register from "./register/register";
+import PaymentForm from "./license/payment/paymentForm";
+import PaymentConfirm from "./license/payment/paymentConfirm";
+import ForgotPasswordRequest from "./forgot-password/request";
+import ResetPassword from "./forgot-password/reset";
+import RequestApplication from "./license/request-application/request-application";
+import ApplicationDocumentUpload from "./license/document-upload/document-upload";
+import Profile from "./profile/profile";
+import DeleteProfile from "./delete-profile/deleteProfile";
+import LegalNotice from "./legal/legal";
+import ContactPage from "./contact/contact";
+import BallotDetails from "./ballot-details/ballot-details";
+import BallotDashboard from "./ballot-dashboard/ballot-dashboard";
+import IssuedLicensePage from "./issued-license/issued-license";
+import {ProtectedLoader} from "./common/auth/ProtectedLoader";
+import BallotConfig from "./ballot-config/ballot-config";
+import BallotApplications from "./ballot-applications/ballot-applications";
 
 export default function AppRoutes() {
   const router = createBrowserRouter([
     {
-      element: <App />,
+      element: <App/>,
       children: [
-        { path: '', element: <Home /> },
-        { path: 'appUsers', element: <AppUserList /> },
-        { path: 'appUsers/add', element: <AppUserAdd /> },
-        { path: 'appUsers/edit/:id', element: <AppUserEdit /> },
-        { path: 'applications', element: <ApplicationList /> },
-        { path: 'applications/add', element: <ApplicationAdd /> },
-        { path: 'applications/edit/:id', element: <ApplicationEdit /> },
-        { path: 'licenses', element: <LicenseList /> },
-        { path: 'licenses/add', element: <LicenseAdd /> },
-        { path: 'licenses/edit/:id', element: <LicenseEdit /> },
-        { path: 'error', element: <Error /> },
-        { path: '*', element: <Error /> }
-      ]
-    }
+        {path: "", element: <Home/>},
+        {path: "forgot-password", element: <ForgotPasswordRequest/>},
+        {path: "reset-password", element: <ResetPassword/>},
+        {path: "login", element: <Login/>},
+        {path: "register", element: <Register/>},
+        {path: "legal", element: <LegalNotice/>},
+        {path: "contact", element: <ContactPage/>},
+        {path: "error", element: <Error/>},
+        {path: "*", element: <Error/>},
+
+        // Post login (any user)
+        {
+          path: "issued-license/:id",
+          element: <IssuedLicensePage/>,
+          loader: ProtectedLoader(["admin", "user"]),
+        },
+        {
+          path: "license-application-request/:type/:id",
+          element: <RequestApplication/>,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
+        {
+          path: "license-application-request",
+          element: <RequestApplication/>,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
+        {
+          path: "license-document-upload/:id",
+          element: <ApplicationDocumentUpload/>,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
+        {
+          path: "payment/:id",
+          element: <PaymentForm/>,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
+        {
+          path: "payment/:id/done",
+          element: <PaymentConfirm/>,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
+        {
+          path: "profile",
+          element: <Profile/>,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
+        {
+          path: "deleteProfile",
+          element: <DeleteProfile/>,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
+
+        // Admin-only routes
+        // {
+        //   path: "admin-dashboard",
+        //   element: <AdminDashboard />,
+        //   loader: ProtectedLoader(["admin"]),
+        // },
+        {
+          path: "ballot-config",
+          element: <BallotConfig/>,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-dashboard",
+          element: <BallotDashboard/>,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-details/:id",
+          element: <BallotDetails/>,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "ballot-applications/:id",
+          element: <BallotApplications/>,
+          loader: ProtectedLoader(["admin"]),
+        },
+        {
+          path: "license-application-request",
+          element: <RequestApplication/>,
+        },
+        {
+          path: "license-document-upload/:id",
+          element: <ApplicationDocumentUpload/>,
+        },
+        {
+          path: "deleteProfile",
+          element: <DeleteProfile/>,
+          loader: ProtectedLoader(["user", "admin"]),
+        },
+      ],
+    },
   ]);
 
-  return (
-    <RouterProvider router={router} />
-  );
+  return <RouterProvider router={router}/>;
 }

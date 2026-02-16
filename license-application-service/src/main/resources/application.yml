@@ -1,23 +1,50 @@
 spring:
   application:
     name: licensing
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   liquibase:
     change-log: db/master-changelog.xml
     default-schema: licensing
     liquibase-schema: public
     enabled: true
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
   docker:
     compose:
       lifecycle-management: start-only
       file: license-application-service/docker-compose.yml
   jooq:
     sql-dialect: postgres
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    debug: true
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.ssl.trust: ${MAIL_HOST}
+
 logging.level.org.jooq.Constants: off
 
 springdoc:
   swagger-ui:
     operations-sorter: alpha
+    oauth:
+      client-id: backend-api
+      client-secret: ${KEYCLOAK_CLIENT_SECRET}
+      use-pkce-with-authorization-code-grant: true
+    oauth2-redirect-url: ${SPRINGDOC_SWAGGER_UI_OAUTH2_REDIRECT_URL}
 
 error:
   handling:
@@ -26,3 +53,15 @@ error:
     full-stacktrace-http-statuses: 5xx
     log-levels:
       5xx: ERROR
+
+keycloak:
+  url: ${KEYCLOAK_URL}
+  realm: ${KEYCLOAK_REALM}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+
+mockbank:
+  base-url: ${MOCK_BANK_BASE_URL}
+
+gdpr:
+  pepper: ${GDPR_PEPPER}

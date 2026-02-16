@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: license-ingress
+  namespace: license-app
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: keycloak
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 80
+    - host: license-application-backend
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: license-application-backend
+                port:
+                  number: 80
+    - host: mock-bank
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mock-bank
+                port:
+                  number: 80
+    - host: mock-document-validator
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mock-document-validator
+                port:
+                  number: 80

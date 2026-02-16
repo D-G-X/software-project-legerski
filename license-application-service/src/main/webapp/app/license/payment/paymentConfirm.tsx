@@ -1,0 +1,153 @@
+import React, {useEffect} from "react";
+import {useTranslation} from "react-i18next";
+import {useDocumentTitle} from "app/common/utils";
+import {FormHeader} from "app/common/headingTitle";
+import {CircleCheck, CircleX} from "lucide-react";
+import {useLocation, useNavigate} from "react-router";
+import {useGlobalLoader} from "app/common/GlobalLoader";
+import {formatAmount, formatBic, formatDateLong, formatIban,} from "../../common/utils";
+import {StateProps} from "./paymentForm";
+
+export default function PaymentConfirm() {
+  const {t} = useTranslation();
+  const navigate = useNavigate();
+  const {state} = useLocation();
+  const {show, hide} = useGlobalLoader();
+
+  useEffect(() => {
+    if (!state) navigate("/error", {replace: true});
+  }, [state, navigate]);
+
+  useEffect(() => {
+    // brief loader while validating / rendering confirm page
+    show();
+    const id = setTimeout(() => hide(), 100);
+    return () => clearTimeout(id);
+  }, [show, hide]);
+
+  if (!state) return null;
+
+  const data: StateProps = state;
+  const success = data.payment_status === "UNPAID";
+
+  useDocumentTitle(t("license.paymentConfirm.title"));
+
+  return (
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="relative min-h-[calc(100vh-8rem)] bg-white flex flex-col items-center justify-center">
+          <div className="flex items-center justify-center">
+            {success ? (
+                <CircleCheck className="text-green-500" size={72}/>
+            ) : (
+                <CircleX className="text-red-500" size={72}/>
+            )}
+          </div>
+
+          <div className="font-inter mt-8 min-w-96">
+            <FormHeader
+                heading={
+                  success
+                      ? t("license.paymentConfirm.index.headline.success")
+                      : t("license.paymentConfirm.index.headline.failure")
+                }
+                subHeading={
+                  success
+                      ? t("license.paymentConfirm.index.subHeadline.success")
+                      : t("license.paymentConfirm.index.subHeadline.failure")
+                }
+            />
+            {/* Response fields */}
+            <div className="bg-gray-50 rounded-lg p-6 mt-8 shadow">
+              <div className="flex justify-between text-xl font-semibold">
+              <span>
+                {t("license.paymentConfirm.index.amountLabel") + ": "}
+              </span>
+                <div className="flex flex-col items-end leading-tight">
+                  <span>{formatAmount(data.amount, t)}</span>
+                  <span className="text-xs font-light italic">
+                  {t("license.paymentConfirm.index.taxLabel")}
+                </span>
+                </div>
+              </div>
+
+              <hr className="my-4 border-gray-300"/>
+
+              <div className="flex justify-between">
+              <span className="font-semibold">
+                {t("license.paymentConfirm.index.paymentIdLabel") + ": "}
+              </span>
+                <span>{data.payment_id}</span>
+              </div>
+
+              <div className="space-y-2.5 text-gray-700">
+                <div className="flex justify-between">
+                <span className="font-semibold">
+                  {t("license.paymentConfirm.index.nameLabel") + ": "}
+                </span>
+                  <span>{data.name}</span>
+                </div>
+
+                <div className="flex justify-between">
+                <span className="font-semibold">
+                  {t("license.paymentConfirm.index.ibanLabel") + ": "}
+                </span>
+                  <span>{formatIban(data.iban)}</span>
+                </div>
+
+                <div className="flex justify-between">
+                <span className="font-semibold">
+                  {t("license.paymentConfirm.index.bicLabel") + ": "}
+                </span>
+                  <span>
+                  {formatBic(data.bic)}
+                </span>
+                </div>
+
+                <div className="flex justify-between">
+                <span className="font-semibold">
+                  {t("license.paymentConfirm.index.dateLabel") + ": "}
+                </span>
+                  <span>{formatDateLong(Date.now(), t)}</span>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-6 mt-8 shadow">
+                <div className="flex justify-between">
+                <span className="font-semibold">
+                  {t("license.paymentConfirm.index.applicationIdLabel") + ": "}
+                </span>
+                  <span>{data.application_id}</span>
+                </div>
+
+                <div className="flex justify-between">
+                <span className="font-semibold">
+                  {t("license.paymentConfirm.index.cadastralIdLabel") + ": "}
+                </span>
+                  <span>{data.cadastral_reference}</span>
+                </div>
+
+                <div className="flex justify-between">
+                <span className="font-semibold">
+                  {t("license.paymentConfirm.index.licenseTypeLabel") + ": "}
+                </span>
+                  <span>{data.license_type}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Leave Button */}
+          <div className="mt-8">
+            <button
+                id="returnToDashboardBtn"
+                onClick={() => navigate("/")}
+                className="bg-mallorca-purple text-white px-10 py-2 rounded-md w-96 font-medium text-lg hover:bg-mallorca-purple/90"
+            >
+              {success
+                  ? t("license.paymentConfirm.index.leaveButtonLabel.success")
+                  : t("license.paymentConfirm.index.leaveButtonLabel.failure")}
+            </button>
+          </div>
+        </div>
+      </div>
+  );
+}

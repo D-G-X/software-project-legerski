@@ -11,7 +11,10 @@ const WarningsToErrorsPlugin = require('warnings-to-errors-webpack-plugin');
 
 module.exports = (env, argv) => ({
   entry: {
-    bundle: 'index.tsx'
+
+      //bundle: 'index.tsx'
+
+      bundle: './src/main/webapp/index.tsx'
   },
   output: {
     path: path.resolve(__dirname, './target/classes/static'),
@@ -35,7 +38,7 @@ module.exports = (env, argv) => ({
       filename: 'css/[name].css'
     }),
     new Dotenv({
-      path: argv.mode === 'production' ? '.env' : '.env.development'
+      path: '.env'
     }),
     new HtmlWebpackPlugin({
       template: './src/main/webapp/index.html'
@@ -92,9 +95,10 @@ module.exports = (env, argv) => ({
       disableDotRule: true
     },
     hot: true,
-    static: false,
+    static: path.resolve('./src/main/webapp'),
     watchFiles: [
-      'src/main/webapp/**',
-    ]
+      './src/main/webapp/**'
+    ],
+    open: true,
   }
 });

@@ -1,0 +1,41 @@
+networks:
+  license-application-network:
+    driver: bridge
+
+volumes:
+  kc_db:
+
+services:
+  postgres:
+    image: postgres:18.0
+    environment:
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    expose:
+      - "5432"
+    ports:
+      - "5433:5432"
+    volumes:
+      - kc_db:/var/lib/postgresql/18/data
+    networks:
+      - license-application-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    command: start-dev --import-realm --features=scripts
+    environment:
+      #KEYCLOAK_ADMIN: admin
+      #KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_FEATURES: scripts
+      KC_SCRIPTS_UPLOAD_ENABLED: "true"
+    depends_on:
+      - postgres
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    expose:
+      - "8080"
+    ports:
+      - "8081:8080"
+    networks:
+      - license-application-network

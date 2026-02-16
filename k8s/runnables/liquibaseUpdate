@@ -1,0 +1,6 @@
+kubectl -n license-app port-forward svc/postgres 5432:5432
+
+export POSTGRES_URL="jdbc:postgresql://localhost:5432/government"
+export POSTGRES_USER="postgres"
+export POSTGRES_PASSWORD="P4ssword!"
+mvn -pl license-application-service liquibase:update
